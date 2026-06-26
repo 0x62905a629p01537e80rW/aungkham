@@ -17,7 +17,7 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
     textAlign: layer.align,
     letterSpacing: `${layer.letterSpacing / 100}em`,
     lineHeight: layer.lineHeight,
-    whiteSpace: 'pre-wrap',
+    whiteSpace: 'pre',
     textShadow: shadow,
     WebkitTextStrokeWidth: layer.strokeWidth > 0 ? `${layer.strokeWidth / 20}cqh` : undefined,
     WebkitTextStrokeColor: layer.strokeWidth > 0 ? layer.strokeColor : undefined,
