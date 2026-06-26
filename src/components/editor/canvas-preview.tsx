@@ -1,5 +1,5 @@
-import { forwardRef, useRef, type CSSProperties, type PointerEvent } from 'react'
-import { Maximize2, X } from 'lucide-react'
+import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { Maximize2, Pencil, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { layerTextStyle } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
@@ -14,32 +14,52 @@ interface CanvasPreviewProps {
   onMove: (id: string, x: number, y: number) => void
   onResize: (id: string, fontSize: number) => void
   onDelete: (id: string) => void
+  onEditText: (id: string, text: string) => void
 }
 
 export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
   function CanvasPreview(
-    { image, aspectRatio, layers, selectedId, exporting, onSelect, onMove, onResize, onDelete },
+    { image, aspectRatio, layers, selectedId, exporting, onSelect, onMove, onResize, onDelete, onEditText },
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement | null>(null)
-    const dragState = useRef<{ id: string; pointerId: number } | null>(null)
+    const dragState = useRef<{ id: string; pointerId: number; moved: boolean; startX: number; startY: number } | null>(null)
     const resizeState = useRef<{
       id: string
       pointerId: number
       startDist: number
       startSize: number
     } | null>(null)
+    const lastTapRef = useRef<{ id: string; time: number } | null>(null)
+    const [editingId, setEditingId] = useState<string | null>(null)
+    const editorRef = useRef<HTMLTextAreaElement | null>(null)
+
+    useEffect(() => {
+      if (editingId && editorRef.current) {
+        editorRef.current.focus()
+        editorRef.current.select()
+      }
+    }, [editingId])
+
+    useEffect(() => {
+      if (exporting) setEditingId(null)
+    }, [exporting])
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
+      if (editingId === id) return
       e.stopPropagation()
       onSelect(id)
       const el = e.currentTarget
       el.setPointerCapture(e.pointerId)
-      dragState.current = { id, pointerId: e.pointerId }
+      dragState.current = { id, pointerId: e.pointerId, moved: false, startX: e.clientX, startY: e.clientY }
     }
 
     function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
       if (!dragState.current) return
+      const dx = e.clientX - dragState.current.startX
+      const dy = e.clientY - dragState.current.startY
+      if (!dragState.current.moved && Math.hypot(dx, dy) < 4) return
+      dragState.current.moved = true
       const rect = containerRef.current?.getBoundingClientRect()
       if (!rect) return
       const x = ((e.clientX - rect.left) / rect.width) * 100
@@ -52,11 +72,22 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
+      const st = dragState.current
       dragState.current = null
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
       } catch {
         /* ignore */
+      }
+      if (st && !st.moved) {
+        const now = Date.now()
+        const last = lastTapRef.current
+        if (last && last.id === st.id && now - last.time < 350) {
+          setEditingId(st.id)
+          lastTapRef.current = null
+        } else {
+          lastTapRef.current = { id: st.id, time: now }
+        }
       }
     }
 
@@ -118,6 +149,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
           {layers.map((layer) => {
             const isSelected = layer.id === selectedId && !exporting
+            const isEditing = editingId === layer.id && !exporting
             const wrapperStyle: CSSProperties = {
               position: 'absolute',
               left: `${layer.x}%`,
@@ -125,9 +157,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               transform: `translate(-50%, -50%) rotate(${layer.rotation}deg) skew(${layer.skewX}deg, ${layer.skewY}deg)`,
               opacity: layer.opacity,
               whiteSpace: 'nowrap',
-              cursor: 'move',
+              cursor: isEditing ? 'text' : 'move',
               touchAction: 'none',
             }
+            const textStyle = layerTextStyle(layer)
             const inner = layer.highlight ? (
               <span
                 style={{
@@ -137,10 +170,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                   borderRadius: '0.08em',
                 }}
               >
-                <span style={layerTextStyle(layer)}>{layer.text || ' '}</span>
+                <span style={textStyle}>{layer.text || ' '}</span>
               </span>
             ) : (
-              <p style={layerTextStyle(layer)}>{layer.text || ' '}</p>
+              <p style={textStyle}>{layer.text || ' '}</p>
             )
 
             return (
@@ -154,10 +187,46 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                 onPointerDown={(e) => handlePointerDown(e, layer.id)}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
+                onDoubleClick={(e) => {
+                  e.stopPropagation()
+                  setEditingId(layer.id)
+                }}
               >
-                {inner}
+                <span style={{ visibility: isEditing ? 'hidden' : 'visible' }}>{inner}</span>
 
-                {isSelected && (
+                {isEditing && (
+                  <textarea
+                    ref={editorRef}
+                    value={layer.text}
+                    onChange={(e) => onEditText(layer.id, e.target.value)}
+                    onBlur={() => setEditingId(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        e.preventDefault()
+                        setEditingId(null)
+                      }
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onDoubleClick={(e) => e.stopPropagation()}
+                    rows={Math.max(1, layer.text.split('\n').length)}
+                    style={{
+                      ...textStyle,
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      padding: 0,
+                      overflow: 'hidden',
+                      caretColor: 'currentColor',
+                    }}
+                  />
+                )}
+
+                {isSelected && !isEditing && (
                   <>
                     <button
                       type="button"
@@ -173,6 +242,22 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       className="absolute -left-3 -top-3 flex size-8 items-center justify-center rounded-full bg-destructive text-white shadow-md ring-2 ring-card transition active:scale-90"
                     >
                       <X className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Edit text"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setEditingId(layer.id)
+                      }}
+                      className="absolute -right-3 -top-3 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
+                    >
+                      <Pencil className="size-4" />
                     </button>
 
                     <button

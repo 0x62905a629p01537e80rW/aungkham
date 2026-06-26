@@ -117,6 +117,7 @@ export function Editor() {
                 onMove={(id, x, y) => updateLayer(id, { x, y })}
                 onResize={(id, fontSize) => updateLayer(id, { fontSize })}
                 onDelete={deleteLayer}
+                onEditText={(id, text) => updateLayer(id, { text })}
               />
             </div>
           </main>
