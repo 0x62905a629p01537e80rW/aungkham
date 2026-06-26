@@ -1,5 +1,5 @@
-import { forwardRef, useRef, type CSSProperties, type PointerEvent } from 'react'
-import { Maximize2, X } from 'lucide-react'
+import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { Maximize2, Pencil, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { layerTextStyle } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
@@ -14,6 +14,7 @@ interface CanvasPreviewProps {
   onMove: (id: string, x: number, y: number) => void
   onResize: (id: string, fontSize: number) => void
   onDelete: (id: string) => void
+  onEditText: (id: string, text: string) => void
 }
 
 export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
