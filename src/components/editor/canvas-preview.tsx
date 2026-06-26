@@ -23,13 +23,27 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement | null>(null)
-    const dragState = useRef<{ id: string; pointerId: number } | null>(null)
+    const dragState = useRef<{ id: string; pointerId: number; moved: boolean; startX: number; startY: number } | null>(null)
     const resizeState = useRef<{
       id: string
       pointerId: number
       startDist: number
       startSize: number
     } | null>(null)
+    const lastTapRef = useRef<{ id: string; time: number } | null>(null)
+    const [editingId, setEditingId] = useState<string | null>(null)
+    const editorRef = useRef<HTMLTextAreaElement | null>(null)
+
+    useEffect(() => {
+      if (editingId && editorRef.current) {
+        editorRef.current.focus()
+        editorRef.current.select()
+      }
+    }, [editingId])
+
+    useEffect(() => {
+      if (exporting) setEditingId(null)
+    }, [exporting])
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
       e.stopPropagation()
