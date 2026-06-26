@@ -19,7 +19,7 @@ interface CanvasPreviewProps {
 
 export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
   function CanvasPreview(
-    { image, aspectRatio, layers, selectedId, exporting, onSelect, onMove, onResize, onDelete },
+    { image, aspectRatio, layers, selectedId, exporting, onSelect, onMove, onResize, onDelete, onEditText },
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement | null>(null)
