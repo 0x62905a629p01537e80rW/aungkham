@@ -160,7 +160,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="w-[min(92vw,300px)] rounded-2xl border-border/60 bg-popover/95 p-4 shadow-2xl backdrop-blur-xl"
+                className="w-[min(92vw,300px)] rounded-2xl border-border/40 bg-popover/40 p-4 shadow-2xl backdrop-blur-2xl"
               >
                 <ToolContent
                   tool={tool.key}
