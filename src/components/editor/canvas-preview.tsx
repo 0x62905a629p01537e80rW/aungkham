@@ -149,6 +149,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
           {layers.map((layer) => {
             const isSelected = layer.id === selectedId && !exporting
+            const isEditing = editingId === layer.id && !exporting
             const wrapperStyle: CSSProperties = {
               position: 'absolute',
               left: `${layer.x}%`,
@@ -156,9 +157,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               transform: `translate(-50%, -50%) rotate(${layer.rotation}deg) skew(${layer.skewX}deg, ${layer.skewY}deg)`,
               opacity: layer.opacity,
               whiteSpace: 'nowrap',
-              cursor: 'move',
+              cursor: isEditing ? 'text' : 'move',
               touchAction: 'none',
             }
+            const textStyle = layerTextStyle(layer)
             const inner = layer.highlight ? (
               <span
                 style={{
@@ -168,10 +170,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                   borderRadius: '0.08em',
                 }}
               >
-                <span style={layerTextStyle(layer)}>{layer.text || ' '}</span>
+                <span style={textStyle}>{layer.text || ' '}</span>
               </span>
             ) : (
-              <p style={layerTextStyle(layer)}>{layer.text || ' '}</p>
+              <p style={textStyle}>{layer.text || ' '}</p>
             )
 
             return (
@@ -185,10 +187,46 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                 onPointerDown={(e) => handlePointerDown(e, layer.id)}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
+                onDoubleClick={(e) => {
+                  e.stopPropagation()
+                  setEditingId(layer.id)
+                }}
               >
-                {inner}
+                <span style={{ visibility: isEditing ? 'hidden' : 'visible' }}>{inner}</span>
 
-                {isSelected && (
+                {isEditing && (
+                  <textarea
+                    ref={editorRef}
+                    value={layer.text}
+                    onChange={(e) => onEditText(layer.id, e.target.value)}
+                    onBlur={() => setEditingId(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        e.preventDefault()
+                        setEditingId(null)
+                      }
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onDoubleClick={(e) => e.stopPropagation()}
+                    rows={Math.max(1, layer.text.split('\n').length)}
+                    style={{
+                      ...textStyle,
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      padding: 0,
+                      overflow: 'hidden',
+                      caretColor: 'currentColor',
+                    }}
+                  />
+                )}
+
+                {isSelected && !isEditing && (
                   <>
                     <button
                       type="button"
@@ -204,6 +242,22 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       className="absolute -left-3 -top-3 flex size-8 items-center justify-center rounded-full bg-destructive text-white shadow-md ring-2 ring-card transition active:scale-90"
                     >
                       <X className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Edit text"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setEditingId(layer.id)
+                      }}
+                      className="absolute -right-3 -top-3 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
+                    >
+                      <Pencil className="size-4" />
                     </button>
 
                     <button
