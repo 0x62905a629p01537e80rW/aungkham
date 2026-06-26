@@ -46,15 +46,20 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }, [exporting])
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
+      if (editingId === id) return
       e.stopPropagation()
       onSelect(id)
       const el = e.currentTarget
       el.setPointerCapture(e.pointerId)
-      dragState.current = { id, pointerId: e.pointerId }
+      dragState.current = { id, pointerId: e.pointerId, moved: false, startX: e.clientX, startY: e.clientY }
     }
 
     function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
       if (!dragState.current) return
+      const dx = e.clientX - dragState.current.startX
+      const dy = e.clientY - dragState.current.startY
+      if (!dragState.current.moved && Math.hypot(dx, dy) < 4) return
+      dragState.current.moved = true
       const rect = containerRef.current?.getBoundingClientRect()
       if (!rect) return
       const x = ((e.clientX - rect.left) / rect.width) * 100
@@ -67,11 +72,22 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
+      const st = dragState.current
       dragState.current = null
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
       } catch {
         /* ignore */
+      }
+      if (st && !st.moved) {
+        const now = Date.now()
+        const last = lastTapRef.current
+        if (last && last.id === st.id && now - last.time < 350) {
+          setEditingId(st.id)
+          lastTapRef.current = null
+        } else {
+          lastTapRef.current = { id: st.id, time: now }
+        }
       }
     }
 
