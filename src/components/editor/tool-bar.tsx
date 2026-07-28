@@ -94,10 +94,7 @@ const IMAGE_TOOLS = [
 type ToolKey =
   | 'text'
   | 'font'
-  | 'size'
-  | 'weight'
-  | 'style'
-  | 'align'
+  | 'format'
   | 'spacing'
   | 'position'
   | 'color'
@@ -123,10 +120,7 @@ interface ToolDef {
 
 const TOOLS: ToolDef[] = [
   { key: 'font', label: 'Font', icon: WandSparkles, needsLayer: true },
-  { key: 'size', label: 'Size', icon: Ruler, needsLayer: true },
-  { key: 'weight', label: 'Weight', icon: Bold, needsLayer: true },
-  { key: 'style', label: 'Style', icon: Italic, needsLayer: true },
-  { key: 'align', label: 'Align', icon: AlignCenter, needsLayer: true },
+  { key: 'format', label: 'Format', icon: Type, needsLayer: true },
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
   { key: 'position', label: 'Position', icon: Move, needsLayer: true },
   { key: 'color', label: 'Color', icon: Palette, needsLayer: true },
@@ -328,10 +322,15 @@ function ToolContent({
           </Select>
         </div>
       )
-    case 'size':
+    case 'format': {
+      const width = layer.widthScale ?? 100
+      const toggle =
+        'flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition active:scale-95'
+      const zoomPct = Math.round((layer.fontSize / 12) * 100)
       return (
-        <div>
-          <ToolHeading>Font size</ToolHeading>
+        <div className="space-y-4">
+          <ToolHeading>Format</ToolHeading>
+
           <SliderField
             label="Size"
             value={layer.fontSize}
@@ -340,12 +339,70 @@ function ToolContent({
             step={0.5}
             onChange={(v) => onChange({ fontSize: v })}
           />
-        </div>
-      )
-    case 'weight':
-      return (
-        <div>
-          <ToolHeading>Weight</ToolHeading>
+
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">Zoom</Label>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs tabular-nums text-muted-foreground">{zoomPct}%</span>
+              <button
+                type="button"
+                aria-label="Zoom out"
+                className="flex size-9 items-center justify-center rounded-xl border border-border transition active:scale-95"
+                onClick={() => onChange({ fontSize: Math.max(2, Math.round((layer.fontSize - 0.5) * 2) / 2) })}
+              >
+                <Minus className="size-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Zoom in"
+                className="flex size-9 items-center justify-center rounded-xl border border-border transition active:scale-95"
+                onClick={() => onChange({ fontSize: Math.min(40, Math.round((layer.fontSize + 0.5) * 2) / 2) })}
+              >
+                <Plus className="size-4" />
+              </button>
+            </div>
+          </div>
+
+          <SliderField
+            label="Width"
+            value={width}
+            min={50}
+            max={200}
+            suffix="%"
+            onChange={(v) => onChange({ widthScale: v })}
+          />
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onChange({ fontWeight: layer.fontWeight >= 700 ? 400 : 700 })}
+              className={cn(toggle, layer.fontWeight >= 700 ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
+            >
+              <Bold className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange({ italic: !layer.italic })}
+              className={cn(toggle, layer.italic ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
+            >
+              <Italic className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange({ underline: !layer.underline })}
+              className={cn(toggle, layer.underline ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
+            >
+              <Underline className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange({ strike: !layer.strike })}
+              className={cn(toggle, layer.strike ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
+            >
+              <Strikethrough className="size-4" />
+            </button>
+          </div>
+
           <SliderField
             label="Weight"
             value={layer.fontWeight}
@@ -354,46 +411,7 @@ function ToolContent({
             step={100}
             onChange={(v) => onChange({ fontWeight: v })}
           />
-        </div>
-      )
-    case 'style':
-      return (
-        <div className="space-y-3">
-          <ToolHeading>Style</ToolHeading>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onChange({ fontWeight: layer.fontWeight >= 700 ? 400 : 700 })}
-              className={cn(
-                'flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition active:scale-95',
-                layer.fontWeight >= 700
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border',
-              )}
-            >
-              <Bold className="size-4" />
-              Bold
-            </button>
-            <button
-              type="button"
-              onClick={() => onChange({ italic: !layer.italic })}
-              className={cn(
-                'flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition active:scale-95',
-                layer.italic
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border',
-              )}
-            >
-              <Italic className="size-4" />
-              Italic
-            </button>
-          </div>
-        </div>
-      )
-    case 'align':
-      return (
-        <div>
-          <ToolHeading>Alignment</ToolHeading>
+
           <ToggleGroup
             type="single"
             value={layer.align}
@@ -412,6 +430,7 @@ function ToolContent({
           </ToggleGroup>
         </div>
       )
+    }
     case 'spacing':
       return (
         <div className="space-y-4">
