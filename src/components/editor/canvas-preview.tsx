@@ -54,7 +54,15 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
   ) {
 
     const containerRef = useRef<HTMLDivElement | null>(null)
-    const dragState = useRef<{ id: string; pointerId: number; moved: boolean; startX: number; startY: number } | null>(null)
+    const dragState = useRef<{
+      id: string
+      pointerId: number
+      moved: boolean
+      startX: number
+      startY: number
+      originX: number
+      originY: number
+    } | null>(null)
     const resizeState = useRef<{
       id: string
       pointerId: number
