@@ -10,7 +10,6 @@ export const SOLID_COLORS = [
   '#06b6d4',
   '#3b82f6',
   '#8b5cf6',
-  '#ec4899',
 ]
 
 export type GradientPreset = { name: string; css: string; stops: [string, string, string?] }

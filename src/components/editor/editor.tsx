@@ -11,7 +11,7 @@ import { ExportCanvas } from './export-canvas'
 import { createTextLayer, type TextLayer } from '@/lib/text-layer'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
-import { toast } from 'sonner'
+
 
 export function Editor() {
   const [image, setImage] = useState<string | null>(null)
@@ -241,10 +241,8 @@ export function Editor() {
         savedAt: Date.now(),
       })
       setSavedProject(true)
-      toast.success('Project saved successfully')
     } catch (err) {
       console.log('[save project failed]', err)
-      toast.error('Could not save this project')
     }
   }, [image, preview, layers, naturalSize])
 
