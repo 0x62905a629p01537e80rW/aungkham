@@ -103,10 +103,24 @@ function makeBackgroundDataUrl(css: string, size = 1200) {
 }
 
 
+function CustomTile({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="grid aspect-square place-items-center rounded-xl border border-dashed border-primary/50 bg-card text-primary shadow-sm transition active:scale-95"
+    >
+      <Pipette className="size-4" />
+    </button>
+  )
+}
+
 export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) {
   const galleryRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('gallery')
+  const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
 
   function readFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
