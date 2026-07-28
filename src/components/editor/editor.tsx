@@ -304,8 +304,30 @@ export function Editor() {
       />
 
       {!image ? (
-        <UploadZone onImage={handleImage} onOpenProject={openProject} />
+        <>
+          <UploadZone
+            onImage={handleImage}
+            onOpenProject={openProject}
+            onStartTemplates={() => setTemplating(true)}
+          />
+          <TemplatePicker
+            open={templating}
+            onClose={() => setTemplating(false)}
+            onApply={(tpl) => {
+              const bg = makeSolidDataUrl('#ffffff')
+              const img = new Image()
+              img.onload = () => {
+                setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
+                setImage(bg)
+                setLayers(tpl)
+                setSelectedId(tpl[tpl.length - 1]?.id ?? null)
+              }
+              img.src = bg
+            }}
+          />
+        </>
       ) : (
+
         <>
           <main
             ref={stageRef}
