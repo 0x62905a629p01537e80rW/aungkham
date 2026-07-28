@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Grid3x3, Layers, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Grid3x3, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PremiumBadge } from './premium-badge'
@@ -24,6 +24,7 @@ interface EditorHeaderProps {
   onDeleteLayer?: (id: string) => void
   onToggleLayerVisibility?: (id: string) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
+  onInsert?: () => void
 }
 
 export function EditorHeader({
@@ -44,6 +45,7 @@ export function EditorHeader({
   onDeleteLayer,
   onToggleLayerVisibility,
   onMoveLayer,
+  onInsert,
 }: EditorHeaderProps) {
   return (
     <header
@@ -81,6 +83,16 @@ export function EditorHeader({
             className="size-9 rounded-full"
           >
             <Undo2 className="size-5" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Add element"
+            onClick={onInsert}
+            className="size-9 rounded-full"
+          >
+            <Plus className="size-5" />
           </Button>
 
           <Button

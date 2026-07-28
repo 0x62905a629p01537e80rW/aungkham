@@ -10,7 +10,8 @@ import { FilterEditor } from './filter-editor'
 import { SaveShare } from './save-share'
 import { ReplaceBackground } from './replace-background'
 import { ExportCanvas } from './export-canvas'
-import { createTextLayer, type TextLayer } from '@/lib/text-layer'
+import { createGraphicLayer, createTextLayer, type GraphicContent, type TextLayer } from '@/lib/text-layer'
+import { InsertMenu } from './insert-menu'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
 
@@ -27,6 +28,7 @@ export function Editor() {
   const [showGrid, setShowGrid] = useState(false)
   const [replacing, setReplacing] = useState(false)
   const [showSave, setShowSave] = useState(false)
+  const [inserting, setInserting] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const [savedProject, setSavedProject] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
@@ -100,6 +102,12 @@ export function Editor() {
 
   function addLayer() {
     const layer = createTextLayer('New text')
+    setLayers((prev) => [...prev, layer])
+    setSelectedId(layer.id)
+  }
+
+  function addGraphic(graphic: GraphicContent, name: string) {
+    const layer = createGraphicLayer(graphic, name)
     setLayers((prev) => [...prev, layer])
     setSelectedId(layer.id)
   }
@@ -290,6 +298,7 @@ export function Editor() {
         onDeleteLayer={deleteLayer}
         onToggleLayerVisibility={toggleVisibility}
         onMoveLayer={moveLayer}
+        onInsert={() => setInserting(true)}
       />
 
       {!image ? (
@@ -360,6 +369,12 @@ export function Editor() {
             accept="image/*"
             className="hidden"
             onChange={onReplaceFile}
+          />
+
+          <InsertMenu
+            open={inserting}
+            onClose={() => setInserting(false)}
+            onInsert={addGraphic}
           />
 
           <ReplaceBackground
