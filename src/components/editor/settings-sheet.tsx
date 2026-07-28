@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { ArrowLeft, Crown, Settings as SettingsIcon, Star } from 'lucide-react'
 import { PLAY_STORE_URL, markRated } from '@/lib/rate-us'
 
