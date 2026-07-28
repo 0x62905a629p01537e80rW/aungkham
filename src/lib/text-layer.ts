@@ -145,6 +145,7 @@ export const FONT_CATEGORIES: FontOption['category'][] = [
 ]
 
 export function fontFamily(key: string): string {
+  if (key.startsWith('custom:')) return `'CF_${key.slice(7)}', sans-serif`
   const f = FONTS.find((f) => f.key === key)
   return f ? `${f.cssVar}, sans-serif` : 'sans-serif'
 }
