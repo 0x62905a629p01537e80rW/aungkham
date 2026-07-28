@@ -268,6 +268,7 @@ interface ToolContentProps {
   onAdd: () => void
   onDuplicate: (id: string) => void
   onDelete: (id: string) => void
+  onMoveLayer?: (id: string, dir: 'front' | 'back') => void
 }
 
 function ToolHeading({ children }: { children: React.ReactNode }) {
