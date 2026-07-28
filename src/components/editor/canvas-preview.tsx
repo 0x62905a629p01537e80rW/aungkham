@@ -312,6 +312,49 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
+    const rotateState = useRef<{ id: string; startAngle: number; startRotation: number } | null>(null)
+
+    function pointerAngle(layer: TextLayer, clientX: number, clientY: number) {
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (!rect) return 0
+      const cx = rect.left + (layer.x / 100) * rect.width
+      const cy = rect.top + (layer.y / 100) * rect.height
+      return (Math.atan2(clientY - cy, clientX - cx) * 180) / Math.PI
+    }
+
+    function handleRotateDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
+      e.stopPropagation()
+      e.preventDefault()
+      e.currentTarget.setPointerCapture(e.pointerId)
+      rotateState.current = {
+        id: layer.id,
+        startAngle: pointerAngle(layer, e.clientX, e.clientY),
+        startRotation: layer.rotation,
+      }
+    }
+
+    function handleRotateMove(e: PointerEvent<HTMLButtonElement>) {
+      const st = rotateState.current
+      if (!st) return
+      const layer = layers.find((l) => l.id === st.id)
+      if (!layer) return
+      const delta = pointerAngle(layer, e.clientX, e.clientY) - st.startAngle
+      let next = Math.round(st.startRotation + delta)
+      if (Math.abs(next % 90) < 4) next = Math.round(next / 90) * 90
+      onChange?.(st.id, { rotation: ((next + 180) % 360) - 180 })
+    }
+
+    function handleRotateUp(e: PointerEvent<HTMLButtonElement>) {
+      rotateState.current = null
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      } catch {
+        /* ignore */
+      }
+    }
+
+
+
     return (
       <div
         ref={ref}
