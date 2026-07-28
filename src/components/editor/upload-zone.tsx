@@ -3,6 +3,7 @@ import {
   FolderOpen,
   ImageIcon,
   Images,
+  LayoutTemplate,
   Palette,
   ShieldCheck,
   Sparkles,
@@ -20,9 +21,11 @@ type Tab = 'gallery' | 'colors' | 'projects'
 export function UploadZone({
   onImage,
   onOpenProject,
+  onStartTemplates,
 }: {
   onImage: (dataUrl: string) => void
   onOpenProject?: (project: SavedProject) => void
+  onStartTemplates?: () => void
 }) {
   const galleryRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('gallery')
