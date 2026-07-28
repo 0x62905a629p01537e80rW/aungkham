@@ -127,9 +127,9 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
                   onApply(t.build())
                   onClose()
                 }}
-                className="w-full border-b border-border/30 px-3 py-2 transition active:opacity-70"
+                className="w-full border-b border-border/30 px-3 py-3 transition active:opacity-70"
               >
-                <div className="aspect-[24/7] w-full">
+                <div className="aspect-[16/9] w-full">
                   <TemplateThumb template={t} bg={bg} />
                 </div>
               </button>
