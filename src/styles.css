@@ -264,3 +264,13 @@
     0 -10px 30px -20px var(--glass-shadow);
 }
 
+/* Smooth cross-fade when toggling light/dark */
+html.theme-anim,
+html.theme-anim body,
+html.theme-anim * {
+  transition:
+    background-color 420ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 420ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 420ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 420ms cubic-bezier(0.4, 0, 0.2, 1);
+}

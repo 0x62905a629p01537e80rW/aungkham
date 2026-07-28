@@ -395,7 +395,7 @@ export function ColorPickerPanel({
             </button>
 
             <div className="ml-1 flex items-center gap-1">
-              <span className="text-[10px] font-semibold text-neutral-400">∠</span>
+              <span className="text-[10px] font-semibold text-muted-foreground">∠</span>
               <input
                 type="number"
                 value={Math.round(angle)}
@@ -403,11 +403,11 @@ export function ColorPickerPanel({
                 onChange={(e) => { touch(); setAngle(clamp(parseFloat(e.target.value) || 0, 0, 360)) }}
                 className="w-9 bg-transparent text-[11px] font-semibold text-foreground outline-none disabled:opacity-40"
               />
-              <span className="text-[10px] text-neutral-400">°</span>
+              <span className="text-[10px] text-muted-foreground">°</span>
             </div>
 
             <div className="ml-auto flex items-center gap-1">
-              <span className="text-[9px] font-bold uppercase tracking-wide text-neutral-400">Stop</span>
+              <span className="text-[9px] font-bold uppercase tracking-wide text-muted-foreground">Stop</span>
               <span className="text-[11px] font-semibold text-foreground">{activeStop}</span>
               <button
                 type="button"
@@ -586,7 +586,7 @@ function Field({
         spellCheck={false}
         className="w-full min-w-0 bg-transparent text-center font-mono text-[11px] font-medium text-foreground outline-none"
       />
-      <div className="text-[8px] font-bold uppercase tracking-wide text-neutral-400">{label}</div>
+      <div className="text-[8px] font-bold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   )
 }
