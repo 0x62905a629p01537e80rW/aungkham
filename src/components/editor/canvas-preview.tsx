@@ -1,9 +1,9 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import {
   CopyPlus,
-  FlipHorizontal2,
-  FlipVertical2,
   MoveDiagonal2,
+  MoveHorizontal,
+  MoveVertical,
   Pencil,
   RotateCw,
   X,
