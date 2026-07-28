@@ -217,8 +217,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
       stageUp(e)
+      setGuides({ v: false, h: false })
       const st = dragState.current
       dragState.current = null
+
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
       } catch {
