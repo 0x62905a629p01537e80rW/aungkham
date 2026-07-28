@@ -136,10 +136,8 @@ export function EditorHeader({
               <span className="font-brand-mm text-[15px] leading-none">မြန်</span>
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-bold tracking-tight">
-                Text on <span className="text-primary">Photo</span>
-              </p>
-              <p className="text-[11px] text-muted-foreground">Native photo text editor</p>
+              <p className="text-sm font-bold tracking-tight">Myan</p>
+              <p className="text-[11px] text-muted-foreground">Add Text On Photo</p>
             </div>
           </div>
           <PremiumBadge />

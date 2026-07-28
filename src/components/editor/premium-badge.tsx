@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import {
   BadgeCheck,
-  Crown,
   Layers,
   Sparkles,
   Type as TypeIcon,
@@ -24,6 +23,22 @@ const BENEFITS = [
   { icon: Sparkles, title: 'No watermark', desc: 'Export in full original quality.' },
 ]
 
+
+function ProGem({ className = 'size-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <defs>
+        <linearGradient id="pro-gem-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#8b7cf6" />
+          <stop offset="100%" stopColor="#5b4bd6" />
+        </linearGradient>
+      </defs>
+      <path d="M12 2 22 12 12 22 2 12z" fill="url(#pro-gem-grad)" />
+      <path d="M12 6.5 14 10.5 18 12 14 13.5 12 17.5 10 13.5 6 12 10 10.5z" fill="#fff" fillOpacity="0.9" />
+    </svg>
+  )
+}
+
 export function PremiumBadge() {
   const [open, setOpen] = useState(false)
 
@@ -32,22 +47,22 @@ export function PremiumBadge() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Premium"
-        className="premium-shine relative flex h-8 shrink-0 items-center gap-1.5 overflow-hidden rounded-full px-3 text-[11px] font-bold text-white shadow-md transition active:scale-95"
+        aria-label="Buy Pro"
+        className="relative flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[12px] font-extrabold tracking-tight text-foreground shadow-sm transition active:scale-95"
       >
-        <Crown className="premium-float size-3.5" />
-        Premium
+        <ProGem className="premium-float size-4" />
+        Buy Pro
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-[22rem] overflow-hidden rounded-3xl p-0">
           <div className="premium-shine px-5 pb-6 pt-6 text-center text-white">
             <div className="mx-auto mb-3 grid size-14 place-items-center rounded-2xl bg-white/20 backdrop-blur">
-              <Crown className="premium-float size-7" />
+              <ProGem className="premium-float size-8" />
             </div>
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-center text-xl font-extrabold text-white">
-                Go Premium
+                Buy Pro
               </DialogTitle>
               <DialogDescription className="text-center text-xs text-white/85">
                 Unlock everything, forever.
@@ -80,8 +95,8 @@ export function PremiumBadge() {
               type="button"
               className="premium-shine mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
             >
-              <Crown className="size-4" />
-              Unlock Lifetime Premium
+              <ProGem className="size-4" />
+              Buy Pro · Lifetime
             </button>
           </div>
         </DialogContent>
