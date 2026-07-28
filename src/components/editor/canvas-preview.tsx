@@ -358,7 +358,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       <div
         ref={ref}
         className="relative h-full w-full select-none overflow-hidden"
-        style={{ containerType: 'size', lineHeight: 0, touchAction: 'none' }}
+        style={{ lineHeight: 0, touchAction: 'none' }}
         onPointerDown={(e) => {
           onSelect(null)
           stageDown(e)
@@ -370,7 +370,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
         <div
           ref={containerRef}
-          className="absolute inset-0"
+          className="absolute inset-0 flex items-center justify-center"
           style={{
             transform: `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.scale})`,
             transformOrigin: 'center center',
@@ -379,13 +379,23 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           }}
         >
 
+        <div
+          className="relative"
+          style={{
+            width: boxSize.w ? `${boxSize.w}px` : '100%',
+            height: boxSize.h ? `${boxSize.h}px` : '100%',
+            containerType: 'size',
+          }}
+        >
+
           <img
             src={image || '/placeholder.svg'}
             alt="Editing canvas"
             crossOrigin="anonymous"
-            className="block h-full w-full object-contain"
+            className="block h-full w-full object-fill"
             draggable={false}
           />
+
 
           {showGrid && !exporting && (
             <div
