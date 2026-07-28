@@ -57,6 +57,7 @@ interface ToolBarProps {
   onAdd: () => void
   onDuplicate: (id: string) => void
   onDelete: (id: string) => void
+  onMoveLayer?: (id: string, dir: 'front' | 'back') => void
   onReplaceImage?: () => void
   onImageTool?: (tool: 'crop' | 'resize' | 'flip' | 'square' | 'blur') => void
 }
@@ -79,12 +80,19 @@ type ToolKey =
   | 'style'
   | 'align'
   | 'spacing'
+  | 'position'
   | 'color'
+  | 'gradient'
+  | 'texture'
   | 'opacity'
   | 'stroke'
   | 'shadow'
   | 'highlight'
   | 'rotate'
+  | 'rotate3d'
+  | 'depth3d'
+  | 'perspective'
+  | 'bend'
   | 'skew'
 
 interface ToolDef {
@@ -102,14 +110,22 @@ const TOOLS: ToolDef[] = [
   { key: 'style', label: 'Style', icon: Italic, needsLayer: true },
   { key: 'align', label: 'Align', icon: AlignCenter, needsLayer: true },
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
+  { key: 'position', label: 'Position', icon: Move, needsLayer: true },
   { key: 'color', label: 'Color', icon: Palette, needsLayer: true },
+  { key: 'gradient', label: 'Gradient', icon: Blend, needsLayer: true },
+  { key: 'texture', label: 'Texture', icon: Grid2x2, needsLayer: true },
   { key: 'opacity', label: 'Opacity', icon: Droplet, needsLayer: true },
   { key: 'stroke', label: 'Stroke', icon: PenLine, needsLayer: true },
   { key: 'shadow', label: 'Shadow', icon: Sparkles, needsLayer: true },
   { key: 'highlight', label: 'Highlight', icon: Sun, needsLayer: true },
   { key: 'rotate', label: 'Rotate', icon: RotateCw, needsLayer: true },
+  { key: 'rotate3d', label: '3D Rotate', icon: Rotate3d, needsLayer: true },
+  { key: 'depth3d', label: '3D', icon: Box, needsLayer: true },
+  { key: 'perspective', label: 'Perspective', icon: Frame, needsLayer: true },
+  { key: 'bend', label: 'Bend', icon: Spline, needsLayer: true },
   { key: 'skew', label: 'Skew', icon: MoveDiagonal, needsLayer: true },
 ]
+
 
 export function ToolBar({
   layers,
