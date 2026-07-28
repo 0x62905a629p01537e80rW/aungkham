@@ -8,10 +8,12 @@ export interface ShapeDef {
   name: string
   group: ShapeGroup
   path: string
+  outline?: boolean
 }
 
 export type ShapeGroup =
   | 'Basic'
+  | 'Outlined'
   | 'Stars'
   | 'Bursts'
   | 'Scallop'
@@ -26,6 +28,7 @@ export type ShapeGroup =
 
 export const SHAPE_GROUPS: ShapeGroup[] = [
   'Basic',
+  'Outlined',
   'Stars',
   'Bursts',
   'Scallop',
@@ -229,8 +232,8 @@ const HAND: [string, string][] = [
 
 function build(): ShapeDef[] {
   const out: ShapeDef[] = []
-  const add = (group: ShapeGroup, name: string, path: string) =>
-    out.push({ id: `${group}-${name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'), name, group, path })
+  const add = (group: ShapeGroup, name: string, path: string, outline?: boolean) =>
+    out.push({ id: `${group}-${name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'), name, group, path, outline })
 
   // Basic
   add('Basic', 'Circle', circlePath(C, C, 46))
@@ -241,6 +244,33 @@ function build(): ShapeDef[] {
   for (let s = 3; s <= 20; s += 1) add('Basic', `${s}-gon`, polygon(s))
   for (let s = 3; s <= 12; s += 1) add('Basic', `${s}-gon tilt`, polygon(s, 48, -90 + 180 / s))
   HAND.forEach(([name, path]) => add('Basic', name, path))
+
+  // Outlined
+  add('Outlined', 'Circle', circlePath(C, C, 46), true)
+  add('Outlined', 'Square', roundRect(6, 6, 88, 88, 0), true)
+  add('Outlined', 'Rounded 12', roundRect(6, 6, 88, 88, 12), true)
+  add('Outlined', 'Rounded 24', roundRect(6, 6, 88, 88, 24), true)
+  add('Outlined', 'Rounded 36', roundRect(6, 6, 88, 88, 36), true)
+  add('Outlined', 'Triangle', polygon(3), true)
+  add('Outlined', 'Square tilt', polygon(4, 48, -45), true)
+  add('Outlined', 'Pentagon', polygon(5), true)
+  add('Outlined', 'Hexagon', polygon(6), true)
+  add('Outlined', 'Octagon', polygon(8), true)
+  add('Outlined', 'Star 5', star(5, 0.5), true)
+  add('Outlined', 'Star 6', star(6, 0.5), true)
+  add('Outlined', 'Heart', HAND.find(([n]) => n === 'Heart')![1], true)
+  add('Outlined', 'Shield', HAND.find(([n]) => n === 'Shield')![1], true)
+  add('Outlined', 'Diamond', HAND.find(([n]) => n === 'Diamond')![1], true)
+  add('Outlined', 'Cross', HAND.find(([n]) => n === 'Cross')![1], true)
+  add('Outlined', 'Plus round', HAND.find(([n]) => n === 'Plus round')![1], true)
+  add('Outlined', 'Moon', HAND.find(([n]) => n === 'Moon')![1], true)
+  add('Outlined', 'Cloud', HAND.find(([n]) => n === 'Cloud')![1], true)
+  add('Outlined', 'Arrow', arrow(0, 2), true)
+  add('Outlined', 'Chevron', HAND.find(([n]) => n === 'Chevron')![1], true)
+  add('Outlined', 'Banner', HAND.find(([n]) => n === 'Banner')![1], true)
+  add('Outlined', 'Bookmark', HAND.find(([n]) => n === 'Bookmark')![1], true)
+  add('Outlined', 'Bubble', HAND.find(([n]) => n === 'Bubble')![1], true)
+  add('Outlined', 'Tag', HAND.find(([n]) => n === 'Tag')![1], true)
 
   // Stars
   for (let p = 3; p <= 20; p += 1) {
@@ -302,10 +332,13 @@ function build(): ShapeDef[] {
 
 export const SHAPES: ShapeDef[] = build()
 
-export function shapeSvg(path: string, color = '#000000') {
+export function shapeSvg(path: string, color = '#000000', outline = false) {
+  if (outline) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" d="${path}"/></svg>`
+  }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="${color}" fill-rule="evenodd" d="${path}"/></svg>`
 }
 
-export function shapeDataUrl(path: string, color = '#000000') {
-  return `data:image/svg+xml;utf8,${encodeURIComponent(shapeSvg(path, color))}`
+export function shapeDataUrl(path: string, color = '#000000', outline = false) {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(shapeSvg(path, color, outline))}`
 }

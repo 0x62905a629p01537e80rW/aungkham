@@ -138,13 +138,21 @@ export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
                 type="button"
                 aria-label={s.name}
                 onClick={() => {
-                  onInsert({ kind: 'shape', src: shapeDataUrl(s.path), aspect: 1 }, s.name)
+                  onInsert({ kind: 'shape', src: shapeDataUrl(s.path, '#000000', s.outline), aspect: 1 }, s.name)
                   onClose()
                 }}
                 className="glass-tile flex aspect-square items-center justify-center rounded-2xl p-2 transition active:scale-95"
               >
                 <svg viewBox="0 0 100 100" className="size-full">
-                  <path d={s.path} fill="currentColor" fillRule="evenodd" />
+                  <path
+                    d={s.path}
+                    fill={s.outline ? 'none' : 'currentColor'}
+                    stroke={s.outline ? 'currentColor' : undefined}
+                    strokeWidth={s.outline ? 12 : undefined}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fillRule="evenodd"
+                  />
                 </svg>
               </button>
             ))}
