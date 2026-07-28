@@ -234,6 +234,6 @@ export function createGraphicLayer(
     ...layer,
     graphic,
     fontSize: 30,
-    color: graphic.kind === 'shape' ? '#ffffff' : layer.color,
+    color: graphic.kind === 'shape' ? '#000000' : layer.color,
   }
 }
