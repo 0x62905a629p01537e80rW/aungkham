@@ -13,6 +13,7 @@ import { ExportCanvas } from './export-canvas'
 import { createGraphicLayer, createTextLayer, type GraphicContent, type TextLayer } from '@/lib/text-layer'
 import { InsertMenu } from './insert-menu'
 import { TemplatePicker } from './template-picker'
+import { makeSolidDataUrl } from '@/lib/background'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
 
@@ -304,8 +305,30 @@ export function Editor() {
       />
 
       {!image ? (
-        <UploadZone onImage={handleImage} onOpenProject={openProject} />
+        <>
+          <UploadZone
+            onImage={handleImage}
+            onOpenProject={openProject}
+            onStartTemplates={() => setTemplating(true)}
+          />
+          <TemplatePicker
+            open={templating}
+            onClose={() => setTemplating(false)}
+            onApply={(tpl) => {
+              const bg = makeSolidDataUrl('#ffffff')
+              const img = new Image()
+              img.onload = () => {
+                setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
+                setImage(bg)
+                setLayers(tpl)
+                setSelectedId(tpl[tpl.length - 1]?.id ?? null)
+              }
+              img.src = bg
+            }}
+          />
+        </>
       ) : (
+
         <>
           <main
             ref={stageRef}

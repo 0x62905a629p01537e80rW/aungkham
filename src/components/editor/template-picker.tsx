@@ -114,8 +114,8 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
         ))}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-8">
-        <div className="flex flex-col gap-3">
+      <div className="min-h-0 flex-1 overflow-y-auto pb-8">
+        <div className="flex flex-col">
           {list.map((t) => {
             const bg = THUMB_BG[hashOf(t.id) % THUMB_BG.length]
             return (
@@ -127,9 +127,9 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
                   onApply(t.build())
                   onClose()
                 }}
-                className="glass-tile w-full overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
+                className="w-full border-b border-border/30 px-3 py-2 transition active:opacity-70"
               >
-                <div className="aspect-[16/9] w-full">
+                <div className="aspect-[24/7] w-full">
                   <TemplateThumb template={t} bg={bg} />
                 </div>
               </button>
@@ -137,6 +137,7 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
           })}
         </div>
       </div>
+
     </div>
   )
 }

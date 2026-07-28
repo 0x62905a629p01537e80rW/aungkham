@@ -3,6 +3,7 @@ import {
   FolderOpen,
   ImageIcon,
   Images,
+  LayoutTemplate,
   Palette,
   ShieldCheck,
   Sparkles,
@@ -20,9 +21,11 @@ type Tab = 'gallery' | 'colors' | 'projects'
 export function UploadZone({
   onImage,
   onOpenProject,
+  onStartTemplates,
 }: {
   onImage: (dataUrl: string) => void
   onOpenProject?: (project: SavedProject) => void
+  onStartTemplates?: () => void
 }) {
   const galleryRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('gallery')
@@ -224,7 +227,24 @@ export function UploadZone({
           ))}
       </div>
 
+      <div className="mx-auto w-full max-w-sm pt-1">
+        <div className="mb-3 flex items-center gap-3">
+          <span className="h-px flex-1 bg-border/60" />
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">or</span>
+          <span className="h-px flex-1 bg-border/60" />
+        </div>
+        <button
+          type="button"
+          onClick={onStartTemplates}
+          className="glass-tile flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold transition active:scale-[0.98]"
+        >
+          <LayoutTemplate className="size-4 text-primary" />
+          Start With Templates
+        </button>
+      </div>
+
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
+
 
       <ColorPickerFullScreen
         key={picker ?? 'closed'}
