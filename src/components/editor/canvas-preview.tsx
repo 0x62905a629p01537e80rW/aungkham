@@ -1,12 +1,13 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import {
-  Copy,
-  FlipHorizontal,
-  FlipVertical,
-  Layers,
-  Maximize2,
-  Pencil,
-  RefreshCw,
+  ArrowUpToLine,
+  CopyPlus,
+  FlipHorizontal2,
+  FlipVertical2,
+  Keyboard,
+  Move,
+  RotateCw,
+  Scaling,
   X,
   ZoomIn,
   ZoomOut,
@@ -505,7 +506,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{ left: '100%', top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
                       className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
                     >
-                      <Pencil className="size-5" strokeWidth={2.5} />
+                      <Keyboard className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -524,7 +525,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       }}
                       className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
                     >
-                      <Maximize2 className="size-5" strokeWidth={2.5} />
+                      <Scaling className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -543,7 +544,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       }}
                       className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
                     >
-                      <RefreshCw className="size-5" strokeWidth={2.5} />
+                      <RotateCw className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -560,7 +561,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{ left: 0, top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
                       className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
                     >
-                      <FlipHorizontal className="size-5" strokeWidth={2.5} />
+                      <FlipHorizontal2 className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -577,7 +578,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{ left: '100%', top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
                       className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
                     >
-                      <Layers className="size-5" strokeWidth={2.5} />
+                      <ArrowUpToLine className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -594,7 +595,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{ left: '50%', top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
                       className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
                     >
-                      <Copy className="size-5" strokeWidth={2.5} />
+                      <CopyPlus className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -611,7 +612,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{ left: 0, top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
                       className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
                     >
-                      <FlipVertical className="size-5" strokeWidth={2.5} />
+                      <FlipVertical2 className="size-5" strokeWidth={2.5} />
                     </button>
                   </>
                 )}
