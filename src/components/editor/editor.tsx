@@ -6,6 +6,7 @@ import { CanvasPreview } from './canvas-preview'
 import { ToolBar } from './tool-bar'
 import { BackgroundEditor, type BgTool } from './background-editor'
 import { AdjustEditor } from './adjust-editor'
+import { FilterEditor } from './filter-editor'
 import { SaveShare } from './save-share'
 import { ReplaceBackground } from './replace-background'
 import { ExportCanvas } from './export-canvas'
@@ -22,6 +23,7 @@ export function Editor() {
   const [exporting, setExporting] = useState(false)
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const [adjusting, setAdjusting] = useState(false)
+  const [filtering, setFiltering] = useState(false)
   const [showGrid, setShowGrid] = useState(false)
   const [replacing, setReplacing] = useState(false)
   const [showSave, setShowSave] = useState(false)
@@ -342,7 +344,13 @@ export function Editor() {
             onDelete={deleteLayer}
             onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
-            onImageTool={(t) => (t === 'adjust' ? setAdjusting(true) : setBgTool(t as BgTool))}
+            onImageTool={(t) =>
+              t === 'adjust'
+                ? setAdjusting(true)
+                : t === 'filter'
+                  ? setFiltering(true)
+                  : setBgTool(t as BgTool)
+            }
           />
 
 
@@ -377,6 +385,17 @@ export function Editor() {
           )}
 
           <ExportCanvas ref={exportRef} image={image} layers={layers} size={naturalSize} />
+
+          {filtering && (
+            <FilterEditor
+              image={image}
+              onCancel={() => setFiltering(false)}
+              onApply={(url) => {
+                setFiltering(false)
+                applyBackground(url)
+              }}
+            />
+          )}
 
           {adjusting && (
             <AdjustEditor
