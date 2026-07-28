@@ -547,6 +547,16 @@ export function ColorPickerPanel({
           ))}
         </div>
       )}
+
+      {onConfirm && (
+        <button
+          type="button"
+          onClick={() => onConfirm(mode === 'gradient' ? gradientCss : hex)}
+          className="mt-3 h-12 w-full rounded-xl bg-sky-600 text-sm font-semibold text-white shadow-lg transition active:scale-[0.98]"
+        >
+          {confirmLabel}
+        </button>
+      )}
     </div>
   )
 }
