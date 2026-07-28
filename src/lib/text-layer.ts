@@ -182,7 +182,7 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     align: 'center',
     letterSpacing: 0,
     lineHeight: 1.1,
-    color: '#ffffff',
+    color: '#000000',
     opacity: 1,
     x: 50,
     y: 50,
