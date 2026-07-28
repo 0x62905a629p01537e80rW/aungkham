@@ -178,21 +178,24 @@ export function ColorPickerPanel({
     [gradType, angle, stops],
   )
 
-  // emit
+  // emit (only after the user actually interacts)
   useEffect(() => {
-    if (firstRun.current) {
-      firstRun.current = false
-      return
-    }
+    if (!firstRun.current) return
     onChange(mode === 'gradient' ? gradientCss : hex)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, gradientCss, hex])
 
+  function touch() {
+    firstRun.current = true
+  }
+
   function applyColorToEditor(color: string) {
+    touch()
     const { r, g, b, a: aa } = hexToRgba(color)
     const nh = rgbToHsv(r, g, b)
     setH(nh.h); setS(nh.s); setV(nh.v); setA(aa)
   }
+
 
   function pointerDragging(
     ref: React.RefObject<HTMLDivElement | null>,
