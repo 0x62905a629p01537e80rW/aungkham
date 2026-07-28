@@ -82,7 +82,16 @@ export function ColorPickerPanel({
   const [v, setV] = useState(initialHsv.v)
   const [a, setA] = useState(initial.a)
   const [hexInput, setHexInput] = useState(value.toUpperCase())
-  const [customSwatches, setCustomSwatches] = useState<string[]>([])
+  const [customSwatches, setCustomSwatches] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const raw = window.localStorage.getItem(SWATCH_STORAGE_KEY)
+      const parsed = raw ? JSON.parse(raw) : []
+      return Array.isArray(parsed) ? (parsed as string[]) : []
+    } catch {
+      return []
+    }
+  })
 
   const areaRef = useRef<HTMLDivElement>(null)
   const hueRef = useRef<HTMLDivElement>(null)
