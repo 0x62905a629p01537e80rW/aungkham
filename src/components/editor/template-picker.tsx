@@ -11,12 +11,45 @@ interface TemplatePickerProps {
   onApply: (layers: TextLayer[]) => void
 }
 
-function TemplateThumb({ template }: { template: TemplateDef }) {
+const THUMB_BG = [
+  '#ffffff',
+  '#f3f1ec',
+  '#e8eef7',
+  '#fdf0e6',
+  '#eef6ef',
+  '#f7ecf3',
+  '#e9e9ec',
+  '#fbf6dd',
+]
+
+/** varied tile shapes: [colSpan, rowSpan] */
+const TILE_SPANS: [number, number][] = [
+  [2, 2],
+  [1, 2],
+  [1, 1],
+  [1, 1],
+  [2, 1],
+  [1, 2],
+  [1, 2],
+  [1, 1],
+  [1, 1],
+  [2, 2],
+  [2, 1],
+  [1, 1],
+]
+
+function hashOf(s: string) {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
+  return h
+}
+
+function TemplateThumb({ template, bg }: { template: TemplateDef; bg: string }) {
   const layers = useMemo(() => template.build(), [template])
   return (
     <div
-      className="relative h-full w-full overflow-hidden rounded-xl bg-muted"
-      style={{ containerType: 'size', lineHeight: 0 }}
+      className="relative h-full w-full overflow-hidden rounded-xl"
+      style={{ containerType: 'size', lineHeight: 0, background: bg }}
     >
       {layers.map((layer) => (
         <div
@@ -97,25 +130,27 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-8">
-        <div className="grid grid-cols-2 gap-3">
-          {list.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => {
-                onApply(t.build())
-                onClose()
-              }}
-              className="glass-tile overflow-hidden rounded-2xl p-1.5 text-left transition active:scale-[0.97]"
-            >
-              <div className="aspect-[4/3] w-full">
-                <TemplateThumb template={t} />
-              </div>
-              <p className="truncate px-1 pb-0.5 pt-1.5 text-[10px] font-medium text-muted-foreground">
-                {t.name}
-              </p>
-            </button>
-          ))}
+        <div className="grid auto-rows-[84px] grid-cols-4 gap-2">
+          {list.map((t, i) => {
+            const h = hashOf(t.id)
+            const [cs, rs] = TILE_SPANS[i % TILE_SPANS.length]
+            const bg = THUMB_BG[h % THUMB_BG.length]
+            return (
+              <button
+                key={t.id}
+                type="button"
+                aria-label={t.name}
+                onClick={() => {
+                  onApply(t.build())
+                  onClose()
+                }}
+                className="glass-tile overflow-hidden rounded-2xl p-1 transition active:scale-[0.97]"
+                style={{ gridColumn: `span ${cs}`, gridRow: `span ${rs}` }}
+              >
+                <TemplateThumb template={t} bg={bg} />
+              </button>
+            )
+          })}
         </div>
       </div>
     </div>
