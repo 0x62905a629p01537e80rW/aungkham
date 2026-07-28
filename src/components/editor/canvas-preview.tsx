@@ -161,7 +161,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           view: viewRef.current,
         }
         panRef.current = null
-      } else if (wasPinching || viewRef.current.scale > 1) {
+      } else {
         panRef.current = { x: rest[0].x, y: rest[0].y, view: viewRef.current }
       }
     }
@@ -465,7 +465,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             >
               <ZoomOut className="size-4" />
             </button>
-            {view.scale > 1 && (
+            {(view.scale > 1 || view.tx !== 0 || view.ty !== 0) && (
               <button
                 type="button"
                 aria-label="Reset zoom"
