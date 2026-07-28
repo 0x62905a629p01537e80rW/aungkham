@@ -13,6 +13,7 @@ import { ExportCanvas } from './export-canvas'
 import { createGraphicLayer, createTextLayer, type GraphicContent, type TextLayer } from '@/lib/text-layer'
 import { InsertMenu } from './insert-menu'
 import { TemplatePicker } from './template-picker'
+import { makeSolidDataUrl } from '@/lib/background'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
 
