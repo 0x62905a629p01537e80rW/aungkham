@@ -15,13 +15,13 @@ interface InsertMenuProps {
 type Tab = 'overlay' | 'shapes' | 'stickers'
 
 const TABS: { key: Tab; label: string; icon: typeof ImageIcon }[] = [
-  { key: 'overlay', label: 'Overlays', icon: ImageIcon },
   { key: 'shapes', label: 'Shapes', icon: Shapes },
   { key: 'stickers', label: 'Stickers', icon: Sticker },
+  { key: 'overlay', label: 'Overlays', icon: ImageIcon },
 ]
 
 export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
-  const [tab, setTab] = useState<Tab>('overlay')
+  const [tab, setTab] = useState<Tab>('shapes')
   const [shapeGroup, setShapeGroup] = useState<ShapeGroup>('Basic')
   const [stickerGroup, setStickerGroup] = useState<string>(STICKER_GROUPS[0])
   const galleryRef = useRef<HTMLInputElement>(null)
