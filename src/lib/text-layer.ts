@@ -72,6 +72,7 @@ export interface TextLayer {
 
   /* Image texture + eraser mask (data URLs) */
   textureImage?: string
+  textureSrc?: string
   eraseMask?: string
 }
 
