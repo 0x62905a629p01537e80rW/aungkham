@@ -55,11 +55,21 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }, [exporting])
 
+    const baseSize = useRef({ w: 0, h: 0 })
+    const rafRef = useRef<number | null>(null)
+    const pendingRef = useRef<{ scale: number; tx: number; ty: number } | null>(null)
+
+    function measureBase() {
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (!rect) return
+      const s = viewRef.current.scale || 1
+      baseSize.current = { w: rect.width / s, h: rect.height / s }
+    }
+
     function clampView(v: { scale: number; tx: number; ty: number }) {
       const scale = Math.max(1, Math.min(6, v.scale))
-      const rect = containerRef.current?.getBoundingClientRect()
-      const w = (rect?.width ?? 0) / (viewRef.current.scale || 1)
-      const h = (rect?.height ?? 0) / (viewRef.current.scale || 1)
+      if (!baseSize.current.w) measureBase()
+      const { w, h } = baseSize.current
       const maxX = (w * (scale - 1)) / 2
       const maxY = (h * (scale - 1)) / 2
       return {
@@ -68,6 +78,20 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         ty: Math.max(-maxY, Math.min(maxY, v.ty)),
       }
     }
+
+    function commitView(v: { scale: number; tx: number; ty: number }) {
+      pendingRef.current = clampView(v)
+      viewRef.current = pendingRef.current
+      if (rafRef.current != null) return
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null
+        if (pendingRef.current) setView(pendingRef.current)
+      })
+    }
+
+    useEffect(() => () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
+    }, [])
 
     function stageDown(e: PointerEvent<HTMLDivElement>) {
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
