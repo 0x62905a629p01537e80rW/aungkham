@@ -105,7 +105,7 @@ export function EditorHeader({
               align="end"
               sideOffset={10}
               collisionPadding={12}
-              className="glass-panel max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto rounded-3xl p-0"
+              className="glass-panel border-0 bg-transparent shadow-none max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto rounded-3xl p-0"
             >
               <LayersList
                 layers={layers}
