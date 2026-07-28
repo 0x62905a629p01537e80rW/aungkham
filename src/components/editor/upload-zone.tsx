@@ -219,8 +219,10 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
                 </span>
                 <ColorPickerPopover
                   value="#8235DC"
-                  onChange={(hex) => onImage(makeSolidDataUrl(hex))}
+                  allowGradient
+                  onChange={(css) => onImage(makeBackgroundDataUrl(css))}
                 >
+
                   <button
                     type="button"
                     className="text-[11px] font-medium text-primary underline-offset-2 hover:underline"
