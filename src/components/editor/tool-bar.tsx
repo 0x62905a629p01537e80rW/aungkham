@@ -32,10 +32,11 @@ import {
   PenLine,
   Plus,
   RotateCw,
-  Ruler,
   Sparkles,
   Square,
   Sun,
+  Underline,
+  Strikethrough,
   Type as TypeIcon,
   FlipVertical,
   TypeOutline,
@@ -120,7 +121,7 @@ interface ToolDef {
 
 const TOOLS: ToolDef[] = [
   { key: 'font', label: 'Font', icon: WandSparkles, needsLayer: true },
-  { key: 'format', label: 'Format', icon: Type, needsLayer: true },
+  { key: 'format', label: 'Format', icon: TypeIcon, needsLayer: true },
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
   { key: 'position', label: 'Position', icon: Move, needsLayer: true },
   { key: 'color', label: 'Color', icon: Palette, needsLayer: true },
