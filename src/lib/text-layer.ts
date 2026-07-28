@@ -1,6 +1,6 @@
 export type TextAlign = 'left' | 'center' | 'right'
 
-export type TextureType = 'none' | 'gold' | 'sunset' | 'ocean' | 'neon' | 'mono'
+export type TextureType = 'none' | 'ocean' | 'neon' | 'mono'
 
 export interface TextLayer {
   id: string
@@ -57,8 +57,6 @@ export function fontFamily(key: string): string {
 
 export const TEXTURES: Record<TextureType, { label: string; gradient: string | null }> = {
   none: { label: 'Solid', gradient: null },
-  gold: { label: 'Gold', gradient: 'linear-gradient(180deg, #fceabb 0%, #f8b500 45%, #b8860b 100%)' },
-  sunset: { label: 'Sunset', gradient: 'linear-gradient(90deg, #ff6a00 0%, #ee0979 100%)' },
   ocean: { label: 'Ocean', gradient: 'linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%)' },
   neon: { label: 'Neon', gradient: 'linear-gradient(90deg, #00f260 0%, #0575e6 100%)' },
   mono: { label: 'Steel', gradient: 'linear-gradient(180deg, #e0e0e0 0%, #757f9a 100%)' },

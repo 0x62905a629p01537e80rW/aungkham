@@ -30,14 +30,10 @@ const SOLID_COLORS = [
 ]
 
 const GRADIENTS: { name: string; css: string; stops: [string, string, string?] }[] = [
-  { name: 'Sunset', css: 'linear-gradient(135deg,#ff9a8b,#ff6a88,#ff99ac)', stops: ['#ff9a8b', '#ff6a88', '#ff99ac'] },
-  { name: 'Ocean', css: 'linear-gradient(135deg,#2e3192,#1bffff)', stops: ['#2e3192', '#1bffff'] },
   { name: 'Peach', css: 'linear-gradient(135deg,#ffecd2,#fcb69f)', stops: ['#ffecd2', '#fcb69f'] },
-  { name: 'Mint', css: 'linear-gradient(135deg,#a1ffce,#faffd1)', stops: ['#a1ffce', '#faffd1'] },
   { name: 'Purple', css: 'linear-gradient(135deg,#667eea,#764ba2)', stops: ['#667eea', '#764ba2'] },
   { name: 'Fire', css: 'linear-gradient(135deg,#f83600,#fe8c00)', stops: ['#f83600', '#fe8c00'] },
   { name: 'Night', css: 'linear-gradient(135deg,#0f2027,#203a43,#2c5364)', stops: ['#0f2027', '#203a43', '#2c5364'] },
-  { name: 'Rose', css: 'linear-gradient(135deg,#ff758c,#ff7eb3)', stops: ['#ff758c', '#ff7eb3'] },
 ]
 
 function makeSolidDataUrl(color: string, size = 1200) {
