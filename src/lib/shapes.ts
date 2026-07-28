@@ -302,10 +302,10 @@ function build(): ShapeDef[] {
 
 export const SHAPES: ShapeDef[] = build()
 
-export function shapeSvg(path: string, color = '#ffffff') {
+export function shapeSvg(path: string, color = '#000000') {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="${color}" fill-rule="evenodd" d="${path}"/></svg>`
 }
 
-export function shapeDataUrl(path: string, color = '#ffffff') {
+export function shapeDataUrl(path: string, color = '#000000') {
   return `data:image/svg+xml;utf8,${encodeURIComponent(shapeSvg(path, color))}`
 }
