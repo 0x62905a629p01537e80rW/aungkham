@@ -59,13 +59,12 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
 import { EraseDialog } from './erase-dialog'
-import { PATTERNS } from './text-layer-view'
 import { cn } from '@/lib/utils'
+import { rotateImage } from '@/lib/texture-image'
 import {
   FONTS,
   TEXTURES,
   fontFamily,
-  type PatternType,
   type TextAlign,
   type TextLayer,
   type TextureType,
@@ -689,33 +688,21 @@ function ToolContent({
           />
         </div>
       )
-    case 'texture':
+    case 'texture': {
+      const src = layer.textureSrc ?? layer.textureImage
+      const applyRotate = (deg: number) => {
+        onChange({ textureRotate: deg })
+        if (!src) return
+        rotateImage(src, deg)
+          .then((url) => onChange({ textureImage: url, fillType: 'texture' }))
+          .catch(() => undefined)
+      }
       return (
         <div className="space-y-4">
-          <ToolHeading>Texture fill</ToolHeading>
-          <div className="grid grid-cols-3 gap-2">
-            {(Object.keys(PATTERNS) as PatternType[]).map((key) => {
-              const active = layer.fillType === 'texture' && (layer.pattern ?? 'none') === key
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() =>
-                    onChange({ pattern: key, fillType: key === 'none' ? 'solid' : 'texture' })
-                  }
-                  className={cn(
-                    'flex h-10 items-center justify-center rounded-xl border text-xs font-semibold transition active:scale-95',
-                    active ? 'border-primary ring-2 ring-primary/30' : 'border-border',
-                  )}
-                >
-                  {PATTERNS[key].label}
-                </button>
-              )
-            })}
-          </div>
+          <ToolHeading>Texture from image</ToolHeading>
           <label className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-border text-xs font-semibold transition active:scale-95">
             <ImagePlus className="size-4" />
-            {layer.textureImage ? 'Change texture image' : 'Texture from image'}
+            {layer.textureImage ? 'Change image' : 'Select image'}
             <input
               type="file"
               accept="image/*"
@@ -725,29 +712,86 @@ function ToolContent({
                 e.target.value = ''
                 if (!file) return
                 const reader = new FileReader()
-                reader.onload = () =>
-                  onChange({ textureImage: String(reader.result), fillType: 'texture' })
+                reader.onload = () => {
+                  const url = String(reader.result)
+                  onChange({
+                    textureSrc: url,
+                    textureImage: url,
+                    fillType: 'texture',
+                    textureRotate: 0,
+                    textureScaleX: 100,
+                    textureScaleY: 100,
+                    textureOffsetX: 50,
+                    textureOffsetY: 50,
+                  })
+                }
                 reader.readAsDataURL(file)
               }}
             />
           </label>
+
           {layer.textureImage && (
-            <button
-              type="button"
-              onClick={() => onChange({ textureImage: undefined, fillType: 'solid' })}
-              className="h-9 w-full rounded-xl border border-border text-xs font-semibold transition active:scale-95"
-            >
-              Remove texture image
-            </button>
+            <>
+              <SliderField
+                label="Rotate"
+                value={layer.textureRotate ?? 0}
+                min={0}
+                max={360}
+                suffix="°"
+                onChange={applyRotate}
+              />
+              <SliderField
+                label="Horizontal"
+                value={layer.textureScaleX ?? 100}
+                min={20}
+                max={400}
+                suffix="%"
+                onChange={(v) => onChange({ textureScaleX: v })}
+              />
+              <SliderField
+                label="Vertical"
+                value={layer.textureScaleY ?? 100}
+                min={20}
+                max={400}
+                suffix="%"
+                onChange={(v) => onChange({ textureScaleY: v })}
+              />
+              <SliderField
+                label="Move X"
+                value={layer.textureOffsetX ?? 50}
+                min={-100}
+                max={200}
+                suffix="%"
+                onChange={(v) => onChange({ textureOffsetX: v })}
+              />
+              <SliderField
+                label="Move Y"
+                value={layer.textureOffsetY ?? 50}
+                min={-100}
+                max={200}
+                suffix="%"
+                onChange={(v) => onChange({ textureOffsetY: v })}
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  onChange({
+                    textureImage: undefined,
+                    textureSrc: undefined,
+                    fillType: 'solid',
+                  })
+                }
+                className="h-9 w-full rounded-xl border border-border text-xs font-semibold transition active:scale-95"
+              >
+                Remove texture image
+              </button>
+            </>
           )}
-          <ColorField
-            label="Pattern color"
-            value={layer.patternColor ?? '#000000'}
-            onChange={(v) => onChange({ patternColor: v })}
-          />
           <ColorField label="Base color" value={layer.color} onChange={(v) => onChange({ color: v })} />
         </div>
       )
+    }
+
     case 'rotate3d':
       return (
         <div className="space-y-4">

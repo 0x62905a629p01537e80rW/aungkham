@@ -1,31 +1,6 @@
 import type { CSSProperties } from 'react'
-import { fontFamily, TEXTURES, type PatternType, type TextLayer } from '@/lib/text-layer'
+import { fontFamily, TEXTURES, type TextLayer } from '@/lib/text-layer'
 
-export const PATTERNS: Record<PatternType, { label: string; image: (c: string) => string | null; size: string }> = {
-  none: { label: 'None', image: () => null, size: 'auto' },
-  dots: {
-    label: 'Dots',
-    image: (c) => `radial-gradient(${c} 22%, transparent 24%)`,
-    size: '0.18em 0.18em',
-  },
-  stripes: {
-    label: 'Stripes',
-    image: (c) => `repeating-linear-gradient(45deg, ${c} 0 0.06em, transparent 0.06em 0.14em)`,
-    size: 'auto',
-  },
-  grid: {
-    label: 'Grid',
-    image: (c) =>
-      `repeating-linear-gradient(0deg, ${c} 0 0.04em, transparent 0.04em 0.16em), repeating-linear-gradient(90deg, ${c} 0 0.04em, transparent 0.04em 0.16em)`,
-    size: 'auto',
-  },
-  checks: {
-    label: 'Checks',
-    image: (c) =>
-      `conic-gradient(${c} 0 25%, transparent 0 50%, ${c} 0 75%, transparent 0)`,
-    size: '0.2em 0.2em',
-  },
-}
 
 function hexToRgb(hex: string) {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.trim())
@@ -87,11 +62,13 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
         .join(' ') || 'none',
   }
 
-  const clipped = (image: string, size?: string): CSSProperties => ({
+  const clipped = (image: string, size?: string, position?: string): CSSProperties => ({
     ...base,
     backgroundColor: layer.color,
     backgroundImage: image,
     backgroundSize: size,
+    backgroundPosition: position,
+    backgroundRepeat: 'no-repeat',
     WebkitBackgroundClip: 'text',
     backgroundClip: 'text',
     color: 'transparent',
@@ -105,12 +82,16 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
   }
 
   if (fillType === 'texture') {
-    if (layer.textureImage) return clipped(`url(${layer.textureImage})`, 'cover')
-    const pattern = PATTERNS[layer.pattern ?? 'none']
-    const patternImage = pattern?.image(layer.patternColor ?? '#000000')
-    if (patternImage) return clipped(patternImage, pattern.size)
+    if (layer.textureImage) {
+      const sx = layer.textureScaleX ?? 100
+      const sy = layer.textureScaleY ?? 100
+      const px = layer.textureOffsetX ?? 50
+      const py = layer.textureOffsetY ?? 50
+      return clipped(`url(${layer.textureImage})`, `${sx}% ${sy}%`, `${px}% ${py}%`)
+    }
     if (texture.gradient) return clipped(texture.gradient)
   }
+
 
   return { ...base, color: layer.color }
 }

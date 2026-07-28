@@ -4,7 +4,7 @@ export type TextureType = 'none' | 'ocean' | 'neon' | 'mono'
 
 export type FillType = 'solid' | 'gradient' | 'texture'
 
-export type PatternType = 'none' | 'dots' | 'stripes' | 'grid' | 'checks'
+
 
 export interface TextLayer {
   id: string
@@ -39,8 +39,13 @@ export interface TextLayer {
   gradientFrom: string
   gradientTo: string
   gradientAngle: number
-  pattern: PatternType
-  patternColor: string
+
+  /* Image texture transform */
+  textureRotate?: number
+  textureScaleX?: number
+  textureScaleY?: number
+  textureOffsetX?: number
+  textureOffsetY?: number
 
   /* 3D extrusion */
   depthOn: boolean
@@ -67,6 +72,7 @@ export interface TextLayer {
 
   /* Image texture + eraser mask (data URLs) */
   textureImage?: string
+  textureSrc?: string
   eraseMask?: string
 }
 
@@ -136,8 +142,11 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     gradientFrom: '#ff7a18',
     gradientTo: '#af002d',
     gradientAngle: 90,
-    pattern: 'none',
-    patternColor: '#000000',
+    textureRotate: 0,
+    textureScaleX: 100,
+    textureScaleY: 100,
+    textureOffsetX: 50,
+    textureOffsetY: 50,
     depthOn: false,
     depth: 30,
     depthDarken: 48,
