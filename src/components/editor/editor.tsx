@@ -17,6 +17,7 @@ import { makeSolidDataUrl } from '@/lib/background'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
 import { RateDialog } from './rate-dialog'
+import { ProSplash } from './pro-splash'
 import { shouldAskForRating } from '@/lib/rate-us'
 
 
@@ -287,6 +288,7 @@ export function Editor() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
+      <ProSplash />
       <EditorHeader
         hasImage={!!image}
         onNewImage={resetAll}
