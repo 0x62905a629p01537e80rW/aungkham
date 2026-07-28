@@ -11,7 +11,7 @@ import { ExportCanvas } from './export-canvas'
 import { createTextLayer, type TextLayer } from '@/lib/text-layer'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
-import { toast } from 'sonner'
+
 
 export function Editor() {
   const [image, setImage] = useState<string | null>(null)
