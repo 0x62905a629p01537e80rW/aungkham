@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Pipette, Plus } from 'lucide-react'
+import { Circle, Move3d, Pipette, Plus, Trash2 } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 // ---------- color math ----------
@@ -57,11 +57,53 @@ function hsvToRgb(h: number, s: number, v: number) {
   return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 }
 }
 
+// ---------- gradient helpers ----------
+
+export type GradientStop = { id: number; color: string; pos: number }
+type GradientType = 'linear' | 'radial'
+
+let stopId = 0
+const nextId = () => ++stopId
+
+function buildGradient(type: GradientType, angle: number, stops: GradientStop[]) {
+  const sorted = [...stops].sort((a, b) => a.pos - b.pos)
+  const body = sorted.map((s) => `${s.color} ${Math.round(s.pos)}%`).join(', ')
+  return type === 'linear'
+    ? `linear-gradient(${Math.round(angle)}deg, ${body})`
+    : `radial-gradient(circle, ${body})`
+}
+
+function parseGradient(
+  value: string,
+): { type: GradientType; angle: number; stops: GradientStop[] } | null {
+  const m = /^(linear|radial)-gradient\((.*)\)$/is.exec(value.trim())
+  if (!m) return null
+  const type = m[1].toLowerCase() as GradientType
+  const parts = m[2].split(/,(?![^(]*\))/).map((p) => p.trim())
+  let angle = 90
+  if (/deg$/i.test(parts[0])) angle = parseFloat(parts.shift()!) || 0
+  else if (/^(circle|ellipse|to\s)/i.test(parts[0])) parts.shift()
+  const stops: GradientStop[] = []
+  parts.forEach((p, i) => {
+    const sm = /^(.+?)(?:\s+([\d.]+)%)?$/.exec(p)
+    if (!sm) return
+    stops.push({
+      id: nextId(),
+      color: sm[1].trim(),
+      pos: sm[2] !== undefined ? parseFloat(sm[2]) : (i / Math.max(1, parts.length - 1)) * 100,
+    })
+  })
+  if (stops.length < 2) return null
+  return { type, angle, stops }
+}
+
 // ---------- presets ----------
 
 const QUICK_SWATCHES = [
-  '#000000', '#ffffff', '#ff3b30', '#ff9500', '#ffcc00',
-  '#34c759', '#00c7be', '#3657ff', '#af52de', '#ff2d55',
+  '#000000', '#8e8e93', '#c7c7cc', '#ffffff', '#1c2a5e',
+  '#3657ff', '#7ef0ff', '#2f6f3e', '#8a8a2a', '#2c6e6e',
+  '#4cf05a', '#6b1414', '#6b1e8a', '#af52de', '#ff2df0',
+  '#ff3b30', '#ff9500', '#ffe93b', '#00c7be', '#34c759',
 ]
 
 const SWATCH_STORAGE_KEY = 'color-picker:saved-swatches'
@@ -71,17 +113,35 @@ const SWATCH_STORAGE_KEY = 'color-picker:saved-swatches'
 export function ColorPickerPanel({
   value,
   onChange,
+  allowGradient = true,
 }: {
   value: string
   onChange: (v: string) => void
+  allowGradient?: boolean
 }) {
-  const initial = hexToRgba(value)
-  const initialHsv = rgbToHsv(initial.r, initial.g, initial.b)
-  const [h, setH] = useState(initialHsv.h)
-  const [s, setS] = useState(initialHsv.s)
-  const [v, setV] = useState(initialHsv.v)
-  const [a, setA] = useState(initial.a)
-  const [hexInput, setHexInput] = useState(value.toUpperCase())
+  const parsedGradient = useMemo(() => parseGradient(value), [])
+  const initialSolid = parsedGradient ? parsedGradient.stops[0].color : value
+  const init = hexToRgba(initialSolid)
+  const initHsv = rgbToHsv(init.r, init.g, init.b)
+
+  const [mode, setMode] = useState<'solid' | 'gradient'>(
+    parsedGradient && allowGradient ? 'gradient' : 'solid',
+  )
+  const [gradType, setGradType] = useState<GradientType>(parsedGradient?.type ?? 'linear')
+  const [angle, setAngle] = useState(parsedGradient?.angle ?? 40)
+  const [stops, setStops] = useState<GradientStop[]>(
+    parsedGradient?.stops ?? [
+      { id: nextId(), color: '#0cb7eb', pos: 0 },
+      { id: nextId(), color: '#6ee7b7', pos: 100 },
+    ],
+  )
+  const [activeStop, setActiveStop] = useState(0)
+
+  const [h, setH] = useState(initHsv.h)
+  const [s, setS] = useState(initHsv.s)
+  const [v, setV] = useState(initHsv.v)
+  const [a, setA] = useState(init.a)
+  const [hexInput, setHexInput] = useState(initialSolid.replace('#', '').toUpperCase())
   const [customSwatches, setCustomSwatches] = useState<string[]>(() => {
     if (typeof window === 'undefined') return []
     try {
@@ -96,15 +156,43 @@ export function ColorPickerPanel({
   const areaRef = useRef<HTMLDivElement>(null)
   const hueRef = useRef<HTMLDivElement>(null)
   const alphaRef = useRef<HTMLDivElement>(null)
+  const stopsRef = useRef<HTMLDivElement>(null)
+  const firstRun = useRef(true)
 
   const rgb = useMemo(() => hsvToRgb(h, s, v), [h, s, v])
   const hex = useMemo(() => rgbaToHex(rgb.r, rgb.g, rgb.b, a), [rgb, a])
+  const solidHex = rgbaToHex(rgb.r, rgb.g, rgb.b, 1)
+  const hueColor = `hsl(${h}, 100%, 50%)`
 
+  // keep active gradient stop in sync with the HSV editor
   useEffect(() => {
-    setHexInput(hex.toUpperCase())
-    onChange(hex)
+    setHexInput(hex.replace('#', '').slice(0, 6).toUpperCase())
+    if (mode === 'gradient') {
+      setStops((prev) => prev.map((st, i) => (i === activeStop ? { ...st, color: hex } : st)))
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hex])
+
+  const gradientCss = useMemo(
+    () => buildGradient(gradType, angle, stops),
+    [gradType, angle, stops],
+  )
+
+  // emit
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false
+      return
+    }
+    onChange(mode === 'gradient' ? gradientCss : hex)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, gradientCss, hex])
+
+  function applyColorToEditor(color: string) {
+    const { r, g, b, a: aa } = hexToRgba(color)
+    const nh = rgbToHsv(r, g, b)
+    setH(nh.h); setS(nh.s); setV(nh.v); setA(aa)
+  }
 
   function pointerDragging(
     ref: React.RefObject<HTMLDivElement | null>,
@@ -134,16 +222,22 @@ export function ColorPickerPanel({
   }
 
   function submitHex(raw: string) {
-    let h = raw.replace('#', '').trim()
-    if (h.length === 3) h = h.split('').map((c) => c + c).join('')
-    if (!/^[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(h)) return
-    const { r, g, b, a: aa } = hexToRgba('#' + h)
-    const nh = rgbToHsv(r, g, b)
-    setH(nh.h); setS(nh.s); setV(nh.v); setA(aa)
+    let hh = raw.replace('#', '').trim()
+    if (hh.length === 3) hh = hh.split('').map((c) => c + c).join('')
+    if (!/^[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(hh)) return
+    applyColorToEditor('#' + hh)
+  }
+
+  function setChannel(channel: 'r' | 'g' | 'b', raw: string) {
+    const n = clamp(parseInt(raw || '0', 10) || 0, 0, 255)
+    const next = { r: rgb.r, g: rgb.g, b: rgb.b, [channel]: n } as Record<string, number>
+    applyColorToEditor(rgbaToHex(next.r, next.g, next.b, a))
   }
 
   async function pickFromScreen() {
-    const w = window as unknown as { EyeDropper?: new () => { open: () => Promise<{ sRGBHex: string }> } }
+    const w = window as unknown as {
+      EyeDropper?: new () => { open: () => Promise<{ sRGBHex: string }> }
+    }
     if (!w.EyeDropper) {
       alert('Screen color picker is not supported in this browser.')
       return
@@ -152,13 +246,14 @@ export function ColorPickerPanel({
       const result = await new w.EyeDropper().open()
       submitHex(result.sRGBHex)
     } catch {
-      /* user cancelled */
+      /* cancelled */
     }
   }
 
   function addSwatch() {
+    const entry = mode === 'gradient' ? gradientCss : hex
     setCustomSwatches((prev) => {
-      const next = prev.includes(hex) ? prev : [hex, ...prev].slice(0, 12)
+      const next = prev.includes(entry) ? prev : [entry, ...prev].slice(0, 20)
       try {
         window.localStorage.setItem(SWATCH_STORAGE_KEY, JSON.stringify(next))
       } catch {
@@ -168,15 +263,39 @@ export function ColorPickerPanel({
     })
   }
 
-  const hueColor = `hsl(${h}, 100%, 50%)`
-  const solidHex = rgbaToHex(rgb.r, rgb.g, rgb.b, 1)
+  function selectStop(i: number) {
+    setActiveStop(i)
+    applyColorToEditor(stops[i].color)
+  }
+
+  function addStop() {
+    const sorted = [...stops].sort((x, y) => x.pos - y.pos)
+    const pos = clamp((sorted[0].pos + sorted[sorted.length - 1].pos) / 2, 0, 100) as number
+    const st = { id: nextId(), color: hex, pos }
+    const next = [...stops, st]
+    setStops(next)
+    setActiveStop(next.length - 1)
+  }
+
+  function removeStop() {
+    if (stops.length <= 2) return
+    const next = stops.filter((_, i) => i !== activeStop)
+    setStops(next)
+    setActiveStop(0)
+    applyColorToEditor(next[0].color)
+  }
+
+  const checker =
+    'url("data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22><rect width=%225%22 height=%225%22 fill=%22%23ccc%22/><rect x=%225%22 y=%225%22 width=%225%22 height=%225%22 fill=%22%23ccc%22/></svg>")'
+
+  const preview = mode === 'gradient' ? gradientCss : solidHex
 
   return (
-    <div className="rounded-xl bg-[#f3f2f7] p-3 text-neutral-800 shadow-[0_14px_32px_-14px_rgba(15,15,40,0.35),inset_0_1px_0_rgba(255,255,255,0.9)]">
+    <div className="w-full rounded-2xl bg-white p-2.5 text-neutral-800 shadow-[0_18px_40px_-16px_rgba(15,15,40,0.45)]">
       {/* Saturation/Value area */}
       <div
         ref={areaRef}
-        className="relative aspect-[2.6/1] w-full cursor-crosshair touch-none overflow-hidden rounded-lg"
+        className="relative aspect-[1.35/1] w-full cursor-crosshair touch-none overflow-hidden rounded-xl border border-black/10"
         style={{ background: hueColor }}
         onPointerDown={pointerDragging(areaRef, (x, y) => { setS(x); setV(1 - y) })}
       >
@@ -188,10 +307,135 @@ export function ColorPickerPanel({
         />
       </div>
 
+      {/* Solid / Gradient + tools */}
+      <div className="mt-2 flex items-center gap-1.5">
+        {allowGradient ? (
+          <div className="flex flex-1 items-center rounded-lg bg-[#f1f1f5] p-0.5">
+            {(['solid', 'gradient'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                className={`flex-1 rounded-[6px] px-2 py-1 text-[11px] font-semibold capitalize transition ${
+                  mode === m ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
+                }`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex-1" />
+        )}
+        <button
+          type="button"
+          onClick={pickFromScreen}
+          aria-label="Pick color from screen"
+          className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#f1f1f5] text-neutral-700 transition active:scale-95"
+        >
+          <Pipette className="size-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={addSwatch}
+          aria-label="Save color"
+          className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#f1f1f5] text-neutral-700 transition active:scale-95"
+        >
+          <Plus className="size-3.5" />
+        </button>
+      </div>
+
+      {/* Gradient controls */}
+      {allowGradient && mode === 'gradient' && (
+        <>
+          <div className="mt-1.5 flex items-center gap-1 rounded-lg bg-[#f1f1f5] px-1 py-1">
+            <button
+              type="button"
+              onClick={() => setGradType('linear')}
+              aria-label="Linear gradient"
+              className={`grid size-6 place-items-center rounded-md transition ${
+                gradType === 'linear' ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
+              }`}
+            >
+              <Move3d className="size-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setGradType('radial')}
+              aria-label="Radial gradient"
+              className={`grid size-6 place-items-center rounded-md transition ${
+                gradType === 'radial' ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
+              }`}
+            >
+              <Circle className="size-3.5" />
+            </button>
+
+            <div className="ml-1 flex items-center gap-1">
+              <span className="text-[10px] font-semibold text-neutral-400">∠</span>
+              <input
+                type="number"
+                value={Math.round(angle)}
+                disabled={gradType === 'radial'}
+                onChange={(e) => setAngle(clamp(parseFloat(e.target.value) || 0, 0, 360))}
+                className="w-9 bg-transparent text-[11px] font-semibold text-neutral-700 outline-none disabled:opacity-40"
+              />
+              <span className="text-[10px] text-neutral-400">°</span>
+            </div>
+
+            <div className="ml-auto flex items-center gap-1">
+              <span className="text-[9px] font-bold uppercase tracking-wide text-neutral-400">Stop</span>
+              <span className="text-[11px] font-semibold text-neutral-700">{activeStop}</span>
+              <button
+                type="button"
+                onClick={addStop}
+                aria-label="Add gradient stop"
+                className="grid size-6 place-items-center rounded-md text-neutral-500 transition active:scale-90"
+              >
+                <Plus className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={removeStop}
+                aria-label="Delete gradient stop"
+                className="grid size-6 place-items-center rounded-md text-neutral-500 transition active:scale-90 disabled:opacity-30"
+                disabled={stops.length <= 2}
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Gradient stops bar */}
+          <div
+            ref={stopsRef}
+            className="relative mt-2 h-3 w-full touch-none rounded-full border border-black/10"
+            style={{ background: buildGradient('linear', 90, stops) }}
+            onPointerDown={pointerDragging(stopsRef, (x) => {
+              setStops((prev) =>
+                prev.map((st, i) => (i === activeStop ? { ...st, pos: x * 100 } : st)),
+              )
+            })}
+          >
+            {stops.map((st, i) => (
+              <button
+                key={st.id}
+                type="button"
+                onPointerDown={(e) => { e.stopPropagation(); selectStop(i) }}
+                aria-label={`Gradient stop ${i}`}
+                className={`absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow-[0_0_0_1px_rgba(0,0,0,0.3)] ${
+                  i === activeStop ? 'border-sky-500' : 'border-white'
+                }`}
+                style={{ left: `${st.pos}%`, background: st.color }}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
       {/* Hue slider */}
       <div
         ref={hueRef}
-        className="relative mt-2.5 h-2.5 w-full cursor-pointer touch-none overflow-hidden rounded-full"
+        className="relative mt-2 h-3 w-full cursor-pointer touch-none rounded-full border border-black/10"
         style={{ background: 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)' }}
         onPointerDown={pointerDragging(hueRef, (x) => setH(x * 360))}
       >
@@ -204,11 +448,8 @@ export function ColorPickerPanel({
       {/* Alpha slider */}
       <div
         ref={alphaRef}
-        className="relative mt-2 h-2.5 w-full cursor-pointer touch-none overflow-hidden rounded-full"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, transparent, ' + solidHex + '), url("data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22><rect width=%225%22 height=%225%22 fill=%22%23ccc%22/><rect x=%225%22 y=%225%22 width=%225%22 height=%225%22 fill=%22%23ccc%22/></svg>")',
-        }}
+        className="relative mt-2 h-3 w-full cursor-pointer touch-none rounded-full border border-black/10"
+        style={{ backgroundImage: `linear-gradient(to right, transparent, ${solidHex}), ${checker}` }}
         onPointerDown={pointerDragging(alphaRef, (x) => setA(x))}
       >
         <div
@@ -217,60 +458,65 @@ export function ColorPickerPanel({
         />
       </div>
 
-      {/* Hex + eyedropper + add */}
-      <div className="mt-2.5 flex items-center gap-1.5">
-        <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-lg bg-white px-2 py-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)]">
-          <span className="size-3.5 shrink-0 rounded-[3px] border border-black/10" style={{ background: solidHex }} />
-          <input
-            value={hexInput}
-            onChange={(e) => setHexInput(e.target.value.toUpperCase())}
-            onBlur={(e) => submitHex(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') submitHex((e.target as HTMLInputElement).value) }}
-            className="w-full min-w-0 bg-transparent font-mono text-[12px] font-medium tracking-wide text-neutral-800 outline-none"
-            spellCheck={false}
-          />
+      {/* HEX / R / G / B / A fields */}
+      <div className="mt-2 grid grid-cols-[1.6fr_1fr_1fr_1fr_1fr] gap-1">
+        <Field
+          label="HEX"
+          value={hexInput}
+          onChange={setHexInput}
+          onCommit={submitHex}
+        />
+        <Field label="R" value={String(Math.round(rgb.r))} onCommit={(x) => setChannel('r', x)} />
+        <Field label="G" value={String(Math.round(rgb.g))} onCommit={(x) => setChannel('g', x)} />
+        <Field label="B" value={String(Math.round(rgb.b))} onCommit={(x) => setChannel('b', x)} />
+        <Field
+          label="A"
+          value={String(Math.round(a * 100))}
+          onCommit={(x) => setA(clamp((parseFloat(x) || 0) / 100))}
+        />
+      </div>
+
+      {/* Preview + swatches */}
+      <div className="mt-2 flex items-start gap-1.5">
+        <div
+          className="size-[52px] shrink-0 rounded-lg border border-black/10"
+          style={{ background: preview }}
+        />
+        <div className="grid flex-1 grid-cols-10 gap-1">
+          {QUICK_SWATCHES.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => { setMode('solid'); submitHex(c) }}
+              className="aspect-square rounded-[4px] border border-black/10 transition active:scale-90"
+              style={{ background: c }}
+              aria-label={c}
+            />
+          ))}
         </div>
-        <button
-          type="button"
-          onClick={pickFromScreen}
-          aria-label="Pick color from screen"
-          className="grid size-8 shrink-0 place-items-center rounded-lg bg-white text-neutral-700 shadow-[0_1px_2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)] transition active:scale-95"
-        >
-          <Pipette className="size-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={addSwatch}
-          aria-label="Save color"
-          className="grid size-8 shrink-0 place-items-center rounded-lg bg-white text-neutral-700 shadow-[0_1px_2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)] transition active:scale-95"
-        >
-          <Plus className="size-3.5" />
-        </button>
       </div>
 
-      {/* Quick swatches */}
-      <div className="mt-2.5 grid grid-cols-10 gap-1">
-        {QUICK_SWATCHES.map((c) => (
-          <button
-            key={c}
-            type="button"
-            onClick={() => submitHex(c)}
-            className="aspect-square rounded-[5px] border border-black/10 transition active:scale-90"
-            style={{ background: c }}
-            aria-label={c}
-          />
-        ))}
-      </div>
-
-      {/* Custom saved swatches */}
       {customSwatches.length > 0 && (
-        <div className="mt-2 grid grid-cols-10 gap-1">
+        <div className="mt-1.5 grid grid-cols-10 gap-1">
           {customSwatches.map((c) => (
             <button
               key={c}
               type="button"
-              onClick={() => submitHex(c)}
-              className="aspect-square rounded-[5px] border border-black/10 transition active:scale-90"
+              onClick={() => {
+                const g = parseGradient(c)
+                if (g && allowGradient) {
+                  setGradType(g.type)
+                  setAngle(g.angle)
+                  setStops(g.stops)
+                  setActiveStop(0)
+                  setMode('gradient')
+                  applyColorToEditor(g.stops[0].color)
+                } else {
+                  setMode('solid')
+                  submitHex(c)
+                }
+              }}
+              className="aspect-square rounded-[4px] border border-black/10 transition active:scale-90"
               style={{ background: c }}
               aria-label={c}
             />
@@ -281,16 +527,48 @@ export function ColorPickerPanel({
   )
 }
 
+function Field({
+  label,
+  value,
+  onChange,
+  onCommit,
+}: {
+  label: string
+  value: string
+  onChange?: (v: string) => void
+  onCommit: (v: string) => void
+}) {
+  const [local, setLocal] = useState(value)
+  useEffect(() => setLocal(value), [value])
+  return (
+    <div className="rounded-lg border border-black/10 bg-white px-1 py-1 text-center">
+      <input
+        value={onChange ? value : local}
+        onChange={(e) => (onChange ? onChange(e.target.value) : setLocal(e.target.value))}
+        onBlur={(e) => onCommit(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') onCommit((e.target as HTMLInputElement).value)
+        }}
+        spellCheck={false}
+        className="w-full min-w-0 bg-transparent text-center font-mono text-[11px] font-medium text-neutral-800 outline-none"
+      />
+      <div className="text-[8px] font-bold uppercase tracking-wide text-neutral-400">{label}</div>
+    </div>
+  )
+}
+
 export function ColorPickerPopover({
   value,
   onChange,
   children,
   align = 'end',
+  allowGradient = false,
 }: {
   value: string
   onChange: (v: string) => void
   children: React.ReactNode
   align?: 'start' | 'center' | 'end'
+  allowGradient?: boolean
 }) {
   return (
     <Popover>
@@ -298,9 +576,9 @@ export function ColorPickerPopover({
       <PopoverContent
         align={align}
         sideOffset={8}
-        className="w-[248px] border-0 bg-transparent p-0 shadow-none"
+        className="w-[268px] border-0 bg-transparent p-0 shadow-none"
       >
-        <ColorPickerPanel value={value} onChange={onChange} />
+        <ColorPickerPanel value={value} onChange={onChange} allowGradient={allowGradient} />
       </PopoverContent>
     </Popover>
   )
