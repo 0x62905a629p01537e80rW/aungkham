@@ -26,6 +26,35 @@ export function Editor() {
   const [savedProject, setSavedProject] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
   const replaceRef = useRef<HTMLInputElement>(null)
+  const stageRef = useRef<HTMLElement>(null)
+  const [stageSize, setStageSize] = useState({ w: 0, h: 0 })
+
+  // Fit the whole image inside the visible stage — never require scrolling.
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el) return
+    const measure = () => {
+      const cs = getComputedStyle(el)
+      const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)
+      const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)
+      setStageSize({
+        w: Math.max(0, el.clientWidth - padX),
+        h: Math.max(0, el.clientHeight - padY),
+      })
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [image])
+
+  const ratio = naturalSize ? naturalSize.w / naturalSize.h : 16 / 9
+  const maxW = Math.min(stageSize.w, 768)
+  const fitW = Math.min(maxW, stageSize.h * ratio)
+  const fitStyle = stageSize.w
+    ? { width: `${Math.max(1, fitW)}px`, height: `${Math.max(1, fitW / ratio)}px` }
+    : { width: '100%', aspectRatio: ratio }
+
 
   async function applyBackground(dataUrl: string) {
     const img = await loadImage(dataUrl)
@@ -261,10 +290,14 @@ export function Editor() {
       ) : (
         <>
           <main
-            className="flex flex-1 items-center justify-center bg-muted/40 p-3 sm:p-6"
+            ref={stageRef}
+            className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-muted/40 p-3 sm:p-6"
             style={{ paddingBottom: 'calc(4.75rem + env(safe-area-inset-bottom))' }}
           >
-            <div className="w-full max-w-3xl overflow-hidden rounded-3xl bg-card shadow-xl ring-1 ring-border">
+            <div
+              className="overflow-hidden rounded-3xl bg-card shadow-xl ring-1 ring-border"
+              style={fitStyle}
+            >
               <CanvasPreview
                 ref={canvasRef}
                 image={image}
@@ -281,6 +314,7 @@ export function Editor() {
               />
             </div>
           </main>
+
 
           <ToolBar
             layers={layers}
