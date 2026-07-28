@@ -253,6 +253,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           {layers.map((layer) => {
             const isSelected = layer.id === selectedId && !exporting
             const isEditing = editingId === layer.id && !exporting
+            const inv = 1 / view.scale
             const wrapperStyle: CSSProperties = {
               position: 'absolute',
               left: `${layer.x}%`,
@@ -262,7 +263,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               whiteSpace: 'nowrap',
               cursor: isEditing ? 'text' : 'move',
               touchAction: 'none',
+              outlineWidth: `${2 * inv}px`,
+              outlineOffset: `${4 * inv}px`,
             }
+
             const textStyle = layerTextStyle(layer)
             const inner = layer.highlight ? (
               <span
