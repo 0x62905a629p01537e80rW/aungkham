@@ -247,22 +247,36 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       onSelect(id)
       const el = e.currentTarget
       el.setPointerCapture(e.pointerId)
-      dragState.current = { id, pointerId: e.pointerId, moved: false, startX: e.clientX, startY: e.clientY }
+      const layer = layers.find((l) => l.id === id)
+      dragState.current = {
+        id,
+        pointerId: e.pointerId,
+        moved: false,
+        startX: e.clientX,
+        startY: e.clientY,
+        originX: layer?.x ?? 50,
+        originY: layer?.y ?? 50,
+      }
     }
 
     function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
-      if (!dragState.current) {
+      const st = dragState.current
+      if (!st) {
         stageMove(e)
         return
       }
-      const dx = e.clientX - dragState.current.startX
-      const dy = e.clientY - dragState.current.startY
-      if (!dragState.current.moved && Math.hypot(dx, dy) < 4) return
-      dragState.current.moved = true
+      if (e.pointerId !== st.pointerId) return
+      const dx = e.clientX - st.startX
+      const dy = e.clientY - st.startY
+      if (!st.moved && Math.hypot(dx, dy) < 4) return
+      st.moved = true
       const rect = containerRef.current?.getBoundingClientRect()
-      if (!rect) return
-      let x = ((e.clientX - rect.left) / rect.width) * 100
-      let y = ((e.clientY - rect.top) / rect.height) * 100
+      if (!rect || !rect.width || !rect.height) return
+
+      // Move by pointer delta from where the layer was grabbed, so the text
+      // keeps its offset under the finger instead of snapping its centre.
+      let x = st.originX + (dx / rect.width) * 100
+      let y = st.originY + (dy / rect.height) * 100
 
       // Snap to the horizontal/vertical centre of the image and show guides.
       const tol = 1.6
@@ -272,11 +286,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       if (snapH) y = 50
       setGuides((g) => (g.v === snapV && g.h === snapH ? g : { v: snapV, h: snapH }))
 
-      onMove(
-        dragState.current.id,
-        Math.max(-200, Math.min(300, x)),
-        Math.max(-200, Math.min(300, y)),
-      )
+      onMove(st.id, Math.max(-200, Math.min(300, x)), Math.max(-200, Math.min(300, y)))
     }
 
 
