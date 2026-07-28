@@ -35,6 +35,8 @@ import {
   Sparkles,
   Square,
   Sun,
+  Eraser,
+  ImagePlus,
   Underline,
   Strikethrough,
   Type as TypeIcon,
@@ -56,6 +58,7 @@ import {
 } from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
+import { EraseDialog } from './erase-dialog'
 import { PATTERNS } from './text-layer-view'
 import { cn } from '@/lib/utils'
 import {
@@ -111,6 +114,7 @@ type ToolKey =
   | 'perspective'
   | 'bend'
   | 'skew'
+  | 'erase'
 
 interface ToolDef {
   key: ToolKey
@@ -137,6 +141,7 @@ const TOOLS: ToolDef[] = [
   { key: 'perspective', label: 'Perspective', icon: Frame, needsLayer: true },
   { key: 'bend', label: 'Bend', icon: Spline, needsLayer: true },
   { key: 'skew', label: 'Skew', icon: MoveDiagonal, needsLayer: true },
+  { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: true },
 ]
 
 
@@ -154,6 +159,7 @@ export function ToolBar({
   onImageTool,
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
+  const [eraseOpen, setEraseOpen] = useState(false)
 
   return (
     <nav
@@ -200,6 +206,25 @@ export function ToolBar({
           const disabled = tool.needsLayer && !selected
           const isOpen = openTool === tool.key
           const Icon = tool.icon
+
+          if (tool.key === 'erase') {
+            return (
+              <button
+                key={tool.key}
+                type="button"
+                disabled={disabled}
+                onClick={() => setEraseOpen(true)}
+                className={cn(
+                  'flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium text-foreground/75 transition active:scale-95',
+                  disabled && 'opacity-35',
+                )}
+              >
+                <Icon className="size-[18px]" />
+                {tool.label}
+              </button>
+            )
+          }
+
           return (
             <Popover
               key={tool.key}
@@ -251,6 +276,15 @@ export function ToolBar({
           )
         })}
       </div>
+
+      {selected && (
+        <EraseDialog
+          open={eraseOpen}
+          onOpenChange={setEraseOpen}
+          layer={selected}
+          onApply={(mask) => onChange({ eraseMask: mask })}
+        />
+      )}
     </nav>
   )
 }
@@ -679,6 +713,33 @@ function ToolContent({
               )
             })}
           </div>
+          <label className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-border text-xs font-semibold transition active:scale-95">
+            <ImagePlus className="size-4" />
+            {layer.textureImage ? 'Change texture image' : 'Texture from image'}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                e.target.value = ''
+                if (!file) return
+                const reader = new FileReader()
+                reader.onload = () =>
+                  onChange({ textureImage: String(reader.result), fillType: 'texture' })
+                reader.readAsDataURL(file)
+              }}
+            />
+          </label>
+          {layer.textureImage && (
+            <button
+              type="button"
+              onClick={() => onChange({ textureImage: undefined, fillType: 'solid' })}
+              className="h-9 w-full rounded-xl border border-border text-xs font-semibold transition active:scale-95"
+            >
+              Remove texture image
+            </button>
+          )}
           <ColorField
             label="Pattern color"
             value={layer.patternColor ?? '#000000'}
