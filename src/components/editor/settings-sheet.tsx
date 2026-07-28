@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { ArrowLeft, Crown, Settings as SettingsIcon, Star } from 'lucide-react'
 import { PLAY_STORE_URL, markRated } from '@/lib/rate-us'
 
@@ -44,7 +45,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
         <SettingsIcon className="size-5" />
       </button>
 
-      {open && (
+      {open && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[65] overflow-y-auto bg-background text-foreground animate-fade-in">
           <div
             className="flex items-center gap-4 px-4 pb-2 pt-4"
@@ -128,7 +129,8 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
               </p>
             </div>
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )
