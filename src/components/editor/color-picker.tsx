@@ -204,7 +204,9 @@ export function ColorPickerPanel({
     return (e: React.PointerEvent) => {
       const el = ref.current
       if (!el) return
+      touch()
       el.setPointerCapture(e.pointerId)
+
       const rect = el.getBoundingClientRect()
       const handle = (clientX: number, clientY: number) => {
         onMove(
