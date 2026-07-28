@@ -121,6 +121,19 @@ export function Editor() {
     }
   }, [image, layers, naturalSize])
 
+  function toggleVisibility(id: string) {
+    setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, hidden: !l.hidden } : l)))
+  }
+
+  function moveLayer(id: string, dir: 'front' | 'back') {
+    setLayers((prev) => {
+      const target = prev.find((l) => l.id === id)
+      if (!target) return prev
+      const rest = prev.filter((l) => l.id !== id)
+      return dir === 'front' ? [...rest, target] : [target, ...rest]
+    })
+  }
+
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <EditorHeader
@@ -130,6 +143,14 @@ export function Editor() {
         onDownload={handleDownload}
         onReplaceImage={() => replaceRef.current?.click()}
         onSaveProject={handleSaveProject}
+        layers={layers}
+        selectedId={selectedId}
+        onSelectLayer={setSelectedId}
+        onAddLayer={addLayer}
+        onDuplicateLayer={duplicateLayer}
+        onDeleteLayer={deleteLayer}
+        onToggleLayerVisibility={toggleVisibility}
+        onMoveLayer={moveLayer}
       />
 
       {!image ? (

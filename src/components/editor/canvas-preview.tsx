@@ -297,7 +297,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             draggable={false}
           />
 
-          {layers.map((layer) => {
+          {layers.filter((l) => !l.hidden).map((layer) => {
             const isSelected = layer.id === selectedId && !exporting
             const isEditing = editingId === layer.id && !exporting
             const inv = 1 / view.scale
