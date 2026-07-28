@@ -102,6 +102,8 @@ interface ToolBarProps {
   onReplaceImage?: () => void
   onOpenTemplates?: () => void
   onImageTool?: (tool: 'crop' | 'resize' | 'flip' | 'square' | 'blur' | 'adjust' | 'filter') => void
+  autoOpenTool?: ToolKey | null
+  onAutoOpenHandled?: () => void
 }
 
 const IMAGE_TOOLS = [
