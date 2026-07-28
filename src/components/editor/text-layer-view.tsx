@@ -133,9 +133,11 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
 
   if (g.kind === 'shape') {
     const fill =
-      (layer.fillType ?? 'solid') === 'gradient'
-        ? `linear-gradient(${layer.gradientAngle ?? 90}deg, ${layer.gradientFrom}, ${layer.gradientTo})`
-        : layer.color
+      g.outline && g.strokeColor
+        ? g.strokeColor
+        : (layer.fillType ?? 'solid') === 'gradient'
+          ? `linear-gradient(${layer.gradientAngle ?? 90}deg, ${layer.gradientFrom}, ${layer.gradientTo})`
+          : layer.color
     return (
       <div
         style={{
