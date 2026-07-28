@@ -446,7 +446,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               <button
                 type="button"
                 aria-label="Reset zoom"
-                onClick={() => setView({ scale: 1, tx: 0, ty: 0 })}
+                onClick={() => {
+                  viewRef.current = { scale: 1, tx: 0, ty: 0 }
+                  setView({ scale: 1, tx: 0, ty: 0 })
+                }}
                 className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
               >
                 <Minimize className="size-4" />
