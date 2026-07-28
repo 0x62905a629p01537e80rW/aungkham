@@ -313,6 +313,77 @@ function ToolHeading({ children }: { children: React.ReactNode }) {
   )
 }
 
+type FontGroup = 'english' | 'mm-free' | 'mm-premium'
+
+const FONT_GROUPS: { key: FontGroup; label: string }[] = [
+  { key: 'english', label: 'English' },
+  { key: 'mm-free', label: 'Myanmar (Free)' },
+  { key: 'mm-premium', label: 'Myanmar (Premium)' },
+]
+
+function groupOf(cat: FontOption['category']): FontGroup {
+  if (cat === 'Myanmar') return 'mm-free'
+  if (cat === 'Myanmar Pro') return 'mm-premium'
+  return 'english'
+}
+
+function FontPicker({
+  layer,
+  onChange,
+}: {
+  layer: TextLayer
+  onChange: (patch: Partial<TextLayer>) => void
+}) {
+  const current = FONTS.find((f) => f.key === layer.fontKey)
+  const [group, setGroup] = useState<FontGroup>(groupOf(current?.category ?? 'Sans'))
+  const items = FONTS.filter((f) => groupOf(f.category) === group)
+  const sample = group === 'english' ? 'Aa Bb Cc' : 'မြန်မာစာ'
+
+  return (
+    <div className="space-y-3">
+      <ToolHeading>Typeface</ToolHeading>
+      <div className="flex gap-1 rounded-xl border border-white/20 bg-white/10 p-1">
+        {FONT_GROUPS.map((g) => (
+          <button
+            key={g.key}
+            type="button"
+            onClick={() => setGroup(g.key)}
+            className={cn(
+              'flex-1 rounded-lg px-1 py-1.5 text-[10px] font-semibold transition',
+              group === g.key
+                ? 'bg-primary text-primary-foreground'
+                : 'text-foreground/70',
+            )}
+          >
+            {g.label}
+          </button>
+        ))}
+      </div>
+      <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
+        {items.map((f) => (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => onChange({ fontKey: f.key })}
+            className={cn(
+              'flex w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition active:scale-[0.99]',
+              layer.fontKey === f.key
+                ? 'border-primary bg-primary/15'
+                : 'border-white/15 bg-white/5',
+            )}
+          >
+            <span className="text-[11px] text-muted-foreground">{f.label}</span>
+            <span className="text-base" style={{ fontFamily: fontFamily(f.key) }}>
+              {sample}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+
 function ToolContent({
   tool,
   layer,
