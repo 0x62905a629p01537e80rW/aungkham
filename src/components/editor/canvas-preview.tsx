@@ -260,8 +260,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           ref={containerRef}
           className="absolute inset-0"
           style={{
-            transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.scale})`,
+            transform: `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.scale})`,
             transformOrigin: 'center center',
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
           }}
         >
 
