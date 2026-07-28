@@ -114,10 +114,18 @@ export function ColorPickerPanel({
   value,
   onChange,
   allowGradient = true,
+  initialMode,
+  onConfirm,
+  confirmLabel = 'Confirm',
+  className,
 }: {
   value: string
   onChange: (v: string) => void
   allowGradient?: boolean
+  initialMode?: 'solid' | 'gradient'
+  onConfirm?: (v: string) => void
+  confirmLabel?: string
+  className?: string
 }) {
   const parsedGradient = useMemo(() => parseGradient(value), [])
   const initialSolid = parsedGradient ? parsedGradient.stops[0].color : value
@@ -125,7 +133,11 @@ export function ColorPickerPanel({
   const initHsv = rgbToHsv(init.r, init.g, init.b)
 
   const [mode, setMode] = useState<'solid' | 'gradient'>(
-    parsedGradient && allowGradient ? 'gradient' : 'solid',
+    initialMode && allowGradient
+      ? initialMode
+      : parsedGradient && allowGradient
+        ? 'gradient'
+        : 'solid',
   )
   const [gradType, setGradType] = useState<GradientType>(parsedGradient?.type ?? 'linear')
   const [angle, setAngle] = useState(parsedGradient?.angle ?? 40)
