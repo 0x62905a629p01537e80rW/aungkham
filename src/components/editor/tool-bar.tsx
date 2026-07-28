@@ -343,38 +343,8 @@ function ToolContent({
         </div>
       )
     case 'font':
-      return (
-        <div className="space-y-3">
-          <ToolHeading>Typeface</ToolHeading>
-          <Select value={layer.fontKey} onValueChange={(v) => onChange({ fontKey: v })}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="max-h-72">
-              {FONT_CATEGORIES.map((cat) => {
-                const items = FONTS.filter((f) => f.category === cat)
-                if (!items.length) return null
-                return (
-                  <SelectGroup key={cat}>
-                    <SelectLabel className="text-[11px] uppercase tracking-wide opacity-70">
-                      {cat === 'Myanmar'
-                        ? 'Myanmar — Normal'
-                        : cat === 'Myanmar Pro'
-                          ? 'Myanmar — Premium'
-                          : cat}
-                    </SelectLabel>
-                    {items.map((f) => (
-                      <SelectItem key={f.key} value={f.key}>
-                        <span style={{ fontFamily: fontFamily(f.key) }}>{f.label}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                )
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-      )
+      return <FontPicker layer={layer} onChange={onChange} />
+
     case 'format': {
       const width = layer.widthScale ?? 100
       const toggle =
