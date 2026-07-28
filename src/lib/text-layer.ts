@@ -2,6 +2,10 @@ export type TextAlign = 'left' | 'center' | 'right'
 
 export type TextureType = 'none' | 'ocean' | 'neon' | 'mono'
 
+export type FillType = 'solid' | 'gradient' | 'texture'
+
+export type PatternType = 'none' | 'dots' | 'stripes' | 'grid' | 'checks'
+
 export interface TextLayer {
   id: string
   text: string
@@ -29,7 +33,34 @@ export interface TextLayer {
   skewX: number
   skewY: number
   hidden?: boolean
+
+  /* Fill */
+  fillType: FillType
+  gradientFrom: string
+  gradientTo: string
+  gradientAngle: number
+  pattern: PatternType
+  patternColor: string
+
+  /* 3D extrusion */
+  depthOn: boolean
+  depth: number
+  depthDarken: number
+  depthColor: string
+
+  /* 3D rotation / perspective */
+  rotateX: number
+  rotateY: number
+  perspective: number
+
+  /* Bend (arc) */
+  bend: number
+
+  /* Flip */
+  flipH: boolean
+  flipV: boolean
 }
+
 
 export interface FontOption {
   key: string
@@ -92,6 +123,22 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     highlightColor: '#2563eb',
     skewX: 0,
     skewY: 0,
+    fillType: 'solid',
+    gradientFrom: '#ff7a18',
+    gradientTo: '#af002d',
+    gradientAngle: 90,
+    pattern: 'none',
+    patternColor: '#000000',
+    depthOn: false,
+    depth: 30,
+    depthDarken: 48,
+    depthColor: '#1d4ed8',
+    rotateX: 0,
+    rotateY: 0,
+    perspective: 600,
+    bend: 0,
+    flipH: false,
+    flipV: false,
     hidden: false,
   }
 }

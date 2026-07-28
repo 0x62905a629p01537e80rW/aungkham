@@ -1,7 +1,19 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { Maximize2, Pencil, X, ZoomIn, ZoomOut, Minimize } from 'lucide-react'
+import {
+  Copy,
+  FlipHorizontal,
+  FlipVertical,
+  Layers,
+  Maximize2,
+  Pencil,
+  RefreshCw,
+  X,
+  ZoomIn,
+  ZoomOut,
+  Minimize,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { layerTextStyle } from './text-layer-view'
+import { LayerText, layerTextStyle, layerTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
 
 interface CanvasPreviewProps {
@@ -16,13 +28,32 @@ interface CanvasPreviewProps {
   onResize: (id: string, fontSize: number) => void
   onDelete: (id: string) => void
   onEditText: (id: string, text: string) => void
+  onChange?: (id: string, patch: Partial<TextLayer>) => void
+  onDuplicate?: (id: string) => void
+  onBringForward?: (id: string) => void
 }
 
 export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
   function CanvasPreview(
-    { image, aspectRatio, layers, selectedId, exporting, showGrid = false, onSelect, onMove, onResize, onDelete, onEditText },
+    {
+      image,
+      aspectRatio,
+      layers,
+      selectedId,
+      exporting,
+      showGrid = false,
+      onSelect,
+      onMove,
+      onResize,
+      onDelete,
+      onEditText,
+      onChange,
+      onDuplicate,
+      onBringForward,
+    },
     ref,
   ) {
+
     const containerRef = useRef<HTMLDivElement | null>(null)
     const dragState = useRef<{ id: string; pointerId: number; moved: boolean; startX: number; startY: number } | null>(null)
     const resizeState = useRef<{
@@ -281,6 +312,49 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
+    const rotateState = useRef<{ id: string; startAngle: number; startRotation: number } | null>(null)
+
+    function pointerAngle(layer: TextLayer, clientX: number, clientY: number) {
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (!rect) return 0
+      const cx = rect.left + (layer.x / 100) * rect.width
+      const cy = rect.top + (layer.y / 100) * rect.height
+      return (Math.atan2(clientY - cy, clientX - cx) * 180) / Math.PI
+    }
+
+    function handleRotateDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
+      e.stopPropagation()
+      e.preventDefault()
+      e.currentTarget.setPointerCapture(e.pointerId)
+      rotateState.current = {
+        id: layer.id,
+        startAngle: pointerAngle(layer, e.clientX, e.clientY),
+        startRotation: layer.rotation,
+      }
+    }
+
+    function handleRotateMove(e: PointerEvent<HTMLButtonElement>) {
+      const st = rotateState.current
+      if (!st) return
+      const layer = layers.find((l) => l.id === st.id)
+      if (!layer) return
+      const delta = pointerAngle(layer, e.clientX, e.clientY) - st.startAngle
+      let next = Math.round(st.startRotation + delta)
+      if (Math.abs(next % 90) < 4) next = Math.round(next / 90) * 90
+      onChange?.(st.id, { rotation: ((next + 180) % 360) - 180 })
+    }
+
+    function handleRotateUp(e: PointerEvent<HTMLButtonElement>) {
+      rotateState.current = null
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      } catch {
+        /* ignore */
+      }
+    }
+
+
+
     return (
       <div
         ref={ref}
@@ -334,7 +408,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               position: 'absolute',
               left: `${layer.x}%`,
               top: `${layer.y}%`,
-              transform: `translate(-50%, -50%) rotate(${layer.rotation}deg) skew(${layer.skewX}deg, ${layer.skewY}deg)`,
+              transform: layerTransform(layer),
               opacity: layer.opacity,
               whiteSpace: 'nowrap',
               cursor: isEditing ? 'text' : 'move',
@@ -344,20 +418,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             }
 
             const textStyle = layerTextStyle(layer)
-            const inner = layer.highlight ? (
-              <span
-                style={{
-                  display: 'inline-block',
-                  backgroundColor: layer.highlightColor,
-                  padding: '0.08em 0.28em',
-                  borderRadius: '0.08em',
-                }}
-              >
-                <span style={textStyle}>{layer.text || ' '}</span>
-              </span>
-            ) : (
-              <p style={textStyle}>{layer.text || ' '}</p>
-            )
+            const inner = <LayerText layer={layer} />
+
 
             return (
               <div
@@ -465,8 +527,95 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       <Maximize2 className="size-4" />
                     </button>
 
+                    <button
+                      type="button"
+                      aria-label="Rotate text"
+                      onPointerDown={(e) => handleRotateDown(e, layer)}
+                      onPointerMove={handleRotateMove}
+                      onPointerUp={handleRotateUp}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        cursor: 'grab',
+                        touchAction: 'none',
+                        left: '50%',
+                        top: 0,
+                        transform: `translate(-50%, -50%) scale(${inv})`,
+                      }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <RefreshCw className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Flip horizontally"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onChange?.(layer.id, { flipH: !layer.flipH })
+                      }}
+                      style={{ left: 0, top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <FlipHorizontal className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Bring to front"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onBringForward?.(layer.id)
+                      }}
+                      style={{ left: '100%', top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <Layers className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Duplicate text"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDuplicate?.(layer.id)
+                      }}
+                      style={{ left: '50%', top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <Copy className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Flip vertically"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onChange?.(layer.id, { flipV: !layer.flipV })
+                      }}
+                      style={{ left: 0, top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <FlipVertical className="size-4" />
+                    </button>
                   </>
                 )}
+
               </div>
             )
           })}

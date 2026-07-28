@@ -322,6 +322,10 @@ export function Editor() {
                 onResize={(id, fontSize) => updateLayer(id, { fontSize })}
                 onDelete={deleteLayer}
                 onEditText={(id, text) => updateLayer(id, { text })}
+                onChange={updateLayer}
+                onDuplicate={duplicateLayer}
+                onBringForward={(id) => moveLayer(id, 'front')}
+
               />
             </div>
           </main>
@@ -336,9 +340,11 @@ export function Editor() {
             onAdd={addLayer}
             onDuplicate={duplicateLayer}
             onDelete={deleteLayer}
+            onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
             onImageTool={(t) => setBgTool(t)}
           />
+
 
           <input
             ref={replaceRef}
