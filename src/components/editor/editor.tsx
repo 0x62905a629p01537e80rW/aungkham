@@ -116,6 +116,8 @@ export function Editor() {
         exporting={exporting}
         onNewImage={resetAll}
         onDownload={handleDownload}
+        onReplaceImage={() => replaceRef.current?.click()}
+        onSaveProject={handleDownload}
       />
 
       {!image ? (
