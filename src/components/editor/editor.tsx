@@ -446,6 +446,10 @@ export function Editor() {
             />
           )}
 
+          <RateDialog open={rating && showSave} onClose={() => setRating(false)} />
+
+
+
           <ExportCanvas ref={exportRef} image={image} layers={layers} size={naturalSize} />
 
           {filtering && (
