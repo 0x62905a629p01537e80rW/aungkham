@@ -194,3 +194,52 @@
 .canvas-handle-icon {
   color: var(--foreground);
 }
+
+/* ---------------------------------------------------------------
+   Liquid glass surfaces — frosted, translucent, with a fortified
+   edge: crisp rim light, inner bevel and a deep grounded shadow.
+   --------------------------------------------------------------- */
+
+@utility glass-panel {
+  background-image:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--card) 62%, transparent),
+      color-mix(in oklab, var(--card) 38%, transparent)
+    );
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 55%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--foreground) 8%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, white 14%, transparent),
+    0 18px 45px -18px color-mix(in oklab, var(--foreground) 45%, transparent);
+}
+
+@utility glass-tile {
+  background-image:
+    linear-gradient(
+      150deg,
+      color-mix(in oklab, var(--card) 70%, transparent),
+      color-mix(in oklab, var(--card) 42%, transparent)
+    );
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  backdrop-filter: blur(18px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 50%, transparent),
+    0 10px 24px -14px color-mix(in oklab, var(--foreground) 40%, transparent);
+}
+
+@utility glass-bar {
+  background-image:
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--background) 72%, transparent),
+      color-mix(in oklab, var(--background) 55%, transparent)
+    );
+  backdrop-filter: blur(26px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 45%, transparent),
+    0 -10px 30px -20px color-mix(in oklab, var(--foreground) 45%, transparent);
+}
+

@@ -58,7 +58,7 @@ export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundPr
           <button
             type="button"
             onClick={() => cameraRef.current?.click()}
-            className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-border bg-card py-3.5 text-sm font-semibold transition active:scale-[0.98]"
+            className="glass-tile flex w-full items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold transition active:scale-[0.98]"
           >
             <Camera className="size-5 text-primary" />
             Take a Photo

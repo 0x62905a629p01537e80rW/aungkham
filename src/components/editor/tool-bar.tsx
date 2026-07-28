@@ -163,7 +163,7 @@ export function ToolBar({
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur-xl"
+      className="glass-bar fixed inset-x-0 bottom-0 z-30 border-t border-border/40"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       {/* Image / background row */}
@@ -255,7 +255,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="w-[min(92vw,300px)] rounded-2xl border-border/40 bg-popover/40 p-4 shadow-2xl backdrop-blur-2xl"
+                className="glass-panel w-[min(92vw,300px)] rounded-3xl p-4"
               >
                 <ToolContent
                   tool={tool.key}
