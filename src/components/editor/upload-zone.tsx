@@ -95,32 +95,43 @@ export function UploadZone({
       </div>
 
       {/* Tabs */}
-      <div className="mx-auto mt-6 flex w-full max-w-sm items-center gap-1 rounded-full border border-border bg-card/60 p-1 backdrop-blur">
-        {(
-          [
+      <div className="relative mx-auto mt-6 flex w-full max-w-sm items-center gap-1 rounded-full border border-border bg-card/60 p-1 backdrop-blur">
+        {(() => {
+          const tabs: { id: Tab; label: string; icon: typeof Images }[] = [
             { id: 'gallery', label: 'Gallery', icon: Images },
             { id: 'colors', label: 'Colors', icon: Palette },
             { id: 'projects', label: 'Projects', icon: FolderOpen },
-          ] as { id: Tab; label: string; icon: typeof Images }[]
-        ).map(({ id, label, icon: Icon }) => {
-          const active = tab === id
+          ]
+          const index = tabs.findIndex((t) => t.id === tab)
           return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition ${
-                active
-                  ? 'bg-primary text-primary-foreground shadow'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Icon className="size-3.5" />
-              {label}
-            </button>
+            <>
+              {/* Sliding indicator */}
+              <span
+                aria-hidden
+                className="absolute left-1 top-1 bottom-1 rounded-full bg-primary shadow transition-transform duration-300 ease-out"
+                style={{
+                  width: `calc((100% - 0.5rem - ${(tabs.length - 1) * 0.25}rem) / ${tabs.length})`,
+                  transform: `translateX(calc(${index} * (100% + 0.25rem)))`,
+                }}
+              />
+              {tabs.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setTab(id)}
+                  className={`relative z-10 flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors duration-200 active:scale-95 ${
+                    tab === id ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Icon className="size-3.5" />
+                  {label}
+                </button>
+              ))}
+            </>
           )
-        })}
+        })()}
       </div>
+
 
       {/* Tab content */}
       <div className="mx-auto mt-5 flex w-full max-w-sm flex-1 flex-col overflow-y-auto pb-4">

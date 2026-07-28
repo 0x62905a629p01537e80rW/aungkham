@@ -486,9 +486,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onDelete(layer.id)
                       }}
                       style={{ left: 0, top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
+                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <X className="size-5" strokeWidth={2.5} />
+                      <X className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -503,9 +503,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         setEditingId(layer.id)
                       }}
                       style={{ left: '100%', top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
+                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <Keyboard className="size-5" strokeWidth={2.5} />
+                      <Keyboard className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -522,9 +522,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: '100%',
                         transform: `translate(-50%, -50%) scale(${inv})`,
                       }}
-                      className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
+                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <Scaling className="size-5" strokeWidth={2.5} />
+                      <Scaling className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -541,9 +541,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: 0,
                         transform: `translate(-50%, -50%) scale(${inv})`,
                       }}
-                      className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
+                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <RotateCw className="size-5" strokeWidth={2.5} />
+                      <RotateCw className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -558,9 +558,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onChange?.(layer.id, { flipH: !layer.flipH })
                       }}
                       style={{ left: 0, top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
+                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <FlipHorizontal2 className="size-5" strokeWidth={2.5} />
+                      <FlipHorizontal2 className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -575,9 +575,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onBringForward?.(layer.id)
                       }}
                       style={{ left: '100%', top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
+                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <ArrowUpToLine className="size-5" strokeWidth={2.5} />
+                      <ArrowUpToLine className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -592,9 +592,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onDuplicate?.(layer.id)
                       }}
                       style={{ left: '50%', top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
+                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <CopyPlus className="size-5" strokeWidth={2.5} />
+                      <CopyPlus className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -609,9 +609,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onChange?.(layer.id, { flipV: !layer.flipV })
                       }}
                       style={{ left: 0, top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-5 items-center justify-center canvas-handle-icon transition active:scale-90"
+                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <FlipVertical2 className="size-5" strokeWidth={2.5} />
+                      <FlipVertical2 className="size-4" strokeWidth={2.25} />
                     </button>
                   </>
                 )}
