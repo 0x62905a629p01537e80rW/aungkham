@@ -244,9 +244,21 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
             min={range.min}
             max={range.max}
             step={range.step}
+            onPointerDown={() => {
+              draggingRef.current = true
+            }}
+            onPointerUp={() => {
+              draggingRef.current = false
+              schedulePreview()
+            }}
+            onValueCommit={() => {
+              draggingRef.current = false
+              schedulePreview()
+            }}
             onValueChange={(v) => setValue(v[0])}
           />
         </div>
+
 
         {/* items rail */}
         <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
