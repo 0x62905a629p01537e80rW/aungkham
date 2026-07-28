@@ -96,12 +96,12 @@ const RECIPES: Recipe[] = [
     label: 'Bar Title',
     group: 'Bold',
     make: (c, p, f, mm) => [
-      shape(P.rect, 6.2, { x: 50, y: 50, fontSize: 11, color: p.accent }),
+      shape(P.rect, 9, { x: 50, y: 50, fontSize: 6, color: p.accent }),
       text(c.main.replace('\n', ' '), {
         x: 50,
         y: 50,
         fontKey: f.display,
-        fontSize: 9,
+        fontSize: 6.4,
         color: p.paper,
         lineHeight: lh(mm),
       }),
@@ -129,7 +129,7 @@ const RECIPES: Recipe[] = [
         color: p.ink,
         lineHeight: lh(mm),
       }),
-      shape(P.rect, 14, { x: 50, y: 63, fontSize: 0.9, color: p.accent }),
+      shape(P.rect, 40, { x: 50, y: 63, fontSize: 0.7, color: p.accent }),
       text(c.sub, { x: 50, y: 70, fontKey: f.body, fontSize: 4.4, letterSpacing: 2, color: p.ink }),
     ],
   },
@@ -223,7 +223,7 @@ const RECIPES: Recipe[] = [
     label: 'Thin Lines',
     group: 'Minimal',
     make: (c, p, f, mm) => [
-      shape(P.rect, 30, { x: 50, y: 34, fontSize: 0.35, color: p.ink }),
+      shape(P.rect, 90, { x: 50, y: 34, fontSize: 0.3, color: p.ink }),
       text(c.main.replace('\n', ' '), {
         x: 50,
         y: 50,
@@ -234,7 +234,7 @@ const RECIPES: Recipe[] = [
         color: p.ink,
         lineHeight: lh(mm),
       }),
-      shape(P.rect, 30, { x: 50, y: 66, fontSize: 0.35, color: p.ink }),
+      shape(P.rect, 90, { x: 50, y: 66, fontSize: 0.3, color: p.ink }),
     ],
   },
   {
