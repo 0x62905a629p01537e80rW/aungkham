@@ -334,7 +334,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               position: 'absolute',
               left: `${layer.x}%`,
               top: `${layer.y}%`,
-              transform: `translate(-50%, -50%) rotate(${layer.rotation}deg) skew(${layer.skewX}deg, ${layer.skewY}deg)`,
+              transform: layerTransform(layer),
               opacity: layer.opacity,
               whiteSpace: 'nowrap',
               cursor: isEditing ? 'text' : 'move',
@@ -344,20 +344,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             }
 
             const textStyle = layerTextStyle(layer)
-            const inner = layer.highlight ? (
-              <span
-                style={{
-                  display: 'inline-block',
-                  backgroundColor: layer.highlightColor,
-                  padding: '0.08em 0.28em',
-                  borderRadius: '0.08em',
-                }}
-              >
-                <span style={textStyle}>{layer.text || ' '}</span>
-              </span>
-            ) : (
-              <p style={textStyle}>{layer.text || ' '}</p>
-            )
+            const inner = <LayerText layer={layer} />
+
 
             return (
               <div
