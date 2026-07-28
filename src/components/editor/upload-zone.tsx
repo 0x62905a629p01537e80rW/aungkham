@@ -217,20 +217,6 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
                 <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Solid colors
                 </span>
-                <ColorPickerPopover
-                  value="#8235DC"
-                  allowGradient
-                  onChange={(css) => onImage(makeBackgroundDataUrl(css))}
-                >
-
-                  <button
-                    type="button"
-                    className="text-[11px] font-medium text-primary underline-offset-2 hover:underline"
-                  >
-                    Custom
-                  </button>
-                </ColorPickerPopover>
-
               </div>
               <div className="grid grid-cols-6 gap-2">
                 {SOLID_COLORS.map((c) => (
@@ -243,6 +229,7 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
                     style={{ background: c }}
                   />
                 ))}
+                <CustomTile label="Custom solid color" onClick={() => setPicker('solid')} />
               </div>
             </div>
 
@@ -261,6 +248,7 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
                     style={{ background: g.css }}
                   />
                 ))}
+                <CustomTile label="Custom gradient" onClick={() => setPicker('gradient')} />
               </div>
             </div>
           </div>
