@@ -332,10 +332,13 @@ function build(): ShapeDef[] {
 
 export const SHAPES: ShapeDef[] = build()
 
-export function shapeSvg(path: string, color = '#000000') {
+export function shapeSvg(path: string, color = '#000000', outline = false) {
+  if (outline) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" d="${path}"/></svg>`
+  }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="${color}" fill-rule="evenodd" d="${path}"/></svg>`
 }
 
-export function shapeDataUrl(path: string, color = '#000000') {
-  return `data:image/svg+xml;utf8,${encodeURIComponent(shapeSvg(path, color))}`
+export function shapeDataUrl(path: string, color = '#000000', outline = false) {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(shapeSvg(path, color, outline))}`
 }
