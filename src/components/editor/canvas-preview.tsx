@@ -288,9 +288,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                 key={layer.id}
                 style={wrapperStyle}
                 className={cn(
-                  'outline-2 outline-offset-4 outline-primary',
+                  'outline-primary',
                   isSelected ? 'outline-dashed' : 'outline-transparent',
                 )}
+
                 onPointerDown={(e) => handlePointerDown(e, layer.id)}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
