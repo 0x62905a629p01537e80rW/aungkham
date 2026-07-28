@@ -307,6 +307,19 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
         className="hidden"
         onChange={readFile}
       />
+
+      <ColorPickerFullScreen
+        key={picker ?? 'closed'}
+        open={picker !== null}
+        allowGradient
+        initialMode={picker ?? 'solid'}
+        value={picker === 'gradient' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#8235DC'}
+        onClose={() => setPicker(null)}
+        onConfirm={(css) => {
+          setPicker(null)
+          onImage(makeBackgroundDataUrl(css))
+        }}
+      />
     </div>
   )
 }
