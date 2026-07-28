@@ -298,7 +298,7 @@ export function ColorPickerPopover({
       <PopoverContent
         align={align}
         sideOffset={8}
-        className="w-[300px] border-0 bg-transparent p-0 shadow-none"
+        className="w-[248px] border-0 bg-transparent p-0 shadow-none"
       >
         <ColorPickerPanel value={value} onChange={onChange} />
       </PopoverContent>
