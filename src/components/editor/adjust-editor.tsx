@@ -83,42 +83,82 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
   const [group, setGroup] = useState<Group>('tone')
   const [active, setActive] = useState<AdjustKey>('exposure')
   const [busy, setBusy] = useState(false)
-  const [preview, setPreview] = useState(image)
 
   const sourceRef = useRef<HTMLImageElement | null>(null)
+  /** downscaled copies of the source, so live renders stay cheap */
+  const fastRef = useRef<HTMLCanvasElement | null>(null)
+  const fineRef = useRef<HTMLCanvasElement | null>(null)
+  const viewRef = useRef<HTMLCanvasElement | null>(null)
   const rafRef = useRef<number | null>(null)
+  const idleRef = useRef<number | null>(null)
+  const draggingRef = useRef(false)
+  const adjRef = useRef(adj)
+  adjRef.current = adj
+
+  function downscale(img: HTMLImageElement, max: number) {
+    const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight))
+    const c = document.createElement('canvas')
+    c.width = Math.max(1, Math.round(img.naturalWidth * k))
+    c.height = Math.max(1, Math.round(img.naturalHeight * k))
+    const ctx = c.getContext('2d')!
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(img, 0, 0, c.width, c.height)
+    return c
+  }
+
+  const paint = (quality: 'fast' | 'fine') => {
+    const src = quality === 'fast' ? fastRef.current : fineRef.current
+    const view = viewRef.current
+    if (!src || !view) return
+    const out = renderAdjusted(src, adjRef.current)
+    if (view.width !== out.width || view.height !== out.height) {
+      view.width = out.width
+      view.height = out.height
+    }
+    const ctx = view.getContext('2d')!
+    ctx.clearRect(0, 0, view.width, view.height)
+    ctx.drawImage(out, 0, 0)
+  }
 
   useEffect(() => {
     let alive = true
     loadImage(image).then((img) => {
       if (!alive) return
       sourceRef.current = img
+      fastRef.current = downscale(img, 420)
+      fineRef.current = downscale(img, 1000)
+      paint('fine')
     })
     return () => {
       alive = false
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [image])
 
-  // live preview (downscaled for speed)
-  useEffect(() => {
+  /** schedule a low-res paint now, and a crisp one once the user pauses */
+  function schedulePreview() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    rafRef.current = requestAnimationFrame(() => {
-      const img = sourceRef.current
-      if (!img) return
-      const canvas = renderAdjusted(img, adj, 900)
-      setPreview(canvas.toDataURL('image/png'))
-    })
+    rafRef.current = requestAnimationFrame(() => paint(draggingRef.current ? 'fast' : 'fine'))
+    if (idleRef.current) clearTimeout(idleRef.current)
+    idleRef.current = window.setTimeout(() => paint('fine'), 160)
+  }
+
+  useEffect(() => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      if (idleRef.current) clearTimeout(idleRef.current)
     }
-  }, [adj])
+  }, [])
 
   const items = useMemo(() => ITEMS.filter((i) => i.group === group), [group])
   const activeItem = ITEMS.find((i) => i.key === active)!
   const range = ADJUST_RANGES[active]
 
   function setValue(v: number) {
-    setAdj((p) => ({ ...p, [active]: v }))
+    if (adjRef.current[active] === v) return
+    adjRef.current = { ...adjRef.current, [active]: v }
+    setAdj(adjRef.current)
+    schedulePreview()
   }
 
   async function apply() {
@@ -132,6 +172,7 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
       setBusy(false)
     }
   }
+
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
