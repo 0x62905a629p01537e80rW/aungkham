@@ -9,6 +9,8 @@ import {
   Sparkles,
   Type as TypeIcon,
 } from 'lucide-react'
+import { ColorPickerPopover } from './color-picker'
+
 
 type Tab = 'gallery' | 'colors' | 'projects'
 
