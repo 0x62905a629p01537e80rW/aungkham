@@ -109,6 +109,7 @@ const IMAGE_TOOLS = [
 
 
 type ToolKey =
+  | 'style'
   | 'text'
   | 'font'
   | 'format'
