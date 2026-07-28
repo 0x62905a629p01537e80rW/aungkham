@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { Maximize2, Pencil, X } from 'lucide-react'
+import { Maximize2, Pencil, X, ZoomIn, ZoomOut, Minimize } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { layerTextStyle } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
@@ -41,13 +41,97 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }, [editingId])
 
+    const [view, setView] = useState({ scale: 1, tx: 0, ty: 0 })
+    const viewRef = useRef(view)
+    viewRef.current = view
+    const pointers = useRef(new Map<number, { x: number; y: number }>())
+    const pinchRef = useRef<{ dist: number; cx: number; cy: number; view: typeof view } | null>(null)
+    const panRef = useRef<{ x: number; y: number; view: typeof view } | null>(null)
+
     useEffect(() => {
-      if (exporting) setEditingId(null)
+      if (exporting) {
+        setEditingId(null)
+        setView({ scale: 1, tx: 0, ty: 0 })
+      }
     }, [exporting])
+
+    function clampView(v: { scale: number; tx: number; ty: number }) {
+      const scale = Math.max(1, Math.min(6, v.scale))
+      const rect = containerRef.current?.getBoundingClientRect()
+      const w = (rect?.width ?? 0) / (viewRef.current.scale || 1)
+      const h = (rect?.height ?? 0) / (viewRef.current.scale || 1)
+      const maxX = (w * (scale - 1)) / 2
+      const maxY = (h * (scale - 1)) / 2
+      return {
+        scale,
+        tx: Math.max(-maxX, Math.min(maxX, v.tx)),
+        ty: Math.max(-maxY, Math.min(maxY, v.ty)),
+      }
+    }
+
+    function stageDown(e: PointerEvent<HTMLDivElement>) {
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      if (pointers.current.size === 2) {
+        const [a, b] = [...pointers.current.values()]
+        pinchRef.current = {
+          dist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+          cx: (a.x + b.x) / 2,
+          cy: (a.y + b.y) / 2,
+          view: viewRef.current,
+        }
+        dragState.current = null
+      } else if (pointers.current.size === 1 && viewRef.current.scale > 1) {
+        panRef.current = { x: e.clientX, y: e.clientY, view: viewRef.current }
+      }
+    }
+
+    function stageMove(e: PointerEvent<HTMLDivElement>) {
+      if (!pointers.current.has(e.pointerId)) return
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      const pinch = pinchRef.current
+      if (pinch && pointers.current.size >= 2) {
+        const [a, b] = [...pointers.current.values()]
+        const dist = Math.hypot(a.x - b.x, a.y - b.y)
+        const cx = (a.x + b.x) / 2
+        const cy = (a.y + b.y) / 2
+        const ratio = dist / pinch.dist
+        setView(
+          clampView({
+            scale: pinch.view.scale * ratio,
+            tx: pinch.view.tx + (cx - pinch.cx),
+            ty: pinch.view.ty + (cy - pinch.cy),
+          }),
+        )
+        return
+      }
+      const pan = panRef.current
+      if (pan && !dragState.current && pointers.current.size === 1) {
+        setView(
+          clampView({
+            scale: pan.view.scale,
+            tx: pan.view.tx + (e.clientX - pan.x),
+            ty: pan.view.ty + (e.clientY - pan.y),
+          }),
+        )
+      }
+    }
+
+    function stageUp(e: PointerEvent<HTMLDivElement>) {
+      pointers.current.delete(e.pointerId)
+      if (pointers.current.size < 2) pinchRef.current = null
+      if (pointers.current.size === 0) panRef.current = null
+    }
+
+    function zoomBy(factor: number) {
+      setView((v) => clampView({ ...v, scale: v.scale * factor }))
+    }
+
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
       if (editingId === id) return
       e.stopPropagation()
+      stageDown(e)
+      if (pointers.current.size > 1) return
       onSelect(id)
       const el = e.currentTarget
       el.setPointerCapture(e.pointerId)
@@ -55,7 +139,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
-      if (!dragState.current) return
+      if (!dragState.current) {
+        stageMove(e)
+        return
+      }
       const dx = e.clientX - dragState.current.startX
       const dy = e.clientY - dragState.current.startY
       if (!dragState.current.moved && Math.hypot(dx, dy) < 4) return
@@ -66,12 +153,14 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const y = ((e.clientY - rect.top) / rect.height) * 100
       onMove(
         dragState.current.id,
-        Math.max(0, Math.min(100, x)),
-        Math.max(0, Math.min(100, y)),
+        Math.max(-200, Math.min(300, x)),
+        Math.max(-200, Math.min(300, y)),
       )
     }
 
+
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
+      stageUp(e)
       const st = dragState.current
       dragState.current = null
       try {
@@ -135,10 +224,24 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       <div
         ref={ref}
         className="relative w-full select-none overflow-hidden"
-        style={{ containerType: 'size', lineHeight: 0, aspectRatio }}
-        onPointerDown={() => onSelect(null)}
+        style={{ containerType: 'size', lineHeight: 0, aspectRatio, touchAction: 'none' }}
+        onPointerDown={(e) => {
+          onSelect(null)
+          stageDown(e)
+        }}
+        onPointerMove={stageMove}
+        onPointerUp={stageUp}
+        onPointerCancel={stageUp}
       >
-        <div ref={containerRef} className="absolute inset-0">
+        <div
+          ref={containerRef}
+          className="absolute inset-0"
+          style={{
+            transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.scale})`,
+            transformOrigin: 'center center',
+          }}
+        >
+
           <img
             src={image || '/placeholder.svg'}
             alt="Editing canvas"
@@ -278,7 +381,42 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             )
           })}
         </div>
+
+        {!exporting && (
+          <div
+            className="absolute bottom-2 right-2 flex flex-col gap-1"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Zoom in"
+              onClick={() => zoomBy(1.3)}
+              className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
+            >
+              <ZoomIn className="size-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Zoom out"
+              onClick={() => zoomBy(1 / 1.3)}
+              className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
+            >
+              <ZoomOut className="size-4" />
+            </button>
+            {view.scale > 1 && (
+              <button
+                type="button"
+                aria-label="Reset zoom"
+                onClick={() => setView({ scale: 1, tx: 0, ty: 0 })}
+                className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
+              >
+                <Minimize className="size-4" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
+
     )
   },
 )
