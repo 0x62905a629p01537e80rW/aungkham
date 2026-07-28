@@ -33,7 +33,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     } | null>(null)
     const lastTapRef = useRef<{ id: string; time: number } | null>(null)
     const [editingId, setEditingId] = useState<string | null>(null)
+    const [guides, setGuides] = useState<{ v: boolean; h: boolean }>({ v: false, h: false })
     const editorRef = useRef<HTMLTextAreaElement | null>(null)
+
 
     useEffect(() => {
       if (editingId && editorRef.current) {
