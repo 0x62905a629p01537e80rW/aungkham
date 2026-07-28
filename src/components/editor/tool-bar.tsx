@@ -66,6 +66,8 @@ import { cn } from '@/lib/utils'
 import { rotateImage } from '@/lib/texture-image'
 import {
   FONTS,
+  type FontOption,
+
   FONT_CATEGORIES,
   TEXTURES,
   fontFamily,
