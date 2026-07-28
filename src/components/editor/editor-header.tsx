@@ -156,7 +156,9 @@ export function EditorHeader({
           <div className="flex items-center gap-1.5">
             <PremiumBadge />
             <ThemeToggle className="glass-tile size-9 rounded-full text-foreground" />
+            <SettingsSheet />
           </div>
+
         </>
       )}
     </header>
