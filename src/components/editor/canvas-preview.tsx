@@ -95,6 +95,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
     function stageDown(e: PointerEvent<HTMLDivElement>) {
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      measureBase()
       if (pointers.current.size === 2) {
         const [a, b] = [...pointers.current.values()]
         pinchRef.current = {
@@ -119,24 +120,20 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         const cx = (a.x + b.x) / 2
         const cy = (a.y + b.y) / 2
         const ratio = dist / pinch.dist
-        setView(
-          clampView({
-            scale: pinch.view.scale * ratio,
-            tx: pinch.view.tx + (cx - pinch.cx),
-            ty: pinch.view.ty + (cy - pinch.cy),
-          }),
-        )
+        commitView({
+          scale: pinch.view.scale * ratio,
+          tx: pinch.view.tx + (cx - pinch.cx),
+          ty: pinch.view.ty + (cy - pinch.cy),
+        })
         return
       }
       const pan = panRef.current
       if (pan && !dragState.current && pointers.current.size === 1) {
-        setView(
-          clampView({
-            scale: pan.view.scale,
-            tx: pan.view.tx + (e.clientX - pan.x),
-            ty: pan.view.ty + (e.clientY - pan.y),
-          }),
-        )
+        commitView({
+          scale: pan.view.scale,
+          tx: pan.view.tx + (e.clientX - pan.x),
+          ty: pan.view.ty + (e.clientY - pan.y),
+        })
       }
     }
 
@@ -147,8 +144,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function zoomBy(factor: number) {
-      setView((v) => clampView({ ...v, scale: v.scale * factor }))
+      measureBase()
+      commitView({ ...viewRef.current, scale: viewRef.current.scale * factor })
     }
+
 
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
