@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { Maximize2, Pencil, X, ZoomIn, ZoomOut, Minimize } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { layerTextStyle } from './text-layer-view'
+import { LayerText, layerTextStyle, layerTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
 
 interface CanvasPreviewProps {
