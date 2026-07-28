@@ -5,6 +5,7 @@ import { UploadZone } from './upload-zone'
 import { CanvasPreview } from './canvas-preview'
 import { ToolBar } from './tool-bar'
 import { BackgroundEditor, type BgTool } from './background-editor'
+import { AdjustEditor } from './adjust-editor'
 import { SaveShare } from './save-share'
 import { ReplaceBackground } from './replace-background'
 import { ExportCanvas } from './export-canvas'
@@ -20,6 +21,7 @@ export function Editor() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
+  const [adjusting, setAdjusting] = useState(false)
   const [showGrid, setShowGrid] = useState(false)
   const [replacing, setReplacing] = useState(false)
   const [showSave, setShowSave] = useState(false)
@@ -340,7 +342,7 @@ export function Editor() {
             onDelete={deleteLayer}
             onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
-            onImageTool={(t) => setBgTool(t)}
+            onImageTool={(t) => (t === 'adjust' ? setAdjusting(true) : setBgTool(t as BgTool))}
           />
 
 
@@ -375,6 +377,17 @@ export function Editor() {
           )}
 
           <ExportCanvas ref={exportRef} image={image} layers={layers} size={naturalSize} />
+
+          {adjusting && (
+            <AdjustEditor
+              image={image}
+              onCancel={() => setAdjusting(false)}
+              onApply={(url) => {
+                setAdjusting(false)
+                applyBackground(url)
+              }}
+            />
+          )}
 
           {bgTool && (
             <BackgroundEditor
