@@ -37,6 +37,7 @@ import {
   Square,
   Sun,
   Type as TypeIcon,
+  FlipVertical,
   TypeOutline,
   WandSparkles,
 } from 'lucide-react'
