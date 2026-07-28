@@ -70,8 +70,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const scale = Math.max(1, Math.min(6, v.scale))
       if (!baseSize.current.w) measureBase()
       const { w, h } = baseSize.current
+      // Extra vertical slack so the whole image can be dragged up/down into
+      // view even at 1x, when the toolbar covers part of the canvas.
+      const slackY = h * 0.4
       const maxX = (w * (scale - 1)) / 2
-      const maxY = (h * (scale - 1)) / 2
+      const maxY = (h * (scale - 1)) / 2 + slackY
       return {
         scale,
         tx: Math.max(-maxX, Math.min(maxX, v.tx)),
@@ -106,7 +109,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         }
         panRef.current = null
         dragState.current = null
-      } else if (pointers.current.size === 1 && viewRef.current.scale > 1) {
+      } else if (pointers.current.size === 1) {
         panRef.current = { x: e.clientX, y: e.clientY, view: viewRef.current }
       }
     }
