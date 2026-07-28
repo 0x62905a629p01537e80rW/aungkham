@@ -188,26 +188,8 @@ export function Editor() {
     handleSaveImage()
   }, [preview, handleSaveImage])
 
-  const handleDownload = useCallback(async () => {
-    const node = canvasRef.current
-    if (!node || !naturalSize) return
-    setExporting(true)
-    setSelectedId(null)
-    await new Promise((r) => requestAnimationFrame(() => r(null)))
-    try {
-      const rect = node.getBoundingClientRect()
-      const pixelRatio = Math.min(4, Math.max(1, naturalSize.w / Math.max(1, rect.width)))
-      const dataUrl = await toPng(node, { pixelRatio, cacheBust: true })
-      const link = document.createElement('a')
-      link.download = 'text-on-photo.png'
-      link.href = dataUrl
-      link.click()
-    } catch (err) {
-      console.log('[export failed]', err)
-    } finally {
-      setExporting(false)
-    }
-  }, [naturalSize])
+  void historyTick
+
 
   const handleSaveProject = useCallback(() => {
     if (!image) return
