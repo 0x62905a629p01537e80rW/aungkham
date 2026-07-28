@@ -486,9 +486,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onDelete(layer.id)
                       }}
                       style={{ left: 0, top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-8 items-center justify-center rounded-full bg-destructive text-white shadow-md ring-2 ring-card transition active:scale-90"
+                      className="absolute flex size-5 items-center justify-center text-destructive drop-shadow transition active:scale-90"
                     >
-                      <X className="size-4" />
+                      <X className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -503,9 +503,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         setEditingId(layer.id)
                       }}
                       style={{ left: '100%', top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
+                      className="absolute flex size-5 items-center justify-center text-primary drop-shadow transition active:scale-90"
                     >
-                      <Pencil className="size-4" />
+                      <Pencil className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -522,9 +522,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: '100%',
                         transform: `translate(-50%, -50%) scale(${inv})`,
                       }}
-                      className="absolute flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
+                      className="absolute flex size-5 items-center justify-center text-primary drop-shadow transition active:scale-90"
                     >
-                      <Maximize2 className="size-4" />
+                      <Maximize2 className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -541,9 +541,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: 0,
                         transform: `translate(-50%, -50%) scale(${inv})`,
                       }}
-                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                      className="absolute flex size-5 items-center justify-center text-foreground drop-shadow transition active:scale-90"
                     >
-                      <RefreshCw className="size-4" />
+                      <RefreshCw className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -558,9 +558,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onChange?.(layer.id, { flipH: !layer.flipH })
                       }}
                       style={{ left: 0, top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                      className="absolute flex size-5 items-center justify-center text-foreground drop-shadow transition active:scale-90"
                     >
-                      <FlipHorizontal className="size-4" />
+                      <FlipHorizontal className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -575,9 +575,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onBringForward?.(layer.id)
                       }}
                       style={{ left: '100%', top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                      className="absolute flex size-5 items-center justify-center text-foreground drop-shadow transition active:scale-90"
                     >
-                      <Layers className="size-4" />
+                      <Layers className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -592,9 +592,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onDuplicate?.(layer.id)
                       }}
                       style={{ left: '50%', top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                      className="absolute flex size-5 items-center justify-center text-foreground drop-shadow transition active:scale-90"
                     >
-                      <Copy className="size-4" />
+                      <Copy className="size-5" strokeWidth={2.5} />
                     </button>
 
                     <button
@@ -609,9 +609,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onChange?.(layer.id, { flipV: !layer.flipV })
                       }}
                       style={{ left: 0, top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                      className="absolute flex size-5 items-center justify-center text-foreground drop-shadow transition active:scale-90"
                     >
-                      <FlipVertical className="size-4" />
+                      <FlipVertical className="size-5" strokeWidth={2.5} />
                     </button>
                   </>
                 )}
