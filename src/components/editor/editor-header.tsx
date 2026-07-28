@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, Grid3x3, Layers, Plus, Redo2, Undo2 } from 'luci
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PremiumBadge } from './premium-badge'
+import { SettingsSheet } from './settings-sheet'
 import { ThemeToggle } from '@/components/theme-provider'
 import { LayersList } from './layers-list'
 import { cn } from '@/lib/utils'
