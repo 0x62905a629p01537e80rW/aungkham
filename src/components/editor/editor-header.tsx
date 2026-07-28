@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, Grid3x3, Layers, Plus, Redo2, Undo2 } from 'luci
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PremiumBadge } from './premium-badge'
+import { ThemeToggle } from '@/components/theme-provider'
 import { LayersList } from './layers-list'
 import { cn } from '@/lib/utils'
 import type { TextLayer } from '@/lib/text-layer'
@@ -152,7 +153,10 @@ export function EditorHeader({
               <p className="text-[11px] text-muted-foreground">Add Text On Photo</p>
             </div>
           </div>
-          <PremiumBadge />
+          <div className="flex items-center gap-1.5">
+            <PremiumBadge />
+            <ThemeToggle className="glass-tile size-9 rounded-full text-foreground" />
+          </div>
         </>
       )}
     </header>
