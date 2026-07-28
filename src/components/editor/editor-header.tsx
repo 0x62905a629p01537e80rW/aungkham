@@ -1,5 +1,6 @@
 import { Download, ImageUp, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PremiumBadge } from './premium-badge'
 
 interface EditorHeaderProps {
   hasImage: boolean
@@ -31,32 +32,35 @@ export function EditorHeader({
         </div>
       </div>
 
-      {hasImage && (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onNewImage}
-            className="h-9 gap-1.5 rounded-full px-3"
-          >
-            <ImageUp className="size-4" />
-            <span className="hidden sm:inline">New</span>
-          </Button>
-          <Button
-            size="sm"
-            onClick={onDownload}
-            disabled={exporting}
-            className="h-9 gap-1.5 rounded-full px-4"
-          >
-            {exporting ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Download className="size-4" />
-            )}
-            <span className="hidden sm:inline">Save</span>
-          </Button>
-        </div>
-      )}
+      <div className="flex items-center gap-2">
+        {hasImage && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNewImage}
+              className="h-9 gap-1.5 rounded-full px-3"
+            >
+              <ImageUp className="size-4" />
+              <span className="hidden sm:inline">New</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={onDownload}
+              disabled={exporting}
+              className="h-9 gap-1.5 rounded-full px-4"
+            >
+              {exporting ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Download className="size-4" />
+              )}
+              <span className="hidden sm:inline">Save</span>
+            </Button>
+          </>
+        )}
+        <PremiumBadge />
+      </div>
     </header>
   )
 }

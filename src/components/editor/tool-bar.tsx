@@ -3,10 +3,15 @@ import {
   AlignCenter,
   AlignLeft,
   AlignRight,
+  Aperture,
   Bold,
+  Crop,
   Droplet,
+  FlipHorizontal,
+  ImageUp,
   Italic,
   Layers as LayersIcon,
+  Maximize,
   MoveDiagonal,
   Palette,
   PenLine,
@@ -14,11 +19,13 @@ import {
   RotateCw,
   Ruler,
   Sparkles,
+  Square,
   Sun,
   Type as TypeIcon,
   TypeOutline,
   WandSparkles,
 } from 'lucide-react'
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -52,7 +59,19 @@ interface ToolBarProps {
   onAdd: () => void
   onDuplicate: (id: string) => void
   onDelete: (id: string) => void
+  onReplaceImage?: () => void
+  onImageTool?: (tool: 'crop' | 'resize' | 'flip' | 'square' | 'blur') => void
 }
+
+const IMAGE_TOOLS = [
+  { key: 'replace', label: 'Replace', icon: ImageUp },
+  { key: 'crop', label: 'Crop', icon: Crop },
+  { key: 'resize', label: 'Resize', icon: Maximize },
+  { key: 'flip', label: 'Flip', icon: FlipHorizontal },
+  { key: 'square', label: 'Square', icon: Square },
+  { key: 'blur', label: 'Blur', icon: Aperture },
+] as const
+
 
 type ToolKey =
   | 'text'
@@ -105,6 +124,8 @@ export function ToolBar({
   onAdd,
   onDuplicate,
   onDelete,
+  onReplaceImage,
+  onImageTool,
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
 
@@ -113,6 +134,28 @@ export function ToolBar({
       className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur-xl"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
+      {/* Image / background row */}
+      <div className="flex items-center gap-1 overflow-x-auto border-b border-border/60 px-2 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <span className="mr-1 shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Image
+        </span>
+        {IMAGE_TOOLS.map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() =>
+              key === 'replace'
+                ? onReplaceImage?.()
+                : onImageTool?.(key as 'crop' | 'resize' | 'flip' | 'square' | 'blur')
+            }
+            className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
+          >
+            <Icon className="size-[17px]" />
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="flex items-center gap-1 overflow-x-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <button
           type="button"
@@ -125,6 +168,7 @@ export function ToolBar({
         </button>
 
         <span className="mx-1 h-8 w-px shrink-0 bg-border" />
+
 
         {TOOLS.map((tool) => {
           const disabled = tool.needsLayer && !selected
