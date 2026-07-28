@@ -313,7 +313,7 @@ export function ColorPickerPanel({
     <div
       className={
         className ??
-        'w-full rounded-2xl bg-white p-2.5 text-neutral-800 shadow-[0_18px_40px_-16px_rgba(15,15,40,0.45)]'
+        'glass-panel w-full rounded-2xl p-2.5 text-foreground'
       }
     >
       {/* Saturation/Value area */}

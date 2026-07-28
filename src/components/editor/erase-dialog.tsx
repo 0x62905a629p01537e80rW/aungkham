@@ -91,7 +91,7 @@ export function EraseDialog({ open, onOpenChange, layer, onApply }: EraseDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[min(96vw,420px)] rounded-2xl p-4">
+      <DialogContent className="glass-panel border-0 bg-transparent shadow-none w-[min(96vw,420px)] rounded-2xl p-4">
         <DialogHeader>
           <DialogTitle className="text-base">Erase</DialogTitle>
         </DialogHeader>

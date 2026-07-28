@@ -255,7 +255,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="glass-panel w-[min(92vw,300px)] rounded-3xl p-4"
+                className="glass-panel border-0 bg-transparent shadow-none w-[min(92vw,300px)] rounded-3xl p-4"
               >
                 <ToolContent
                   tool={tool.key}

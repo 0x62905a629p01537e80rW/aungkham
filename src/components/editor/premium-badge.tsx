@@ -55,7 +55,7 @@ export function PremiumBadge() {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-[22rem] overflow-hidden rounded-3xl p-0">
+        <DialogContent className="glass-panel border-0 bg-transparent shadow-none max-w-[22rem] overflow-hidden rounded-3xl p-0">
           <div className="premium-shine px-5 pb-6 pt-6 text-center text-white">
             <div className="mx-auto mb-3 grid size-14 place-items-center rounded-2xl bg-white/20 backdrop-blur">
               <ProGem className="premium-float size-8" />
