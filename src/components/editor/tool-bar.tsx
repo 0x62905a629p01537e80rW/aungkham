@@ -3,10 +3,15 @@ import {
   AlignCenter,
   AlignLeft,
   AlignRight,
+  Aperture,
   Bold,
+  Crop,
   Droplet,
+  FlipHorizontal,
+  ImageUp,
   Italic,
   Layers as LayersIcon,
+  Maximize,
   MoveDiagonal,
   Palette,
   PenLine,
@@ -14,11 +19,13 @@ import {
   RotateCw,
   Ruler,
   Sparkles,
+  Square,
   Sun,
   Type as TypeIcon,
   TypeOutline,
   WandSparkles,
 } from 'lucide-react'
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
