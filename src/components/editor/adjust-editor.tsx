@@ -143,6 +143,12 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
     idleRef.current = window.setTimeout(() => paint('fine'), 160)
   }
 
+  // repaint on any adjustment change (incl. reset-all)
+  useEffect(() => {
+    schedulePreview()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adj])
+
   useEffect(() => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
