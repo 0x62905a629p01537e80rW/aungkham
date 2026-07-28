@@ -16,6 +16,8 @@ import { TemplatePicker } from './template-picker'
 import { makeSolidDataUrl } from '@/lib/background'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
+import { RateDialog } from './rate-dialog'
+import { shouldAskForRating } from '@/lib/rate-us'
 
 
 export function Editor() {
@@ -34,6 +36,7 @@ export function Editor() {
   const [templating, setTemplating] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const [savedProject, setSavedProject] = useState(false)
+  const [rating, setRating] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
   const exportRef = useRef<HTMLDivElement>(null)
   const replaceRef = useRef<HTMLInputElement>(null)
@@ -215,6 +218,7 @@ export function Editor() {
     setShowSave(true)
     const url = await renderPreview()
     setPreview(url)
+    if (shouldAskForRating()) setRating(true)
   }, [renderPreview])
 
   const handleSaveImage = useCallback(() => {
@@ -441,6 +445,10 @@ export function Editor() {
               onSaveProject={handleSaveProject}
             />
           )}
+
+          <RateDialog open={rating && showSave} onClose={() => setRating(false)} />
+
+
 
           <ExportCanvas ref={exportRef} image={image} layers={layers} size={naturalSize} />
 
