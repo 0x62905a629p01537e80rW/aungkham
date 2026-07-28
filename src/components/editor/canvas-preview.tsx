@@ -469,6 +469,25 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           })}
         </div>
 
+        {!exporting && (guides.v || guides.h) && (
+          <div className="pointer-events-none absolute inset-0">
+            {guides.v && (
+              <span
+                className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white"
+                style={{ boxShadow: '0 0 4px rgba(0,0,0,0.55)' }}
+              />
+            )}
+            {guides.h && (
+              <span
+                className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-white"
+                style={{ boxShadow: '0 0 4px rgba(0,0,0,0.55)' }}
+              />
+            )}
+          </div>
+        )}
+
+
+
         {!exporting && (
           <div
             className="absolute bottom-2 right-2 flex flex-col gap-1"
