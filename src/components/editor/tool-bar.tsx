@@ -557,8 +557,12 @@ function ToolContent({
           />
         </div>
       )
+    case 'style':
+      return <StylePicker layer={layer} onChange={onChange} />
+
     case 'font':
       return <FontPicker layer={layer} onChange={onChange} />
+
 
     case 'format': {
       const width = layer.widthScale ?? 100
