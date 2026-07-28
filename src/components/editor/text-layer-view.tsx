@@ -62,11 +62,13 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
         .join(' ') || 'none',
   }
 
-  const clipped = (image: string, size?: string): CSSProperties => ({
+  const clipped = (image: string, size?: string, position?: string): CSSProperties => ({
     ...base,
     backgroundColor: layer.color,
     backgroundImage: image,
     backgroundSize: size,
+    backgroundPosition: position,
+    backgroundRepeat: 'no-repeat',
     WebkitBackgroundClip: 'text',
     backgroundClip: 'text',
     color: 'transparent',
@@ -80,12 +82,16 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
   }
 
   if (fillType === 'texture') {
-    if (layer.textureImage) return clipped(`url(${layer.textureImage})`, 'cover')
-    const pattern = PATTERNS[layer.pattern ?? 'none']
-    const patternImage = pattern?.image(layer.patternColor ?? '#000000')
-    if (patternImage) return clipped(patternImage, pattern.size)
+    if (layer.textureImage) {
+      const sx = layer.textureScaleX ?? 100
+      const sy = layer.textureScaleY ?? 100
+      const px = layer.textureOffsetX ?? 50
+      const py = layer.textureOffsetY ?? 50
+      return clipped(`url(${layer.textureImage})`, `${sx}% ${sy}%`, `${px}% ${py}%`)
+    }
     if (texture.gradient) return clipped(texture.gradient)
   }
+
 
   return { ...base, color: layer.color }
 }
