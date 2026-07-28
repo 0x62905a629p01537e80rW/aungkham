@@ -1,4 +1,4 @@
-import { Download, ImageUp, Loader2, Type } from 'lucide-react'
+import { Download, ImageUp, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface EditorHeaderProps {
