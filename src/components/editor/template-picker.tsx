@@ -22,21 +22,6 @@ const THUMB_BG = [
   '#fbf6dd',
 ]
 
-/** varied tile shapes: [colSpan, rowSpan] */
-const TILE_SPANS: [number, number][] = [
-  [2, 2],
-  [1, 2],
-  [1, 1],
-  [1, 1],
-  [2, 1],
-  [1, 2],
-  [1, 2],
-  [1, 1],
-  [1, 1],
-  [2, 2],
-  [2, 1],
-  [1, 1],
-]
 
 function hashOf(s: string) {
   let h = 0
