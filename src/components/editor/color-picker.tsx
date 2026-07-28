@@ -73,7 +73,7 @@ function buildGradient(type: GradientType, angle: number, stops: GradientStop[])
     : `radial-gradient(circle, ${body})`
 }
 
-function parseGradient(
+export function parseGradient(
   value: string,
 ): { type: GradientType; angle: number; stops: GradientStop[] } | null {
   const m = /^(linear|radial)-gradient\((.*)\)$/is.exec(value.trim())
