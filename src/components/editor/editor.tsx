@@ -12,6 +12,7 @@ import { ReplaceBackground } from './replace-background'
 import { ExportCanvas } from './export-canvas'
 import { createGraphicLayer, createTextLayer, type GraphicContent, type TextLayer } from '@/lib/text-layer'
 import { InsertMenu } from './insert-menu'
+import { TemplatePicker } from './template-picker'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
 
@@ -29,6 +30,7 @@ export function Editor() {
   const [replacing, setReplacing] = useState(false)
   const [showSave, setShowSave] = useState(false)
   const [inserting, setInserting] = useState(false)
+  const [templating, setTemplating] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const [savedProject, setSavedProject] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
@@ -353,6 +355,7 @@ export function Editor() {
             onDelete={deleteLayer}
             onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
+            onOpenTemplates={() => setTemplating(true)}
             onImageTool={(t) =>
               t === 'adjust'
                 ? setAdjusting(true)
@@ -370,6 +373,23 @@ export function Editor() {
             className="hidden"
             onChange={onReplaceFile}
           />
+
+          <TemplatePicker
+
+            open={templating}
+
+            onClose={() => setTemplating(false)}
+
+            onApply={(tpl) => {
+
+              setLayers((prev) => [...prev, ...tpl])
+
+              setSelectedId(tpl[tpl.length - 1]?.id ?? null)
+
+            }}
+
+          />
+
 
           <InsertMenu
             open={inserting}
