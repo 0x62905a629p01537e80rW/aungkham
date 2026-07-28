@@ -152,6 +152,7 @@ export function ToolBar({
   onAdd,
   onDuplicate,
   onDelete,
+  onMoveLayer,
   onReplaceImage,
   onImageTool,
 }: ToolBarProps) {
