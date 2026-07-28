@@ -310,7 +310,12 @@ export function ColorPickerPanel({
   const preview = mode === 'gradient' ? gradientCss : solidHex
 
   return (
-    <div className="w-full rounded-2xl bg-white p-2.5 text-neutral-800 shadow-[0_18px_40px_-16px_rgba(15,15,40,0.45)]">
+    <div
+      className={
+        className ??
+        'w-full rounded-2xl bg-white p-2.5 text-neutral-800 shadow-[0_18px_40px_-16px_rgba(15,15,40,0.45)]'
+      }
+    >
       {/* Saturation/Value area */}
       <div
         ref={areaRef}
