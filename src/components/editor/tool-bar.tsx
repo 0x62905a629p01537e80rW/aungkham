@@ -53,8 +53,6 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectGroup,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -68,7 +66,6 @@ import {
   FONTS,
   type FontOption,
 
-  FONT_CATEGORIES,
   TEXTURES,
   fontFamily,
   type TextAlign,
