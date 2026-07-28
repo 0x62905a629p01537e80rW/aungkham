@@ -59,12 +59,12 @@ function hsvToRgb(h: number, s: number, v: number) {
 
 // ---------- presets ----------
 
-const PALETTE_PRESETS: { name: string; stops: string[] }[] = [
-  { name: 'Glowing Blue', stops: ['#1a0b6b', '#2635c9', '#3657ff', '#6b8bff', '#a9bbff'] },
-  { name: 'Sunset', stops: ['#3a0a3a', '#7a1f5a', '#c73866', '#ff7a59', '#ffc48a'] },
-  { name: 'Forest', stops: ['#0b2e1a', '#1a5a30', '#3d8a4a', '#84c07a', '#d7ecb8'] },
-  { name: 'Rose Gold', stops: ['#3a1519', '#7a2b3b', '#c07178', '#e4b0a4', '#f6dcc9'] },
+const QUICK_SWATCHES = [
+  '#000000', '#ffffff', '#ff3b30', '#ff9500', '#ffcc00',
+  '#34c759', '#00c7be', '#3657ff', '#af52de', '#ff2d55',
 ]
+
+const SWATCH_STORAGE_KEY = 'color-picker:saved-swatches'
 
 // ---------- component ----------
 
@@ -82,7 +82,16 @@ export function ColorPickerPanel({
   const [v, setV] = useState(initialHsv.v)
   const [a, setA] = useState(initial.a)
   const [hexInput, setHexInput] = useState(value.toUpperCase())
-  const [customSwatches, setCustomSwatches] = useState<string[]>([])
+  const [customSwatches, setCustomSwatches] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const raw = window.localStorage.getItem(SWATCH_STORAGE_KEY)
+      const parsed = raw ? JSON.parse(raw) : []
+      return Array.isArray(parsed) ? (parsed as string[]) : []
+    } catch {
+      return []
+    }
+  })
 
   const areaRef = useRef<HTMLDivElement>(null)
   const hueRef = useRef<HTMLDivElement>(null)
@@ -148,33 +157,33 @@ export function ColorPickerPanel({
   }
 
   function addSwatch() {
-    setCustomSwatches((prev) => (prev.includes(hex) ? prev : [hex, ...prev].slice(0, 12)))
+    setCustomSwatches((prev) => {
+      const next = prev.includes(hex) ? prev : [hex, ...prev].slice(0, 12)
+      try {
+        window.localStorage.setItem(SWATCH_STORAGE_KEY, JSON.stringify(next))
+      } catch {
+        /* storage unavailable */
+      }
+      return next
+    })
   }
 
   const hueColor = `hsl(${h}, 100%, 50%)`
   const solidHex = rgbaToHex(rgb.r, rgb.g, rgb.b, 1)
 
   return (
-    <div className="rounded-2xl bg-[#f3f2f7] p-4 text-neutral-800 shadow-[0_18px_40px_-14px_rgba(15,15,40,0.35),inset_0_1px_0_rgba(255,255,255,0.9)]">
-      <div className="mb-3 flex items-center justify-between">
-        <span className="text-[13px] font-medium text-neutral-700">Color Picker</span>
-        <div className="flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-neutral-600 shadow-[0_1px_2px_rgba(0,0,0,0.06),inset_0_0_0_1px_rgba(0,0,0,0.04)]">
-          Hex
-          <svg viewBox="0 0 12 12" className="size-3 text-neutral-400"><path fill="currentColor" d="M3 4.5l3 3 3-3" /></svg>
-        </div>
-      </div>
-
+    <div className="rounded-xl bg-[#f3f2f7] p-3 text-neutral-800 shadow-[0_14px_32px_-14px_rgba(15,15,40,0.35),inset_0_1px_0_rgba(255,255,255,0.9)]">
       {/* Saturation/Value area */}
       <div
         ref={areaRef}
-        className="relative aspect-[1.7/1] w-full cursor-crosshair touch-none overflow-hidden rounded-xl"
+        className="relative aspect-[2.6/1] w-full cursor-crosshair touch-none overflow-hidden rounded-lg"
         style={{ background: hueColor }}
         onPointerDown={pointerDragging(areaRef, (x, y) => { setS(x); setV(1 - y) })}
       >
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, #fff, transparent)' }} />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #000, transparent)' }} />
         <div
-          className="pointer-events-none absolute size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.4)]"
+          className="pointer-events-none absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.4)]"
           style={{ left: `${s * 100}%`, top: `${(1 - v) * 100}%` }}
         />
       </div>
@@ -182,12 +191,12 @@ export function ColorPickerPanel({
       {/* Hue slider */}
       <div
         ref={hueRef}
-        className="relative mt-3 h-3 w-full cursor-pointer touch-none overflow-hidden rounded-full"
+        className="relative mt-2.5 h-2.5 w-full cursor-pointer touch-none overflow-hidden rounded-full"
         style={{ background: 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)' }}
         onPointerDown={pointerDragging(hueRef, (x) => setH(x * 360))}
       >
         <div
-          className="pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
+          className="pointer-events-none absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
           style={{ left: `${(h / 360) * 100}%`, background: hueColor }}
         />
       </div>
@@ -195,7 +204,7 @@ export function ColorPickerPanel({
       {/* Alpha slider */}
       <div
         ref={alphaRef}
-        className="relative mt-2 h-3 w-full cursor-pointer touch-none overflow-hidden rounded-full"
+        className="relative mt-2 h-2.5 w-full cursor-pointer touch-none overflow-hidden rounded-full"
         style={{
           backgroundImage:
             'linear-gradient(to right, transparent, ' + solidHex + '), url("data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22><rect width=%225%22 height=%225%22 fill=%22%23ccc%22/><rect x=%225%22 y=%225%22 width=%225%22 height=%225%22 fill=%22%23ccc%22/></svg>")',
@@ -203,21 +212,21 @@ export function ColorPickerPanel({
         onPointerDown={pointerDragging(alphaRef, (x) => setA(x))}
       >
         <div
-          className="pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
+          className="pointer-events-none absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
           style={{ left: `${a * 100}%`, background: solidHex }}
         />
       </div>
 
       {/* Hex + eyedropper + add */}
-      <div className="mt-4 flex items-center gap-2">
-        <div className="flex flex-1 items-center gap-2 rounded-xl bg-white px-3 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)]">
-          <span className="size-4 rounded-[4px] border border-black/10" style={{ background: solidHex }} />
+      <div className="mt-2.5 flex items-center gap-1.5">
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-lg bg-white px-2 py-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)]">
+          <span className="size-3.5 shrink-0 rounded-[3px] border border-black/10" style={{ background: solidHex }} />
           <input
             value={hexInput}
             onChange={(e) => setHexInput(e.target.value.toUpperCase())}
             onBlur={(e) => submitHex(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') submitHex((e.target as HTMLInputElement).value) }}
-            className="w-full bg-transparent font-mono text-[13px] font-medium tracking-wide text-neutral-800 outline-none"
+            className="w-full min-w-0 bg-transparent font-mono text-[12px] font-medium tracking-wide text-neutral-800 outline-none"
             spellCheck={false}
           />
         </div>
@@ -225,71 +234,49 @@ export function ColorPickerPanel({
           type="button"
           onClick={pickFromScreen}
           aria-label="Pick color from screen"
-          className="grid size-10 place-items-center rounded-xl bg-white text-neutral-700 shadow-[0_1px_2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)] transition active:scale-95"
+          className="grid size-8 shrink-0 place-items-center rounded-lg bg-white text-neutral-700 shadow-[0_1px_2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)] transition active:scale-95"
         >
-          <Pipette className="size-4" />
+          <Pipette className="size-3.5" />
         </button>
         <button
           type="button"
           onClick={addSwatch}
           aria-label="Save color"
-          className="grid size-10 place-items-center rounded-xl bg-white text-neutral-700 shadow-[0_1px_2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)] transition active:scale-95"
+          className="grid size-8 shrink-0 place-items-center rounded-lg bg-white text-neutral-700 shadow-[0_1px_2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)] transition active:scale-95"
         >
-          <Plus className="size-4" />
+          <Plus className="size-3.5" />
         </button>
+      </div>
+
+      {/* Quick swatches */}
+      <div className="mt-2.5 grid grid-cols-10 gap-1">
+        {QUICK_SWATCHES.map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => submitHex(c)}
+            className="aspect-square rounded-[5px] border border-black/10 transition active:scale-90"
+            style={{ background: c }}
+            aria-label={c}
+          />
+        ))}
       </div>
 
       {/* Custom saved swatches */}
       {customSwatches.length > 0 && (
-        <div className="mt-4">
-          <div className="mb-1.5 text-[12px] font-medium text-neutral-700">Saved</div>
-          <div className="flex flex-wrap gap-1.5">
-            {customSwatches.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => submitHex(c)}
-                className="size-6 rounded-md border border-black/10 shadow-sm transition active:scale-90"
-                style={{ background: c }}
-                aria-label={c}
-              />
-            ))}
-          </div>
+        <div className="mt-2 grid grid-cols-10 gap-1">
+          {customSwatches.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => submitHex(c)}
+              className="aspect-square rounded-[5px] border border-black/10 transition active:scale-90"
+              style={{ background: c }}
+              aria-label={c}
+            />
+          ))}
         </div>
       )}
-
-      {/* Preset palettes */}
-      <div className="mt-4 space-y-3">
-        {PALETTE_PRESETS.map((p) => {
-          const isActive = p.stops.includes(solidHex.toLowerCase())
-          return (
-            <div key={p.name}>
-              <div className="mb-1.5 text-[13px] font-medium text-neutral-800">{p.name}</div>
-              <div className="relative flex overflow-hidden rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
-                {p.stops.map((c, i) => {
-                  const active = isActive && c.toLowerCase() === solidHex.toLowerCase()
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => submitHex(c)}
-                      className="relative h-7 flex-1 transition active:scale-95"
-                      style={{ background: c }}
-                      aria-label={c}
-                    >
-                      {active && (
-                        <span className="pointer-events-none absolute inset-x-1 -top-1 -bottom-1 rounded-md bg-white/90 text-[10px] font-semibold uppercase leading-[1.9rem] tracking-wider text-neutral-700 shadow-[0_2px_6px_rgba(0,0,0,0.15)]">
-                          {c.toUpperCase()}
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )
-        })}
-      </div>
     </div>
   )
 }
@@ -311,7 +298,7 @@ export function ColorPickerPopover({
       <PopoverContent
         align={align}
         sideOffset={8}
-        className="w-[300px] border-0 bg-transparent p-0 shadow-none"
+        className="w-[248px] border-0 bg-transparent p-0 shadow-none"
       >
         <ColorPickerPanel value={value} onChange={onChange} />
       </PopoverContent>
