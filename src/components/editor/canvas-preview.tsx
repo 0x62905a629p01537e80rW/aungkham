@@ -65,6 +65,31 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     const [editingId, setEditingId] = useState<string | null>(null)
     const [guides, setGuides] = useState<{ v: boolean; h: boolean }>({ v: false, h: false })
     const editorRef = useRef<HTMLTextAreaElement | null>(null)
+    const [frame, setFrame] = useState({ w: 0, h: 0 })
+
+    // The image box keeps the source aspect ratio so on-canvas percentages and
+    // cq font sizes match the exported image exactly.
+    const boxSize = (() => {
+      if (!frame.w || !frame.h || !aspectRatio) return { w: 0, h: 0 }
+      const w = Math.min(frame.w, frame.h * aspectRatio)
+      return { w, h: w / aspectRatio }
+    })()
+
+    useEffect(() => {
+      const el = containerRef.current
+      if (!el) return
+      const update = () => {
+        const rect = el.getBoundingClientRect()
+        const s = viewRef.current.scale || 1
+        setFrame({ w: rect.width / s, h: rect.height / s })
+      }
+      update()
+      const ro = new ResizeObserver(update)
+      ro.observe(el)
+      return () => ro.disconnect()
+    }, [])
+
+
 
 
     useEffect(() => {
