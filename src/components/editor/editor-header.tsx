@@ -1,6 +1,9 @@
-import { ArrowLeft, ImageUp, Loader2, Save, FolderPlus } from 'lucide-react'
+import { ArrowLeft, ImageUp, Layers, Loader2, Save, FolderPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PremiumBadge } from './premium-badge'
+import { LayersList } from './layers-list'
+import type { TextLayer } from '@/lib/text-layer'
 
 interface EditorHeaderProps {
   hasImage: boolean
@@ -9,6 +12,14 @@ interface EditorHeaderProps {
   onDownload: () => void
   onReplaceImage?: () => void
   onSaveProject?: () => void
+  layers?: TextLayer[]
+  selectedId?: string | null
+  onSelectLayer?: (id: string) => void
+  onAddLayer?: () => void
+  onDuplicateLayer?: (id: string) => void
+  onDeleteLayer?: (id: string) => void
+  onToggleLayerVisibility?: (id: string) => void
+  onMoveLayer?: (id: string, dir: 'front' | 'back') => void
 }
 
 export function EditorHeader({
@@ -18,6 +29,14 @@ export function EditorHeader({
   onDownload,
   onReplaceImage,
   onSaveProject,
+  layers = [],
+  selectedId = null,
+  onSelectLayer,
+  onAddLayer,
+  onDuplicateLayer,
+  onDeleteLayer,
+  onToggleLayerVisibility,
+  onMoveLayer,
 }: EditorHeaderProps) {
   return (
     <header
@@ -46,6 +65,38 @@ export function EditorHeader({
             >
               <ImageUp className="size-4" />
             </Button>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="Layers"
+                  className="size-9 rounded-full"
+                >
+                  <Layers className="size-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                side="bottom"
+                align="end"
+                sideOffset={10}
+                collisionPadding={12}
+                className="max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto rounded-2xl border-border/40 bg-popover/70 p-0 shadow-2xl backdrop-blur-2xl"
+              >
+                <LayersList
+                  layers={layers}
+                  selectedId={selectedId}
+                  onSelect={(id) => onSelectLayer?.(id)}
+                  onAdd={() => onAddLayer?.()}
+                  onDuplicate={(id) => onDuplicateLayer?.(id)}
+                  onDelete={(id) => onDeleteLayer?.(id)}
+                  onToggleVisibility={onToggleLayerVisibility}
+                  onMove={onMoveLayer}
+                />
+              </PopoverContent>
+            </Popover>
+
             <Button
               variant="outline"
               size="icon"
