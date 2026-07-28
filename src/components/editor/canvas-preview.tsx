@@ -5,7 +5,6 @@ import {
   FlipHorizontal2,
   FlipVertical2,
   Keyboard,
-  Move,
   RotateCw,
   Scaling,
   X,
