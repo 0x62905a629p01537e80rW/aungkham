@@ -990,6 +990,3 @@ function PositionPanel({
     </div>
   )
 }
-
-  }
-}
