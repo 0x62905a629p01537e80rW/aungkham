@@ -15,6 +15,7 @@ import {
 } from '@/lib/custom-fonts'
 import {
   AlignCenter,
+  Circle,
   AlignLeft,
   AlignRight,
   Aperture,
@@ -70,6 +71,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
 import { EraseDialog } from './erase-dialog'
 import { ColorPickerPanel, parseGradient } from './color-picker'
+import { DEFAULT_STROKE_WIDTH, OUTLINE_PRESETS, shapeDataUrl } from '@/lib/shapes'
 import { cn } from '@/lib/utils'
 import { rotateImage } from '@/lib/texture-image'
 import {
@@ -135,12 +137,14 @@ type ToolKey =
   | 'bend'
   | 'skew'
   | 'erase'
+  | 'outline'
 
 interface ToolDef {
   key: ToolKey
   label: string
   icon: typeof TypeIcon
   needsLayer: boolean
+  shapeOnly?: boolean
 }
 
 const TOOLS: ToolDef[] = [
@@ -163,6 +167,7 @@ const TOOLS: ToolDef[] = [
   { key: 'bend', label: 'Bend', icon: Spline, needsLayer: true },
   { key: 'skew', label: 'Skew', icon: MoveDiagonal, needsLayer: true },
   { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: true },
+  { key: 'outline', label: 'Outline', icon: Circle, needsLayer: true, shapeOnly: true },
 ]
 
 
@@ -240,7 +245,7 @@ export function ToolBar({
         <span className="mx-1 h-8 w-px shrink-0 bg-border" />
 
 
-        {TOOLS.map((tool) => {
+        {TOOLS.filter((tool) => !tool.shapeOnly || !!selected?.graphic?.path).map((tool) => {
           const disabled = tool.needsLayer && !selected
           const isOpen = openTool === tool.key
           const Icon = tool.icon
@@ -780,6 +785,102 @@ function ToolContent({
           )}
         </div>
       )
+    case 'outline': {
+      const g = layer.graphic
+      if (!g?.path) return null
+      const outline = !!g.outline
+      const width = g.strokeWidth ?? DEFAULT_STROKE_WIDTH
+      const strokeColor = g.strokeColor ?? layer.color
+      const apply = (patch: Partial<typeof g>) => {
+        const next = { ...g, ...patch }
+        onChange({
+          graphic: {
+            ...next,
+            src: shapeDataUrl(
+              g.path!,
+              '#000000',
+              !!next.outline,
+              next.strokeWidth ?? DEFAULT_STROKE_WIDTH,
+            ),
+          },
+        })
+      }
+      return (
+        <div className="space-y-4">
+          <ToolHeading>Outline</ToolHeading>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => apply({ outline: false })}
+              className={cn(
+                'h-9 flex-1 rounded-xl border text-xs font-semibold transition active:scale-95',
+                !outline ? 'border-primary bg-primary/15 text-primary' : 'border-border/60',
+              )}
+            >
+              Filled
+            </button>
+            <button
+              type="button"
+              onClick={() => apply({ outline: true })}
+              className={cn(
+                'h-9 flex-1 rounded-xl border text-xs font-semibold transition active:scale-95',
+                outline ? 'border-primary bg-primary/15 text-primary' : 'border-border/60',
+              )}
+            >
+              Outline
+            </button>
+          </div>
+
+          {outline && (
+            <>
+              <div className="flex gap-2">
+                {OUTLINE_PRESETS.map((p) => (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => apply({ outline: true, strokeWidth: p.width })}
+                    className={cn(
+                      'h-9 flex-1 rounded-xl border text-[11px] font-semibold transition active:scale-95',
+                      width === p.width
+                        ? 'border-primary bg-primary/15 text-primary'
+                        : 'border-border/60',
+                    )}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              <SliderField
+                label="Stroke width"
+                value={width}
+                min={1}
+                max={40}
+                step={1}
+                onChange={(v) => apply({ outline: true, strokeWidth: v })}
+              />
+
+              <ColorField
+                label="Stroke color"
+                value={strokeColor}
+                onChange={(v) => apply({ strokeColor: v })}
+              />
+
+              {g.strokeColor && (
+                <button
+                  type="button"
+                  onClick={() => apply({ strokeColor: undefined })}
+                  className="w-full rounded-xl border border-border/60 py-2 text-[11px] font-medium text-muted-foreground transition active:scale-95"
+                >
+                  Use layer color
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )
+    }
     case 'shadow':
       return (
         <div className="space-y-4">

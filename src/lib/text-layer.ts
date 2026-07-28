@@ -87,6 +87,14 @@ export interface GraphicContent {
   src: string
   /** width / height of the source artwork */
   aspect: number
+  /** shape only: original path so the shape can be re-rendered */
+  path?: string
+  /** shape only: outline-only (stroke) instead of filled */
+  outline?: boolean
+  /** shape only: stroke width in the 0-100 viewBox */
+  strokeWidth?: number
+  /** shape only: stroke color, independent from the layer fill */
+  strokeColor?: string
 }
 
 
