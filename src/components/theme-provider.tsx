@@ -20,8 +20,15 @@ export function useTheme() {
   return useContext(ThemeContext)
 }
 
-function applyThemeClass(theme: Theme) {
+let animTimer: ReturnType<typeof setTimeout> | undefined
+
+function applyThemeClass(theme: Theme, animate = false) {
   const root = document.documentElement
+  if (animate) {
+    root.classList.add('theme-anim')
+    clearTimeout(animTimer)
+    animTimer = setTimeout(() => root.classList.remove('theme-anim'), 500)
+  }
   if (theme === 'dark') root.classList.add('dark')
   else root.classList.remove('dark')
 }
@@ -64,7 +71,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light')
+  const toggleTheme = () => {
+    applyThemeClass(theme === 'light' ? 'dark' : 'light', true)
+    setTheme(theme === 'light' ? 'dark' : 'light')
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
