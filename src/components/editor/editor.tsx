@@ -38,6 +38,7 @@ export function Editor() {
   const [preview, setPreview] = useState<string | null>(null)
   const [savedProject, setSavedProject] = useState(false)
   const [rating, setRating] = useState(false)
+  const [autoOpenTool, setAutoOpenTool] = useState<'outline' | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const exportRef = useRef<HTMLDivElement>(null)
   const replaceRef = useRef<HTMLInputElement>(null)
