@@ -10,6 +10,7 @@ interface CanvasPreviewProps {
   layers: TextLayer[]
   selectedId: string | null
   exporting: boolean
+  showGrid?: boolean
   onSelect: (id: string | null) => void
   onMove: (id: string, x: number, y: number) => void
   onResize: (id: string, fontSize: number) => void
@@ -19,7 +20,7 @@ interface CanvasPreviewProps {
 
 export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
   function CanvasPreview(
-    { image, aspectRatio, layers, selectedId, exporting, onSelect, onMove, onResize, onDelete, onEditText },
+    { image, aspectRatio, layers, selectedId, exporting, showGrid = false, onSelect, onMove, onResize, onDelete, onEditText },
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement | null>(null)
@@ -296,6 +297,18 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             className="block h-full w-full object-cover"
             draggable={false}
           />
+
+          {showGrid && !exporting && (
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage:
+                  'linear-gradient(to right, rgba(255,255,255,0.45) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.45) 1px, transparent 1px)',
+                backgroundSize: '33.333% 33.333%',
+                mixBlendMode: 'difference',
+              }}
+            />
+          )}
 
           {layers.filter((l) => !l.hidden).map((layer) => {
             const isSelected = layer.id === selectedId && !exporting
