@@ -81,6 +81,10 @@ import {
   type TextLayer,
   type TextureType,
 } from '@/lib/text-layer'
+import { TEXT_STYLES, STYLE_GROUPS, type StyleGroup } from '@/lib/text-styles'
+import { layerTextStyle } from './text-layer-view'
+
+
 
 interface ToolBarProps {
   layers: TextLayer[]
