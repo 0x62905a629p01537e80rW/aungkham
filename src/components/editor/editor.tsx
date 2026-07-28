@@ -9,6 +9,8 @@ import { SaveShare } from './save-share'
 import { ReplaceBackground } from './replace-background'
 import { createTextLayer, type TextLayer } from '@/lib/text-layer'
 import { loadImage } from '@/lib/image-ops'
+import { saveProject, type SavedProject } from '@/lib/projects'
+import { toast } from 'sonner'
 
 export function Editor() {
   const [image, setImage] = useState<string | null>(null)
@@ -196,15 +198,28 @@ export function Editor() {
   const handleSaveProject = useCallback(() => {
     if (!image) return
     try {
-      const raw = localStorage.getItem('saved-projects')
-      const list = raw ? JSON.parse(raw) : []
-      list.unshift({ id: String(Date.now()), image, layers, naturalSize, savedAt: Date.now() })
-      localStorage.setItem('saved-projects', JSON.stringify(list.slice(0, 20)))
+      saveProject({
+        id: String(Date.now()),
+        image,
+        preview,
+        layers,
+        naturalSize,
+        savedAt: Date.now(),
+      })
       setSavedProject(true)
+      toast.success('Project saved successfully')
     } catch (err) {
       console.log('[save project failed]', err)
+      toast.error('Could not save this project')
     }
-  }, [image, layers, naturalSize])
+  }, [image, preview, layers, naturalSize])
+
+  const openProject = useCallback((project: SavedProject) => {
+    setNaturalSize(project.naturalSize)
+    setLayers(project.layers ?? [])
+    setSelectedId(project.layers?.[0]?.id ?? null)
+    setImage(project.image)
+  }, [])
 
   function toggleVisibility(id: string) {
     setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, hidden: !l.hidden } : l)))
@@ -242,7 +257,7 @@ export function Editor() {
       />
 
       {!image ? (
-        <UploadZone onImage={handleImage} />
+        <UploadZone onImage={handleImage} onOpenProject={openProject} />
       ) : (
         <>
           <main

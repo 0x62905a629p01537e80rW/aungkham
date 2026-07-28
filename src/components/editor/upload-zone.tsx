@@ -1,46 +1,39 @@
-import { useRef, useState, type ChangeEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import {
   Camera,
   FolderOpen,
   ImageIcon,
   Images,
   Palette,
-  Pipette,
   ShieldCheck,
   Sparkles,
+  Trash2,
   Type as TypeIcon,
 } from 'lucide-react'
 import { ColorPickerFullScreen } from './color-picker'
+import { GradientGrid, SolidGrid } from './color-grids'
+import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
 
-
-import {
-  GRADIENTS,
-  SOLID_COLORS,
-  makeBackgroundDataUrl,
-  makeGradientDataUrl,
-  makeSolidDataUrl,
-} from '@/lib/background'
+import { makeBackgroundDataUrl, makeGradientDataUrl, makeSolidDataUrl } from '@/lib/background'
 
 type Tab = 'gallery' | 'colors' | 'projects'
 
-function CustomTile({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className="grid aspect-square place-items-center rounded-xl border border-dashed border-primary/50 bg-card text-primary shadow-sm transition active:scale-95"
-    >
-      <Pipette className="size-4" />
-    </button>
-  )
-}
-
-export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) {
+export function UploadZone({
+  onImage,
+  onOpenProject,
+}: {
+  onImage: (dataUrl: string) => void
+  onOpenProject?: (project: SavedProject) => void
+}) {
   const galleryRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('gallery')
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
+  const [projects, setProjects] = useState<SavedProject[]>([])
+
+  useEffect(() => {
+    setProjects(loadProjects())
+  }, [])
 
   function readFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -75,6 +68,22 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
           }}
         >
           <span className="font-brand-mm text-2xl leading-none">မြန်</span>
+        </div>
+
+        <div className="mb-5 flex max-w-sm flex-wrap items-center justify-center gap-2">
+          {[
+            { icon: TypeIcon, label: 'Fonts' },
+            { icon: Palette, label: 'Colors' },
+            { icon: Sparkles, label: 'Effects' },
+          ].map(({ icon: Icon, label }) => (
+            <span
+              key={label}
+              className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-[11px] font-medium text-secondary-foreground"
+            >
+              <Icon className="size-3.5 text-primary" />
+              {label}
+            </span>
+          ))}
         </div>
 
         <h1 className="text-balance text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
@@ -114,7 +123,7 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
       </div>
 
       {/* Tab content */}
-      <div className="mx-auto mt-5 flex w-full max-w-sm flex-1 flex-col">
+      <div className="mx-auto mt-5 flex w-full max-w-sm flex-1 flex-col overflow-y-auto pb-4">
         {tab === 'gallery' && (
           <div className="flex flex-col gap-3">
             <button
@@ -147,74 +156,71 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
         {tab === 'colors' && (
           <div className="flex flex-col gap-5">
             <div>
-              <div className="mb-2 flex items-center justify-between px-1">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Solid colors
-                </span>
-              </div>
-              <div className="grid grid-cols-6 gap-2">
-                {SOLID_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    aria-label={`Use ${c}`}
-                    onClick={() => onImage(makeSolidDataUrl(c))}
-                    className="aspect-square rounded-xl border border-border shadow-sm transition active:scale-95"
-                    style={{ background: c }}
-                  />
-                ))}
-                <CustomTile label="Custom solid color" onClick={() => setPicker('solid')} />
-              </div>
+              <span className="mb-2 block px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Solid colors
+              </span>
+              <SolidGrid
+                onPick={(c) => onImage(makeSolidDataUrl(c))}
+                onCustom={() => setPicker('solid')}
+              />
             </div>
 
             <div>
               <span className="mb-2 block px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Gradients
               </span>
-              <div className="grid grid-cols-4 gap-2">
-                {GRADIENTS.map((g) => (
-                  <button
-                    key={g.name}
-                    type="button"
-                    aria-label={g.name}
-                    onClick={() => onImage(makeGradientDataUrl(g.stops))}
-                    className="aspect-square rounded-xl border border-border shadow-sm transition active:scale-95"
-                    style={{ background: g.css }}
-                  />
-                ))}
-                <CustomTile label="Custom gradient" onClick={() => setPicker('gradient')} />
+              <GradientGrid
+                onPick={(stops) => onImage(makeGradientDataUrl(stops))}
+                onCustom={() => setPicker('gradient')}
+              />
+            </div>
+          </div>
+        )}
+
+        {tab === 'projects' &&
+          (projects.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/40 px-6 py-12 text-center backdrop-blur">
+              <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-secondary text-secondary-foreground">
+                <FolderOpen className="size-6 text-primary" />
               </div>
+              <p className="text-sm font-semibold text-foreground">No saved projects yet</p>
+              <p className="mt-1 max-w-[16rem] text-xs text-muted-foreground">
+                Your saved projects will appear here so you can pick up where you left off.
+              </p>
             </div>
-          </div>
-        )}
-
-        {tab === 'projects' && (
-          <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/40 px-6 py-12 text-center backdrop-blur">
-            <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-secondary text-secondary-foreground">
-              <FolderOpen className="size-6 text-primary" />
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {projects.map((p) => (
+                <div
+                  key={p.id}
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+                >
+                  <button
+                    type="button"
+                    className="block w-full"
+                    onClick={() => onOpenProject?.(p)}
+                  >
+                    <img
+                      src={p.preview || p.image}
+                      alt="Saved project"
+                      className="aspect-square w-full object-cover"
+                    />
+                    <span className="block px-2 py-1.5 text-left text-[11px] text-muted-foreground">
+                      {new Date(p.savedAt).toLocaleDateString()}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Delete project"
+                    onClick={() => setProjects(deleteProject(p.id))}
+                    className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full bg-background/80 text-destructive backdrop-blur"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+              ))}
             </div>
-            <p className="text-sm font-semibold text-foreground">No saved projects yet</p>
-            <p className="mt-1 max-w-[16rem] text-xs text-muted-foreground">
-              Your saved projects will appear here so you can pick up where you left off.
-            </p>
-          </div>
-        )}
-      </div>
-
-      <div className="mx-auto mt-5 flex max-w-sm flex-wrap items-center justify-center gap-2">
-        {[
-          { icon: TypeIcon, label: 'Fonts' },
-          { icon: Palette, label: 'Colors' },
-          { icon: Sparkles, label: 'Effects' },
-        ].map(({ icon: Icon, label }) => (
-          <span
-            key={label}
-            className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-[11px] font-medium text-secondary-foreground"
-          >
-            <Icon className="size-3.5 text-primary" />
-            {label}
-          </span>
-        ))}
+          ))}
       </div>
 
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
