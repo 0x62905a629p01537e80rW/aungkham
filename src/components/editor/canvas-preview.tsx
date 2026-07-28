@@ -310,7 +310,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             src={image || '/placeholder.svg'}
             alt="Editing canvas"
             crossOrigin="anonymous"
-            className="block h-full w-full object-cover"
+            className="block h-full w-full object-contain"
             draggable={false}
           />
 
