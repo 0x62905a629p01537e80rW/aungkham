@@ -41,9 +41,90 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }, [editingId])
 
+    const [view, setView] = useState({ scale: 1, tx: 0, ty: 0 })
+    const viewRef = useRef(view)
+    viewRef.current = view
+    const pointers = useRef(new Map<number, { x: number; y: number }>())
+    const pinchRef = useRef<{ dist: number; cx: number; cy: number; view: typeof view } | null>(null)
+
     useEffect(() => {
-      if (exporting) setEditingId(null)
+      if (exporting) {
+        setEditingId(null)
+        setView({ scale: 1, tx: 0, ty: 0 })
+      }
     }, [exporting])
+
+    function clampView(v: { scale: number; tx: number; ty: number }) {
+      const scale = Math.max(1, Math.min(6, v.scale))
+      const rect = containerRef.current?.getBoundingClientRect()
+      const w = (rect?.width ?? 0) / (viewRef.current.scale || 1)
+      const h = (rect?.height ?? 0) / (viewRef.current.scale || 1)
+      const maxX = (w * (scale - 1)) / 2
+      const maxY = (h * (scale - 1)) / 2
+      return {
+        scale,
+        tx: Math.max(-maxX, Math.min(maxX, v.tx)),
+        ty: Math.max(-maxY, Math.min(maxY, v.ty)),
+      }
+    }
+
+    function stageDown(e: PointerEvent<HTMLDivElement>) {
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      if (pointers.current.size === 2) {
+        const [a, b] = [...pointers.current.values()]
+        pinchRef.current = {
+          dist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+          cx: (a.x + b.x) / 2,
+          cy: (a.y + b.y) / 2,
+          view: viewRef.current,
+        }
+        dragState.current = null
+      } else if (pointers.current.size === 1 && viewRef.current.scale > 1) {
+        panRef.current = { x: e.clientX, y: e.clientY, view: viewRef.current }
+      }
+    }
+
+    function stageMove(e: PointerEvent<HTMLDivElement>) {
+      if (!pointers.current.has(e.pointerId)) return
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      const pinch = pinchRef.current
+      if (pinch && pointers.current.size >= 2) {
+        const [a, b] = [...pointers.current.values()]
+        const dist = Math.hypot(a.x - b.x, a.y - b.y)
+        const cx = (a.x + b.x) / 2
+        const cy = (a.y + b.y) / 2
+        const ratio = dist / pinch.dist
+        setView(
+          clampView({
+            scale: pinch.view.scale * ratio,
+            tx: pinch.view.tx + (cx - pinch.cx),
+            ty: pinch.view.ty + (cy - pinch.cy),
+          }),
+        )
+        return
+      }
+      const pan = panRef.current
+      if (pan && !dragState.current && pointers.current.size === 1) {
+        setView(
+          clampView({
+            scale: pan.view.scale,
+            tx: pan.view.tx + (e.clientX - pan.x),
+            ty: pan.view.ty + (e.clientY - pan.y),
+          }),
+        )
+      }
+    }
+
+    function stageUp(e: PointerEvent<HTMLDivElement>) {
+      pointers.current.delete(e.pointerId)
+      if (pointers.current.size < 2) pinchRef.current = null
+      if (pointers.current.size === 0) panRef.current = null
+    }
+
+    function zoomBy(factor: number) {
+      setView((v) => clampView({ ...v, scale: v.scale * factor }))
+    }
+
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
       if (editingId === id) return
