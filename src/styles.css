@@ -2,7 +2,20 @@
 @source "../src";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: 'BrandMM';
+  src: url('/__l5e/assets-v1/dc6c93b5-e457-4fb7-92ed-12fb53f559ae/mm-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-brand-mm {
+  font-family: 'BrandMM', system-ui, sans-serif;
+}
+
 @custom-variant dark (&:is(.dark *));
+
 
 @theme inline {
   --font-inter: 'Inter', system-ui, sans-serif;
