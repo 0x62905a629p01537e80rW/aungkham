@@ -372,8 +372,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onDelete(layer.id)
                       }}
-                      style={{ transform: `scale(${inv})`, transformOrigin: '100% 100%' }}
-                      className="absolute -left-3 -top-3 flex size-8 items-center justify-center rounded-full bg-destructive text-white shadow-md ring-2 ring-card transition active:scale-90"
+                      style={{ left: 0, top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-destructive text-white shadow-md ring-2 ring-card transition active:scale-90"
                     >
                       <X className="size-4" />
                     </button>
@@ -389,8 +389,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         setEditingId(layer.id)
                       }}
-                      style={{ transform: `scale(${inv})`, transformOrigin: '0% 100%' }}
-                      className="absolute -right-3 -top-3 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
+                      style={{ left: '100%', top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
                     >
                       <Pencil className="size-4" />
                     </button>
@@ -405,10 +405,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{
                         cursor: 'nwse-resize',
                         touchAction: 'none',
-                        transform: `scale(${inv})`,
-                        transformOrigin: '0% 0%',
+                        left: '100%',
+                        top: '100%',
+                        transform: `translate(-50%, -50%) scale(${inv})`,
                       }}
-                      className="absolute -bottom-3 -right-3 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
                     >
                       <Maximize2 className="size-4" />
                     </button>
