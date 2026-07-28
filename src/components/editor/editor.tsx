@@ -291,13 +291,14 @@ export function Editor() {
         <>
           <main
             ref={stageRef}
-            className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-muted/40 p-3 sm:p-6"
-            style={{ paddingBottom: 'calc(4.75rem + env(safe-area-inset-bottom))' }}
+            className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-muted p-0"
+            style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom))' }}
           >
             <div
-              className="overflow-hidden rounded-3xl bg-card shadow-xl ring-1 ring-border"
+              className="overflow-hidden bg-card shadow-sm"
               style={fitStyle}
             >
+
               <CanvasPreview
                 ref={canvasRef}
                 image={image}
