@@ -355,32 +355,32 @@ function FontCard({
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-2xl border transition',
+        'group relative overflow-hidden rounded-xl border transition',
         active
           ? 'border-primary bg-primary/15 shadow-[0_0_0_1px_var(--color-primary)]'
           : 'border-white/15 bg-white/5 hover:bg-white/10',
       )}
     >
-      <button type="button" onClick={onSelect} className="block w-full px-3 pb-2 pt-3 text-left">
+      <button type="button" onClick={onSelect} className="block w-full px-2 pb-1.5 pt-2 text-left">
         <span
-          className="block truncate text-[22px] leading-tight text-foreground"
+          className="block truncate text-[15px] leading-tight text-foreground"
           style={{ fontFamily: fontFamily(entry.key) }}
         >
           {entry.myanmar ? 'မြန်မာစာ' : 'Aa Bb Cc'}
         </span>
-        <span className="mt-1 block truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+        <span className="mt-0.5 block truncate text-[9px] uppercase tracking-wider text-muted-foreground">
           {entry.label}
         </span>
       </button>
-      <div className="absolute right-1.5 top-1.5 flex gap-0.5">
+      <div className="absolute right-1 top-1 flex gap-0.5">
         {onDelete && (
           <button
             type="button"
             aria-label="Delete font"
             onClick={onDelete}
-            className="flex size-7 items-center justify-center rounded-full text-muted-foreground transition active:scale-90"
+            className="flex size-5 items-center justify-center rounded-full text-muted-foreground transition active:scale-90"
           >
-            <Trash2 className="size-3.5" />
+            <Trash2 className="size-3" />
           </button>
         )}
         <button
@@ -388,11 +388,11 @@ function FontCard({
           aria-label="Favorite"
           onClick={onFav}
           className={cn(
-            'flex size-7 items-center justify-center rounded-full transition active:scale-90',
+            'flex size-5 items-center justify-center rounded-full transition active:scale-90',
             fav ? 'text-primary' : 'text-muted-foreground/60',
           )}
         >
-          <Star className={cn('size-3.5', fav && 'fill-current')} />
+          <Star className={cn('size-3', fav && 'fill-current')} />
         </button>
       </div>
     </div>
