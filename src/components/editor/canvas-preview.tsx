@@ -618,6 +618,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             )
           })}
         </div>
+        </div>
+
 
         {!exporting && (guides.v || guides.h) && (
           <div className="pointer-events-none absolute inset-0">
