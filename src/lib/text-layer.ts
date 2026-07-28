@@ -64,6 +64,10 @@ export interface TextLayer {
   underline?: boolean
   strike?: boolean
   widthScale?: number
+
+  /* Image texture + eraser mask (data URLs) */
+  textureImage?: string
+  eraseMask?: string
 }
 
 

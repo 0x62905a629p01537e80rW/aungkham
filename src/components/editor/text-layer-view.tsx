@@ -77,6 +77,10 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
     WebkitTextStrokeWidth: layer.strokeWidth > 0 ? `${layer.strokeWidth / 20}cqh` : undefined,
     WebkitTextStrokeColor: layer.strokeWidth > 0 ? layer.strokeColor : undefined,
     paintOrder: 'stroke fill',
+    WebkitMaskImage: layer.eraseMask ? `url(${layer.eraseMask})` : undefined,
+    maskImage: layer.eraseMask ? `url(${layer.eraseMask})` : undefined,
+    WebkitMaskSize: layer.eraseMask ? '100% 100%' : undefined,
+    maskSize: layer.eraseMask ? '100% 100%' : undefined,
     textDecorationLine:
       [layer.underline ? 'underline' : '', layer.strike ? 'line-through' : '']
         .filter(Boolean)
@@ -101,6 +105,7 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
   }
 
   if (fillType === 'texture') {
+    if (layer.textureImage) return clipped(`url(${layer.textureImage})`, 'cover')
     const pattern = PATTERNS[layer.pattern ?? 'none']
     const patternImage = pattern?.image(layer.patternColor ?? '#000000')
     if (patternImage) return clipped(patternImage, pattern.size)
