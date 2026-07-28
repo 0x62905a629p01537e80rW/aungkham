@@ -322,7 +322,7 @@ export function ColorPickerPanel({
               <button
                 key={m}
                 type="button"
-                onClick={() => { touch(); setMode(m) }}
+                onClick={() => setMode(m)}
                 className={`flex-1 rounded-[6px] px-2 py-1 text-[11px] font-semibold capitalize transition ${
                   mode === m ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
                 }`}
