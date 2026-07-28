@@ -6,6 +6,7 @@ import { CanvasPreview } from './canvas-preview'
 import { ToolBar } from './tool-bar'
 import { BackgroundEditor, type BgTool } from './background-editor'
 import { SaveShare } from './save-share'
+import { ReplaceBackground } from './replace-background'
 import { createTextLayer, type TextLayer } from '@/lib/text-layer'
 import { loadImage } from '@/lib/image-ops'
 
@@ -17,6 +18,7 @@ export function Editor() {
   const [exporting, setExporting] = useState(false)
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const [showGrid, setShowGrid] = useState(false)
+  const [replacing, setReplacing] = useState(false)
   const [showSave, setShowSave] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const [savedProject, setSavedProject] = useState(false)
@@ -274,7 +276,7 @@ export function Editor() {
             onAdd={addLayer}
             onDuplicate={duplicateLayer}
             onDelete={deleteLayer}
-            onReplaceImage={() => replaceRef.current?.click()}
+            onReplaceImage={() => setReplacing(true)}
             onImageTool={(t) => setBgTool(t)}
           />
 
@@ -284,6 +286,15 @@ export function Editor() {
             accept="image/*"
             className="hidden"
             onChange={onReplaceFile}
+          />
+
+          <ReplaceBackground
+            open={replacing}
+            onClose={() => setReplacing(false)}
+            onPick={(url) => {
+              setReplacing(false)
+              applyBackground(url)
+            }}
           />
 
           {showSave && (
