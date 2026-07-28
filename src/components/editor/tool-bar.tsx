@@ -247,6 +247,7 @@ export function ToolBar({
                   onAdd={onAdd}
                   onDuplicate={onDuplicate}
                   onDelete={onDelete}
+                  onMoveLayer={onMoveLayer}
                 />
               </PopoverContent>
             </Popover>
