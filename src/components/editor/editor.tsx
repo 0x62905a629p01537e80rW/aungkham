@@ -152,9 +152,29 @@ export function Editor() {
             onAdd={addLayer}
             onDuplicate={duplicateLayer}
             onDelete={deleteLayer}
+            onReplaceImage={() => replaceRef.current?.click()}
+            onImageTool={(t) => setBgTool(t)}
           />
+
+          <input
+            ref={replaceRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onReplaceFile}
+          />
+
+          {bgTool && (
+            <BackgroundEditor
+              tool={bgTool}
+              image={image}
+              onCancel={() => setBgTool(null)}
+              onApply={applyBackground}
+            />
+          )}
         </>
       )}
+
     </div>
   )
 }
