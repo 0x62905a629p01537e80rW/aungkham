@@ -60,6 +60,19 @@ export function UploadZone({
         }}
       />
 
+      {/* Home header */}
+      <div className="mx-auto mb-2 flex w-full max-w-sm items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="grid size-8 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+            <span className="font-brand-mm text-[15px] leading-none">မြန်</span>
+          </div>
+          <div className="leading-tight">
+            <p className="text-sm font-bold tracking-tight">Myan</p>
+          </div>
+        </div>
+        <ThemeToggle className="glass-tile size-9 rounded-full text-foreground" />
+      </div>
+
       <div className="flex flex-col items-center text-center">
         <div
           className="mb-5 grid size-16 place-items-center rounded-[1.25rem] text-primary-foreground shadow-xl"
