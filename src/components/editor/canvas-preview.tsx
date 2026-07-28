@@ -224,10 +224,24 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       <div
         ref={ref}
         className="relative w-full select-none overflow-hidden"
-        style={{ containerType: 'size', lineHeight: 0, aspectRatio }}
-        onPointerDown={() => onSelect(null)}
+        style={{ containerType: 'size', lineHeight: 0, aspectRatio, touchAction: 'none' }}
+        onPointerDown={(e) => {
+          onSelect(null)
+          stageDown(e)
+        }}
+        onPointerMove={stageMove}
+        onPointerUp={stageUp}
+        onPointerCancel={stageUp}
       >
-        <div ref={containerRef} className="absolute inset-0">
+        <div
+          ref={containerRef}
+          className="absolute inset-0"
+          style={{
+            transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.scale})`,
+            transformOrigin: 'center center',
+          }}
+        >
+
           <img
             src={image || '/placeholder.svg'}
             alt="Editing canvas"
