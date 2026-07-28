@@ -193,14 +193,24 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       dragState.current.moved = true
       const rect = containerRef.current?.getBoundingClientRect()
       if (!rect) return
-      const x = ((e.clientX - rect.left) / rect.width) * 100
-      const y = ((e.clientY - rect.top) / rect.height) * 100
+      let x = ((e.clientX - rect.left) / rect.width) * 100
+      let y = ((e.clientY - rect.top) / rect.height) * 100
+
+      // Snap to the horizontal/vertical centre of the image and show guides.
+      const tol = 1.6
+      const snapV = Math.abs(x - 50) < tol
+      const snapH = Math.abs(y - 50) < tol
+      if (snapV) x = 50
+      if (snapH) y = 50
+      setGuides((g) => (g.v === snapV && g.h === snapH ? g : { v: snapV, h: snapH }))
+
       onMove(
         dragState.current.id,
         Math.max(-200, Math.min(300, x)),
         Math.max(-200, Math.min(300, y)),
       )
     }
+
 
 
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
