@@ -142,7 +142,6 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function stageUp(e: PointerEvent<HTMLDivElement>) {
-      const wasPinching = !!pinchRef.current
       pointers.current.delete(e.pointerId)
       if (pointers.current.size < 2) pinchRef.current = null
       if (pointers.current.size === 0) {
