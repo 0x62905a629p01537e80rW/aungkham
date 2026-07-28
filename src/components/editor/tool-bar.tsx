@@ -305,18 +305,84 @@ function ToolHeading({ children }: { children: React.ReactNode }) {
   )
 }
 
-type FontGroup = 'english' | 'mm-free' | 'mm-premium'
+type FontGroup = 'favorites' | 'english' | 'mm-free' | 'mm-premium' | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
+  { key: 'favorites', label: 'Favorites' },
   { key: 'english', label: 'English' },
-  { key: 'mm-free', label: 'Myanmar (Free)' },
-  { key: 'mm-premium', label: 'Myanmar (Premium)' },
+  { key: 'mm-free', label: 'Myanmar' },
+  { key: 'mm-premium', label: 'Premium' },
+  { key: 'custom', label: 'My Fonts' },
 ]
 
 function groupOf(cat: FontOption['category']): FontGroup {
   if (cat === 'Myanmar') return 'mm-free'
   if (cat === 'Myanmar Pro') return 'mm-premium'
   return 'english'
+}
+
+type FontEntry = { key: string; label: string; myanmar: boolean; customId?: string }
+
+function FontCard({
+  entry,
+  active,
+  fav,
+  onSelect,
+  onFav,
+  onDelete,
+}: {
+  entry: FontEntry
+  active: boolean
+  fav: boolean
+  onSelect: () => void
+  onFav: () => void
+  onDelete?: () => void
+}) {
+  return (
+    <div
+      className={cn(
+        'group relative overflow-hidden rounded-2xl border transition',
+        active
+          ? 'border-primary bg-primary/15 shadow-[0_0_0_1px_var(--color-primary)]'
+          : 'border-white/15 bg-white/5 hover:bg-white/10',
+      )}
+    >
+      <button type="button" onClick={onSelect} className="block w-full px-3 pb-2 pt-3 text-left">
+        <span
+          className="block truncate text-[22px] leading-tight text-foreground"
+          style={{ fontFamily: fontFamily(entry.key) }}
+        >
+          {entry.myanmar ? 'မြန်မာစာ' : 'Aa Bb Cc'}
+        </span>
+        <span className="mt-1 block truncate text-[10px] uppercase tracking-wider text-muted-foreground">
+          {entry.label}
+        </span>
+      </button>
+      <div className="absolute right-1.5 top-1.5 flex gap-0.5">
+        {onDelete && (
+          <button
+            type="button"
+            aria-label="Delete font"
+            onClick={onDelete}
+            className="flex size-7 items-center justify-center rounded-full text-muted-foreground transition active:scale-90"
+          >
+            <Trash2 className="size-3.5" />
+          </button>
+        )}
+        <button
+          type="button"
+          aria-label="Favorite"
+          onClick={onFav}
+          className={cn(
+            'flex size-7 items-center justify-center rounded-full transition active:scale-90',
+            fav ? 'text-primary' : 'text-muted-foreground/60',
+          )}
+        >
+          <Star className={cn('size-3.5', fav && 'fill-current')} />
+        </button>
+      </div>
+    </div>
+  )
 }
 
 function FontPicker({
@@ -327,49 +393,114 @@ function FontPicker({
   onChange: (patch: Partial<TextLayer>) => void
 }) {
   const current = FONTS.find((f) => f.key === layer.fontKey)
-  const [group, setGroup] = useState<FontGroup>(groupOf(current?.category ?? 'Sans'))
-  const items = FONTS.filter((f) => groupOf(f.category) === group)
-  const sample = group === 'english' ? 'Aa Bb Cc' : 'မြန်မာစာ'
+  const [group, setGroup] = useState<FontGroup>(
+    layer.fontKey.startsWith('custom:') ? 'custom' : groupOf(current?.category ?? 'Sans'),
+  )
+  const [, force] = useState(0)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    ensureCustomFontsLoaded()
+    return subscribeFonts(() => force((n) => n + 1))
+  }, [])
+
+  const customs = listCustomFonts()
+  const favs = listFavorites()
+
+  const all: FontEntry[] = [
+    ...FONTS.map((f) => ({
+      key: f.key,
+      label: f.label,
+      myanmar: f.category === 'Myanmar' || f.category === 'Myanmar Pro',
+    })),
+    ...customs.map((c) => ({
+      key: `custom:${c.id}`,
+      label: c.label,
+      myanmar: true,
+      customId: c.id,
+    })),
+  ]
+
+  const items =
+    group === 'favorites'
+      ? all.filter((f) => favs.includes(f.key))
+      : group === 'custom'
+        ? all.filter((f) => f.customId)
+        : all.filter((f) => !f.customId && groupOf(FONTS.find((x) => x.key === f.key)!.category) === group)
 
   return (
     <div className="space-y-3">
       <ToolHeading>Typeface</ToolHeading>
-      <div className="flex gap-1 rounded-xl border border-white/20 bg-white/10 p-1">
+
+      <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
         {FONT_GROUPS.map((g) => (
           <button
             key={g.key}
             type="button"
             onClick={() => setGroup(g.key)}
             className={cn(
-              'flex-1 rounded-lg px-1 py-1.5 text-[10px] font-semibold transition',
+              'shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition active:scale-95',
               group === g.key
                 ? 'bg-primary text-primary-foreground'
-                : 'text-foreground/70',
+                : 'border border-white/20 bg-white/10 text-foreground/70',
             )}
           >
             {g.label}
           </button>
         ))}
       </div>
-      <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
-        {items.map((f) => (
+
+      {group === 'custom' && (
+        <>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".ttf,.otf,.woff,.woff2,font/*"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0]
+              e.target.value = ''
+              if (!file) return
+              const f = await addCustomFont(file)
+              onChange({ fontKey: `custom:${f.id}` })
+            }}
+          />
           <button
-            key={f.key}
             type="button"
-            onClick={() => onChange({ fontKey: f.key })}
-            className={cn(
-              'flex w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition active:scale-[0.99]',
-              layer.fontKey === f.key
-                ? 'border-primary bg-primary/15'
-                : 'border-white/15 bg-white/5',
-            )}
+            onClick={() => fileRef.current?.click()}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/50 bg-primary/10 py-3 text-xs font-semibold text-foreground transition active:scale-[0.99]"
           >
-            <span className="text-[11px] text-muted-foreground">{f.label}</span>
-            <span className="text-base" style={{ fontFamily: fontFamily(f.key) }}>
-              {sample}
-            </span>
+            <Upload className="size-4" /> Upload font (.ttf, .otf, .woff)
           </button>
+        </>
+      )}
+
+      <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto pr-1">
+        {items.map((f) => (
+          <FontCard
+            key={f.key}
+            entry={f}
+            active={layer.fontKey === f.key}
+            fav={favs.includes(f.key)}
+            onSelect={() => onChange({ fontKey: f.key })}
+            onFav={() => toggleFavorite(f.key)}
+            onDelete={
+              f.customId
+                ? () => {
+                    removeCustomFont(f.customId!)
+                    if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
+                  }
+                : undefined
+            }
+          />
         ))}
+        {items.length === 0 && (
+          <p className="col-span-2 py-6 text-center text-xs text-muted-foreground">
+            {group === 'favorites'
+              ? 'No favorite fonts yet — tap the star on any font.'
+              : 'No custom fonts yet — upload one above.'}
+          </p>
+        )}
       </div>
     </div>
   )
