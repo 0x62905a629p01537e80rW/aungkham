@@ -385,7 +385,7 @@ function buildAll(): TemplateDef[] {
   langs.forEach(({ lang, content, fonts, mm }) => {
     RECIPES.forEach((recipe, ri) => {
       content.forEach((c, ci) => {
-        const palette = PALETTES[(ri + ci) % PALETTES.length]
+        const palette = PALETTES[(ri * content.length + ci) % PALETTES.length]
         out.push({
           id: `${lang}-${recipe.key}-${c.key}`,
           name: recipe.label,
