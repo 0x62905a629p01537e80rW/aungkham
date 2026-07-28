@@ -96,7 +96,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function stageDown(e: PointerEvent<HTMLDivElement>) {
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       measureBase()
-      if (pointers.current.size === 2) {
+      if (pointers.current.size >= 2) {
         const [a, b] = [...pointers.current.values()]
         pinchRef.current = {
           dist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
@@ -104,6 +104,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           cy: (a.y + b.y) / 2,
           view: viewRef.current,
         }
+        panRef.current = null
         dragState.current = null
       } else if (pointers.current.size === 1 && viewRef.current.scale > 1) {
         panRef.current = { x: e.clientX, y: e.clientY, view: viewRef.current }
@@ -138,9 +139,28 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function stageUp(e: PointerEvent<HTMLDivElement>) {
+      const wasPinching = !!pinchRef.current
       pointers.current.delete(e.pointerId)
       if (pointers.current.size < 2) pinchRef.current = null
-      if (pointers.current.size === 0) panRef.current = null
+      if (pointers.current.size === 0) {
+        panRef.current = null
+        return
+      }
+      // One finger lifted mid-pinch: rebase remaining pointers so the gesture
+      // continues smoothly instead of jumping toward the surviving finger.
+      const rest = [...pointers.current.values()]
+      if (pointers.current.size >= 2) {
+        const [a, b] = rest
+        pinchRef.current = {
+          dist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+          cx: (a.x + b.x) / 2,
+          cy: (a.y + b.y) / 2,
+          view: viewRef.current,
+        }
+        panRef.current = null
+      } else if (wasPinching || viewRef.current.scale > 1) {
+        panRef.current = { x: rest[0].x, y: rest[0].y, view: viewRef.current }
+      }
     }
 
     function zoomBy(factor: number) {
