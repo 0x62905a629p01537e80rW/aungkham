@@ -218,6 +218,7 @@ export function Editor() {
     setShowSave(true)
     const url = await renderPreview()
     setPreview(url)
+    if (shouldAskForRating()) setRating(true)
   }, [renderPreview])
 
   const handleSaveImage = useCallback(() => {
