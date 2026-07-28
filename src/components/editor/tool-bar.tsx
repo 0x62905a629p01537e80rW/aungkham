@@ -289,6 +289,8 @@ function ToolContent({
   onAdd,
   onDuplicate,
   onDelete,
+  onDelete,
+  onMoveLayer,
 }: ToolContentProps) {
   if (!layer) return null
 
