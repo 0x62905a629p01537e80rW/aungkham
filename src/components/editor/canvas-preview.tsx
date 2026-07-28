@@ -46,6 +46,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     viewRef.current = view
     const pointers = useRef(new Map<number, { x: number; y: number }>())
     const pinchRef = useRef<{ dist: number; cx: number; cy: number; view: typeof view } | null>(null)
+    const panRef = useRef<{ x: number; y: number; view: typeof view } | null>(null)
 
     useEffect(() => {
       if (exporting) {
