@@ -168,3 +168,23 @@
     color: var(--color-foreground);
   }
 }
+
+@keyframes premium-sweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes premium-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(-8deg); }
+}
+
+.premium-shine {
+  background-image: linear-gradient(100deg, #b45309, #f59e0b, #fde68a, #f59e0b, #b45309);
+  background-size: 200% 100%;
+  animation: premium-sweep 3s linear infinite;
+}
+
+.premium-float {
+  animation: premium-float 2s ease-in-out infinite;
+}
