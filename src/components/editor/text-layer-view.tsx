@@ -112,7 +112,50 @@ export function layerTransform(layer: TextLayer): string {
 }
 
 /** Text content, optionally bent along an arc. */
+function LayerGraphic({ layer }: { layer: TextLayer }) {
+  const g = layer.graphic!
+  const h = layer.fontSize * 2
+  const w = h * (g.aspect || 1)
+  const box: CSSProperties = {
+    width: `${w}cqh`,
+    height: `${h}cqh`,
+    display: 'block',
+    WebkitMaskImage: layer.eraseMask ? `url(${layer.eraseMask})` : undefined,
+    maskImage: layer.eraseMask ? `url(${layer.eraseMask})` : undefined,
+    WebkitMaskSize: layer.eraseMask ? '100% 100%' : undefined,
+    maskSize: layer.eraseMask ? '100% 100%' : undefined,
+    filter:
+      layer.shadowBlur > 0 || layer.shadowOffsetX !== 0 || layer.shadowOffsetY !== 0
+        ? `drop-shadow(${layer.shadowOffsetX / 10}cqh ${layer.shadowOffsetY / 10}cqh ${layer.shadowBlur / 10}cqh ${layer.shadowColor})`
+        : undefined,
+  }
+
+  if (g.kind === 'shape') {
+    const fill =
+      (layer.fillType ?? 'solid') === 'gradient'
+        ? `linear-gradient(${layer.gradientAngle ?? 90}deg, ${layer.gradientFrom}, ${layer.gradientTo})`
+        : layer.color
+    return (
+      <div
+        style={{
+          ...box,
+          background: fill,
+          WebkitMaskImage: `url("${g.src}")`,
+          maskImage: `url("${g.src}")`,
+          WebkitMaskSize: '100% 100%',
+          maskSize: '100% 100%',
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+        }}
+      />
+    )
+  }
+
+  return <img src={g.src} alt="" crossOrigin="anonymous" draggable={false} style={box} />
+}
+
 export function LayerText({ layer }: { layer: TextLayer }) {
+  if (layer.graphic) return <LayerGraphic layer={layer} />
   const style = layerTextStyle(layer)
   const bend = layer.bend ?? 0
   const text = layer.text || ' '

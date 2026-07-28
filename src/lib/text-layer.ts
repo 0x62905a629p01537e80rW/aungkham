@@ -74,6 +74,18 @@ export interface TextLayer {
   textureImage?: string
   textureSrc?: string
   eraseMask?: string
+
+  /* Non-text graphic content (overlay image / shape / sticker) */
+  graphic?: GraphicContent
+}
+
+export type GraphicKind = 'image' | 'shape' | 'sticker'
+
+export interface GraphicContent {
+  kind: GraphicKind
+  src: string
+  /** width / height of the source artwork */
+  aspect: number
 }
 
 
@@ -209,5 +221,19 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     strike: false,
     widthScale: 100,
     hidden: false,
+  }
+}
+
+
+export function createGraphicLayer(
+  graphic: GraphicContent,
+  name = 'Graphic',
+): TextLayer {
+  const layer = createTextLayer(name)
+  return {
+    ...layer,
+    graphic,
+    fontSize: 30,
+    color: graphic.kind === 'shape' ? '#ffffff' : layer.color,
   }
 }

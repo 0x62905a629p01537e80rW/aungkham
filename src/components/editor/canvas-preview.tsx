@@ -492,6 +492,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                 onPointerUp={handlePointerUp}
                 onDoubleClick={(e) => {
                   e.stopPropagation()
+                  if (layer.graphic) return
                   setEditingId(layer.id)
                 }}
               >
