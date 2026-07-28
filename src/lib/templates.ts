@@ -48,9 +48,17 @@ interface Palette {
 
 const PALETTES: Palette[] = [
   { key: 'red', accent: '#e8323c', ink: '#111111', paper: '#ffffff' },
-  { key: 'amber', accent: '#f5b301', ink: '#111111', paper: '#ffffff' },
+  { key: 'amber', accent: '#f5b301', ink: '#5a3d00', paper: '#ffffff' },
   { key: 'ink', accent: '#111111', ink: '#111111', paper: '#ffffff' },
   { key: 'ocean', accent: '#2f6fed', ink: '#0b1b3a', paper: '#ffffff' },
+  { key: 'emerald', accent: '#0f9d63', ink: '#06301f', paper: '#ffffff' },
+  { key: 'violet', accent: '#7a3ff2', ink: '#241046', paper: '#ffffff' },
+  { key: 'pink', accent: '#ec4899', ink: '#4a0f2d', paper: '#ffffff' },
+  { key: 'teal', accent: '#0d9aa8', ink: '#04333a', paper: '#ffffff' },
+  { key: 'orange', accent: '#f2711c', ink: '#4a1f00', paper: '#ffffff' },
+  { key: 'lime', accent: '#65a30d', ink: '#1f2e05', paper: '#ffffff' },
+  { key: 'indigo', accent: '#4338ca', ink: '#14124a', paper: '#ffffff' },
+  { key: 'crimson', accent: '#be123c', ink: '#3f0416', paper: '#ffffff' },
 ]
 
 /* ---------- content ---------- */
