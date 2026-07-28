@@ -90,6 +90,9 @@
 
 :root {
   --radius: 0.625rem;
+  --glass-rim: color-mix(in oklab, white 55%, transparent);
+  --glass-edge: color-mix(in oklab, white 14%, transparent);
+  --glass-shadow: color-mix(in oklab, var(--foreground) 45%, transparent);
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
@@ -125,6 +128,9 @@
 }
 
 .dark {
+  --glass-rim: color-mix(in oklab, white 22%, transparent);
+  --glass-edge: color-mix(in oklab, white 9%, transparent);
+  --glass-shadow: color-mix(in oklab, white 12%, transparent);
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
@@ -211,10 +217,10 @@
   border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
   backdrop-filter: blur(28px) saturate(180%);
   box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 55%, transparent),
+    inset 0 1px 0 var(--glass-rim),
     inset 0 -1px 0 color-mix(in oklab, var(--foreground) 8%, transparent),
-    inset 0 0 0 1px color-mix(in oklab, white 14%, transparent),
-    0 18px 45px -18px color-mix(in oklab, var(--foreground) 45%, transparent);
+    inset 0 0 0 1px var(--glass-edge),
+    0 18px 45px -18px var(--glass-shadow);
 }
 
 @utility glass-tile {
@@ -227,8 +233,8 @@
   border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
   backdrop-filter: blur(18px) saturate(170%);
   box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 50%, transparent),
-    0 10px 24px -14px color-mix(in oklab, var(--foreground) 40%, transparent);
+    inset 0 1px 0 var(--glass-rim),
+    0 10px 24px -14px var(--glass-shadow);
 }
 
 @utility glass-bar {
@@ -240,7 +246,7 @@
     );
   backdrop-filter: blur(26px) saturate(180%);
   box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 45%, transparent),
-    0 -10px 30px -20px color-mix(in oklab, var(--foreground) 45%, transparent);
+    inset 0 1px 0 var(--glass-rim),
+    0 -10px 30px -20px var(--glass-shadow);
 }
 
