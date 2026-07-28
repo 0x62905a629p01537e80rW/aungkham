@@ -381,7 +381,42 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             )
           })}
         </div>
+
+        {!exporting && (
+          <div
+            className="absolute bottom-2 right-2 flex flex-col gap-1"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Zoom in"
+              onClick={() => zoomBy(1.3)}
+              className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
+            >
+              <ZoomIn className="size-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Zoom out"
+              onClick={() => zoomBy(1 / 1.3)}
+              className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
+            >
+              <ZoomOut className="size-4" />
+            </button>
+            {view.scale > 1 && (
+              <button
+                type="button"
+                aria-label="Reset zoom"
+                onClick={() => setView({ scale: 1, tx: 0, ty: 0 })}
+                className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
+              >
+                <Minimize className="size-4" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
+
     )
   },
 )
