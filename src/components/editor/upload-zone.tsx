@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import {
-  Camera,
   FolderOpen,
   ImageIcon,
   Images,
@@ -26,7 +25,6 @@ export function UploadZone({
   onOpenProject?: (project: SavedProject) => void
 }) {
   const galleryRef = useRef<HTMLInputElement>(null)
-  const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('gallery')
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
   const [projects, setProjects] = useState<SavedProject[]>([])
@@ -149,14 +147,6 @@ export function UploadZone({
               <ImageIcon className="size-5" />
               Choose from Library
             </button>
-            <button
-              type="button"
-              onClick={() => cameraRef.current?.click()}
-              className="glass-tile flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl text-base font-semibold text-foreground transition active:scale-[0.98]"
-            >
-              <Camera className="size-5 text-primary" />
-              Take a Photo
-            </button>
             <p className="mt-1 inline-flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
               <ShieldCheck className="size-3.5 text-primary" />
               Your photo stays on this device.
@@ -235,14 +225,6 @@ export function UploadZone({
       </div>
 
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={readFile}
-      />
 
       <ColorPickerFullScreen
         key={picker ?? 'closed'}

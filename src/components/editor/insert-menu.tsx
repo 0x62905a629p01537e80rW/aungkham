@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, type ChangeEvent } from 'react'
-import { Camera, ImageIcon, Shapes, Sticker, X } from 'lucide-react'
+import { ImageIcon, Shapes, Sticker, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { SHAPES, SHAPE_GROUPS, shapeDataUrl, type ShapeGroup } from '@/lib/shapes'
@@ -25,7 +25,6 @@ export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
   const [shapeGroup, setShapeGroup] = useState<ShapeGroup>('Basic')
   const [stickerGroup, setStickerGroup] = useState<string>(STICKER_GROUPS[0])
   const galleryRef = useRef<HTMLInputElement>(null)
-  const cameraRef = useRef<HTMLInputElement>(null)
 
   const shapes = useMemo(() => SHAPES.filter((s) => s.group === shapeGroup), [shapeGroup])
   const stickers = useMemo(
@@ -128,14 +127,6 @@ export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
               <ImageIcon className="size-5" />
               Choose from Library
             </button>
-            <button
-              type="button"
-              onClick={() => cameraRef.current?.click()}
-              className="glass-tile flex w-full items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold transition active:scale-[0.98]"
-            >
-              <Camera className="size-5" />
-              Take a Photo
-            </button>
           </div>
         )}
 
@@ -184,14 +175,6 @@ export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
       </div>
 
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={readFile}
-      />
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from 'react'
-import { Camera, ImageIcon, X } from 'lucide-react'
+import { ImageIcon, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
@@ -18,7 +18,6 @@ interface ReplaceBackgroundProps {
 
 export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundProps) {
   const galleryRef = useRef<HTMLInputElement>(null)
-  const cameraRef = useRef<HTMLInputElement>(null)
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
 
   if (!open) return null
@@ -55,14 +54,6 @@ export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundPr
             <ImageIcon className="size-5" />
             Choose from Library
           </button>
-          <button
-            type="button"
-            onClick={() => cameraRef.current?.click()}
-            className="glass-tile flex w-full items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold transition active:scale-[0.98]"
-          >
-            <Camera className="size-5 text-primary" />
-            Take a Photo
-          </button>
         </div>
 
         <div className="mx-auto w-full max-w-sm">
@@ -88,14 +79,6 @@ export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundPr
       </div>
 
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={readFile}
-      />
 
       <ColorPickerFullScreen
         key={picker ?? 'closed'}
