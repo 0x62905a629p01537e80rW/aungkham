@@ -71,17 +71,15 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const scale = Math.max(1, Math.min(6, v.scale))
       if (!baseSize.current.w) measureBase()
       const { w, h } = baseSize.current
-      // Extra vertical slack so the whole image can be dragged up/down into
-      // view even at 1x, when the toolbar covers part of the canvas.
-      const slackY = h * 0.4
       const maxX = (w * (scale - 1)) / 2
-      const maxY = (h * (scale - 1)) / 2 + slackY
+      const maxY = (h * (scale - 1)) / 2
       return {
         scale,
         tx: Math.max(-maxX, Math.min(maxX, v.tx)),
         ty: Math.max(-maxY, Math.min(maxY, v.ty)),
       }
     }
+
 
     function commitView(v: { scale: number; tx: number; ty: number }) {
       pendingRef.current = clampView(v)
@@ -269,7 +267,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     return (
       <div
         ref={ref}
-        className="relative w-full select-none overflow-hidden"
+        className="relative h-full w-full select-none overflow-hidden"
         style={{ containerType: 'size', lineHeight: 0, aspectRatio, touchAction: 'none' }}
         onPointerDown={(e) => {
           onSelect(null)
@@ -279,6 +277,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         onPointerUp={stageUp}
         onPointerCancel={stageUp}
       >
+
         <div
           ref={containerRef}
           className="absolute inset-0"
