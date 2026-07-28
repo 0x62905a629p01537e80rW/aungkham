@@ -33,7 +33,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     } | null>(null)
     const lastTapRef = useRef<{ id: string; time: number } | null>(null)
     const [editingId, setEditingId] = useState<string | null>(null)
+    const [guides, setGuides] = useState<{ v: boolean; h: boolean }>({ v: false, h: false })
     const editorRef = useRef<HTMLTextAreaElement | null>(null)
+
 
     useEffect(() => {
       if (editingId && editorRef.current) {
@@ -71,17 +73,15 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const scale = Math.max(1, Math.min(6, v.scale))
       if (!baseSize.current.w) measureBase()
       const { w, h } = baseSize.current
-      // Extra vertical slack so the whole image can be dragged up/down into
-      // view even at 1x, when the toolbar covers part of the canvas.
-      const slackY = h * 0.4
       const maxX = (w * (scale - 1)) / 2
-      const maxY = (h * (scale - 1)) / 2 + slackY
+      const maxY = (h * (scale - 1)) / 2
       return {
         scale,
         tx: Math.max(-maxX, Math.min(maxX, v.tx)),
         ty: Math.max(-maxY, Math.min(maxY, v.ty)),
       }
     }
+
 
     function commitView(v: { scale: number; tx: number; ty: number }) {
       pendingRef.current = clampView(v)
@@ -195,8 +195,17 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       dragState.current.moved = true
       const rect = containerRef.current?.getBoundingClientRect()
       if (!rect) return
-      const x = ((e.clientX - rect.left) / rect.width) * 100
-      const y = ((e.clientY - rect.top) / rect.height) * 100
+      let x = ((e.clientX - rect.left) / rect.width) * 100
+      let y = ((e.clientY - rect.top) / rect.height) * 100
+
+      // Snap to the horizontal/vertical centre of the image and show guides.
+      const tol = 1.6
+      const snapV = Math.abs(x - 50) < tol
+      const snapH = Math.abs(y - 50) < tol
+      if (snapV) x = 50
+      if (snapH) y = 50
+      setGuides((g) => (g.v === snapV && g.h === snapH ? g : { v: snapV, h: snapH }))
+
       onMove(
         dragState.current.id,
         Math.max(-200, Math.min(300, x)),
@@ -205,10 +214,13 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
 
+
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
       stageUp(e)
+      setGuides({ v: false, h: false })
       const st = dragState.current
       dragState.current = null
+
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
       } catch {
@@ -269,7 +281,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     return (
       <div
         ref={ref}
-        className="relative w-full select-none overflow-hidden"
+        className="relative h-full w-full select-none overflow-hidden"
         style={{ containerType: 'size', lineHeight: 0, aspectRatio, touchAction: 'none' }}
         onPointerDown={(e) => {
           onSelect(null)
@@ -279,6 +291,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         onPointerUp={stageUp}
         onPointerCancel={stageUp}
       >
+
         <div
           ref={containerRef}
           className="absolute inset-0"
@@ -455,6 +468,25 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             )
           })}
         </div>
+
+        {!exporting && (guides.v || guides.h) && (
+          <div className="pointer-events-none absolute inset-0">
+            {guides.v && (
+              <span
+                className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white"
+                style={{ boxShadow: '0 0 4px rgba(0,0,0,0.55)' }}
+              />
+            )}
+            {guides.h && (
+              <span
+                className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-white"
+                style={{ boxShadow: '0 0 4px rgba(0,0,0,0.55)' }}
+              />
+            )}
+          </div>
+        )}
+
+
 
         {!exporting && (
           <div
