@@ -70,17 +70,20 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function clampView(v: { scale: number; tx: number; ty: number }) {
-      const scale = Math.max(1, Math.min(6, v.scale))
+      // Free movement: the image can be zoomed out below fit size and dragged
+      // anywhere inside the frame, keeping a bit of it always reachable.
+      const scale = Math.max(0.4, Math.min(8, v.scale))
       if (!baseSize.current.w) measureBase()
       const { w, h } = baseSize.current
-      const maxX = (w * (scale - 1)) / 2
-      const maxY = (h * (scale - 1)) / 2
+      const maxX = (w * scale) / 2 + w / 2
+      const maxY = (h * scale) / 2 + h / 2
       return {
         scale,
         tx: Math.max(-maxX, Math.min(maxX, v.tx)),
         ty: Math.max(-maxY, Math.min(maxY, v.ty)),
       }
     }
+
 
 
     function commitView(v: { scale: number; tx: number; ty: number }) {
