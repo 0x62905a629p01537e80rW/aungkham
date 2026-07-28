@@ -157,7 +157,7 @@ export function ColorPickerPanel({
   const hueRef = useRef<HTMLDivElement>(null)
   const alphaRef = useRef<HTMLDivElement>(null)
   const stopsRef = useRef<HTMLDivElement>(null)
-  const firstRun = useRef(true)
+  const firstRun = useRef(false)
 
   const rgb = useMemo(() => hsvToRgb(h, s, v), [h, s, v])
   const hex = useMemo(() => rgbaToHex(rgb.r, rgb.g, rgb.b, a), [rgb, a])
@@ -318,7 +318,7 @@ export function ColorPickerPanel({
               <button
                 key={m}
                 type="button"
-                onClick={() => setMode(m)}
+                onClick={() => { touch(); setMode(m) }}
                 className={`flex-1 rounded-[6px] px-2 py-1 text-[11px] font-semibold capitalize transition ${
                   mode === m ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
                 }`}
@@ -354,7 +354,7 @@ export function ColorPickerPanel({
           <div className="mt-1.5 flex items-center gap-1 rounded-lg bg-[#f1f1f5] px-1 py-1">
             <button
               type="button"
-              onClick={() => setGradType('linear')}
+              onClick={() => { touch(); setGradType('linear') }}
               aria-label="Linear gradient"
               className={`grid size-6 place-items-center rounded-md transition ${
                 gradType === 'linear' ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
@@ -364,7 +364,7 @@ export function ColorPickerPanel({
             </button>
             <button
               type="button"
-              onClick={() => setGradType('radial')}
+              onClick={() => { touch(); setGradType('radial') }}
               aria-label="Radial gradient"
               className={`grid size-6 place-items-center rounded-md transition ${
                 gradType === 'radial' ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
@@ -379,7 +379,7 @@ export function ColorPickerPanel({
                 type="number"
                 value={Math.round(angle)}
                 disabled={gradType === 'radial'}
-                onChange={(e) => setAngle(clamp(parseFloat(e.target.value) || 0, 0, 360))}
+                onChange={(e) => { touch(); setAngle(clamp(parseFloat(e.target.value) || 0, 0, 360)) }}
                 className="w-9 bg-transparent text-[11px] font-semibold text-neutral-700 outline-none disabled:opacity-40"
               />
               <span className="text-[10px] text-neutral-400">°</span>
