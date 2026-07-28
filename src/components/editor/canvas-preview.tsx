@@ -395,6 +395,63 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
+    /* --- Horizontal / vertical stretch (X% / Y%) --- */
+    const stretchState = useRef<{
+      id: string
+      axis: 'x' | 'y'
+      start: number
+      startValue: number
+    } | null>(null)
+    const [stretchHud, setStretchHud] = useState<{
+      id: string
+      axis: 'x' | 'y'
+      value: number
+    } | null>(null)
+
+    function handleStretchDown(
+      e: PointerEvent<HTMLButtonElement>,
+      layer: TextLayer,
+      axis: 'x' | 'y',
+    ) {
+      e.stopPropagation()
+      e.preventDefault()
+      e.currentTarget.setPointerCapture(e.pointerId)
+      const startValue = axis === 'x' ? (layer.widthScale ?? 100) : (layer.heightScale ?? 100)
+      stretchState.current = {
+        id: layer.id,
+        axis,
+        start: axis === 'x' ? e.clientX : e.clientY,
+        startValue,
+      }
+      setStretchHud({ id: layer.id, axis, value: Math.round(startValue) })
+    }
+
+    function handleStretchMove(e: PointerEvent<HTMLButtonElement>) {
+      const st = stretchState.current
+      if (!st) return
+      const rect = containerRef.current?.getBoundingClientRect()
+      const span = (st.axis === 'x' ? rect?.width : rect?.height) || 300
+      const delta = (st.axis === 'x' ? e.clientX : e.clientY) - st.start
+      // Dragging away from the layer centre grows it.
+      const dir = st.axis === 'x' ? -1 : 1
+      let next = st.startValue + (dir * delta * 200) / span
+      next = Math.max(20, Math.min(400, Math.round(next)))
+      onChange?.(st.id, st.axis === 'x' ? { widthScale: next } : { heightScale: next })
+      setStretchHud({ id: st.id, axis: st.axis, value: next })
+    }
+
+    function handleStretchUp(e: PointerEvent<HTMLButtonElement>) {
+      stretchState.current = null
+      setStretchHud(null)
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      } catch {
+        /* ignore */
+      }
+    }
+
+
+
 
 
     return (
