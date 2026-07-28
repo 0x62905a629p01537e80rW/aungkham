@@ -274,6 +274,7 @@ export function ColorPickerPanel({
   }
 
   function addStop() {
+    touch()
     const sorted = [...stops].sort((x, y) => x.pos - y.pos)
     const pos = clamp((sorted[0].pos + sorted[sorted.length - 1].pos) / 2, 0, 100) as number
     const st = { id: nextId(), color: hex, pos }
@@ -283,6 +284,7 @@ export function ColorPickerPanel({
   }
 
   function removeStop() {
+    touch()
     if (stops.length <= 2) return
     const next = stops.filter((_, i) => i !== activeStop)
     setStops(next)
