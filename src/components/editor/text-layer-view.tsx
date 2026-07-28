@@ -107,6 +107,7 @@ export function layerTransform(layer: TextLayer): string {
     `skew(${layer.skewX}deg, ${layer.skewY}deg)`,
     layer.flipH || layer.flipV ? `scale(${layer.flipH ? -1 : 1}, ${layer.flipV ? -1 : 1})` : '',
     (layer.widthScale ?? 100) !== 100 ? `scaleX(${(layer.widthScale ?? 100) / 100})` : '',
+    (layer.heightScale ?? 100) !== 100 ? `scaleY(${(layer.heightScale ?? 100) / 100})` : '',
   ]
   return parts.filter(Boolean).join(' ')
 }
