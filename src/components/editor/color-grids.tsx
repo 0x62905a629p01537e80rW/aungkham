@@ -8,7 +8,7 @@ function CustomTile({ label, onClick }: { label: string; onClick: () => void }) 
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="grid aspect-square place-items-center rounded-xl border border-dashed border-primary/50 bg-card text-primary shadow-sm transition active:scale-95"
+      className="glass-tile grid aspect-square place-items-center rounded-xl text-primary transition active:scale-95"
     >
       <Pipette className="size-4" />
     </button>
@@ -67,7 +67,7 @@ export function GradientGrid({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="w-full rounded-xl border border-border bg-card py-2 text-xs font-semibold text-primary transition active:scale-[0.98]"
+        className="glass-tile w-full rounded-xl py-2 text-xs font-semibold text-primary transition active:scale-[0.98]"
       >
         {expanded ? 'Show less' : `View more (${MORE_GRADIENTS.length})`}
       </button>

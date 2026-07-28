@@ -95,7 +95,7 @@ export function UploadZone({
       </div>
 
       {/* Tabs */}
-      <div className="relative mx-auto mt-6 flex w-full max-w-sm items-center gap-1 rounded-full border border-border bg-card/60 p-1 backdrop-blur">
+      <div className="glass-tile relative mx-auto mt-6 flex w-full max-w-sm items-center gap-1 rounded-full p-1">
         {(() => {
           const tabs: { id: Tab; label: string; icon: typeof Images }[] = [
             { id: 'gallery', label: 'Gallery', icon: Images },
@@ -152,7 +152,7 @@ export function UploadZone({
             <button
               type="button"
               onClick={() => cameraRef.current?.click()}
-              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl border border-border bg-card text-base font-semibold text-foreground transition active:scale-[0.98]"
+              className="glass-tile flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl text-base font-semibold text-foreground transition active:scale-[0.98]"
             >
               <Camera className="size-5 text-primary" />
               Take a Photo
@@ -190,7 +190,7 @@ export function UploadZone({
 
         {tab === 'projects' &&
           (projects.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/40 px-6 py-12 text-center backdrop-blur">
+            <div className="glass-panel flex flex-1 flex-col items-center justify-center rounded-3xl px-6 py-12 text-center">
               <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-secondary text-secondary-foreground">
                 <FolderOpen className="size-6 text-primary" />
               </div>
@@ -204,7 +204,7 @@ export function UploadZone({
               {projects.map((p) => (
                 <div
                   key={p.id}
-                  className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+                  className="glass-tile group relative overflow-hidden rounded-2xl"
                 >
                   <button
                     type="button"
@@ -224,7 +224,7 @@ export function UploadZone({
                     type="button"
                     aria-label="Delete project"
                     onClick={() => setProjects(deleteProject(p.id))}
-                    className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full bg-background/80 text-destructive backdrop-blur"
+                    className="glass-tile absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full text-destructive"
                   >
                     <Trash2 className="size-3.5" />
                   </button>

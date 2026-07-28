@@ -47,7 +47,7 @@ export function EditorHeader({
 }: EditorHeaderProps) {
   return (
     <header
-      className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/85 px-2 backdrop-blur-md"
+      className="glass-bar sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/40 px-2"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
       {hasImage ? (
@@ -105,7 +105,7 @@ export function EditorHeader({
               align="end"
               sideOffset={10}
               collisionPadding={12}
-              className="max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto rounded-2xl border-border/40 bg-popover/70 p-0 shadow-2xl backdrop-blur-2xl"
+              className="glass-panel max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto rounded-3xl p-0"
             >
               <LayersList
                 layers={layers}

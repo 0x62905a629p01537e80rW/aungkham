@@ -48,7 +48,7 @@ export function PremiumBadge() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Buy Pro"
-        className="relative flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[12px] font-extrabold tracking-tight text-foreground shadow-sm transition active:scale-95"
+        className="glass-tile relative flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[12px] font-extrabold tracking-tight text-foreground transition active:scale-95"
       >
         <ProGem className="premium-float size-4" />
         Buy Pro

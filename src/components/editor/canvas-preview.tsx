@@ -490,7 +490,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onDelete(layer.id)
                       }}
                       style={{ left: hx(0), top: hy(0), transform: hTransform }}
-                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <X className="size-4" strokeWidth={2.25} />
                     </button>
@@ -507,7 +507,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         setEditingId(layer.id)
                       }}
                       style={{ left: hx('100%'), top: hy(0), transform: hTransform }}
-                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <Pencil className="size-4" strokeWidth={2.25} />
                     </button>
@@ -526,7 +526,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: hy('100%'),
                         transform: hTransform,
                       }}
-                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <MoveDiagonal2 className="size-4" strokeWidth={2.25} />
                     </button>
@@ -545,7 +545,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: hy(0),
                         transform: hTransform,
                       }}
-                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <RotateCw className="size-4" strokeWidth={2.25} />
                     </button>
@@ -562,7 +562,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onChange?.(layer.id, { flipH: !layer.flipH })
                       }}
                       style={{ left: hx(0), top: hy('50%'), transform: hTransform }}
-                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <FlipHorizontal2 className="size-4" strokeWidth={2.25} />
                     </button>
@@ -580,7 +580,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onDuplicate?.(layer.id)
                       }}
                       style={{ left: hx('50%'), top: hy('100%'), transform: hTransform }}
-                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <CopyPlus className="size-4" strokeWidth={2.25} />
                     </button>
@@ -597,7 +597,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onChange?.(layer.id, { flipV: !layer.flipV })
                       }}
                       style={{ left: hx(0), top: hy('100%'), transform: hTransform }}
-                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <FlipVertical2 className="size-4" strokeWidth={2.25} />
                     </button>
@@ -637,7 +637,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               type="button"
               aria-label="Zoom in"
               onClick={() => zoomBy(1.3)}
-              className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
+              className="glass-tile flex size-9 items-center justify-center rounded-full text-foreground transition active:scale-90"
             >
               <ZoomIn className="size-4" />
             </button>
@@ -645,7 +645,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               type="button"
               aria-label="Zoom out"
               onClick={() => zoomBy(1 / 1.3)}
-              className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
+              className="glass-tile flex size-9 items-center justify-center rounded-full text-foreground transition active:scale-90"
             >
               <ZoomOut className="size-4" />
             </button>
@@ -657,7 +657,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                   viewRef.current = { scale: 1, tx: 0, ty: 0 }
                   setView({ scale: 1, tx: 0, ty: 0 })
                 }}
-                className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
+                className="glass-tile flex size-9 items-center justify-center rounded-full text-foreground transition active:scale-90"
               >
                 <Minimize className="size-4" />
               </button>
