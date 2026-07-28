@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Circle, Move3d, Pipette, Plus, Trash2 } from 'lucide-react'
+import { Circle, Move3d, Pipette, Plus, Trash2, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 // ---------- color math ----------
@@ -114,10 +114,18 @@ export function ColorPickerPanel({
   value,
   onChange,
   allowGradient = true,
+  initialMode,
+  onConfirm,
+  confirmLabel = 'Confirm',
+  className,
 }: {
   value: string
   onChange: (v: string) => void
   allowGradient?: boolean
+  initialMode?: 'solid' | 'gradient'
+  onConfirm?: (v: string) => void
+  confirmLabel?: string
+  className?: string
 }) {
   const parsedGradient = useMemo(() => parseGradient(value), [])
   const initialSolid = parsedGradient ? parsedGradient.stops[0].color : value
@@ -125,7 +133,11 @@ export function ColorPickerPanel({
   const initHsv = rgbToHsv(init.r, init.g, init.b)
 
   const [mode, setMode] = useState<'solid' | 'gradient'>(
-    parsedGradient && allowGradient ? 'gradient' : 'solid',
+    initialMode && allowGradient
+      ? initialMode
+      : parsedGradient && allowGradient
+        ? 'gradient'
+        : 'solid',
   )
   const [gradType, setGradType] = useState<GradientType>(parsedGradient?.type ?? 'linear')
   const [angle, setAngle] = useState(parsedGradient?.angle ?? 40)
@@ -298,7 +310,12 @@ export function ColorPickerPanel({
   const preview = mode === 'gradient' ? gradientCss : solidHex
 
   return (
-    <div className="w-full rounded-2xl bg-white p-2.5 text-neutral-800 shadow-[0_18px_40px_-16px_rgba(15,15,40,0.45)]">
+    <div
+      className={
+        className ??
+        'w-full rounded-2xl bg-white p-2.5 text-neutral-800 shadow-[0_18px_40px_-16px_rgba(15,15,40,0.45)]'
+      }
+    >
       {/* Saturation/Value area */}
       <div
         ref={areaRef}
@@ -530,6 +547,16 @@ export function ColorPickerPanel({
           ))}
         </div>
       )}
+
+      {onConfirm && (
+        <button
+          type="button"
+          onClick={() => onConfirm(mode === 'gradient' ? gradientCss : hex)}
+          className="mt-3 h-12 w-full rounded-xl bg-sky-600 text-sm font-semibold text-white shadow-lg transition active:scale-[0.98]"
+        >
+          {confirmLabel}
+        </button>
+      )}
     </div>
   )
 }
@@ -570,12 +597,14 @@ export function ColorPickerPopover({
   children,
   align = 'end',
   allowGradient = false,
+  initialMode,
 }: {
   value: string
   onChange: (v: string) => void
   children: React.ReactNode
   align?: 'start' | 'center' | 'end'
   allowGradient?: boolean
+  initialMode?: 'solid' | 'gradient'
 }) {
   return (
     <Popover>
@@ -585,8 +614,68 @@ export function ColorPickerPopover({
         sideOffset={8}
         className="w-[268px] border-0 bg-transparent p-0 shadow-none"
       >
-        <ColorPickerPanel value={value} onChange={onChange} allowGradient={allowGradient} />
+        <ColorPickerPanel
+          value={value}
+          onChange={onChange}
+          allowGradient={allowGradient}
+          initialMode={initialMode}
+        />
       </PopoverContent>
     </Popover>
+  )
+}
+
+/** Full-screen color picker sheet (used on the home screen). */
+export function ColorPickerFullScreen({
+  open,
+  value,
+  allowGradient = true,
+  initialMode,
+  confirmLabel = 'Use this color',
+  onConfirm,
+  onClose,
+}: {
+  open: boolean
+  value: string
+  allowGradient?: boolean
+  initialMode?: 'solid' | 'gradient'
+  confirmLabel?: string
+  onConfirm: (v: string) => void
+  onClose: () => void
+}) {
+  if (!open) return null
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-neutral-950/60 backdrop-blur-sm">
+      <div
+        className="flex flex-1 flex-col overflow-y-auto bg-white"
+        style={{
+          paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
+          paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+        }}
+      >
+        <div className="flex items-center justify-between px-4 pb-2">
+          <span className="text-sm font-semibold text-neutral-800">Pick a color</span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close color picker"
+            className="grid size-8 place-items-center rounded-full bg-neutral-100 text-neutral-600"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+        <div className="flex-1 px-3">
+          <ColorPickerPanel
+            className="w-full bg-white text-neutral-800"
+            value={value}
+            allowGradient={allowGradient}
+            initialMode={initialMode}
+            onChange={() => {}}
+            onConfirm={onConfirm}
+            confirmLabel={confirmLabel}
+          />
+        </div>
+      </div>
+    </div>
   )
 }

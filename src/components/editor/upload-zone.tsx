@@ -5,11 +5,12 @@ import {
   ImageIcon,
   Images,
   Palette,
+  Pipette,
   ShieldCheck,
   Sparkles,
   Type as TypeIcon,
 } from 'lucide-react'
-import { ColorPickerPopover } from './color-picker'
+import { ColorPickerFullScreen } from './color-picker'
 
 
 type Tab = 'gallery' | 'colors' | 'projects'
@@ -103,10 +104,24 @@ function makeBackgroundDataUrl(css: string, size = 1200) {
 }
 
 
+function CustomTile({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="grid aspect-square place-items-center rounded-xl border border-dashed border-primary/50 bg-card text-primary shadow-sm transition active:scale-95"
+    >
+      <Pipette className="size-4" />
+    </button>
+  )
+}
+
 export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) {
   const galleryRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('gallery')
+  const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
 
   function readFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -217,20 +232,6 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
                 <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Solid colors
                 </span>
-                <ColorPickerPopover
-                  value="#8235DC"
-                  allowGradient
-                  onChange={(css) => onImage(makeBackgroundDataUrl(css))}
-                >
-
-                  <button
-                    type="button"
-                    className="text-[11px] font-medium text-primary underline-offset-2 hover:underline"
-                  >
-                    Custom
-                  </button>
-                </ColorPickerPopover>
-
               </div>
               <div className="grid grid-cols-6 gap-2">
                 {SOLID_COLORS.map((c) => (
@@ -243,6 +244,7 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
                     style={{ background: c }}
                   />
                 ))}
+                <CustomTile label="Custom solid color" onClick={() => setPicker('solid')} />
               </div>
             </div>
 
@@ -261,6 +263,7 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
                     style={{ background: g.css }}
                   />
                 ))}
+                <CustomTile label="Custom gradient" onClick={() => setPicker('gradient')} />
               </div>
             </div>
           </div>
@@ -303,6 +306,19 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
         capture="environment"
         className="hidden"
         onChange={readFile}
+      />
+
+      <ColorPickerFullScreen
+        key={picker ?? 'closed'}
+        open={picker !== null}
+        allowGradient
+        initialMode={picker ?? 'solid'}
+        value={picker === 'gradient' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#8235DC'}
+        onClose={() => setPicker(null)}
+        onConfirm={(css) => {
+          setPicker(null)
+          onImage(makeBackgroundDataUrl(css))
+        }}
       />
     </div>
   )
