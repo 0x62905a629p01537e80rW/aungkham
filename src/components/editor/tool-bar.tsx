@@ -81,6 +81,10 @@ import {
   type TextLayer,
   type TextureType,
 } from '@/lib/text-layer'
+import { TEXT_STYLES, STYLE_GROUPS, type StyleGroup } from '@/lib/text-styles'
+import { layerTextStyle } from './text-layer-view'
+
+
 
 interface ToolBarProps {
   layers: TextLayer[]
@@ -109,6 +113,7 @@ const IMAGE_TOOLS = [
 
 
 type ToolKey =
+  | 'style'
   | 'text'
   | 'font'
   | 'format'
@@ -137,6 +142,7 @@ interface ToolDef {
 }
 
 const TOOLS: ToolDef[] = [
+  { key: 'style', label: 'Styles', icon: Sparkles, needsLayer: true },
   { key: 'font', label: 'Font', icon: WandSparkles, needsLayer: true },
   { key: 'format', label: 'Format', icon: TypeIcon, needsLayer: true },
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
@@ -179,8 +185,14 @@ export function ToolBar({
       className="glass-bar fixed inset-x-0 bottom-0 z-30 border-t border-border/40"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      {/* Image / background row */}
-      <div className="flex items-center gap-1 overflow-x-auto border-b border-border/60 px-2 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* Image / background row — locked while a layer is selected */}
+      <div
+        aria-hidden={!!selected}
+        className={cn(
+          'flex items-center gap-1 overflow-x-auto border-b border-border/60 px-2 py-1.5 transition duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          selected && 'pointer-events-none select-none opacity-40 blur-[2px]',
+        )}
+      >
         <span className="mr-1 shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Image
         </span>
@@ -188,6 +200,7 @@ export function ToolBar({
           <button
             key={key}
             type="button"
+            disabled={!!selected}
             onClick={() =>
               key === 'replace'
                 ? onReplaceImage?.()
@@ -555,8 +568,12 @@ function ToolContent({
           />
         </div>
       )
+    case 'style':
+      return <StylePicker layer={layer} onChange={onChange} />
+
     case 'font':
       return <FontPicker layer={layer} onChange={onChange} />
+
 
     case 'format': {
       const width = layer.widthScale ?? 100
@@ -1304,6 +1321,67 @@ function PositionPanel({
           </button>
         </div>
       )}
+    </div>
+  )
+}
+
+/* ---------------- Text style templates ---------------- */
+
+function StylePicker({
+  layer,
+  onChange,
+}: {
+  layer: TextLayer
+  onChange: (patch: Partial<TextLayer>) => void
+}) {
+  const [group, setGroup] = useState<StyleGroup>('basic')
+  const items = TEXT_STYLES.filter((s) => s.group === group)
+
+  return (
+    <div>
+      <ToolHeading>Styles</ToolHeading>
+
+      <div className="-mx-1 mb-3 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {STYLE_GROUPS.map((g) => (
+          <button
+            key={g.key}
+            type="button"
+            onClick={() => setGroup(g.key)}
+            className={cn(
+              'shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold transition active:scale-95',
+              group === g.key
+                ? 'bg-primary text-primary-foreground'
+                : 'glass-tile text-muted-foreground',
+            )}
+          >
+            {g.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid max-h-[46vh] grid-cols-3 gap-2 overflow-y-auto pr-0.5">
+        {items.map((s) => {
+          const preview = { ...layer, ...s.patch, fontSize: 34, text: 'Aa' } as TextLayer
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => onChange({ ...s.patch })}
+              className="glass-tile flex flex-col items-center gap-1 rounded-2xl p-1.5 transition active:scale-95"
+            >
+              <span
+                className="flex h-11 w-full items-center justify-center overflow-hidden rounded-xl bg-muted/40"
+                style={{ containerType: 'size' }}
+              >
+                <span style={{ ...layerTextStyle(preview), lineHeight: 1 }}>Aa</span>
+              </span>
+              <span className="w-full truncate text-center text-[9px] text-muted-foreground">
+                {s.name}
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
