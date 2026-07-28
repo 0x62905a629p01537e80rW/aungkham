@@ -575,7 +575,7 @@ function ToolContent({
     case 'skew':
       return (
         <div className="space-y-4">
-          <ToolHeading>Perspective</ToolHeading>
+          <ToolHeading>Skew</ToolHeading>
           <SliderField
             label="Tilt X"
             value={layer.skewX}
@@ -594,7 +594,402 @@ function ToolContent({
           />
         </div>
       )
+    case 'position':
+      return (
+        <PositionPanel
+          layer={layer}
+          onChange={onChange}
+          onMoveLayer={onMoveLayer}
+        />
+      )
+    case 'gradient':
+      return (
+        <div className="space-y-4">
+          <ToolHeading>Gradient fill</ToolHeading>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">Use gradient</Label>
+            <Switch
+              checked={layer.fillType === 'gradient'}
+              onCheckedChange={(v) => onChange({ fillType: v ? 'gradient' : 'solid' })}
+            />
+          </div>
+          <ColorField
+            label="From"
+            value={layer.gradientFrom ?? '#ff7a18'}
+            onChange={(v) => onChange({ gradientFrom: v, fillType: 'gradient' })}
+          />
+          <ColorField
+            label="To"
+            value={layer.gradientTo ?? '#af002d'}
+            onChange={(v) => onChange({ gradientTo: v, fillType: 'gradient' })}
+          />
+          <SliderField
+            label="Angle"
+            value={layer.gradientAngle ?? 90}
+            min={0}
+            max={360}
+            suffix="°"
+            onChange={(v) => onChange({ gradientAngle: v })}
+          />
+        </div>
+      )
+    case 'texture':
+      return (
+        <div className="space-y-4">
+          <ToolHeading>Texture fill</ToolHeading>
+          <div className="grid grid-cols-3 gap-2">
+            {(Object.keys(PATTERNS) as PatternType[]).map((key) => {
+              const active = layer.fillType === 'texture' && (layer.pattern ?? 'none') === key
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() =>
+                    onChange({ pattern: key, fillType: key === 'none' ? 'solid' : 'texture' })
+                  }
+                  className={cn(
+                    'flex h-10 items-center justify-center rounded-xl border text-xs font-semibold transition active:scale-95',
+                    active ? 'border-primary ring-2 ring-primary/30' : 'border-border',
+                  )}
+                >
+                  {PATTERNS[key].label}
+                </button>
+              )
+            })}
+          </div>
+          <ColorField
+            label="Pattern color"
+            value={layer.patternColor ?? '#000000'}
+            onChange={(v) => onChange({ patternColor: v })}
+          />
+          <ColorField label="Base color" value={layer.color} onChange={(v) => onChange({ color: v })} />
+        </div>
+      )
+    case 'rotate3d':
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <ToolHeading>3D rotate</ToolHeading>
+            <button
+              type="button"
+              aria-label="Reset 3D rotation"
+              onClick={() => onChange({ rotateX: 0, rotateY: 0, rotation: 0 })}
+              className="mb-3 text-muted-foreground transition active:scale-90"
+            >
+              <RotateCcw className="size-4" />
+            </button>
+          </div>
+          <SliderField
+            label="Vertical"
+            value={layer.rotateX ?? 0}
+            min={-80}
+            max={80}
+            suffix="°"
+            onChange={(v) => onChange({ rotateX: v })}
+          />
+          <SliderField
+            label="Horizontal"
+            value={layer.rotateY ?? 0}
+            min={-80}
+            max={80}
+            suffix="°"
+            onChange={(v) => onChange({ rotateY: v })}
+          />
+          <SliderField
+            label="2D"
+            value={layer.rotation}
+            min={-180}
+            max={180}
+            suffix="°"
+            onChange={(v) => onChange({ rotation: v })}
+          />
+        </div>
+      )
+    case 'depth3d':
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">3D depth</Label>
+            <Switch
+              checked={!!layer.depthOn}
+              onCheckedChange={(v) => onChange({ depthOn: v })}
+            />
+          </div>
+          <SliderField
+            label="Depth"
+            value={layer.depth ?? 30}
+            min={0}
+            max={100}
+            onChange={(v) => onChange({ depth: v, depthOn: true })}
+          />
+          <SliderField
+            label="Darken"
+            value={layer.depthDarken ?? 48}
+            min={0}
+            max={100}
+            onChange={(v) => onChange({ depthDarken: v })}
+          />
+          <ColorField
+            label="Depth color"
+            value={layer.depthColor ?? '#1d4ed8'}
+            onChange={(v) => onChange({ depthColor: v, depthOn: true })}
+          />
+        </div>
+      )
+    case 'perspective':
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <ToolHeading>Perspective</ToolHeading>
+            <button
+              type="button"
+              onClick={() => onChange({ rotateX: 0, rotateY: 0, skewX: 0, skewY: 0 })}
+              className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+            >
+              Reset
+            </button>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {PERSPECTIVE_PRESETS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => onChange(p.patch)}
+                className="flex h-11 items-center justify-center rounded-xl border border-border text-[10px] font-semibold transition active:scale-95"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <SliderField
+            label="Depth of field"
+            value={layer.perspective ?? 600}
+            min={200}
+            max={2000}
+            step={20}
+            onChange={(v) => onChange({ perspective: v })}
+          />
+        </div>
+      )
+    case 'bend':
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <ToolHeading>Bend</ToolHeading>
+            <button
+              type="button"
+              onClick={() => onChange({ bend: 0 })}
+              className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+            >
+              Reset
+            </button>
+          </div>
+          <SliderField
+            label="Arc"
+            value={layer.bend ?? 0}
+            min={-100}
+            max={100}
+            onChange={(v) => onChange({ bend: v })}
+          />
+        </div>
+      )
     default:
       return null
+  }
+}
+
+const PERSPECTIVE_PRESETS = [
+  { label: 'Left', patch: { rotateY: -35, rotateX: 0 } },
+  { label: 'Right', patch: { rotateY: 35, rotateX: 0 } },
+  { label: 'Top', patch: { rotateX: 35, rotateY: 0 } },
+  { label: 'Bottom', patch: { rotateX: -35, rotateY: 0 } },
+] satisfies { label: string; patch: Partial<TextLayer> }[]
+
+const POSITION_TABS = ['Move', 'Zoom', 'Rotate', 'Layer Order'] as const
+
+function PositionPanel({
+  layer,
+  onChange,
+  onMoveLayer,
+}: {
+  layer: TextLayer
+  onChange: (patch: Partial<TextLayer>) => void
+  onMoveLayer?: (id: string, dir: 'front' | 'back') => void
+}) {
+  const [tab, setTab] = useState<(typeof POSITION_TABS)[number]>('Move')
+  const [step, setStep] = useState(10)
+
+  const nudge = (dx: number, dy: number) =>
+    onChange({
+      x: Math.round((layer.x + (dx * step) / 10) * 10) / 10,
+      y: Math.round((layer.y + (dy * step) / 10) * 10) / 10,
+    })
+
+  const iconBtn =
+    'flex h-9 items-center justify-center rounded-xl border border-border text-foreground transition active:scale-95'
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-1">
+        {POSITION_TABS.map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTab(t)}
+            className={cn(
+              'flex-1 rounded-lg px-1 py-1 text-[10px] font-semibold transition',
+              tab === t ? 'bg-primary/15 text-primary' : 'text-muted-foreground',
+            )}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'Move' && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-2">
+            <button type="button" className={iconBtn} aria-label="Align left" onClick={() => onChange({ x: 10 })}>
+              <AlignLeft className="size-4" />
+            </button>
+            <button type="button" className={iconBtn} aria-label="Center horizontally" onClick={() => onChange({ x: 50 })}>
+              <AlignCenter className="size-4" />
+            </button>
+            <button type="button" className={iconBtn} aria-label="Align right" onClick={() => onChange({ x: 90 })}>
+              <AlignRight className="size-4" />
+            </button>
+            <button type="button" className={iconBtn} aria-label="Align top" onClick={() => onChange({ y: 10 })}>
+              <ArrowUpToLine className="size-4" />
+            </button>
+            <button type="button" className={iconBtn} aria-label="Center vertically" onClick={() => onChange({ y: 50 })}>
+              <Move className="size-4" />
+            </button>
+            <button type="button" className={iconBtn} aria-label="Align bottom" onClick={() => onChange({ y: 90 })}>
+              <ArrowDownToLine className="size-4" />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">Step {step}</Label>
+            <div className="flex items-center gap-2">
+              <button type="button" aria-label="Smaller step" className={cn(iconBtn, 'w-9')} onClick={() => setStep((s) => Math.max(1, s - 1))}>
+                <Minus className="size-4" />
+              </button>
+              <button type="button" aria-label="Bigger step" className={cn(iconBtn, 'w-9')} onClick={() => setStep((s) => Math.min(50, s + 1))}>
+                <Plus className="size-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="mx-auto grid w-32 grid-cols-3 gap-1">
+            <span />
+            <button type="button" aria-label="Move up" className={iconBtn} onClick={() => nudge(0, -1)}>
+              <ChevronUp className="size-4" />
+            </button>
+            <span />
+            <button type="button" aria-label="Move left" className={iconBtn} onClick={() => nudge(-1, 0)}>
+              <ChevronLeft className="size-4" />
+            </button>
+            <span />
+            <button type="button" aria-label="Move right" className={iconBtn} onClick={() => nudge(1, 0)}>
+              <ChevronRight className="size-4" />
+            </button>
+            <span />
+            <button type="button" aria-label="Move down" className={iconBtn} onClick={() => nudge(0, 1)}>
+              <ChevronDown className="size-4" />
+            </button>
+            <span />
+          </div>
+        </div>
+      )}
+
+      {tab === 'Zoom' && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <button type="button" className={cn(iconBtn, 'flex-1 gap-2 text-xs font-semibold')} onClick={() => onChange({ flipH: !layer.flipH })}>
+              <FlipHorizontal className="size-4" /> Flip H
+            </button>
+            <button type="button" className={cn(iconBtn, 'flex-1 gap-2 text-xs font-semibold')} onClick={() => onChange({ flipV: !layer.flipV })}>
+              <FlipVertical className="size-4" /> Flip V
+            </button>
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">Zoom</Label>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                {Math.round((layer.fontSize / 12) * 100)}%
+              </span>
+              <button
+                type="button"
+                aria-label="Zoom out"
+                className={cn(iconBtn, 'w-9')}
+                onClick={() => onChange({ fontSize: Math.max(2, Math.round((layer.fontSize - 0.5) * 2) / 2) })}
+              >
+                <Minus className="size-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Zoom in"
+                className={cn(iconBtn, 'w-9')}
+                onClick={() => onChange({ fontSize: Math.min(40, Math.round((layer.fontSize + 0.5) * 2) / 2) })}
+              >
+                <Plus className="size-4" />
+              </button>
+            </div>
+          </div>
+          <SliderField
+            label="Size"
+            value={layer.fontSize}
+            min={2}
+            max={40}
+            step={0.5}
+            onChange={(v) => onChange({ fontSize: v })}
+          />
+        </div>
+      )}
+
+      {tab === 'Rotate' && (
+        <div className="space-y-3">
+          <button
+            type="button"
+            aria-label="Reset rotation"
+            className={cn(iconBtn, 'mx-auto w-12')}
+            onClick={() => onChange({ rotation: 0 })}
+          >
+            <RotateCcw className="size-4" />
+          </button>
+          <SliderField
+            label="Rotation"
+            value={layer.rotation}
+            min={-180}
+            max={180}
+            suffix="°"
+            onChange={(v) => onChange({ rotation: v })}
+          />
+        </div>
+      )}
+
+      {tab === 'Layer Order' && (
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            className={cn(iconBtn, 'gap-2 text-xs font-semibold')}
+            onClick={() => onMoveLayer?.(layer.id, 'front')}
+          >
+            <ArrowUpToLine className="size-4" /> Front
+          </button>
+          <button
+            type="button"
+            className={cn(iconBtn, 'gap-2 text-xs font-semibold')}
+            onClick={() => onMoveLayer?.(layer.id, 'back')}
+          >
+            <ArrowDownToLine className="size-4" /> Back
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
   }
 }
