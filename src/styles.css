@@ -196,6 +196,18 @@
   animation: premium-float 2s ease-in-out infinite;
 }
 
+@keyframes marquee-x {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x 22s linear infinite;
+}
+
+
 /* Canvas selection handles: mid-gray glyphs with a white halo so they stay
    legible on both dark and light artwork. */
 .canvas-handle-icon {
