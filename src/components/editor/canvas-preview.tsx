@@ -606,19 +606,21 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
                     <button
                       type="button"
-                      aria-label="Flip horizontally"
-                      onPointerDown={(e) => {
-                        e.stopPropagation()
-                        e.preventDefault()
+                      aria-label="Stretch horizontally"
+                      onPointerDown={(e) => handleStretchDown(e, layer, 'x')}
+                      onPointerMove={handleStretchMove}
+                      onPointerUp={handleStretchUp}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        cursor: 'ew-resize',
+                        touchAction: 'none',
+                        left: hx(0),
+                        top: hy('50%'),
+                        transform: hTransform,
                       }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onChange?.(layer.id, { flipH: !layer.flipH })
-                      }}
-                      style={{ left: hx(0), top: hy('50%'), transform: hTransform }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
-                      <FlipHorizontal2 className="size-4" strokeWidth={2.25} />
+                      <MoveHorizontal className="size-4" strokeWidth={2.25} />
                     </button>
 
 
@@ -641,20 +643,36 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
                     <button
                       type="button"
-                      aria-label="Flip vertically"
-                      onPointerDown={(e) => {
-                        e.stopPropagation()
-                        e.preventDefault()
+                      aria-label="Stretch vertically"
+                      onPointerDown={(e) => handleStretchDown(e, layer, 'y')}
+                      onPointerMove={handleStretchMove}
+                      onPointerUp={handleStretchUp}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        cursor: 'ns-resize',
+                        touchAction: 'none',
+                        left: hx(0),
+                        top: hy('100%'),
+                        transform: hTransform,
                       }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onChange?.(layer.id, { flipV: !layer.flipV })
-                      }}
-                      style={{ left: hx(0), top: hy('100%'), transform: hTransform }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
-                      <FlipVertical2 className="size-4" strokeWidth={2.25} />
+                      <MoveVertical className="size-4" strokeWidth={2.25} />
                     </button>
+
+                    {stretchHud && stretchHud.id === layer.id && (
+                      <span
+                        className="glass-tile pointer-events-none absolute rounded-full px-2 py-0.5 text-[11px] font-semibold canvas-handle-icon"
+                        style={{
+                          left: '50%',
+                          top: 0,
+                          transform: `translate(-50%, -160%) scale(${inv})`,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {stretchHud.axis === 'x' ? 'X' : 'Y'}: {stretchHud.value}%
+                      </span>
+                    )}
                   </>
                 )}
 
