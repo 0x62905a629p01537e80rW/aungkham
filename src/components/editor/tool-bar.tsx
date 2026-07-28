@@ -22,6 +22,7 @@ import {
   Box,
   Frame,
   Grid2x2,
+  LayoutTemplate,
   Move,
   Rotate3d,
   Spline,
@@ -97,6 +98,7 @@ interface ToolBarProps {
   onDelete: (id: string) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
   onReplaceImage?: () => void
+  onOpenTemplates?: () => void
   onImageTool?: (tool: 'crop' | 'resize' | 'flip' | 'square' | 'blur' | 'adjust' | 'filter') => void
 }
 
@@ -175,6 +177,7 @@ export function ToolBar({
   onDelete,
   onMoveLayer,
   onReplaceImage,
+  onOpenTemplates,
   onImageTool,
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
@@ -190,7 +193,7 @@ export function ToolBar({
         aria-hidden={!!selected}
         className={cn(
           'flex items-center gap-1 overflow-x-auto border-b border-border/60 px-2 py-1.5 transition duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          selected && 'pointer-events-none select-none opacity-40 blur-[2px]',
+          selected && 'pointer-events-none select-none opacity-45',
         )}
       >
         <span className="mr-1 shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -223,6 +226,15 @@ export function ToolBar({
         >
           <Plus className="size-[18px]" strokeWidth={2.4} />
           Add
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenTemplates}
+          className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium text-foreground/85 transition active:scale-95"
+        >
+          <LayoutTemplate className="size-[18px]" />
+          Templates
         </button>
 
         <span className="mx-1 h-8 w-px shrink-0 bg-border" />
