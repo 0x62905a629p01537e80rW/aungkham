@@ -53,6 +53,8 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectGroup,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -64,6 +66,7 @@ import { cn } from '@/lib/utils'
 import { rotateImage } from '@/lib/texture-image'
 import {
   FONTS,
+  FONT_CATEGORIES,
   TEXTURES,
   fontFamily,
   type TextAlign,
@@ -347,12 +350,27 @@ function ToolContent({
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              {FONTS.map((f) => (
-                <SelectItem key={f.key} value={f.key}>
-                  <span style={{ fontFamily: fontFamily(f.key) }}>{f.label}</span>
-                </SelectItem>
-              ))}
+            <SelectContent className="max-h-72">
+              {FONT_CATEGORIES.map((cat) => {
+                const items = FONTS.filter((f) => f.category === cat)
+                if (!items.length) return null
+                return (
+                  <SelectGroup key={cat}>
+                    <SelectLabel className="text-[11px] uppercase tracking-wide opacity-70">
+                      {cat === 'Myanmar'
+                        ? 'Myanmar — Normal'
+                        : cat === 'Myanmar Pro'
+                          ? 'Myanmar — Premium'
+                          : cat}
+                    </SelectLabel>
+                    {items.map((f) => (
+                      <SelectItem key={f.key} value={f.key}>
+                        <span style={{ fontFamily: fontFamily(f.key) }}>{f.label}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                )
+              })}
             </SelectContent>
           </Select>
         </div>

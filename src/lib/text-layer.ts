@@ -81,7 +81,7 @@ export interface FontOption {
   key: string
   label: string
   cssVar: string
-  category: 'Sans' | 'Serif' | 'Display' | 'Script'
+  category: 'Sans' | 'Serif' | 'Display' | 'Script' | 'Myanmar' | 'Myanmar Pro'
 }
 
 export const FONTS: FontOption[] = [
@@ -95,6 +95,53 @@ export const FONTS: FontOption[] = [
   { key: 'lobster', label: 'Lobster', cssVar: 'var(--font-lobster)', category: 'Script' },
   { key: 'pacifico', label: 'Pacifico', cssVar: 'var(--font-pacifico)', category: 'Script' },
   { key: 'caveat', label: 'Caveat', cssVar: 'var(--font-caveat)', category: 'Script' },
+  { key: 'choco-cooky', label: 'Choco Cooky', cssVar: "'MM_choco_cooky'", category: 'Myanmar' },
+  { key: 'keng-tawng03', label: 'Keng Tawng03', cssVar: "'MM_keng_tawng03'", category: 'Myanmar' },
+  { key: 'myanmar-april', label: 'Myanmar April', cssVar: "'MM_myanmar_april'", category: 'Myanmar' },
+  { key: 'myanmar-ayar-tyepwriter', label: 'Myanmar Ayar Tyepwriter', cssVar: "'MM_myanmar_ayar_tyepwriter'", category: 'Myanmar' },
+  { key: 'myanmar-ayar-wazo', label: 'Myanmar Ayar Wazo', cssVar: "'MM_myanmar_ayar_wazo'", category: 'Myanmar' },
+  { key: 'myanmar-handwriting', label: 'Myanmar Handwriting', cssVar: "'MM_myanmar_handwriting'", category: 'Myanmar' },
+  { key: 'myanmar-jojar', label: 'Myanmar Jojar', cssVar: "'MM_myanmar_jojar'", category: 'Myanmar' },
+  { key: 'myanmar-khittar', label: 'Myanmar Khittar', cssVar: "'MM_myanmar_khittar'", category: 'Myanmar' },
+  { key: 'myanmar-taunggyi', label: 'Myanmar Taunggyi', cssVar: "'MM_myanmar_taunggyi'", category: 'Myanmar' },
+  { key: 'myanmar-waitzar', label: 'Myanmar Waitzar', cssVar: "'MM_myanmar_waitzar'", category: 'Myanmar' },
+  { key: 'pyidaungsu', label: 'Pyidaungsu', cssVar: "'MM_pyidaungsu'", category: 'Myanmar' },
+  { key: 'tgi', label: 'TGI', cssVar: "'MM_tgi'", category: 'Myanmar' },
+  { key: 'abrush', label: 'ABrush', cssVar: "'MM_abrush'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k16', label: 'La Yaung Thit 16', cssVar: "'MM_layaungthit_k16'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k19', label: 'La Yaung Thit 19', cssVar: "'MM_layaungthit_k19'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k25', label: 'La Yaung Thit 25', cssVar: "'MM_layaungthit_k25'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k26', label: 'La Yaung Thit 26', cssVar: "'MM_layaungthit_k26'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k36', label: 'La Yaung Thit 36', cssVar: "'MM_layaungthit_k36'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k39', label: 'La Yaung Thit 39', cssVar: "'MM_layaungthit_k39'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k44', label: 'La Yaung Thit 44', cssVar: "'MM_layaungthit_k44'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k48', label: 'La Yaung Thit 48', cssVar: "'MM_layaungthit_k48'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k49', label: 'La Yaung Thit 49', cssVar: "'MM_layaungthit_k49'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k54', label: 'La Yaung Thit 54', cssVar: "'MM_layaungthit_k54'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k56', label: 'La Yaung Thit 56', cssVar: "'MM_layaungthit_k56'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k57', label: 'La Yaung Thit 57', cssVar: "'MM_layaungthit_k57'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k58', label: 'La Yaung Thit 58', cssVar: "'MM_layaungthit_k58'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k60', label: 'La Yaung Thit 60', cssVar: "'MM_layaungthit_k60'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k61', label: 'La Yaung Thit 61', cssVar: "'MM_layaungthit_k61'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k65', label: 'La Yaung Thit 65', cssVar: "'MM_layaungthit_k65'", category: 'Myanmar Pro' },
+  { key: 'layaungthit-k6', label: 'La Yaung Thit 6', cssVar: "'MM_layaungthit_k6'", category: 'Myanmar Pro' },
+  { key: 'myanmargantgaw', label: 'Myanmar Gantgaw', cssVar: "'MM_myanmargantgaw'", category: 'Myanmar Pro' },
+  { key: 'myanmarkuttar', label: 'Myanmar Kuttar', cssVar: "'MM_myanmarkuttar'", category: 'Myanmar Pro' },
+  { key: 'myanmarsabae', label: 'Myanmar Sabae', cssVar: "'MM_myanmarsabae'", category: 'Myanmar Pro' },
+  { key: 'myanmarsquare', label: 'Myanmar Square', cssVar: "'MM_myanmarsquare'", category: 'Myanmar Pro' },
+  { key: 'myanmaryinmar', label: 'Myanmar Yinmar', cssVar: "'MM_myanmaryinmar'", category: 'Myanmar Pro' },
+  { key: 'koz008', label: 'Koz 008', cssVar: "'MM_koz008'", category: 'Myanmar Pro' },
+  { key: 'koz033', label: 'Koz 033', cssVar: "'MM_koz033'", category: 'Myanmar Pro' },
+  { key: 'koz052', label: 'Koz 052', cssVar: "'MM_koz052'", category: 'Myanmar Pro' },
+]
+
+export const FONT_CATEGORIES: FontOption['category'][] = [
+  'Myanmar',
+  'Myanmar Pro',
+  'Sans',
+  'Serif',
+  'Display',
+  'Script',
 ]
 
 export function fontFamily(key: string): string {
