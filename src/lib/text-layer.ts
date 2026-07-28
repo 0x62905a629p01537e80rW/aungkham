@@ -4,7 +4,7 @@ export type TextureType = 'none' | 'ocean' | 'neon' | 'mono'
 
 export type FillType = 'solid' | 'gradient' | 'texture'
 
-export type PatternType = 'none' | 'dots' | 'stripes' | 'grid' | 'checks'
+
 
 export interface TextLayer {
   id: string
