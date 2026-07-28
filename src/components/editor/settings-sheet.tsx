@@ -129,7 +129,8 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
               </p>
             </div>
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )
