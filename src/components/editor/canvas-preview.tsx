@@ -285,7 +285,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       <div
         ref={ref}
         className="relative h-full w-full select-none overflow-hidden"
-        style={{ containerType: 'size', lineHeight: 0, aspectRatio, touchAction: 'none' }}
+        style={{ containerType: 'size', lineHeight: 0, touchAction: 'none' }}
         onPointerDown={(e) => {
           onSelect(null)
           stageDown(e)
@@ -310,7 +310,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             src={image || '/placeholder.svg'}
             alt="Editing canvas"
             crossOrigin="anonymous"
-            className="block h-full w-full object-cover"
+            className="block h-full w-full object-contain"
             draggable={false}
           />
 

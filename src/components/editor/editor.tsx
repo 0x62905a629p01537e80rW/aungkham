@@ -295,9 +295,9 @@ export function Editor() {
             style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom))' }}
           >
             <div
-              className="overflow-hidden bg-card shadow-sm"
-              style={fitStyle}
+              className="h-full w-full overflow-hidden bg-card"
             >
+
 
               <CanvasPreview
                 ref={canvasRef}
