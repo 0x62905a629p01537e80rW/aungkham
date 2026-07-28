@@ -5,11 +5,12 @@ import {
   ImageIcon,
   Images,
   Palette,
+  Pipette,
   ShieldCheck,
   Sparkles,
   Type as TypeIcon,
 } from 'lucide-react'
-import { ColorPickerPopover } from './color-picker'
+import { ColorPickerFullScreen } from './color-picker'
 
 
 type Tab = 'gallery' | 'colors' | 'projects'
