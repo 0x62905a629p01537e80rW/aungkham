@@ -340,9 +340,11 @@ export function Editor() {
             onAdd={addLayer}
             onDuplicate={duplicateLayer}
             onDelete={deleteLayer}
+            onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
             onImageTool={(t) => setBgTool(t)}
           />
+
 
           <input
             ref={replaceRef}
