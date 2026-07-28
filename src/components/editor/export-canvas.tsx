@@ -1,7 +1,7 @@
 import { forwardRef } from 'react'
 import type { CSSProperties } from 'react'
 import type { TextLayer } from '@/lib/text-layer'
-import { layerTextStyle } from './text-layer-view'
+import { LayerText, layerTransform } from './text-layer-view'
 
 interface ExportCanvasProps {
   image: string
@@ -47,28 +47,14 @@ export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(functi
             position: 'absolute',
             left: `${layer.x}%`,
             top: `${layer.y}%`,
-            transform: `translate(-50%, -50%) rotate(${layer.rotation}deg) skew(${layer.skewX}deg, ${layer.skewY}deg)`,
+            transform: layerTransform(layer),
             opacity: layer.opacity,
             whiteSpace: 'nowrap',
           }
-          const textStyle = layerTextStyle(layer)
 
           return (
             <div key={layer.id} style={wrapperStyle}>
-              {layer.highlight ? (
-                <span
-                  style={{
-                    display: 'inline-block',
-                    backgroundColor: layer.highlightColor,
-                    padding: '0.08em 0.28em',
-                    borderRadius: '0.08em',
-                  }}
-                >
-                  <span style={textStyle}>{layer.text || ' '}</span>
-                </span>
-              ) : (
-                <p style={textStyle}>{layer.text || ' '}</p>
-              )}
+              <LayerText layer={layer} />
             </div>
           )
         })}
