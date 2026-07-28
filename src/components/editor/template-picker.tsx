@@ -22,21 +22,6 @@ const THUMB_BG = [
   '#fbf6dd',
 ]
 
-/** varied tile shapes: [colSpan, rowSpan] */
-const TILE_SPANS: [number, number][] = [
-  [2, 2],
-  [1, 2],
-  [1, 1],
-  [1, 1],
-  [2, 1],
-  [1, 2],
-  [1, 2],
-  [1, 1],
-  [1, 1],
-  [2, 2],
-  [2, 1],
-  [1, 1],
-]
 
 function hashOf(s: string) {
   let h = 0
@@ -130,11 +115,9 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-8">
-        <div className="grid auto-rows-[84px] grid-cols-4 gap-2">
-          {list.map((t, i) => {
-            const h = hashOf(t.id)
-            const [cs, rs] = TILE_SPANS[i % TILE_SPANS.length]
-            const bg = THUMB_BG[h % THUMB_BG.length]
+        <div className="flex flex-col gap-3">
+          {list.map((t) => {
+            const bg = THUMB_BG[hashOf(t.id) % THUMB_BG.length]
             return (
               <button
                 key={t.id}
@@ -144,10 +127,11 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
                   onApply(t.build())
                   onClose()
                 }}
-                className="glass-tile overflow-hidden rounded-2xl p-1 transition active:scale-[0.97]"
-                style={{ gridColumn: `span ${cs}`, gridRow: `span ${rs}` }}
+                className="glass-tile w-full overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
               >
-                <TemplateThumb template={t} bg={bg} />
+                <div className="aspect-[16/9] w-full">
+                  <TemplateThumb template={t} bg={bg} />
+                </div>
               </button>
             )
           })}
