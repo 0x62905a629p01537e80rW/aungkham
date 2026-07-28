@@ -1,5 +1,17 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { Maximize2, Pencil, X, ZoomIn, ZoomOut, Minimize } from 'lucide-react'
+import {
+  Copy,
+  FlipHorizontal,
+  FlipVertical,
+  Layers,
+  Maximize2,
+  Pencil,
+  RefreshCw,
+  X,
+  ZoomIn,
+  ZoomOut,
+  Minimize,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { LayerText, layerTextStyle, layerTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
@@ -16,13 +28,32 @@ interface CanvasPreviewProps {
   onResize: (id: string, fontSize: number) => void
   onDelete: (id: string) => void
   onEditText: (id: string, text: string) => void
+  onChange?: (id: string, patch: Partial<TextLayer>) => void
+  onDuplicate?: (id: string) => void
+  onBringForward?: (id: string) => void
 }
 
 export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
   function CanvasPreview(
-    { image, aspectRatio, layers, selectedId, exporting, showGrid = false, onSelect, onMove, onResize, onDelete, onEditText },
+    {
+      image,
+      aspectRatio,
+      layers,
+      selectedId,
+      exporting,
+      showGrid = false,
+      onSelect,
+      onMove,
+      onResize,
+      onDelete,
+      onEditText,
+      onChange,
+      onDuplicate,
+      onBringForward,
+    },
     ref,
   ) {
+
     const containerRef = useRef<HTMLDivElement | null>(null)
     const dragState = useRef<{ id: string; pointerId: number; moved: boolean; startX: number; startY: number } | null>(null)
     const resizeState = useRef<{
