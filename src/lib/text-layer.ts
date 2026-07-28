@@ -59,6 +59,11 @@ export interface TextLayer {
   /* Flip */
   flipH: boolean
   flipV: boolean
+
+  /* Format extras */
+  underline?: boolean
+  strike?: boolean
+  widthScale?: number
 }
 
 
@@ -139,6 +144,9 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     bend: 0,
     flipH: false,
     flipV: false,
+    underline: false,
+    strike: false,
+    widthScale: 100,
     hidden: false,
   }
 }

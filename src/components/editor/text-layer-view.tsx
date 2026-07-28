@@ -77,6 +77,10 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
     WebkitTextStrokeWidth: layer.strokeWidth > 0 ? `${layer.strokeWidth / 20}cqh` : undefined,
     WebkitTextStrokeColor: layer.strokeWidth > 0 ? layer.strokeColor : undefined,
     paintOrder: 'stroke fill',
+    textDecorationLine:
+      [layer.underline ? 'underline' : '', layer.strike ? 'line-through' : '']
+        .filter(Boolean)
+        .join(' ') || 'none',
   }
 
   const clipped = (image: string, size?: string): CSSProperties => ({
@@ -116,6 +120,7 @@ export function layerTransform(layer: TextLayer): string {
     layer.rotateY ? `rotateY(${layer.rotateY}deg)` : '',
     `skew(${layer.skewX}deg, ${layer.skewY}deg)`,
     layer.flipH || layer.flipV ? `scale(${layer.flipH ? -1 : 1}, ${layer.flipV ? -1 : 1})` : '',
+    (layer.widthScale ?? 100) !== 100 ? `scaleX(${(layer.widthScale ?? 100) / 100})` : '',
   ]
   return parts.filter(Boolean).join(' ')
 }
