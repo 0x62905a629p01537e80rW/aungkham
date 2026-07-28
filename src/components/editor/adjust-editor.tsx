@@ -211,8 +211,13 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
       </header>
 
       <div className="flex flex-1 items-center justify-center overflow-hidden bg-muted/30 p-3">
-        <img src={preview} alt="Adjust preview" className="max-h-full max-w-full object-contain" />
+        <canvas
+          ref={viewRef}
+          aria-label="Adjust preview"
+          className="max-h-full max-w-full object-contain"
+        />
       </div>
+
 
       <div
         className="glass-bar shrink-0 space-y-3 border-t border-border/40 px-3 pt-4"
