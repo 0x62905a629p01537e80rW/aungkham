@@ -1,0 +1,78 @@
+import { forwardRef } from 'react'
+import type { CSSProperties } from 'react'
+import type { TextLayer } from '@/lib/text-layer'
+import { layerTextStyle } from './text-layer-view'
+
+interface ExportCanvasProps {
+  image: string
+  layers: TextLayer[]
+  size: { w: number; h: number } | null
+}
+
+export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(function ExportCanvas(
+  { image, layers, size },
+  ref,
+) {
+  const safeSize = size ?? { w: 1, h: 1 }
+  const exportLayers = layers.filter((layer) => !layer.hidden && layer.x > -50 && layer.x < 150 && layer.y > -50 && layer.y < 150)
+
+  return (
+    <div
+      className="pointer-events-none fixed left-0 top-0 overflow-hidden opacity-0"
+      style={{
+        width: safeSize.w,
+        height: safeSize.h,
+        containerType: 'size',
+        lineHeight: 0,
+        transform: 'translate3d(-200vw, -200vh, 0)',
+      }}
+      aria-hidden="true"
+    >
+      <div
+        ref={ref}
+        className="relative overflow-hidden bg-card"
+        style={{ width: safeSize.w, height: safeSize.h, containerType: 'size', lineHeight: 0 }}
+      >
+        <img
+          src={image}
+          alt=""
+          crossOrigin="anonymous"
+          className="block h-full w-full"
+          style={{ objectFit: 'fill' }}
+          draggable={false}
+        />
+
+        {exportLayers.map((layer) => {
+          const wrapperStyle: CSSProperties = {
+            position: 'absolute',
+            left: `${layer.x}%`,
+            top: `${layer.y}%`,
+            transform: `translate(-50%, -50%) rotate(${layer.rotation}deg) skew(${layer.skewX}deg, ${layer.skewY}deg)`,
+            opacity: layer.opacity,
+            whiteSpace: 'nowrap',
+          }
+          const textStyle = layerTextStyle(layer)
+
+          return (
+            <div key={layer.id} style={wrapperStyle}>
+              {layer.highlight ? (
+                <span
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor: layer.highlightColor,
+                    padding: '0.08em 0.28em',
+                    borderRadius: '0.08em',
+                  }}
+                >
+                  <span style={textStyle}>{layer.text || ' '}</span>
+                </span>
+              ) : (
+                <p style={textStyle}>{layer.text || ' '}</p>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+})
