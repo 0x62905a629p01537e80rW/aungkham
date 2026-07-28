@@ -117,6 +117,7 @@ export function Editor() {
     const layer = createGraphicLayer(graphic, name)
     setLayers((prev) => [...prev, layer])
     setSelectedId(layer.id)
+    if (graphic.path) setAutoOpenTool('outline')
   }
 
   function duplicateLayer(id: string) {
