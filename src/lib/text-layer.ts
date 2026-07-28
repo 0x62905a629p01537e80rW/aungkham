@@ -221,6 +221,7 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     underline: false,
     strike: false,
     widthScale: 100,
+    heightScale: 100,
     hidden: false,
   }
 }
