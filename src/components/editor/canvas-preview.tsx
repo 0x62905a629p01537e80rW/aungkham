@@ -285,7 +285,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       <div
         ref={ref}
         className="relative h-full w-full select-none overflow-hidden"
-        style={{ containerType: 'size', lineHeight: 0, aspectRatio, touchAction: 'none' }}
+        style={{ containerType: 'size', lineHeight: 0, touchAction: 'none' }}
         onPointerDown={(e) => {
           onSelect(null)
           stageDown(e)
