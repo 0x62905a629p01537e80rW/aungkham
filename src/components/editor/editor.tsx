@@ -38,6 +38,7 @@ export function Editor() {
   const [preview, setPreview] = useState<string | null>(null)
   const [savedProject, setSavedProject] = useState(false)
   const [rating, setRating] = useState(false)
+  const [autoOpenTool, setAutoOpenTool] = useState<'outline' | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const exportRef = useRef<HTMLDivElement>(null)
   const replaceRef = useRef<HTMLInputElement>(null)
@@ -117,6 +118,7 @@ export function Editor() {
     const layer = createGraphicLayer(graphic, name)
     setLayers((prev) => [...prev, layer])
     setSelectedId(layer.id)
+    if (graphic.path) setAutoOpenTool('outline')
   }
 
   function duplicateLayer(id: string) {
@@ -385,6 +387,8 @@ export function Editor() {
             onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
             onOpenTemplates={() => setTemplating(true)}
+            autoOpenTool={autoOpenTool}
+            onAutoOpenHandled={() => setAutoOpenTool(null)}
             onImageTool={(t) =>
               t === 'adjust'
                 ? setAdjusting(true)

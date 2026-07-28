@@ -102,6 +102,8 @@ interface ToolBarProps {
   onReplaceImage?: () => void
   onOpenTemplates?: () => void
   onImageTool?: (tool: 'crop' | 'resize' | 'flip' | 'square' | 'blur' | 'adjust' | 'filter') => void
+  autoOpenTool?: ToolKey | null
+  onAutoOpenHandled?: () => void
 }
 
 const IMAGE_TOOLS = [
@@ -184,9 +186,18 @@ export function ToolBar({
   onReplaceImage,
   onOpenTemplates,
   onImageTool,
+  autoOpenTool,
+  onAutoOpenHandled,
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
   const [eraseOpen, setEraseOpen] = useState(false)
+
+  useEffect(() => {
+    if (!autoOpenTool) return
+    setOpenTool(autoOpenTool)
+    onAutoOpenHandled?.()
+  }, [autoOpenTool, onAutoOpenHandled])
+
 
   return (
     <nav
