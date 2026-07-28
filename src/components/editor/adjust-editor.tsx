@@ -174,16 +174,24 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
       </div>
 
       <div
-        className="glass-bar shrink-0 space-y-3 border-t border-border/40 px-3 pt-3"
+        className="glass-bar shrink-0 space-y-3 border-t border-border/40 px-3 pt-4"
         style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
       >
         {/* active slider */}
-        <div className="space-y-2 px-1">
+        <div className="space-y-1.5 px-1">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold">{activeItem.label}</span>
-            <span className="font-mono text-xs tabular-nums text-muted-foreground">
-              {adj[active]}
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              {activeItem.label}
             </span>
+            {adj[active] !== DEFAULT_ADJUSTMENTS[active] && (
+              <button
+                type="button"
+                onClick={() => setValue(DEFAULT_ADJUSTMENTS[active])}
+                className="text-[11px] font-medium text-primary active:opacity-70"
+              >
+                Reset
+              </button>
+            )}
           </div>
           <Slider
             value={[adj[active]]}
@@ -195,33 +203,36 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
         </div>
 
         {/* items rail */}
-        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {items.map(({ key, label, icon: Icon }) => {
             const changed = adj[key] !== DEFAULT_ADJUSTMENTS[key]
+            const isActive = active === key
             return (
               <button
                 key={key}
                 type="button"
                 onClick={() => setActive(key)}
                 className={cn(
-                  'glass-tile flex w-[76px] shrink-0 flex-col items-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-medium transition active:scale-95',
-                  active === key ? 'ring-1 ring-primary text-primary' : 'text-foreground/80',
+                  'flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-2 text-[11px] font-medium transition active:scale-95',
+                  isActive
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border/60 bg-background/60 text-foreground/70',
                 )}
               >
                 <span className="relative">
-                  <Icon className="size-[18px]" />
-                  {changed && (
-                    <span className="absolute -right-1.5 -top-1 size-1.5 rounded-full bg-primary" />
+                  <Icon className="size-[15px]" />
+                  {changed && !isActive && (
+                    <span className="absolute -right-1 -top-1 size-1.5 rounded-full bg-primary" />
                   )}
                 </span>
-                <span className="truncate">{label}</span>
+                <span className="whitespace-nowrap">{label}</span>
               </button>
             )
           })}
         </div>
 
         {/* group tabs */}
-        <div className="flex justify-center gap-6 pb-1">
+        <div className="flex gap-1 rounded-full bg-muted/60 p-1">
           {GROUPS.map((g) => (
             <button
               key={g.key}
@@ -232,8 +243,10 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
                 if (first) setActive(first.key)
               }}
               className={cn(
-                'text-sm font-semibold transition',
-                group === g.key ? 'text-foreground' : 'text-muted-foreground',
+                'flex-1 rounded-full py-1.5 text-xs font-semibold transition',
+                group === g.key
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground',
               )}
             >
               {g.label}
@@ -241,6 +254,7 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
           ))}
         </div>
       </div>
+
     </div>
   )
 }
