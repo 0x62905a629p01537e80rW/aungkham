@@ -1,84 +1,84 @@
 /* Myanmar font faces (CDN assets) */
 @font-face {
   font-family: 'MM_choco_cooky';
-  src: url('/__l5e/assets-v1/6abf6913-d2df-450d-b3c3-cd7b5c49d8e2/choco-cooky.otf') format('opentype');
+  src: url('/__l5e/assets-v1/6abf6913-d2df-450d-b3c3-cd7b5c49d8e2/choco-cooky.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_keng_tawng03';
-  src: url('/__l5e/assets-v1/e5039994-766e-415d-8a0a-b00901f7548b/keng-tawng03.otf') format('opentype');
+  src: url('/__l5e/assets-v1/e5039994-766e-415d-8a0a-b00901f7548b/keng-tawng03.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_myanmar_april';
-  src: url('/__l5e/assets-v1/859c3537-7850-418b-af24-00e2d82b93fd/myanmar-april.otf') format('opentype');
+  src: url('/__l5e/assets-v1/859c3537-7850-418b-af24-00e2d82b93fd/myanmar-april.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_myanmar_ayar_tyepwriter';
-  src: url('/__l5e/assets-v1/82ebc49d-b459-4aa5-8dd3-0bb306acbe23/myanmar-ayar-tyepwriter.otf') format('opentype');
+  src: url('/__l5e/assets-v1/82ebc49d-b459-4aa5-8dd3-0bb306acbe23/myanmar-ayar-tyepwriter.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_myanmar_ayar_wazo';
-  src: url('/__l5e/assets-v1/8e95a033-7c09-46bb-a79c-7c6d3e5123cc/myanmar-ayar-wazo.otf') format('opentype');
+  src: url('/__l5e/assets-v1/8e95a033-7c09-46bb-a79c-7c6d3e5123cc/myanmar-ayar-wazo.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_myanmar_handwriting';
-  src: url('/__l5e/assets-v1/228bf12e-f424-49c5-b754-f823c06ffbef/myanmar-handwriting.otf') format('opentype');
+  src: url('/__l5e/assets-v1/228bf12e-f424-49c5-b754-f823c06ffbef/myanmar-handwriting.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_myanmar_jojar';
-  src: url('/__l5e/assets-v1/55ee0bb5-f882-4376-8f6b-4c3af787f202/myanmar-jojar.otf') format('opentype');
+  src: url('/__l5e/assets-v1/55ee0bb5-f882-4376-8f6b-4c3af787f202/myanmar-jojar.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_myanmar_khittar';
-  src: url('/__l5e/assets-v1/3410c8cd-16f2-4692-9e51-cc5f456611b4/myanmar-khittar.otf') format('opentype');
+  src: url('/__l5e/assets-v1/3410c8cd-16f2-4692-9e51-cc5f456611b4/myanmar-khittar.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_myanmar_taunggyi';
-  src: url('/__l5e/assets-v1/7c2c209f-8123-49c3-917b-316cce5a0a7b/myanmar-taunggyi.otf') format('opentype');
+  src: url('/__l5e/assets-v1/7c2c209f-8123-49c3-917b-316cce5a0a7b/myanmar-taunggyi.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_myanmar_waitzar';
-  src: url('/__l5e/assets-v1/f71d67fc-ee7b-45ad-b869-86c5c57260cf/myanmar-waitzar.otf') format('opentype');
+  src: url('/__l5e/assets-v1/f71d67fc-ee7b-45ad-b869-86c5c57260cf/myanmar-waitzar.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_pyidaungsu';
-  src: url('/__l5e/assets-v1/bd02fc80-076c-4f7b-aed8-b62c9d7139cf/pyidaungsu.otf') format('opentype');
+  src: url('/__l5e/assets-v1/bd02fc80-076c-4f7b-aed8-b62c9d7139cf/pyidaungsu.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'MM_tgi';
-  src: url('/__l5e/assets-v1/14fa0774-832b-4fe8-b3db-6a5a3e9beaed/tgi.otf') format('opentype');
+  src: url('/__l5e/assets-v1/14fa0774-832b-4fe8-b3db-6a5a3e9beaed/tgi.otf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
