@@ -184,9 +184,18 @@ export function ToolBar({
   onReplaceImage,
   onOpenTemplates,
   onImageTool,
+  autoOpenTool,
+  onAutoOpenHandled,
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
   const [eraseOpen, setEraseOpen] = useState(false)
+
+  useEffect(() => {
+    if (!autoOpenTool) return
+    setOpenTool(autoOpenTool)
+    onAutoOpenHandled?.()
+  }, [autoOpenTool, onAutoOpenHandled])
+
 
   return (
     <nav
