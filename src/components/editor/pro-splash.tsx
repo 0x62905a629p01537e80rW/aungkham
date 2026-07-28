@@ -71,7 +71,7 @@ export function ProSplash() {
 
         <div className="relative mt-10 text-center">
           <div className="flex items-center justify-center gap-2">
-            <h2 className="text-2xl font-extrabold tracking-tight">Myan Pro</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight">Myan</h2>
             <span className="flex items-center gap-1 rounded-md bg-[#e11d74] px-2 py-0.5 text-[11px] font-bold">
               <ProGem className="size-3" />
               Pro
@@ -81,18 +81,21 @@ export function ProSplash() {
         </div>
       </div>
 
-      {/* Feature cards rail */}
-      <div className="-mt-2 flex gap-3 overflow-x-auto px-5 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {CARDS.map(({ icon: Icon, label, tint }) => (
-          <div
-            key={label}
-            className={`relative flex h-32 w-32 shrink-0 flex-col justify-end rounded-2xl bg-gradient-to-br ${tint} p-3`}
-          >
-            <Icon className="absolute left-3 top-3 size-6 text-white/90" />
-            <p className="text-[12px] font-semibold leading-tight">{label}</p>
-          </div>
-        ))}
+      {/* Feature cards rail — auto looping */}
+      <div className="-mt-2 overflow-hidden pb-6 [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+        <div className="marquee-track gap-2.5">
+          {[...CARDS, ...CARDS].map(({ icon: Icon, label, tint }, i) => (
+            <div
+              key={`${label}-${i}`}
+              className={`relative flex h-24 w-24 shrink-0 flex-col justify-end rounded-xl bg-gradient-to-br ${tint} p-2.5`}
+            >
+              <Icon className="absolute left-2.5 top-2.5 size-5 text-white/90" />
+              <p className="text-[10px] font-semibold leading-tight">{label}</p>
+            </div>
+          ))}
+        </div>
       </div>
+
 
       {/* Plan */}
       <div className="mt-auto space-y-3 px-5 pb-6">
