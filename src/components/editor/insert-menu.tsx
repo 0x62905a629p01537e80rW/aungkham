@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { ImageIcon, Shapes, Sticker, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { SHAPES, SHAPE_GROUPS, shapeDataUrl, type ShapeGroup } from '@/lib/shapes'
+import { DEFAULT_STROKE_WIDTH, SHAPES, SHAPE_GROUPS, shapeDataUrl, type ShapeGroup } from '@/lib/shapes'
 import { STICKERS, STICKER_GROUPS, stickerDataUrl } from '@/lib/stickers'
 import type { GraphicContent } from '@/lib/text-layer'
 
@@ -138,7 +138,17 @@ export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
                 type="button"
                 aria-label={s.name}
                 onClick={() => {
-                  onInsert({ kind: 'shape', src: shapeDataUrl(s.path, '#000000', s.outline), aspect: 1 }, s.name)
+                  onInsert(
+                    {
+                      kind: 'shape',
+                      src: shapeDataUrl(s.path, '#000000', s.outline, DEFAULT_STROKE_WIDTH),
+                      aspect: 1,
+                      path: s.path,
+                      outline: !!s.outline,
+                      strokeWidth: DEFAULT_STROKE_WIDTH,
+                    },
+                    s.name,
+                  )
                   onClose()
                 }}
                 className="glass-tile flex aspect-square items-center justify-center rounded-2xl p-2 transition active:scale-95"
