@@ -341,7 +341,6 @@ export function Editor() {
             onDuplicate={duplicateLayer}
             onDelete={deleteLayer}
             onMoveLayer={moveLayer}
-            onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
             onImageTool={(t) => setBgTool(t)}
           />
