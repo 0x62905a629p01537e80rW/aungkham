@@ -1,0 +1,129 @@
+import { useEffect, useState } from 'react'
+import { Layers, Sparkles, Type as TypeIcon, Wand2, ShieldOff, X, Check } from 'lucide-react'
+
+const SEEN_KEY = 'pro-splash-seen'
+
+const CARDS = [
+  { icon: ShieldOff, label: 'No ads at all', tint: 'from-[#0ea5e9] to-[#1e3a8a]' },
+  { icon: TypeIcon, label: 'Premium Myanmar fonts', tint: 'from-[#a855f7] to-[#3b0764]' },
+  { icon: Wand2, label: 'Blur, square fit & effects', tint: 'from-[#f59e0b] to-[#7c2d12]' },
+  { icon: Layers, label: 'Unlimited projects', tint: 'from-[#10b981] to-[#064e3b]' },
+  { icon: Sparkles, label: 'No watermark exports', tint: 'from-[#f43f5e] to-[#4c0519]' },
+]
+
+function ProGem({ className = 'size-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <defs>
+        <linearGradient id="pro-splash-gem" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#8b7cf6" />
+          <stop offset="100%" stopColor="#5b4bd6" />
+        </linearGradient>
+      </defs>
+      <path d="M12 2 22 12 12 22 2 12z" fill="url(#pro-splash-gem)" />
+      <path
+        d="M12 6.5 14 10.5 18 12 14 13.5 12 17.5 10 13.5 6 12 10 10.5z"
+        fill="#fff"
+        fillOpacity="0.9"
+      />
+    </svg>
+  )
+}
+
+export function ProSplash() {
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    try {
+      if (!sessionStorage.getItem(SEEN_KEY)) {
+        sessionStorage.setItem(SEEN_KEY, '1')
+        setOpen(true)
+      }
+    } catch {
+      setOpen(true)
+    }
+  }, [])
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-[#07070c] text-white animate-fade-in">
+      {/* Hero */}
+      <div className="relative shrink-0 overflow-hidden px-5 pb-8 pt-4">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_-10%,#22d3ee_0%,#0e7490_35%,#0b1120_70%,transparent_100%)] opacity-80" />
+        <div className="relative flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close"
+            className="grid size-9 place-items-center rounded-full bg-white/10 backdrop-blur transition active:scale-95"
+          >
+            <X className="size-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="text-sm font-semibold tracking-wide text-white/90"
+          >
+            RESTORE
+          </button>
+        </div>
+
+        <div className="relative mt-10 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <h2 className="text-2xl font-extrabold tracking-tight">Myan Pro</h2>
+            <span className="flex items-center gap-1 rounded-md bg-[#e11d74] px-2 py-0.5 text-[11px] font-bold">
+              <ProGem className="size-3" />
+              Pro
+            </span>
+          </div>
+          <p className="mt-1 text-sm text-white/80">Unlock All Features</p>
+        </div>
+      </div>
+
+      {/* Feature cards rail */}
+      <div className="-mt-2 flex gap-3 overflow-x-auto px-5 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {CARDS.map(({ icon: Icon, label, tint }) => (
+          <div
+            key={label}
+            className={`relative flex h-32 w-32 shrink-0 flex-col justify-end rounded-2xl bg-gradient-to-br ${tint} p-3`}
+          >
+            <Icon className="absolute left-3 top-3 size-6 text-white/90" />
+            <p className="text-[12px] font-semibold leading-tight">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Plan */}
+      <div className="mt-auto space-y-3 px-5 pb-6">
+        <div className="relative rounded-2xl border-2 border-[#7c5cff] bg-white/[0.06] p-4">
+          <span className="absolute -top-2.5 right-3 rounded-md bg-[#7c5cff] px-2 py-0.5 text-[10px] font-bold">
+            Best value
+          </span>
+          <div className="flex items-center gap-3">
+            <span className="grid size-5 place-items-center rounded-full bg-[#7c5cff]">
+              <Check className="size-3.5" />
+            </span>
+            <div>
+              <p className="text-base font-bold">MMK 30,000 / Lifetime</p>
+              <p className="text-[11px] text-white/70">One-time payment · Pay once, keep forever</p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="flex h-13 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] py-4 text-base font-bold shadow-lg transition active:scale-[0.98]"
+        >
+          Continue
+        </button>
+
+        <p className="text-center text-[10px] leading-relaxed text-white/55">
+          The lifetime option is a one-time payment and does not auto-renew. You can manage your
+          purchase in Google Play.
+        </p>
+      </div>
+    </div>
+  )
+}
