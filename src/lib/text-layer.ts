@@ -39,8 +39,13 @@ export interface TextLayer {
   gradientFrom: string
   gradientTo: string
   gradientAngle: number
-  pattern: PatternType
-  patternColor: string
+
+  /* Image texture transform */
+  textureRotate?: number
+  textureScaleX?: number
+  textureScaleY?: number
+  textureOffsetX?: number
+  textureOffsetY?: number
 
   /* 3D extrusion */
   depthOn: boolean
