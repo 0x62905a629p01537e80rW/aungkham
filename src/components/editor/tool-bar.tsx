@@ -48,6 +48,7 @@ import {
   RotateCw,
   Sparkles,
   SlidersHorizontal,
+  Wand2,
   Square,
   Sun,
   Eraser,
@@ -92,12 +93,13 @@ interface ToolBarProps {
   onDelete: (id: string) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
   onReplaceImage?: () => void
-  onImageTool?: (tool: 'crop' | 'resize' | 'flip' | 'square' | 'blur' | 'adjust') => void
+  onImageTool?: (tool: 'crop' | 'resize' | 'flip' | 'square' | 'blur' | 'adjust' | 'filter') => void
 }
 
 const IMAGE_TOOLS = [
   { key: 'replace', label: 'Replace', icon: ImageUp },
   { key: 'adjust', label: 'Adjust', icon: SlidersHorizontal },
+  { key: 'filter', label: 'Filters', icon: Wand2 },
   { key: 'crop', label: 'Crop', icon: Crop },
   { key: 'resize', label: 'Resize', icon: Maximize },
   { key: 'flip', label: 'Flip', icon: FlipHorizontal },
@@ -189,7 +191,7 @@ export function ToolBar({
             onClick={() =>
               key === 'replace'
                 ? onReplaceImage?.()
-                : onImageTool?.(key as 'crop' | 'resize' | 'flip' | 'square' | 'blur' | 'adjust')
+                : onImageTool?.(key as 'crop' | 'resize' | 'flip' | 'square' | 'blur' | 'adjust' | 'filter')
             }
             className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
           >
