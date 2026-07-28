@@ -487,46 +487,34 @@ function ToolContent({
           />
         </div>
       )
-    case 'color':
+    case 'color': {
+      const currentValue =
+        layer.fillType === 'gradient'
+          ? `linear-gradient(${layer.gradientAngle ?? 90}deg, ${layer.gradientFrom ?? '#ff7a18'}, ${layer.gradientTo ?? '#af002d'})`
+          : layer.color
       return (
         <div className="space-y-3">
-          <ToolHeading>Fill & Texture</ToolHeading>
-          <div className="grid grid-cols-3 gap-2">
-            {(Object.keys(TEXTURES) as TextureType[]).map((key) => {
-              const t = TEXTURES[key]
-              const active = layer.texture === key
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => onChange({ texture: key })}
-                  className={cn(
-                    'flex h-10 items-center justify-center rounded-xl border text-xs font-semibold transition active:scale-95',
-                    active
-                      ? 'border-primary ring-2 ring-primary/30'
-                      : 'border-border hover:border-primary/50',
-                  )}
-                  style={
-                    t.gradient
-                      ? {
-                          backgroundImage: t.gradient,
-                          color: 'transparent',
-                          WebkitBackgroundClip: 'text',
-                          backgroundClip: 'text',
-                        }
-                      : undefined
-                  }
-                >
-                  {t.label}
-                </button>
-              )
-            })}
-          </div>
-          {layer.texture === 'none' && (
-            <ColorField label="Color" value={layer.color} onChange={(v) => onChange({ color: v })} />
-          )}
+          <ColorPickerPanel
+            value={currentValue}
+            allowGradient
+            initialMode={layer.fillType === 'gradient' ? 'gradient' : 'solid'}
+            onChange={(v) => {
+              const parsed = parseGradient(v)
+              if (parsed) {
+                onChange({
+                  fillType: 'gradient',
+                  gradientFrom: parsed.stops[0].color,
+                  gradientTo: parsed.stops[parsed.stops.length - 1].color,
+                  gradientAngle: parsed.angle,
+                })
+              } else {
+                onChange({ fillType: 'solid', color: v })
+              }
+            }}
+          />
         </div>
       )
+    }
     case 'opacity':
       return (
         <div>
