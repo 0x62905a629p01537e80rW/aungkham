@@ -21,7 +21,7 @@ export function EditorHeader({
     >
       <div className="flex items-center gap-2.5">
         <div className="flex size-9 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-          <Type className="size-5" />
+          <span className="font-brand-mm text-[15px] leading-none">မြန်</span>
         </div>
         <div className="leading-tight">
           <p className="text-sm font-bold tracking-tight">

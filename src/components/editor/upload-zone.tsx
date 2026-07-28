@@ -155,7 +155,7 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
             boxShadow: '0 18px 40px -12px color-mix(in oklab, var(--primary) 45%, transparent)',
           }}
         >
-          <TypeIcon className="size-8" strokeWidth={2.4} />
+          <span className="font-brand-mm text-2xl leading-none">မြန်</span>
         </div>
 
         <h1 className="text-balance text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
