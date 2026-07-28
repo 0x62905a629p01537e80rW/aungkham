@@ -387,6 +387,8 @@ export function Editor() {
             onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
             onOpenTemplates={() => setTemplating(true)}
+            autoOpenTool={autoOpenTool}
+            onAutoOpenHandled={() => setAutoOpenTool(null)}
             onImageTool={(t) =>
               t === 'adjust'
                 ? setAdjusting(true)
