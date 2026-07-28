@@ -8,10 +8,12 @@ export interface ShapeDef {
   name: string
   group: ShapeGroup
   path: string
+  outline?: boolean
 }
 
 export type ShapeGroup =
   | 'Basic'
+  | 'Outlined'
   | 'Stars'
   | 'Bursts'
   | 'Scallop'
@@ -26,6 +28,7 @@ export type ShapeGroup =
 
 export const SHAPE_GROUPS: ShapeGroup[] = [
   'Basic',
+  'Outlined',
   'Stars',
   'Bursts',
   'Scallop',
