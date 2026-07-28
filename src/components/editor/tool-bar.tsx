@@ -10,7 +10,6 @@ import {
   FlipHorizontal,
   ImageUp,
   Italic,
-  Layers as LayersIcon,
   Maximize,
   MoveDiagonal,
   Palette,
@@ -39,7 +38,6 @@ import {
 } from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
-import { LayersList } from './layers-list'
 import { cn } from '@/lib/utils'
 import {
   FONTS,
@@ -88,7 +86,6 @@ type ToolKey =
   | 'highlight'
   | 'rotate'
   | 'skew'
-  | 'layers'
 
 interface ToolDef {
   key: ToolKey
@@ -258,21 +255,6 @@ function ToolContent({
   onDuplicate,
   onDelete,
 }: ToolContentProps) {
-  if (tool === 'layers') {
-    return (
-      <div className="-mx-4 -my-4 max-h-[55dvh] overflow-y-auto">
-        <LayersList
-          layers={layers}
-          selectedId={selectedId}
-          onSelect={onSelect}
-          onAdd={onAdd}
-          onDuplicate={onDuplicate}
-          onDelete={onDelete}
-        />
-      </div>
-    )
-  }
-
   if (!layer) return null
 
   switch (tool) {
