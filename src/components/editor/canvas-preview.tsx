@@ -130,6 +130,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
       if (editingId === id) return
       e.stopPropagation()
+      stageDown(e)
+      if (pointers.current.size > 1) return
       onSelect(id)
       const el = e.currentTarget
       el.setPointerCapture(e.pointerId)
@@ -137,7 +139,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
-      if (!dragState.current) return
+      if (!dragState.current) {
+        stageMove(e)
+        return
+      }
       const dx = e.clientX - dragState.current.startX
       const dy = e.clientY - dragState.current.startY
       if (!dragState.current.moved && Math.hypot(dx, dy) < 4) return
@@ -148,10 +153,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const y = ((e.clientY - rect.top) / rect.height) * 100
       onMove(
         dragState.current.id,
-        Math.max(0, Math.min(100, x)),
-        Math.max(0, Math.min(100, y)),
+        Math.max(-200, Math.min(300, x)),
+        Math.max(-200, Math.min(300, y)),
       )
     }
+
 
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
       const st = dragState.current
