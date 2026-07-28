@@ -70,8 +70,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const scale = Math.max(1, Math.min(6, v.scale))
       if (!baseSize.current.w) measureBase()
       const { w, h } = baseSize.current
+      // Extra vertical slack so the whole image can be dragged up/down into
+      // view even at 1x, when the toolbar covers part of the canvas.
+      const slackY = h * 0.4
       const maxX = (w * (scale - 1)) / 2
-      const maxY = (h * (scale - 1)) / 2
+      const maxY = (h * (scale - 1)) / 2 + slackY
       return {
         scale,
         tx: Math.max(-maxX, Math.min(maxX, v.tx)),
@@ -106,7 +109,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         }
         panRef.current = null
         dragState.current = null
-      } else if (pointers.current.size === 1 && viewRef.current.scale > 1) {
+      } else if (pointers.current.size === 1) {
         panRef.current = { x: e.clientX, y: e.clientY, view: viewRef.current }
       }
     }
@@ -139,7 +142,6 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function stageUp(e: PointerEvent<HTMLDivElement>) {
-      const wasPinching = !!pinchRef.current
       pointers.current.delete(e.pointerId)
       if (pointers.current.size < 2) pinchRef.current = null
       if (pointers.current.size === 0) {
@@ -158,7 +160,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           view: viewRef.current,
         }
         panRef.current = null
-      } else if (wasPinching || viewRef.current.scale > 1) {
+      } else {
         panRef.current = { x: rest[0].x, y: rest[0].y, view: viewRef.current }
       }
     }
@@ -462,7 +464,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             >
               <ZoomOut className="size-4" />
             </button>
-            {view.scale > 1 && (
+            {(view.scale > 1 || view.tx !== 0 || view.ty !== 0) && (
               <button
                 type="button"
                 aria-label="Reset zoom"
