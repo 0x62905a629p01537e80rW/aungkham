@@ -453,8 +453,95 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       <Maximize2 className="size-4" />
                     </button>
 
+                    <button
+                      type="button"
+                      aria-label="Rotate text"
+                      onPointerDown={(e) => handleRotateDown(e, layer)}
+                      onPointerMove={handleRotateMove}
+                      onPointerUp={handleRotateUp}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        cursor: 'grab',
+                        touchAction: 'none',
+                        left: '50%',
+                        top: 0,
+                        transform: `translate(-50%, -50%) scale(${inv})`,
+                      }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <RefreshCw className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Flip horizontally"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onChange?.(layer.id, { flipH: !layer.flipH })
+                      }}
+                      style={{ left: 0, top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <FlipHorizontal className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Bring to front"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onBringForward?.(layer.id)
+                      }}
+                      style={{ left: '100%', top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <Layers className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Duplicate text"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDuplicate?.(layer.id)
+                      }}
+                      style={{ left: '50%', top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <Copy className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Flip vertically"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onChange?.(layer.id, { flipV: !layer.flipV })
+                      }}
+                      style={{ left: 0, top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-card text-foreground shadow-md ring-2 ring-primary transition active:scale-90"
+                    >
+                      <FlipVertical className="size-4" />
+                    </button>
                   </>
                 )}
+
               </div>
             )
           })}
