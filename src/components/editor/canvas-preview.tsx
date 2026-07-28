@@ -1,12 +1,11 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import {
-  ArrowUpToLine,
   CopyPlus,
   FlipHorizontal2,
   FlipVertical2,
-  Keyboard,
+  MoveDiagonal,
+  Pencil,
   RotateCw,
-  Scaling,
   X,
   ZoomIn,
   ZoomOut,
@@ -417,6 +416,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               outlineOffset: `${4 * inv}px`,
             }
 
+            const hTransform = `translate(-50%, -50%) scale(${inv * (layer.flipH ? -1 : 1)}, ${inv * (layer.flipV ? -1 : 1)})`
+
             const textStyle = layerTextStyle(layer)
             const inner = <LayerText layer={layer} />
 
@@ -485,7 +486,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onDelete(layer.id)
                       }}
-                      style={{ left: 0, top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
+                      style={{ left: 0, top: 0, transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
                       <X className="size-4" strokeWidth={2.25} />
@@ -502,10 +503,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         setEditingId(layer.id)
                       }}
-                      style={{ left: '100%', top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
+                      style={{ left: '100%', top: 0, transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <Keyboard className="size-4" strokeWidth={2.25} />
+                      <Pencil className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -520,11 +521,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         touchAction: 'none',
                         left: '100%',
                         top: '100%',
-                        transform: `translate(-50%, -50%) scale(${inv})`,
+                        transform: hTransform,
                       }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <Scaling className="size-4" strokeWidth={2.25} />
+                      <MoveDiagonal className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -539,7 +540,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         touchAction: 'none',
                         left: '50%',
                         top: 0,
-                        transform: `translate(-50%, -50%) scale(${inv})`,
+                        transform: hTransform,
                       }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
@@ -557,28 +558,12 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onChange?.(layer.id, { flipH: !layer.flipH })
                       }}
-                      style={{ left: 0, top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      style={{ left: 0, top: '50%', transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
                       <FlipHorizontal2 className="size-4" strokeWidth={2.25} />
                     </button>
 
-                    <button
-                      type="button"
-                      aria-label="Bring to front"
-                      onPointerDown={(e) => {
-                        e.stopPropagation()
-                        e.preventDefault()
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onBringForward?.(layer.id)
-                      }}
-                      style={{ left: '100%', top: '50%', transform: `translate(-50%, -50%) scale(${inv})` }}
-                      className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
-                    >
-                      <ArrowUpToLine className="size-4" strokeWidth={2.25} />
-                    </button>
 
                     <button
                       type="button"
@@ -591,7 +576,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onDuplicate?.(layer.id)
                       }}
-                      style={{ left: '50%', top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      style={{ left: '50%', top: '100%', transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
                       <CopyPlus className="size-4" strokeWidth={2.25} />
@@ -608,7 +593,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onChange?.(layer.id, { flipV: !layer.flipV })
                       }}
-                      style={{ left: 0, top: '100%', transform: `translate(-50%, -50%) scale(${inv})` }}
+                      style={{ left: 0, top: '100%', transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
                       <FlipVertical2 className="size-4" strokeWidth={2.25} />
