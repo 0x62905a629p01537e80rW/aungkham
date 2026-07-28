@@ -69,6 +69,7 @@ export interface TextLayer {
   underline?: boolean
   strike?: boolean
   widthScale?: number
+  heightScale?: number
 
   /* Image texture + eraser mask (data URLs) */
   textureImage?: string
@@ -220,6 +221,7 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     underline: false,
     strike: false,
     widthScale: 100,
+    heightScale: 100,
     hidden: false,
   }
 }
