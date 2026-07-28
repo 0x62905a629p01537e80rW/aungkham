@@ -55,11 +55,21 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }, [exporting])
 
+    const baseSize = useRef({ w: 0, h: 0 })
+    const rafRef = useRef<number | null>(null)
+    const pendingRef = useRef<{ scale: number; tx: number; ty: number } | null>(null)
+
+    function measureBase() {
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (!rect) return
+      const s = viewRef.current.scale || 1
+      baseSize.current = { w: rect.width / s, h: rect.height / s }
+    }
+
     function clampView(v: { scale: number; tx: number; ty: number }) {
       const scale = Math.max(1, Math.min(6, v.scale))
-      const rect = containerRef.current?.getBoundingClientRect()
-      const w = (rect?.width ?? 0) / (viewRef.current.scale || 1)
-      const h = (rect?.height ?? 0) / (viewRef.current.scale || 1)
+      if (!baseSize.current.w) measureBase()
+      const { w, h } = baseSize.current
       const maxX = (w * (scale - 1)) / 2
       const maxY = (h * (scale - 1)) / 2
       return {
@@ -69,8 +79,23 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
+    function commitView(v: { scale: number; tx: number; ty: number }) {
+      pendingRef.current = clampView(v)
+      viewRef.current = pendingRef.current
+      if (rafRef.current != null) return
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null
+        if (pendingRef.current) setView(pendingRef.current)
+      })
+    }
+
+    useEffect(() => () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
+    }, [])
+
     function stageDown(e: PointerEvent<HTMLDivElement>) {
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      measureBase()
       if (pointers.current.size === 2) {
         const [a, b] = [...pointers.current.values()]
         pinchRef.current = {
@@ -95,24 +120,20 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         const cx = (a.x + b.x) / 2
         const cy = (a.y + b.y) / 2
         const ratio = dist / pinch.dist
-        setView(
-          clampView({
-            scale: pinch.view.scale * ratio,
-            tx: pinch.view.tx + (cx - pinch.cx),
-            ty: pinch.view.ty + (cy - pinch.cy),
-          }),
-        )
+        commitView({
+          scale: pinch.view.scale * ratio,
+          tx: pinch.view.tx + (cx - pinch.cx),
+          ty: pinch.view.ty + (cy - pinch.cy),
+        })
         return
       }
       const pan = panRef.current
       if (pan && !dragState.current && pointers.current.size === 1) {
-        setView(
-          clampView({
-            scale: pan.view.scale,
-            tx: pan.view.tx + (e.clientX - pan.x),
-            ty: pan.view.ty + (e.clientY - pan.y),
-          }),
-        )
+        commitView({
+          scale: pan.view.scale,
+          tx: pan.view.tx + (e.clientX - pan.x),
+          ty: pan.view.ty + (e.clientY - pan.y),
+        })
       }
     }
 
@@ -123,8 +144,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function zoomBy(factor: number) {
-      setView((v) => clampView({ ...v, scale: v.scale * factor }))
+      measureBase()
+      commitView({ ...viewRef.current, scale: viewRef.current.scale * factor })
     }
+
 
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
@@ -237,8 +260,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           ref={containerRef}
           className="absolute inset-0"
           style={{
-            transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.scale})`,
+            transform: `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.scale})`,
             transformOrigin: 'center center',
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
           }}
         >
 
@@ -347,8 +372,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onDelete(layer.id)
                       }}
-                      style={{ transform: `scale(${inv})`, transformOrigin: '100% 100%' }}
-                      className="absolute -left-3 -top-3 flex size-8 items-center justify-center rounded-full bg-destructive text-white shadow-md ring-2 ring-card transition active:scale-90"
+                      style={{ left: 0, top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-destructive text-white shadow-md ring-2 ring-card transition active:scale-90"
                     >
                       <X className="size-4" />
                     </button>
@@ -364,8 +389,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         setEditingId(layer.id)
                       }}
-                      style={{ transform: `scale(${inv})`, transformOrigin: '0% 100%' }}
-                      className="absolute -right-3 -top-3 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
+                      style={{ left: '100%', top: 0, transform: `translate(-50%, -50%) scale(${inv})` }}
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
                     >
                       <Pencil className="size-4" />
                     </button>
@@ -380,10 +405,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{
                         cursor: 'nwse-resize',
                         touchAction: 'none',
-                        transform: `scale(${inv})`,
-                        transformOrigin: '0% 0%',
+                        left: '100%',
+                        top: '100%',
+                        transform: `translate(-50%, -50%) scale(${inv})`,
                       }}
-                      className="absolute -bottom-3 -right-3 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
+                      className="absolute flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-card transition active:scale-90"
                     >
                       <Maximize2 className="size-4" />
                     </button>
@@ -420,7 +446,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               <button
                 type="button"
                 aria-label="Reset zoom"
-                onClick={() => setView({ scale: 1, tx: 0, ty: 0 })}
+                onClick={() => {
+                  viewRef.current = { scale: 1, tx: 0, ty: 0 }
+                  setView({ scale: 1, tx: 0, ty: 0 })
+                }}
                 className="flex size-9 items-center justify-center rounded-full bg-card/70 text-foreground shadow-md ring-1 ring-border backdrop-blur transition active:scale-90"
               >
                 <Minimize className="size-4" />
