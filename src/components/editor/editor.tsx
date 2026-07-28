@@ -295,8 +295,13 @@ export function Editor() {
             style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom))' }}
           >
             <div
-              className="h-full w-full overflow-hidden bg-card"
+              className="overflow-hidden bg-card"
+              style={{
+                width: stageSize.w ? `${stageSize.w}px` : '100%',
+                height: stageSize.h ? `${stageSize.h}px` : '100%',
+              }}
             >
+
 
 
               <CanvasPreview
