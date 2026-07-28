@@ -1,10 +1,12 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, type ChangeEvent } from 'react'
 import { toPng } from 'html-to-image'
 import { EditorHeader } from './editor-header'
 import { UploadZone } from './upload-zone'
 import { CanvasPreview } from './canvas-preview'
 import { ToolBar } from './tool-bar'
+import { BackgroundEditor, type BgTool } from './background-editor'
 import { createTextLayer, type TextLayer } from '@/lib/text-layer'
+import { loadImage } from '@/lib/image-ops'
 
 export function Editor() {
   const [image, setImage] = useState<string | null>(null)
@@ -12,7 +14,26 @@ export function Editor() {
   const [layers, setLayers] = useState<TextLayer[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
+  const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
+  const replaceRef = useRef<HTMLInputElement>(null)
+
+  async function applyBackground(dataUrl: string) {
+    const img = await loadImage(dataUrl)
+    setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
+    setImage(dataUrl)
+    setBgTool(null)
+  }
+
+  function onReplaceFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file || !file.type.startsWith('image/')) return
+    const reader = new FileReader()
+    reader.onload = () => applyBackground(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
 
   const selected = layers.find((l) => l.id === selectedId) ?? null
 
