@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react'
 import { fontFamily, TEXTURES, type TextLayer } from '@/lib/text-layer'
 
 export function layerTextStyle(layer: TextLayer): CSSProperties {
-  const texture = TEXTURES[layer.texture]
+  const texture = TEXTURES[layer.texture] ?? TEXTURES.none
   const shadow =
     layer.shadowBlur > 0 || layer.shadowOffsetX !== 0 || layer.shadowOffsetY !== 0
       ? `${layer.shadowOffsetX / 10}cqh ${layer.shadowOffsetY / 10}cqh ${layer.shadowBlur / 10}cqh ${layer.shadowColor}`
