@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
+import { ColorPickerPopover } from './color-picker'
+
 
 export function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -64,17 +66,17 @@ export function ColorField({
       <Label className="text-sm font-medium text-foreground">{label}</Label>
       <div className="flex items-center gap-2">
         <span className="font-mono text-xs uppercase text-muted-foreground">{value}</span>
-        <label className="relative h-9 w-9 cursor-pointer overflow-hidden rounded-xl border border-border shadow-sm">
-          <span className="absolute inset-0" style={{ backgroundColor: value }} />
-          <input
-            type="color"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="absolute inset-0 cursor-pointer opacity-0"
+        <ColorPickerPopover value={value} onChange={onChange}>
+          <button
+            type="button"
             aria-label={label}
-          />
-        </label>
+            className="relative h-9 w-9 overflow-hidden rounded-xl border border-border shadow-sm"
+          >
+            <span className="absolute inset-0" style={{ backgroundColor: value }} />
+          </button>
+        </ColorPickerPopover>
       </div>
     </div>
   )
 }
+

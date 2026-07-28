@@ -9,6 +9,8 @@ import {
   Sparkles,
   Type as TypeIcon,
 } from 'lucide-react'
+import { ColorPickerPopover } from './color-picker'
+
 
 type Tab = 'gallery' | 'colors' | 'projects'
 
@@ -175,14 +177,18 @@ export function UploadZone({ onImage }: { onImage: (dataUrl: string) => void }) 
                 <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Solid colors
                 </span>
-                <label className="cursor-pointer text-[11px] font-medium text-primary">
-                  Custom
-                  <input
-                    type="color"
-                    className="sr-only"
-                    onChange={(e) => onImage(makeSolidDataUrl(e.target.value))}
-                  />
-                </label>
+                <ColorPickerPopover
+                  value="#8235DC"
+                  onChange={(hex) => onImage(makeSolidDataUrl(hex))}
+                >
+                  <button
+                    type="button"
+                    className="text-[11px] font-medium text-primary underline-offset-2 hover:underline"
+                  >
+                    Custom
+                  </button>
+                </ColorPickerPopover>
+
               </div>
               <div className="grid grid-cols-6 gap-2">
                 {SOLID_COLORS.map((c) => (
