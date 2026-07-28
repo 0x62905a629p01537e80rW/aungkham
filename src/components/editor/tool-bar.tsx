@@ -392,7 +392,7 @@ function FontCard({
         'group relative overflow-hidden rounded-xl border transition',
         active
           ? 'border-primary bg-primary/15 shadow-[0_0_0_1px_var(--color-primary)]'
-          : 'border-white/15 bg-white/5 hover:bg-white/10',
+          : 'border-border/60 bg-foreground/5 hover:bg-foreground/10',
       )}
     >
       <button type="button" onClick={onSelect} className="block w-full px-2 pb-1.5 pt-1.5 text-left">
@@ -491,7 +491,7 @@ function FontPicker({
               'shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition active:scale-95',
               group === g.key
                 ? 'bg-primary text-primary-foreground'
-                : 'border border-white/20 bg-white/10 text-foreground/70',
+                : 'border border-border/60 bg-foreground/5 text-foreground/70',
             )}
           >
             {g.label}

@@ -334,14 +334,14 @@ export function ColorPickerPanel({
       {/* Solid / Gradient + tools */}
       <div className="mt-2 flex items-center gap-1.5">
         {allowGradient ? (
-          <div className="flex flex-1 items-center rounded-lg bg-[#f1f1f5] p-0.5">
+          <div className="flex flex-1 items-center rounded-lg bg-muted p-0.5">
             {(['solid', 'gradient'] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setMode(m)}
                 className={`flex-1 rounded-[6px] px-2 py-1 text-[11px] font-semibold capitalize transition ${
-                  mode === m ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
+                  mode === m ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'
                 }`}
               >
                 {m}
@@ -355,7 +355,7 @@ export function ColorPickerPanel({
           type="button"
           onClick={pickFromScreen}
           aria-label="Pick color from screen"
-          className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#f1f1f5] text-neutral-700 transition active:scale-95"
+          className="grid size-7 shrink-0 place-items-center rounded-lg bg-muted text-foreground transition active:scale-95"
         >
           <Pipette className="size-3.5" />
         </button>
@@ -363,7 +363,7 @@ export function ColorPickerPanel({
           type="button"
           onClick={addSwatch}
           aria-label="Save color"
-          className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#f1f1f5] text-neutral-700 transition active:scale-95"
+          className="grid size-7 shrink-0 place-items-center rounded-lg bg-muted text-foreground transition active:scale-95"
         >
           <Plus className="size-3.5" />
         </button>
@@ -372,13 +372,13 @@ export function ColorPickerPanel({
       {/* Gradient controls */}
       {allowGradient && mode === 'gradient' && (
         <>
-          <div className="mt-1.5 flex items-center gap-1 rounded-lg bg-[#f1f1f5] px-1 py-1">
+          <div className="mt-1.5 flex items-center gap-1 rounded-lg bg-muted px-1 py-1">
             <button
               type="button"
               onClick={() => { touch(); setGradType('linear') }}
               aria-label="Linear gradient"
               className={`grid size-6 place-items-center rounded-md transition ${
-                gradType === 'linear' ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
+                gradType === 'linear' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'
               }`}
             >
               <Move3d className="size-3.5" />
@@ -388,32 +388,32 @@ export function ColorPickerPanel({
               onClick={() => { touch(); setGradType('radial') }}
               aria-label="Radial gradient"
               className={`grid size-6 place-items-center rounded-md transition ${
-                gradType === 'radial' ? 'bg-white text-sky-600 shadow-sm' : 'text-neutral-500'
+                gradType === 'radial' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'
               }`}
             >
               <Circle className="size-3.5" />
             </button>
 
             <div className="ml-1 flex items-center gap-1">
-              <span className="text-[10px] font-semibold text-neutral-400">∠</span>
+              <span className="text-[10px] font-semibold text-muted-foreground">∠</span>
               <input
                 type="number"
                 value={Math.round(angle)}
                 disabled={gradType === 'radial'}
                 onChange={(e) => { touch(); setAngle(clamp(parseFloat(e.target.value) || 0, 0, 360)) }}
-                className="w-9 bg-transparent text-[11px] font-semibold text-neutral-700 outline-none disabled:opacity-40"
+                className="w-9 bg-transparent text-[11px] font-semibold text-foreground outline-none disabled:opacity-40"
               />
-              <span className="text-[10px] text-neutral-400">°</span>
+              <span className="text-[10px] text-muted-foreground">°</span>
             </div>
 
             <div className="ml-auto flex items-center gap-1">
-              <span className="text-[9px] font-bold uppercase tracking-wide text-neutral-400">Stop</span>
-              <span className="text-[11px] font-semibold text-neutral-700">{activeStop}</span>
+              <span className="text-[9px] font-bold uppercase tracking-wide text-muted-foreground">Stop</span>
+              <span className="text-[11px] font-semibold text-foreground">{activeStop}</span>
               <button
                 type="button"
                 onClick={addStop}
                 aria-label="Add gradient stop"
-                className="grid size-6 place-items-center rounded-md text-neutral-500 transition active:scale-90"
+                className="grid size-6 place-items-center rounded-md text-muted-foreground transition active:scale-90"
               >
                 <Plus className="size-3.5" />
               </button>
@@ -421,7 +421,7 @@ export function ColorPickerPanel({
                 type="button"
                 onClick={removeStop}
                 aria-label="Delete gradient stop"
-                className="grid size-6 place-items-center rounded-md text-neutral-500 transition active:scale-90 disabled:opacity-30"
+                className="grid size-6 place-items-center rounded-md text-muted-foreground transition active:scale-90 disabled:opacity-30"
                 disabled={stops.length <= 2}
               >
                 <Trash2 className="size-3.5" />
@@ -447,7 +447,7 @@ export function ColorPickerPanel({
                 onPointerDown={(e) => { e.stopPropagation(); selectStop(i) }}
                 aria-label={`Gradient stop ${i}`}
                 className={`absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow-[0_0_0_1px_rgba(0,0,0,0.3)] ${
-                  i === activeStop ? 'border-sky-500' : 'border-white'
+                  i === activeStop ? 'border-primary' : 'border-background'
                 }`}
                 style={{ left: `${st.pos}%`, background: st.color }}
               />
@@ -552,7 +552,7 @@ export function ColorPickerPanel({
         <button
           type="button"
           onClick={() => onConfirm(mode === 'gradient' ? gradientCss : hex)}
-          className="mt-3 h-12 w-full rounded-xl bg-sky-600 text-sm font-semibold text-white shadow-lg transition active:scale-[0.98]"
+          className="mt-3 h-12 w-full rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg transition active:scale-[0.98]"
         >
           {confirmLabel}
         </button>
@@ -575,7 +575,7 @@ function Field({
   const [local, setLocal] = useState(value)
   useEffect(() => setLocal(value), [value])
   return (
-    <div className="rounded-lg border border-black/10 bg-white px-1 py-1 text-center">
+    <div className="rounded-lg border border-border bg-background px-1 py-1 text-center">
       <input
         value={onChange ? value : local}
         onChange={(e) => (onChange ? onChange(e.target.value) : setLocal(e.target.value))}
@@ -584,9 +584,9 @@ function Field({
           if (e.key === 'Enter') onCommit((e.target as HTMLInputElement).value)
         }}
         spellCheck={false}
-        className="w-full min-w-0 bg-transparent text-center font-mono text-[11px] font-medium text-neutral-800 outline-none"
+        className="w-full min-w-0 bg-transparent text-center font-mono text-[11px] font-medium text-foreground outline-none"
       />
-      <div className="text-[8px] font-bold uppercase tracking-wide text-neutral-400">{label}</div>
+      <div className="text-[8px] font-bold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   )
 }
@@ -645,28 +645,28 @@ export function ColorPickerFullScreen({
 }) {
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-neutral-950/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex flex-col bg-background/70 backdrop-blur-sm">
       <div
-        className="flex flex-1 flex-col overflow-y-auto bg-white"
+        className="flex flex-1 flex-col overflow-y-auto bg-background"
         style={{
           paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
           paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
         }}
       >
         <div className="flex items-center justify-between px-4 pb-2">
-          <span className="text-sm font-semibold text-neutral-800">Pick a color</span>
+          <span className="text-sm font-semibold text-foreground">Pick a color</span>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close color picker"
-            className="grid size-8 place-items-center rounded-full bg-neutral-100 text-neutral-600"
+            className="grid size-8 place-items-center rounded-full bg-muted text-muted-foreground"
           >
             <X className="size-4" />
           </button>
         </div>
         <div className="flex-1 px-3">
           <ColorPickerPanel
-            className="w-full bg-white text-neutral-800"
+            className="w-full bg-transparent text-foreground"
             value={value}
             allowGradient={allowGradient}
             initialMode={initialMode}
