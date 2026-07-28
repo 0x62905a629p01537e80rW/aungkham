@@ -479,7 +479,7 @@ export function ColorPickerPanel({
         <Field
           label="A"
           value={String(Math.round(a * 100))}
-          onCommit={(x) => setA(clamp((parseFloat(x) || 0) / 100))}
+          onCommit={(x) => { touch(); setA(clamp((parseFloat(x) || 0) / 100)) }}
         />
       </div>
 
