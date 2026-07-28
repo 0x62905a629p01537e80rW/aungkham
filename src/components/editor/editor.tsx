@@ -241,10 +241,8 @@ export function Editor() {
         savedAt: Date.now(),
       })
       setSavedProject(true)
-      toast.success('Project saved successfully')
     } catch (err) {
       console.log('[save project failed]', err)
-      toast.error('Could not save this project')
     }
   }, [image, preview, layers, naturalSize])
 
