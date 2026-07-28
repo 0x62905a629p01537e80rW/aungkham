@@ -185,8 +185,14 @@ export function ToolBar({
       className="glass-bar fixed inset-x-0 bottom-0 z-30 border-t border-border/40"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      {/* Image / background row */}
-      <div className="flex items-center gap-1 overflow-x-auto border-b border-border/60 px-2 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* Image / background row — locked while a layer is selected */}
+      <div
+        aria-hidden={!!selected}
+        className={cn(
+          'flex items-center gap-1 overflow-x-auto border-b border-border/60 px-2 py-1.5 transition duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          selected && 'pointer-events-none select-none opacity-40 blur-[2px]',
+        )}
+      >
         <span className="mr-1 shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Image
         </span>
@@ -194,6 +200,7 @@ export function ToolBar({
           <button
             key={key}
             type="button"
+            disabled={!!selected}
             onClick={() =>
               key === 'replace'
                 ? onReplaceImage?.()
