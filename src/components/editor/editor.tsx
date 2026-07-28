@@ -109,6 +109,18 @@ export function Editor() {
     }
   }, [naturalSize])
 
+  const handleSaveProject = useCallback(() => {
+    if (!image) return
+    try {
+      const raw = localStorage.getItem('saved-projects')
+      const list = raw ? JSON.parse(raw) : []
+      list.unshift({ id: String(Date.now()), image, layers, naturalSize, savedAt: Date.now() })
+      localStorage.setItem('saved-projects', JSON.stringify(list.slice(0, 20)))
+    } catch (err) {
+      console.log('[save project failed]', err)
+    }
+  }, [image, layers, naturalSize])
+
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <EditorHeader
@@ -116,6 +128,8 @@ export function Editor() {
         exporting={exporting}
         onNewImage={resetAll}
         onDownload={handleDownload}
+        onReplaceImage={() => replaceRef.current?.click()}
+        onSaveProject={handleSaveProject}
       />
 
       {!image ? (
