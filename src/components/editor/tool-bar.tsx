@@ -59,7 +59,19 @@ interface ToolBarProps {
   onAdd: () => void
   onDuplicate: (id: string) => void
   onDelete: (id: string) => void
+  onReplaceImage?: () => void
+  onImageTool?: (tool: 'crop' | 'resize' | 'flip' | 'square' | 'blur') => void
 }
+
+const IMAGE_TOOLS = [
+  { key: 'replace', label: 'Replace', icon: ImageUp },
+  { key: 'crop', label: 'Crop', icon: Crop },
+  { key: 'resize', label: 'Resize', icon: Maximize },
+  { key: 'flip', label: 'Flip', icon: FlipHorizontal },
+  { key: 'square', label: 'Square', icon: Square },
+  { key: 'blur', label: 'Blur', icon: Aperture },
+] as const
+
 
 type ToolKey =
   | 'text'
