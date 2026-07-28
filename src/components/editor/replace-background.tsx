@@ -1,10 +1,9 @@
 import { useRef, useState, type ChangeEvent } from 'react'
-import { Camera, ImageIcon, Pipette, X } from 'lucide-react'
+import { Camera, ImageIcon, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ColorPickerFullScreen } from './color-picker'
+import { GradientGrid, SolidGrid } from './color-grids'
 import {
-  GRADIENTS,
-  SOLID_COLORS,
   makeBackgroundDataUrl,
   makeGradientDataUrl,
   makeSolidDataUrl,
@@ -16,18 +15,6 @@ interface ReplaceBackgroundProps {
   onPick: (dataUrl: string) => void
 }
 
-function CustomTile({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className="grid aspect-square place-items-center rounded-xl border border-dashed border-primary/50 bg-card text-primary shadow-sm transition active:scale-95"
-    >
-      <Pipette className="size-4" />
-    </button>
-  )
-}
 
 export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundProps) {
   const galleryRef = useRef<HTMLInputElement>(null)
