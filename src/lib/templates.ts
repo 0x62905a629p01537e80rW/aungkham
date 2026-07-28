@@ -96,7 +96,7 @@ const RECIPES: Recipe[] = [
     label: 'Bar Title',
     group: 'Bold',
     make: (c, p, f, mm) => [
-      shape(P.rect, 9, { x: 50, y: 50, fontSize: 6, color: p.accent }),
+      shape(P.rect, 16, { x: 50, y: 50, fontSize: 4.6, color: p.accent }),
       text(c.main.replace('\n', ' '), {
         x: 50,
         y: 50,
