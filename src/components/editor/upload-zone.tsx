@@ -13,7 +13,7 @@ import {
 import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
 import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
-import { ThemeToggle } from './theme-provider'
+import { ThemeToggle } from '../theme-provider'
 
 import { makeBackgroundDataUrl, makeGradientDataUrl, makeSolidDataUrl } from '@/lib/background'
 
