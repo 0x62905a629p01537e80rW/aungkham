@@ -98,7 +98,6 @@ interface ToolDef {
 }
 
 const TOOLS: ToolDef[] = [
-  { key: 'layers', label: 'Layers', icon: LayersIcon, needsLayer: false },
   { key: 'text', label: 'Text', icon: TypeIcon, needsLayer: true },
   { key: 'font', label: 'Font', icon: WandSparkles, needsLayer: true },
   { key: 'size', label: 'Size', icon: Ruler, needsLayer: true },

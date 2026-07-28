@@ -28,6 +28,7 @@ export interface TextLayer {
   highlightColor: string
   skewX: number
   skewY: number
+  hidden?: boolean
 }
 
 export interface FontOption {
@@ -91,5 +92,6 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     highlightColor: '#2563eb',
     skewX: 0,
     skewY: 0,
+    hidden: false,
   }
 }
