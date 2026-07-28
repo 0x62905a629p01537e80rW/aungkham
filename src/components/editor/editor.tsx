@@ -7,6 +7,7 @@ import { ToolBar } from './tool-bar'
 import { BackgroundEditor, type BgTool } from './background-editor'
 import { SaveShare } from './save-share'
 import { ReplaceBackground } from './replace-background'
+import { ExportCanvas } from './export-canvas'
 import { createTextLayer, type TextLayer } from '@/lib/text-layer'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
@@ -25,6 +26,7 @@ export function Editor() {
   const [preview, setPreview] = useState<string | null>(null)
   const [savedProject, setSavedProject] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
+  const exportRef = useRef<HTMLDivElement>(null)
   const replaceRef = useRef<HTMLInputElement>(null)
   const stageRef = useRef<HTMLElement>(null)
   const [stageSize, setStageSize] = useState({ w: 0, h: 0 })
@@ -172,15 +174,18 @@ export function Editor() {
   }
 
   const renderPreview = useCallback(async () => {
-    const node = canvasRef.current
+    const node = exportRef.current
     if (!node || !naturalSize) return null
     setExporting(true)
     setSelectedId(null)
     await new Promise((r) => requestAnimationFrame(() => r(null)))
     try {
-      const rect = node.getBoundingClientRect()
-      const pixelRatio = Math.min(4, Math.max(1, naturalSize.w / Math.max(1, rect.width)))
-      return await toPng(node, { pixelRatio, cacheBust: true })
+      return await toPng(node, {
+        width: naturalSize.w,
+        height: naturalSize.h,
+        pixelRatio: 1,
+        cacheBust: true,
+      })
     } catch (err) {
       console.log('[export failed]', err)
       return null
@@ -364,6 +369,8 @@ export function Editor() {
               onSaveProject={handleSaveProject}
             />
           )}
+
+          <ExportCanvas ref={exportRef} image={image} layers={layers} size={naturalSize} />
 
           {bgTool && (
             <BackgroundEditor

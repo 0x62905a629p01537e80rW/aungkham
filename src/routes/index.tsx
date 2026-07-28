@@ -15,6 +15,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Add beautiful, customizable text to your photos — free, on-device.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Editor,
