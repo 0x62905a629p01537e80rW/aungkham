@@ -3,7 +3,7 @@ import {
   CopyPlus,
   FlipHorizontal2,
   FlipVertical2,
-  MoveDiagonal,
+  MoveDiagonal2,
   Pencil,
   RotateCw,
   X,
@@ -417,6 +417,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             }
 
             const hTransform = `translate(-50%, -50%) scale(${inv * (layer.flipH ? -1 : 1)}, ${inv * (layer.flipV ? -1 : 1)})`
+            const mirror = (v: number | string) => (v === 0 ? '100%' : v === '100%' ? 0 : v)
+            const hx = (v: number | string) => (layer.flipH ? mirror(v) : v)
+            const hy = (v: number | string) => (layer.flipV ? mirror(v) : v)
 
             const textStyle = layerTextStyle(layer)
             const inner = <LayerText layer={layer} />
@@ -486,7 +489,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onDelete(layer.id)
                       }}
-                      style={{ left: 0, top: 0, transform: hTransform }}
+                      style={{ left: hx(0), top: hy(0), transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
                       <X className="size-4" strokeWidth={2.25} />
@@ -503,7 +506,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         setEditingId(layer.id)
                       }}
-                      style={{ left: '100%', top: 0, transform: hTransform }}
+                      style={{ left: hx('100%'), top: hy(0), transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
                       <Pencil className="size-4" strokeWidth={2.25} />
@@ -519,13 +522,13 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{
                         cursor: 'nwse-resize',
                         touchAction: 'none',
-                        left: '100%',
-                        top: '100%',
+                        left: hx('100%'),
+                        top: hy('100%'),
                         transform: hTransform,
                       }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
-                      <MoveDiagonal className="size-4" strokeWidth={2.25} />
+                      <MoveDiagonal2 className="size-4" strokeWidth={2.25} />
                     </button>
 
                     <button
@@ -538,8 +541,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{
                         cursor: 'grab',
                         touchAction: 'none',
-                        left: '50%',
-                        top: 0,
+                        left: hx('50%'),
+                        top: hy(0),
                         transform: hTransform,
                       }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
@@ -558,7 +561,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onChange?.(layer.id, { flipH: !layer.flipH })
                       }}
-                      style={{ left: 0, top: '50%', transform: hTransform }}
+                      style={{ left: hx(0), top: hy('50%'), transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
                       <FlipHorizontal2 className="size-4" strokeWidth={2.25} />
@@ -576,7 +579,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onDuplicate?.(layer.id)
                       }}
-                      style={{ left: '50%', top: '100%', transform: hTransform }}
+                      style={{ left: hx('50%'), top: hy('100%'), transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
                       <CopyPlus className="size-4" strokeWidth={2.25} />
@@ -593,7 +596,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onChange?.(layer.id, { flipV: !layer.flipV })
                       }}
-                      style={{ left: 0, top: '100%', transform: hTransform }}
+                      style={{ left: hx(0), top: hy('100%'), transform: hTransform }}
                       className="absolute flex size-7 items-center justify-center rounded-full border border-border bg-card/90 shadow-md backdrop-blur canvas-handle-icon transition active:scale-90"
                     >
                       <FlipVertical2 className="size-4" strokeWidth={2.25} />
