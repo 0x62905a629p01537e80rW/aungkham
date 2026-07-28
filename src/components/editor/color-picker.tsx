@@ -59,12 +59,12 @@ function hsvToRgb(h: number, s: number, v: number) {
 
 // ---------- presets ----------
 
-const PALETTE_PRESETS: { name: string; stops: string[] }[] = [
-  { name: 'Glowing Blue', stops: ['#1a0b6b', '#2635c9', '#3657ff', '#6b8bff', '#a9bbff'] },
-  { name: 'Sunset', stops: ['#3a0a3a', '#7a1f5a', '#c73866', '#ff7a59', '#ffc48a'] },
-  { name: 'Forest', stops: ['#0b2e1a', '#1a5a30', '#3d8a4a', '#84c07a', '#d7ecb8'] },
-  { name: 'Rose Gold', stops: ['#3a1519', '#7a2b3b', '#c07178', '#e4b0a4', '#f6dcc9'] },
+const QUICK_SWATCHES = [
+  '#000000', '#ffffff', '#ff3b30', '#ff9500', '#ffcc00',
+  '#34c759', '#00c7be', '#3657ff', '#af52de', '#ff2d55',
 ]
+
+const SWATCH_STORAGE_KEY = 'color-picker:saved-swatches'
 
 // ---------- component ----------
 
