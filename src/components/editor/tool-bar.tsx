@@ -361,13 +361,14 @@ function FontCard({
           : 'border-white/15 bg-white/5 hover:bg-white/10',
       )}
     >
-      <button type="button" onClick={onSelect} className="block w-full px-2 pb-1.5 pt-2 text-left">
+      <button type="button" onClick={onSelect} className="block w-full px-2 pb-1.5 pt-1.5 text-left">
         <span
-          className="block truncate text-[15px] leading-tight text-foreground"
-          style={{ fontFamily: fontFamily(entry.key) }}
+          className="block overflow-hidden text-ellipsis whitespace-nowrap py-1 text-[15px] text-foreground"
+          style={{ fontFamily: fontFamily(entry.key), lineHeight: entry.myanmar ? 2 : 1.4 }}
         >
           {entry.myanmar ? 'မြန်မာစာ' : 'Aa Bb Cc'}
         </span>
+
         <span className="mt-0.5 block truncate text-[9px] uppercase tracking-wider text-muted-foreground">
           {entry.label}
         </span>
