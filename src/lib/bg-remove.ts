@@ -180,3 +180,71 @@ export function softenEdges(data: ImageData) {
     }
   }
 }
+
+/** Remove one specific color everywhere in the image (tapped color sampling). */
+export function removeColorEverywhere(
+  data: ImageData,
+  r0: number,
+  g0: number,
+  b0: number,
+  tolerance: number,
+): ImageData {
+  const d = data.data
+  const limit = (tolerance / 100) * 442
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i + 3] === 0) continue
+    const dist = colorDistance(d, i, r0, g0, b0)
+    if (dist <= limit) d[i + 3] = 0
+    else if (dist <= limit * 1.35)
+      d[i + 3] = Math.round(d[i + 3] * ((dist - limit) / (limit * 0.35)))
+  }
+  return data
+}
+
+/** Read the RGB color at a pixel position. */
+export function sampleColor(data: ImageData, x: number, y: number): [number, number, number] {
+  const w = data.width
+  const px = Math.max(0, Math.min(w - 1, Math.round(x)))
+  const py = Math.max(0, Math.min(data.height - 1, Math.round(y)))
+  const i = idx(px, py, w)
+  return [data.data[i], data.data[i + 1], data.data[i + 2]]
+}
+
+/** Blur the alpha channel to feather the cut-out. Level 0 = untouched. */
+export function smoothEdge(data: ImageData, level: number): ImageData {
+  if (level <= 0) return data
+  const { width: w, height: h, data: d } = data
+  const radius = Math.max(1, Math.round(level))
+  const src = new Float32Array(w * h)
+  const tmp = new Float32Array(w * h)
+  for (let p = 0; p < w * h; p += 1) src[p] = d[p * 4 + 3]
+
+  // horizontal then vertical box blur
+  for (let y = 0; y < h; y += 1) {
+    for (let x = 0; x < w; x += 1) {
+      let sum = 0
+      let n = 0
+      for (let k = -radius; k <= radius; k += 1) {
+        const xx = x + k
+        if (xx < 0 || xx >= w) continue
+        sum += src[y * w + xx]
+        n += 1
+      }
+      tmp[y * w + x] = sum / n
+    }
+  }
+  for (let y = 0; y < h; y += 1) {
+    for (let x = 0; x < w; x += 1) {
+      let sum = 0
+      let n = 0
+      for (let k = -radius; k <= radius; k += 1) {
+        const yy = y + k
+        if (yy < 0 || yy >= h) continue
+        sum += tmp[yy * w + x]
+        n += 1
+      }
+      d[(y * w + x) * 4 + 3] = Math.round(sum / n)
+    }
+  }
+  return data
+}
