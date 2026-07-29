@@ -183,7 +183,7 @@ const TOOLS: ToolDef[] = [
   { key: 'perspective', label: 'Perspective', icon: Frame, needsLayer: true },
   { key: 'bend', label: 'Bend', icon: Spline, needsLayer: true },
   { key: 'skew', label: 'Skew', icon: MoveDiagonal, needsLayer: true },
-  { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: true },
+  { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: false },
   { key: 'cutout', label: 'Remove BG', icon: Scissors, needsLayer: true, imageOnly: true },
   { key: 'outline', label: 'Outline', icon: Circle, needsLayer: true, shapeOnly: true },
 ]
