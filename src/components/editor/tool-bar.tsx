@@ -114,6 +114,8 @@ interface ToolBarProps {
   onAutoOpenHandled?: () => void
   /** Opens brush-erase mode directly on the main canvas (all layers at once). */
   onEraseAll: () => void
+  /** Fires whenever a tool panel opens/closes so the stage can lift out of the way. */
+  onPanelChange?: (open: boolean) => void
 }
 
 const IMAGE_TOOLS = [
