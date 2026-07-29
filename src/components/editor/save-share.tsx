@@ -1,6 +1,9 @@
-import { ArrowLeft, Download, FolderPlus, Loader2, Lock, Share2 } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft, Download, FileText, FolderPlus, Loader2, Lock, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth-provider'
+import { SaveImageDialog } from './save-image-dialog'
+import { defaultFilename, exportPdf } from '@/lib/export-image'
 
 interface SaveShareProps {
   preview: string | null
@@ -13,6 +16,7 @@ interface SaveShareProps {
   onSaveProject: () => void
 }
 
+
 export function SaveShare({
   preview,
   size,
@@ -20,11 +24,26 @@ export function SaveShare({
   savedProject = false,
   onBack,
   onShare,
-  onSaveImage,
   onSaveProject,
 }: SaveShareProps) {
   const { isPro } = useAuth()
+  const [saving, setSaving] = useState(false)
+  const [pdfBusy, setPdfBusy] = useState(false)
+
+  async function handlePdf() {
+    if (!preview || !isPro) return
+    setPdfBusy(true)
+    try {
+      await exportPdf(preview, `${defaultFilename()}.pdf`)
+    } catch (err) {
+      console.log('[pdf export failed]', err)
+    } finally {
+      setPdfBusy(false)
+    }
+  }
+
   return (
+
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <header
         className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-2"
@@ -63,7 +82,7 @@ export function SaveShare({
 
           <section className="mt-4 rounded-2xl border border-border p-4">
             <p className="mb-3 text-sm font-medium">Save</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <Button
                 variant="outline"
                 className="rounded-xl"
@@ -72,27 +91,50 @@ export function SaveShare({
               >
                 {isPro ? (
                   <>
-                    <FolderPlus className="mr-2 size-4" /> {savedProject ? 'Saved' : 'Project'}
+                    <FolderPlus className="mr-1.5 size-4" /> {savedProject ? 'Saved' : 'Project'}
                   </>
                 ) : (
                   <>
-                    <Lock className="mr-2 size-4" /> Project
+                    <Lock className="mr-1.5 size-4" /> Project
                   </>
                 )}
               </Button>
-              <Button className="rounded-xl" onClick={onSaveImage} disabled={!preview}>
-                <Download className="mr-2 size-4" /> Image
+              <Button className="rounded-xl" onClick={() => setSaving(true)} disabled={!preview}>
+                <Download className="mr-1.5 size-4" /> Image
+              </Button>
+              <Button
+                variant="outline"
+                className="relative rounded-xl"
+                onClick={handlePdf}
+                disabled={!isPro || !preview || pdfBusy}
+              >
+                {pdfBusy ? (
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
+                ) : isPro ? (
+                  <FileText className="mr-1.5 size-4" />
+                ) : (
+                  <Lock className="mr-1.5 size-4" />
+                )}
+                PDF
+                {!isPro && (
+                  <span className="absolute -right-1 -top-2 rounded bg-[#8b5cf6] px-1 text-[9px] font-bold text-white">
+                    PRO
+                  </span>
+                )}
               </Button>
             </div>
             {!isPro && (
               <p className="mt-3 flex items-center gap-1.5 rounded-xl border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-3 py-2 text-[11px] font-medium text-foreground">
                 <Lock className="size-3.5 shrink-0 text-[#8b5cf6]" />
-                Saving projects is a Pro feature — buy Pro to unlock it.
+                Saving projects and PDF export are Pro features — buy Pro to unlock them.
               </p>
             )}
           </section>
         </div>
       </div>
+
+      <SaveImageDialog open={saving} preview={preview} onClose={() => setSaving(false)} />
     </div>
   )
+
 }
