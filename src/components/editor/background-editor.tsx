@@ -40,14 +40,13 @@ const RATIOS: { label: string; value: number | null }[] = [
 ]
 
 const FIT_RATIOS: { label: string; value: number }[] = [
-  { label: '1:1', value: 1 },
-  { label: '4:5', value: 4 / 5 },
+  { label: 'Square', value: 1 },
   { label: '3:4', value: 3 / 4 },
-  { label: '2:3', value: 2 / 3 },
-  { label: '9:16', value: 9 / 16 },
-  { label: '4:3', value: 4 / 3 },
   { label: '3:2', value: 3 / 2 },
   { label: '16:9', value: 16 / 9 },
+  { label: 'Portrait', value: 4 / 5 },
+  { label: 'Story', value: 9 / 16 },
+  { label: 'Pc', value: 16 / 10 },
 ]
 
 const FIT_COLORS = [
@@ -62,6 +61,16 @@ const FIT_COLORS = [
   '#10b981',
   '#a855f7',
 ]
+
+const FIT_GRADIENTS: { from: string; to: string }[] = [
+  { from: '#22c55e', to: '#0ea5e9' },
+  { from: '#a855f7', to: '#ec4899' },
+  { from: '#f97316', to: '#facc15' },
+  { from: '#0f172a', to: '#334155' },
+  { from: '#f43f5e', to: '#7c3aed' },
+  { from: '#14b8a6', to: '#84cc16' },
+]
+
 
 interface Props {
   tool: BgTool
