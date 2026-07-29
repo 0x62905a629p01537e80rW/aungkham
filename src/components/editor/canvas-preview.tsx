@@ -457,7 +457,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     return (
       <div
         ref={ref}
-        className="relative h-full w-full select-none overflow-hidden"
+        className="checker-grid relative h-full w-full select-none overflow-hidden"
         style={{ lineHeight: 0, touchAction: 'none' }}
         onPointerDown={(e) => {
           onSelect(null)
