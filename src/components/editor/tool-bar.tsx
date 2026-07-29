@@ -466,7 +466,6 @@ function FontPicker({
     layer.fontKey.startsWith('custom:') ? 'custom' : groupOf(current?.category ?? 'Sans'),
   )
   const [, force] = useState(0)
-  const [lockNote, setLockNote] = useState(false)
   const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -491,9 +490,6 @@ function FontPicker({
       customId: c.id,
     })),
   ]
-
-  const isLocked = (key: string) =>
-    !isPro && FONTS.find((x) => x.key === key)?.category === 'Myanmar Pro'
 
   const items =
     group === 'favorites'
@@ -563,10 +559,8 @@ function FontPicker({
             entry={f}
             active={layer.fontKey === f.key}
             fav={favs.includes(f.key)}
-            locked={isLocked(f.key)}
-            onSelect={() =>
-              isLocked(f.key) ? setLockNote(true) : onChange({ fontKey: f.key })
-            }
+            locked={false}
+            onSelect={() => onChange({ fontKey: f.key })}
             onFav={() => toggleFavorite(f.key)}
             onDelete={
               f.customId
