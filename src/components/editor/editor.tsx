@@ -458,6 +458,7 @@ export function Editor() {
                     ? setRemovingBg(true)
                     : setBgTool(t as BgTool)
             }
+            onPanelChange={setPanelOpen}
             onEraseAll={() => {
               setSelectedId(null)
               setDraftMask(eraseMask)
