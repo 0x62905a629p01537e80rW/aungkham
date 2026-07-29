@@ -90,7 +90,7 @@ import {
   type TextLayer,
   type TextureType,
 } from '@/lib/text-layer'
-import { TEXT_STYLES, STYLE_GROUPS, type StyleGroup } from '@/lib/text-styles'
+
 import { layerTextStyle } from './text-layer-view'
 
 
@@ -165,7 +165,6 @@ interface ToolDef {
 }
 
 const TOOLS: ToolDef[] = [
-  { key: 'style', label: 'Styles', icon: Sparkles, needsLayer: true },
   { key: 'font', label: 'Font', icon: WandSparkles, needsLayer: true },
   { key: 'format', label: 'Format', icon: TypeIcon, needsLayer: true },
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
@@ -724,9 +723,6 @@ function ToolContent({
           />
         </div>
       )
-    case 'style':
-      return <StylePicker layer={layer} onChange={onChange} />
-
     case 'font':
       return <FontPicker layer={layer} onChange={onChange} />
 
