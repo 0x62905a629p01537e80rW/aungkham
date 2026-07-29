@@ -294,7 +294,9 @@ export function Editor() {
   return (
     <AuthProvider>
     <div className="flex min-h-[100dvh] flex-col bg-background">
+      <ScreenGuard layers={layers} />
       <ProSplash />
+
       <EditorHeader
         hasImage={!!image}
         onNewImage={resetAll}
