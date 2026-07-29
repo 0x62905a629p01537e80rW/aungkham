@@ -438,8 +438,8 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
               style={{
                 left: cursor.x,
                 top: offsetCursor ? cursor.y - 56 : cursor.y,
-                width: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current) * view.scale,
-                height: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current) * view.scale,
+                width: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current),
+                height: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current),
                 transform: 'translate(-50%, -50%)',
               }}
             />
