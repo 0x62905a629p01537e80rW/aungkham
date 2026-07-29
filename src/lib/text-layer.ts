@@ -33,6 +33,8 @@ export interface TextLayer {
   skewX: number
   skewY: number
   hidden?: boolean
+  locked?: boolean
+  strokeOpacity?: number
 
   /* Fill */
   fillType: FillType
