@@ -4,6 +4,8 @@ import {
   ImageIcon,
   LayoutTemplate,
   Image as BackgroundIcon,
+  Palette,
+  Blend,
   Trash2,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
