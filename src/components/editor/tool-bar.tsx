@@ -384,7 +384,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="glass-panel border-0 bg-transparent shadow-none max-h-[42dvh] w-[min(92vw,300px)] overflow-y-auto overscroll-contain rounded-3xl p-4"
+                className="glass-panel w-[min(92vw,300px)] rounded-3xl border-0 bg-transparent p-4 shadow-none"
               >
                 <ToolContent
                   tool={tool.key}
