@@ -757,6 +757,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               </div>
             )
           })}
+          </div>
+
+          {overlay}
+
         </div>
         </div>
 
