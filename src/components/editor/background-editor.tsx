@@ -700,7 +700,7 @@ function FrameThumb({ spec }: { spec: FrameSpec }) {
     }
   }, [spec])
 
-  return <canvas ref={ref} className="size-full rounded-md" style={{ aspectRatio: '1 / 1' }} />
+  return <canvas ref={ref} className="size-full rounded-none" style={{ aspectRatio: '1 / 1' }} />
 }
 
 export const BG_ICONS = { CropIcon, Square }
