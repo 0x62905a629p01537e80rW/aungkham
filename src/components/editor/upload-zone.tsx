@@ -160,8 +160,9 @@ export function UploadZone({
             </button>
 
 
-            <div>
-              <span className="mb-2 block px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="glass-tile rounded-[1.75rem] p-3">
+              <span className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <Palette className="size-3.5 text-primary" />
                 {t('home.solidColors')}
               </span>
               <SolidGrid
@@ -170,8 +171,9 @@ export function UploadZone({
               />
             </div>
 
-            <div>
-              <span className="mb-2 block px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="glass-tile rounded-[1.75rem] p-3">
+              <span className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <Blend className="size-3.5 text-primary" />
                 {t('home.gradients')}
               </span>
               <GradientGrid
@@ -179,6 +181,7 @@ export function UploadZone({
                 onCustom={() => setPicker('gradient')}
               />
             </div>
+
           </div>
         )}
 
