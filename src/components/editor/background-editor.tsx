@@ -338,31 +338,134 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
           </div>
         )}
 
-        {tool === 'square' && (
+        {tool === 'frame' && (
+          <div className="-mx-1 grid max-h-[26dvh] grid-cols-4 gap-2 overflow-y-auto px-1">
+            {FRAMES.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFrame(f)}
+                className={cn(
+                  'flex flex-col items-center gap-1 rounded-xl border p-1.5 transition active:scale-95',
+                  frame.id === f.id ? 'border-primary bg-primary/10' : 'border-border/60',
+                )}
+              >
+                <FrameThumb spec={f} />
+                <span className="w-full truncate text-[9px] text-muted-foreground">{f.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {tool === 'fit' && (
           <div className="space-y-4">
-            <SliderField
-              label="Scale"
-              value={fitScale}
-              min={0.3}
-              max={1.5}
-              step={0.01}
-              onChange={setFitScale}
-            />
             <div className="flex gap-2">
-              {FIT_COLORS.map((c) => (
+              {(['ratio', 'color', 'blur', 'position'] as const).map((p) => (
                 <button
-                  key={c}
+                  key={p}
                   type="button"
-                  onClick={() => setFitColor(c)}
-                  aria-label={c}
+                  onClick={() => setFitPanel(p)}
                   className={cn(
-                    'size-9 rounded-full border-2 transition active:scale-95',
-                    fitColor === c ? 'border-primary' : 'border-border',
+                    'flex-1 rounded-full border px-3 py-1.5 text-[11px] font-semibold capitalize transition active:scale-95',
+                    fitPanel === p
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border text-foreground/80',
                   )}
-                  style={{ background: c }}
-                />
+                >
+                  {p}
+                </button>
               ))}
             </div>
+
+            {fitPanel === 'ratio' && (
+              <div className="space-y-3">
+                <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {FIT_RATIOS.map((r) => (
+                    <button
+                      key={r.label}
+                      type="button"
+                      onClick={() => setFitRatio(r.value)}
+                      className={cn(
+                        'shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition active:scale-95',
+                        Math.abs(fitRatio - r.value) < 0.001
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border text-foreground/80',
+                      )}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+                <SliderField
+                  label="Scale"
+                  value={fitScale}
+                  min={0.3}
+                  max={1.5}
+                  step={0.01}
+                  onChange={setFitScale}
+                />
+              </div>
+            )}
+
+            {fitPanel === 'color' && (
+              <div className="flex flex-wrap gap-2">
+                {FIT_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setFitColor(c)}
+                    aria-label={c}
+                    className={cn(
+                      'size-9 rounded-full border-2 transition active:scale-95',
+                      fitColor === c ? 'border-primary' : 'border-border',
+                    )}
+                    style={{ background: c }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {fitPanel === 'blur' && (
+              <div className="space-y-4">
+                <SliderField
+                  label="Blur"
+                  value={fitBlur}
+                  min={0}
+                  max={60}
+                  step={1}
+                  onChange={setFitBlur}
+                />
+                <SliderField
+                  label="Opacity"
+                  value={fitBgOpacity}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={setFitBgOpacity}
+                />
+              </div>
+            )}
+
+            {fitPanel === 'position' && (
+              <div className="space-y-4">
+                <SliderField
+                  label="Horizontal"
+                  value={fitX}
+                  min={-100}
+                  max={100}
+                  step={1}
+                  onChange={setFitX}
+                />
+                <SliderField
+                  label="Vertical"
+                  value={fitY}
+                  min={-100}
+                  max={100}
+                  step={1}
+                  onChange={setFitY}
+                />
+              </div>
+            )}
           </div>
         )}
 
