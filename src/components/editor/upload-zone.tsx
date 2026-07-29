@@ -10,6 +10,7 @@ import {
   Trash2,
   Type as TypeIcon,
 } from 'lucide-react'
+import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
 import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
@@ -27,6 +28,7 @@ export function UploadZone({
   onOpenProject?: (project: SavedProject) => void
   onStartTemplates?: () => void
 }) {
+  const { t } = useI18n()
   const galleryRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('gallery')
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
@@ -73,9 +75,9 @@ export function UploadZone({
 
         <div className="mb-5 flex max-w-sm flex-wrap items-center justify-center gap-2">
           {[
-            { icon: TypeIcon, label: 'Fonts' },
-            { icon: Palette, label: 'Colors' },
-            { icon: Sparkles, label: 'Effects' },
+            { icon: TypeIcon, label: t('home.badge.fonts') },
+            { icon: Palette, label: t('home.badge.colors') },
+            { icon: Sparkles, label: t('home.badge.effects') },
           ].map(({ icon: Icon, label }) => (
             <span
               key={label}
@@ -88,10 +90,10 @@ export function UploadZone({
         </div>
 
         <h1 className="text-balance text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
-          Add <span className="text-primary">Text</span> to Your Photos
+          {t('home.title.pre')}<span className="text-primary">{t('home.title.text')}</span>{t('home.title.post')}
         </h1>
         <p className="mt-2 max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground">
-          Start from a photo, a color, or open a saved project.
+          {t('home.subtitle')}
         </p>
       </div>
 
@@ -99,9 +101,9 @@ export function UploadZone({
       <div className="glass-tile relative mx-auto mt-6 flex w-full max-w-sm items-center gap-1 rounded-full p-1">
         {(() => {
           const tabs: { id: Tab; label: string; icon: typeof Images }[] = [
-            { id: 'gallery', label: 'Gallery', icon: Images },
-            { id: 'colors', label: 'Colors', icon: Palette },
-            { id: 'projects', label: 'Projects', icon: FolderOpen },
+            { id: 'gallery', label: t('home.tab.gallery'), icon: Images },
+            { id: 'colors', label: t('home.tab.colors'), icon: Palette },
+            { id: 'projects', label: t('home.tab.projects'), icon: FolderOpen },
           ]
           const index = tabs.findIndex((t) => t.id === tab)
           return (
@@ -148,11 +150,11 @@ export function UploadZone({
               }}
             >
               <ImageIcon className="size-5" />
-              Choose from Library
+              {t('home.chooseLibrary')}
             </button>
             <p className="mt-1 inline-flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
               <ShieldCheck className="size-3.5 text-primary" />
-              Your photo stays on this device.
+              {t('home.privacy')}
             </p>
           </div>
         )}
@@ -161,7 +163,7 @@ export function UploadZone({
           <div className="flex flex-col gap-5">
             <div>
               <span className="mb-2 block px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Solid colors
+                {t('home.solidColors')}
               </span>
               <SolidGrid
                 onPick={(c) => onImage(makeSolidDataUrl(c))}
@@ -171,7 +173,7 @@ export function UploadZone({
 
             <div>
               <span className="mb-2 block px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Gradients
+                {t('home.gradients')}
               </span>
               <GradientGrid
                 onPick={(stops) => onImage(makeGradientDataUrl(stops))}
@@ -187,9 +189,9 @@ export function UploadZone({
               <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-secondary text-secondary-foreground">
                 <FolderOpen className="size-6 text-primary" />
               </div>
-              <p className="text-sm font-semibold text-foreground">No saved projects yet</p>
+              <p className="text-sm font-semibold text-foreground">{t('home.noProjects')}</p>
               <p className="mt-1 max-w-[16rem] text-xs text-muted-foreground">
-                Your saved projects will appear here so you can pick up where you left off.
+                {t('home.noProjectsHint')}
               </p>
             </div>
           ) : (
@@ -215,7 +217,7 @@ export function UploadZone({
                   </button>
                   <button
                     type="button"
-                    aria-label="Delete project"
+                    aria-label={t('home.deleteProject')}
                     onClick={() => setProjects(deleteProject(p.id))}
                     className="glass-tile absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full text-destructive"
                   >
@@ -230,7 +232,7 @@ export function UploadZone({
       <div className="mx-auto w-full max-w-sm pt-1">
         <div className="mb-3 flex items-center gap-3">
           <span className="h-px flex-1 bg-border/60" />
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">or</span>
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t('home.or')}</span>
           <span className="h-px flex-1 bg-border/60" />
         </div>
         <button
@@ -239,7 +241,7 @@ export function UploadZone({
           className="glass-tile flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold transition active:scale-[0.98]"
         >
           <LayoutTemplate className="size-4 text-primary" />
-          Start With Templates
+          {t('home.templates')}
         </button>
       </div>
 
