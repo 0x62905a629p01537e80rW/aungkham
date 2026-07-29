@@ -2,13 +2,9 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import {
   FolderOpen,
   ImageIcon,
-  Images,
   LayoutTemplate,
-  Palette,
-  ShieldCheck,
   Sparkles,
   Trash2,
-  Type as TypeIcon,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'
@@ -17,7 +13,7 @@ import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
 
 import { makeBackgroundDataUrl, makeGradientDataUrl, makeSolidDataUrl } from '@/lib/background'
 
-type Tab = 'gallery' | 'colors' | 'projects'
+type Tab = 'create' | 'templates' | 'projects'
 
 export function UploadZone({
   onImage,
@@ -30,7 +26,7 @@ export function UploadZone({
 }) {
   const { t } = useI18n()
   const galleryRef = useRef<HTMLInputElement>(null)
-  const [tab, setTab] = useState<Tab>('gallery')
+  const [tab, setTab] = useState<Tab>('create')
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
   const [projects, setProjects] = useState<SavedProject[]>([])
 
@@ -48,7 +44,7 @@ export function UploadZone({
 
   return (
     <div
-      className="relative flex flex-1 flex-col overflow-hidden px-6 pb-8 pt-10"
+      className="relative flex flex-1 flex-col overflow-hidden px-6 pb-8 pt-5"
       style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}
     >
       {/* Ambient backdrop */}
@@ -61,54 +57,17 @@ export function UploadZone({
         }}
       />
 
-      <div className="flex flex-col items-center text-center">
-        <div
-          className="mb-5 grid size-16 place-items-center rounded-[1.25rem] text-primary-foreground shadow-xl"
-          style={{
-            background:
-              'linear-gradient(135deg, var(--primary), color-mix(in oklab, var(--primary) 60%, white))',
-            boxShadow: '0 18px 40px -12px color-mix(in oklab, var(--primary) 45%, transparent)',
-          }}
-        >
-          <span className="font-brand-mm text-2xl leading-none">မြန်</span>
-        </div>
-
-        <div className="mb-5 flex max-w-sm flex-wrap items-center justify-center gap-2">
-          {[
-            { icon: TypeIcon, label: t('home.badge.fonts') },
-            { icon: Palette, label: t('home.badge.colors') },
-            { icon: Sparkles, label: t('home.badge.effects') },
-          ].map(({ icon: Icon, label }) => (
-            <span
-              key={label}
-              className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-[11px] font-medium text-secondary-foreground"
-            >
-              <Icon className="size-3.5 text-primary" />
-              {label}
-            </span>
-          ))}
-        </div>
-
-        <h1 className="text-balance text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
-          {t('home.title.pre')}<span className="text-primary">{t('home.title.text')}</span>{t('home.title.post')}
-        </h1>
-        <p className="mt-2 max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground">
-          {t('home.subtitle')}
-        </p>
-      </div>
-
       {/* Tabs */}
-      <div className="glass-tile relative mx-auto mt-6 flex w-full max-w-sm items-center gap-1 rounded-full p-1">
+      <div className="glass-tile relative mx-auto flex w-full max-w-sm items-center gap-1 rounded-full p-1">
         {(() => {
-          const tabs: { id: Tab; label: string; icon: typeof Images }[] = [
-            { id: 'gallery', label: t('home.tab.gallery'), icon: Images },
-            { id: 'colors', label: t('home.tab.colors'), icon: Palette },
+          const tabs: { id: Tab; label: string; icon: typeof Sparkles }[] = [
+            { id: 'create', label: t('home.tab.create'), icon: Sparkles },
+            { id: 'templates', label: t('home.tab.templates'), icon: LayoutTemplate },
             { id: 'projects', label: t('home.tab.projects'), icon: FolderOpen },
           ]
-          const index = tabs.findIndex((t) => t.id === tab)
+          const index = tabs.findIndex((x) => x.id === tab)
           return (
             <>
-              {/* Sliding indicator */}
               <span
                 aria-hidden
                 className="absolute left-1 top-1 bottom-1 rounded-full bg-primary shadow transition-transform duration-300 ease-out"
@@ -135,11 +94,10 @@ export function UploadZone({
         })()}
       </div>
 
-
       {/* Tab content */}
       <div className="mx-auto mt-5 flex w-full max-w-sm flex-1 flex-col overflow-y-auto pb-4">
-        {tab === 'gallery' && (
-          <div className="flex flex-col gap-3">
+        {tab === 'create' && (
+          <div className="flex flex-col gap-5">
             <button
               type="button"
               onClick={() => galleryRef.current?.click()}
@@ -152,15 +110,7 @@ export function UploadZone({
               <ImageIcon className="size-5" />
               {t('home.chooseLibrary')}
             </button>
-            <p className="mt-1 inline-flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-              <ShieldCheck className="size-3.5 text-primary" />
-              {t('home.privacy')}
-            </p>
-          </div>
-        )}
 
-        {tab === 'colors' && (
-          <div className="flex flex-col gap-5">
             <div>
               <span className="mb-2 block px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {t('home.solidColors')}
@@ -180,6 +130,23 @@ export function UploadZone({
                 onCustom={() => setPicker('gradient')}
               />
             </div>
+          </div>
+        )}
+
+        {tab === 'templates' && (
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={onStartTemplates}
+              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-primary text-base font-semibold text-primary-foreground shadow-lg transition active:scale-[0.98]"
+              style={{
+                boxShadow:
+                  '0 14px 30px -10px color-mix(in oklab, var(--primary) 55%, transparent)',
+              }}
+            >
+              <LayoutTemplate className="size-5" />
+              {t('home.templates')}
+            </button>
           </div>
         )}
 
@@ -227,22 +194,6 @@ export function UploadZone({
               ))}
             </div>
           ))}
-      </div>
-
-      <div className="mx-auto w-full max-w-sm pt-1">
-        <div className="mb-3 flex items-center gap-3">
-          <span className="h-px flex-1 bg-border/60" />
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t('home.or')}</span>
-          <span className="h-px flex-1 bg-border/60" />
-        </div>
-        <button
-          type="button"
-          onClick={onStartTemplates}
-          className="glass-tile flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold transition active:scale-[0.98]"
-        >
-          <LayoutTemplate className="size-4 text-primary" />
-          {t('home.templates')}
-        </button>
       </div>
 
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
