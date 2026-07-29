@@ -24,7 +24,7 @@ interface SaveImageDialogProps {
 
 export function SaveImageDialog({ open, preview, onClose }: SaveImageDialogProps) {
   const [name, setName] = useState(defaultFilename)
-  const [format, setFormat] = useState<ExportFormat>('jpeg')
+  const [format, setFormat] = useState<ExportFormat>('png')
   const [quality, setQuality] = useState(100)
   const [size, setSize] = useState<number | null>(null)
 
