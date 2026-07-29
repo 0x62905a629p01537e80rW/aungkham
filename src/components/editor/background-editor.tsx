@@ -2,14 +2,21 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Aperture,
   Check,
+  Circle as CircleIcon,
   Crop as CropIcon,
+  Droplet,
   FlipHorizontal,
   FlipVertical,
+  Grid2x2,
+  Image as ImageIcon,
+  Pipette,
+  RectangleHorizontal,
   RotateCcw,
   RotateCw,
   Square,
   X,
 } from 'lucide-react'
+
 import { SliderField } from './control-fields'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
