@@ -311,6 +311,7 @@ export function Editor() {
             onImage={handleImage}
             onOpenProject={openProject}
             onStartTemplates={() => setTemplating(true)}
+            onApplyTemplate={applyTemplate}
           />
           <TemplatePicker
             open={templating}

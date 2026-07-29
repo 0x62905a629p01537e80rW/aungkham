@@ -3,13 +3,15 @@ import {
   FolderOpen,
   ImageIcon,
   LayoutTemplate,
-  Sparkles,
+  Image as BackgroundIcon,
   Trash2,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
 import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
+import { TemplateGallery } from './template-picker'
+import type { TextLayer } from '@/lib/text-layer'
 
 import { makeBackgroundDataUrl, makeGradientDataUrl, makeSolidDataUrl } from '@/lib/background'
 
@@ -19,10 +21,12 @@ export function UploadZone({
   onImage,
   onOpenProject,
   onStartTemplates,
+  onApplyTemplate,
 }: {
   onImage: (dataUrl: string) => void
   onOpenProject?: (project: SavedProject) => void
   onStartTemplates?: () => void
+  onApplyTemplate?: (layers: TextLayer[]) => void
 }) {
   const { t } = useI18n()
   const galleryRef = useRef<HTMLInputElement>(null)
@@ -60,8 +64,8 @@ export function UploadZone({
       {/* Tabs */}
       <div className="glass-tile relative mx-auto flex w-full max-w-sm items-center gap-1 rounded-full p-1">
         {(() => {
-          const tabs: { id: Tab; label: string; icon: typeof Sparkles }[] = [
-            { id: 'create', label: t('home.tab.create'), icon: Sparkles },
+          const tabs: { id: Tab; label: string; icon: typeof BackgroundIcon }[] = [
+            { id: 'create', label: t('home.tab.create'), icon: BackgroundIcon },
             { id: 'templates', label: t('home.tab.templates'), icon: LayoutTemplate },
             { id: 'projects', label: t('home.tab.projects'), icon: FolderOpen },
           ]
@@ -101,10 +105,12 @@ export function UploadZone({
             <button
               type="button"
               onClick={() => galleryRef.current?.click()}
-              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-primary text-base font-semibold text-primary-foreground shadow-lg transition active:scale-[0.98]"
+              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl text-base font-semibold text-primary-foreground transition active:scale-[0.98]"
               style={{
+                background:
+                  'linear-gradient(135deg, var(--primary), color-mix(in oklab, var(--primary) 62%, white))',
                 boxShadow:
-                  '0 14px 30px -10px color-mix(in oklab, var(--primary) 55%, transparent)',
+                  '0 16px 34px -14px color-mix(in oklab, var(--primary) 70%, transparent)',
               }}
             >
               <ImageIcon className="size-5" />
@@ -133,22 +139,19 @@ export function UploadZone({
           </div>
         )}
 
-        {tab === 'templates' && (
-          <div className="flex flex-col gap-3">
+        {tab === 'templates' &&
+          (onApplyTemplate ? (
+            <TemplateGallery onApply={onApplyTemplate} />
+          ) : (
             <button
               type="button"
               onClick={onStartTemplates}
               className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-primary text-base font-semibold text-primary-foreground shadow-lg transition active:scale-[0.98]"
-              style={{
-                boxShadow:
-                  '0 14px 30px -10px color-mix(in oklab, var(--primary) 55%, transparent)',
-              }}
             >
               <LayoutTemplate className="size-5" />
               {t('home.templates')}
             </button>
-          </div>
-        )}
+          ))}
 
         {tab === 'projects' &&
           (projects.length === 0 ? (
