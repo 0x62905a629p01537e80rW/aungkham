@@ -7,13 +7,24 @@ interface ExportCanvasProps {
   image: string
   layers: TextLayer[]
   size: { w: number; h: number } | null
+  eraseMask?: string
 }
 
 export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(function ExportCanvas(
-  { image, layers, size },
+  { image, layers, size, eraseMask },
   ref,
 ) {
   const safeSize = size ?? { w: 1, h: 1 }
+  const maskStyle: CSSProperties | undefined = eraseMask
+    ? {
+        WebkitMaskImage: `url(${eraseMask})`,
+        maskImage: `url(${eraseMask})`,
+        WebkitMaskSize: '100% 100%',
+        maskSize: '100% 100%',
+        WebkitMaskRepeat: 'no-repeat',
+        maskRepeat: 'no-repeat',
+      }
+    : undefined
   const exportLayers = layers.filter((layer) => !layer.hidden && layer.x > -50 && layer.x < 150 && layer.y > -50 && layer.y < 150)
 
   return (
@@ -42,6 +53,7 @@ export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(functi
           draggable={false}
         />
 
+        <div className="absolute inset-0" style={maskStyle}>
         {exportLayers.map((layer) => {
           const wrapperStyle: CSSProperties = {
             position: 'absolute',
@@ -59,6 +71,7 @@ export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(functi
             </div>
           )
         })}
+        </div>
       </div>
     </div>
   )
