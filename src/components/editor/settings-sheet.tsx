@@ -12,6 +12,7 @@ import {
 import { PLAY_STORE_URL, markRated } from '@/lib/rate-us'
 import { useAuth } from '@/components/auth-provider'
 import { useI18n } from '@/components/i18n'
+import { PaymentPage } from './payment-page'
 
 const PRO_BENEFITS = [
   'No ads, no watermark',
@@ -55,6 +56,7 @@ function Row({
 export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
   const [open, setOpen] = useState(false)
   const [about, setAbout] = useState(false)
+  const [pay, setPay] = useState(false)
   const { t, lang, setLang } = useI18n()
   const { user, isPro, proPending, proExpiresAt, proSince, signIn, signOutUser } = useAuth()
 
@@ -198,7 +200,8 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     type="button"
                     onClick={() => {
                       setOpen(false)
-                      onBuyPro?.()
+                      if (onBuyPro) onBuyPro()
+                      else setPay(true)
                     }}
                     className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-base font-bold text-white transition active:scale-[0.98]"
                   >
@@ -291,6 +294,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
         </div>,
         document.body,
       )}
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
     </>
   )
 }
