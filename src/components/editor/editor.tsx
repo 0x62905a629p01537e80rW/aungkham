@@ -9,6 +9,7 @@ import { AdjustEditor } from './adjust-editor'
 import { FilterEditor } from './filter-editor'
 import { SaveShare } from './save-share'
 import { ReplaceBackground } from './replace-background'
+import { BgRemover } from './bg-remover'
 import { ExportCanvas } from './export-canvas'
 import { createGraphicLayer, createTextLayer, type GraphicContent, type TextLayer } from '@/lib/text-layer'
 import { InsertMenu } from './insert-menu'
@@ -33,6 +34,7 @@ export function Editor() {
   const [exporting, setExporting] = useState(false)
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const [adjusting, setAdjusting] = useState(false)
+  const [removingBg, setRemovingBg] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [showGrid, setShowGrid] = useState(false)
   const [replacing, setReplacing] = useState(false)
@@ -407,9 +409,12 @@ export function Editor() {
                 ? setAdjusting(true)
                 : t === 'filter'
                   ? setFiltering(true)
-                  : setBgTool(t as BgTool)
+                  : t === 'removebg'
+                    ? setRemovingBg(true)
+                    : setBgTool(t as BgTool)
             }
           />
+
 
 
           <input
@@ -499,6 +504,14 @@ export function Editor() {
               }}
             />
           )}
+
+          <BgRemover
+            open={removingBg}
+            src={image}
+            title="Remove background"
+            onClose={() => setRemovingBg(false)}
+            onApply={applyBackground}
+          />
 
           {bgTool && (
             <BackgroundEditor
