@@ -25,6 +25,14 @@ export function SolidGrid({
   return (
     <div className="grid grid-cols-6 gap-2">
       <CustomTile label="Custom solid color" onClick={onCustom} />
+      <button
+        type="button"
+        aria-label="Transparent background"
+        title="Transparent"
+        onClick={() => onPick('transparent')}
+        className="checker-grid aspect-square rounded-xl border border-border shadow-sm transition active:scale-95"
+      />
+
       {SOLID_COLORS.map((c) => (
         <button
           key={c}
