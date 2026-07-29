@@ -75,7 +75,6 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
-import { EraseDialog } from './erase-dialog'
 import { BgRemover } from './bg-remover'
 import { ColorPickerPanel, parseGradient } from './color-picker'
 import { DEFAULT_STROKE_WIDTH, OUTLINE_PRESETS, shapeDataUrl } from '@/lib/shapes'
@@ -204,9 +203,9 @@ export function ToolBar({
   onImageTool,
   autoOpenTool,
   onAutoOpenHandled,
+  onEraseAll,
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
-  const [eraseOpen, setEraseOpen] = useState(false)
   const [cutoutOpen, setCutoutOpen] = useState(false)
   const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
@@ -335,9 +334,8 @@ export function ToolBar({
                     setCutoutOpen(true)
                     return
                   }
-                  // Erase works without a prior selection: grab the top layer.
-                  if (!selected && layers.length) onSelect(layers[layers.length - 1].id)
-                  setEraseOpen(true)
+                  // Erase paints directly on the main canvas across every layer.
+                  onEraseAll()
                 }}
                 className={cn(
                   'flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium text-foreground/75 transition active:scale-95',
@@ -405,15 +403,6 @@ export function ToolBar({
           )
         })}
       </div>
-
-      {selected && (
-        <EraseDialog
-          open={eraseOpen}
-          onOpenChange={setEraseOpen}
-          layer={selected}
-          onApply={(mask) => onChange({ eraseMask: mask })}
-        />
-      )}
 
       {selected?.graphic && (
         <BgRemover

@@ -23,6 +23,7 @@ import { ProSplash } from './pro-splash'
 import { shouldAskForRating } from '@/lib/rate-us'
 import { AuthProvider } from '@/components/auth-provider'
 import { ScreenGuard } from './screen-guard'
+import { EraseBar, EraseOverlay, DEFAULT_BRUSH, type EraseBrush, type EraseControls } from './erase-overlay'
 
 
 
@@ -46,6 +47,13 @@ export function Editor() {
   const [rating, setRating] = useState(false)
   const [autoOpenTool, setAutoOpenTool] = useState<'outline' | null>(null)
   const [nextRequested, setNextRequested] = useState(false)
+  const [erasing, setErasing] = useState(false)
+  const [eraseMask, setEraseMask] = useState<string | undefined>(undefined)
+  const [draftMask, setDraftMask] = useState<string | undefined>(undefined)
+  const [brush, setBrush] = useState<EraseBrush>(DEFAULT_BRUSH)
+  const [eraseBypass, setEraseBypass] = useState(false)
+  const [eraseHistory, setEraseHistory] = useState({ canUndo: false, canRedo: false })
+  const eraseControls = useRef<EraseControls | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const exportRef = useRef<HTMLDivElement>(null)
   const replaceRef = useRef<HTMLInputElement>(null)
@@ -373,9 +381,21 @@ export function Editor() {
                 image={image}
                 aspectRatio={naturalSize ? naturalSize.w / naturalSize.h : 16 / 9}
                 layers={layers}
-                selectedId={selectedId}
                 exporting={exporting}
                 showGrid={showGrid}
+                eraseMask={erasing ? (eraseBypass ? undefined : draftMask) : eraseMask}
+                overlay={
+                  erasing ? (
+                    <EraseOverlay
+                      initialMask={eraseMask}
+                      brush={brush}
+                      onChange={setDraftMask}
+                      controlsRef={eraseControls}
+                      onHistory={setEraseHistory}
+                    />
+                  ) : undefined
+                }
+                selectedId={erasing ? null : selectedId}
                 onSelect={setSelectedId}
                 onMove={(id, x, y) => updateLayer(id, { x, y })}
                 onResize={(id, fontSize) => updateLayer(id, { fontSize })}
@@ -390,6 +410,28 @@ export function Editor() {
           </main>
 
 
+          {erasing ? (
+            <EraseBar
+              brush={brush}
+              onBrush={(patch) => setBrush((b) => ({ ...b, ...patch }))}
+              canUndo={eraseHistory.canUndo}
+              canRedo={eraseHistory.canRedo}
+              bypass={eraseBypass}
+              onBypass={setEraseBypass}
+              onUndo={() => eraseControls.current?.undo()}
+              onRedo={() => eraseControls.current?.redo()}
+              onReset={() => eraseControls.current?.reset()}
+              onCancel={() => {
+                setDraftMask(undefined)
+                setErasing(false)
+              }}
+              onApply={() => {
+                setEraseMask(draftMask)
+                setDraftMask(undefined)
+                setErasing(false)
+              }}
+            />
+          ) : (
           <ToolBar
             layers={layers}
             selected={selected}
@@ -413,7 +455,13 @@ export function Editor() {
                     ? setRemovingBg(true)
                     : setBgTool(t as BgTool)
             }
+            onEraseAll={() => {
+              setSelectedId(null)
+              setDraftMask(eraseMask)
+              setErasing(true)
+            }}
           />
+          )
 
 
 
@@ -481,7 +529,7 @@ export function Editor() {
 
 
 
-          <ExportCanvas ref={exportRef} image={image} layers={layers} size={naturalSize} />
+          <ExportCanvas ref={exportRef} image={image} layers={layers} size={naturalSize} eraseMask={eraseMask} />
 
           {filtering && (
             <FilterEditor
