@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ArrowLeft, Download, FileText, FolderPlus, Loader2, Lock } from 'lucide-react'
+import { ArrowLeft, FileText, FolderPlus, Loader2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth-provider'
 import { SaveImageDialog } from './save-image-dialog'
+import { ShareRow } from './share-row'
 import { defaultFilename, exportPdf } from '@/lib/export-image'
 
 interface SaveShareProps {
