@@ -466,6 +466,8 @@ function FontPicker({
     layer.fontKey.startsWith('custom:') ? 'custom' : groupOf(current?.category ?? 'Sans'),
   )
   const [, force] = useState(0)
+  const [lockNote, setLockNote] = useState(false)
+  const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -489,6 +491,9 @@ function FontPicker({
       customId: c.id,
     })),
   ]
+
+  const isLocked = (key: string) =>
+    !isPro && FONTS.find((x) => x.key === key)?.category === 'Myanmar Pro'
 
   const items =
     group === 'favorites'
@@ -544,6 +549,13 @@ function FontPicker({
         </>
       )}
 
+      {(lockNote || (group === 'mm-premium' && !isPro)) && (
+        <p className="flex items-center gap-1.5 rounded-xl border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-3 py-2 text-[11px] font-medium text-foreground">
+          <Lock className="size-3.5 shrink-0 text-[#8b5cf6]" />
+          Premium fonts are for Pro members — buy Pro to unlock them.
+        </p>
+      )}
+
       <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto pr-1">
         {items.map((f) => (
           <FontCard
@@ -551,7 +563,10 @@ function FontPicker({
             entry={f}
             active={layer.fontKey === f.key}
             fav={favs.includes(f.key)}
-            onSelect={() => onChange({ fontKey: f.key })}
+            locked={isLocked(f.key)}
+            onSelect={() =>
+              isLocked(f.key) ? setLockNote(true) : onChange({ fontKey: f.key })
+            }
             onFav={() => toggleFavorite(f.key)}
             onDelete={
               f.customId
