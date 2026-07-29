@@ -408,9 +408,12 @@ export function Editor() {
                 ? setAdjusting(true)
                 : t === 'filter'
                   ? setFiltering(true)
-                  : setBgTool(t as BgTool)
+                  : t === 'removebg'
+                    ? setRemovingBg(true)
+                    : setBgTool(t as BgTool)
             }
           />
+
 
 
           <input
