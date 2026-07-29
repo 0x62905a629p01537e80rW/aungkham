@@ -208,10 +208,18 @@ export function ToolBar({
   autoOpenTool,
   onAutoOpenHandled,
   onEraseAll,
+  onPanelChange,
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
   const [cutoutOpen, setCutoutOpen] = useState(false)
   const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+
+  const panelCbRef = useRef(onPanelChange)
+  panelCbRef.current = onPanelChange
+  useEffect(() => {
+    panelCbRef.current?.(openTool !== null)
+  }, [openTool])
+
 
   const autoOpenRef = useRef<string | null>(null)
   const handledCbRef = useRef(onAutoOpenHandled)
