@@ -346,9 +346,10 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                 type="button"
                 onClick={() => setFrame(f)}
                 className={cn(
-                  'flex flex-col items-center gap-1 rounded-xl border p-1.5 transition active:scale-95',
-                  frame.id === f.id ? 'border-primary bg-primary/10' : 'border-border/60',
+                  'flex flex-col items-center gap-1 rounded-none border p-1 transition active:scale-95',
+                  frame.id === f.id ? 'border-primary' : 'border-foreground/70',
                 )}
+
               >
                 <FrameThumb spec={f} />
                 <span className="w-full truncate text-[9px] text-muted-foreground">{f.label}</span>
