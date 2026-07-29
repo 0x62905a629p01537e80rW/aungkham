@@ -30,7 +30,7 @@ export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(functi
     >
       <div
         ref={ref}
-        className="relative overflow-hidden bg-card"
+        className="relative overflow-hidden"
         style={{ width: safeSize.w, height: safeSize.h, containerType: 'size', lineHeight: 0 }}
       >
         <img
