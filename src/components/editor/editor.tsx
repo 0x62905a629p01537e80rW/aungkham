@@ -19,6 +19,7 @@ import { saveProject, type SavedProject } from '@/lib/projects'
 import { RateDialog } from './rate-dialog'
 import { ProSplash } from './pro-splash'
 import { shouldAskForRating } from '@/lib/rate-us'
+import { AuthProvider } from '@/components/auth-provider'
 
 
 export function Editor() {
@@ -289,6 +290,7 @@ export function Editor() {
   }
 
   return (
+    <AuthProvider>
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <ProSplash />
       <EditorHeader
@@ -492,5 +494,6 @@ export function Editor() {
       )}
 
     </div>
+    </AuthProvider>
   )
 }

@@ -1,18 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ArrowLeft, BadgeCheck, Check, Copy, Coins, Smartphone, Upload } from 'lucide-react'
+import {
+  ArrowLeft,
+  BadgeCheck,
+  Check,
+  Copy,
+  Loader2,
+  LogOut,
+  Smartphone,
+} from 'lucide-react'
+import { useAuth } from '@/components/auth-provider'
 
 const PRICE_MMK = '30,000 MMK'
 const PRICE_USD = '$12 USD'
 
-const CRYPTO_WALLETS = [
-  { label: 'USDT · TRC20 (Tron)', address: 'TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' },
-  { label: 'USDT · BEP20 (BNB Chain)', address: '0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' },
-  { label: 'USDC · Solana', address: 'SoLXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' },
-]
-
-const KBZ = { name: 'Next Level Creators', phone: '09-XXX-XXX-XXX' }
-const SUPPORT_EMAIL = 'mm.nextlevelcreators@gmail.com'
+type PaySettings = { phone: string; name: string }
 
 function CopyRow({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false)
@@ -38,12 +40,98 @@ function CopyRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-type Method = null | 'crypto' | 'kbz'
+function GoogleMark({ className = 'size-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
+      <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.5 13.2l7.8 6.1C12.2 13.3 17.6 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.1 5.4-4.5 7l7.2 5.6c4.2-3.9 6.9-9.7 6.9-17.1z" />
+      <path fill="#FBBC05" d="M10.3 28.7a14.6 14.6 0 0 1 0-9.4l-7.8-6.1a24 24 0 0 0 0 21.6l7.8-6.1z" />
+      <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.7 2.3-8.7 2.3-6.4 0-11.8-3.8-13.7-9.2l-7.8 6.1C6.5 42.6 14.6 48 24 48z" />
+    </svg>
+  )
+}
 
 export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [method, setMethod] = useState<Method>(null)
+  const { user, loading, isPro, signIn, signOutUser } = useAuth()
+  const [signingIn, setSigningIn] = useState(false)
+  const [settings, setSettings] = useState<PaySettings | null>(null)
+  const [settingsError, setSettingsError] = useState<string | null>(null)
+  const [txId, setTxId] = useState('')
+  const [senderInfo, setSenderInfo] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch KBZPay details from Firestore (payment_settings collection).
+  useEffect(() => {
+    if (!open) return
+    let cancelled = false
+    ;(async () => {
+      setSettingsError(null)
+      const { getDb } = await import('@/lib/firebase')
+      const { collection, getDocs } = await import('firebase/firestore')
+      const snap = await getDocs(collection(getDb(), 'payment_settings'))
+      if (cancelled) return
+      const docSnap =
+        snap.docs.find((d) => d.id.toLowerCase().includes('kbz')) ?? snap.docs[0]
+      const d = (docSnap?.data() ?? {}) as Record<string, string>
+      const phone = d.kbzPayNumber ?? d.kbzNumber ?? d.phone ?? d.number ?? ''
+      const name = d.accountName ?? d.name ?? d.kbzAccountName ?? ''
+      if (!phone && !name) {
+        setSettingsError('Payment details are not configured yet.')
+        return
+      }
+      setSettings({ phone, name })
+    })().catch((err) => {
+      console.log('[payment settings failed]', err)
+      if (!cancelled) setSettingsError('Could not load payment details. Please try again.')
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [open])
+
+  async function handleSignIn() {
+    setSigningIn(true)
+    setError(null)
+    try {
+      await signIn()
+    } catch (err) {
+      console.log('[sign in failed]', err)
+      setError('Google sign-in failed. Please try again.')
+    } finally {
+      setSigningIn(false)
+    }
+  }
+
+  async function handleSubmit() {
+    if (!user || !txId.trim() || !senderInfo.trim()) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      const { getDb } = await import('@/lib/firebase')
+      const { addDoc, collection, serverTimestamp } = await import('firebase/firestore')
+      await addDoc(collection(getDb(), 'transactions'), {
+        userId: user.uid,
+        userEmail: user.email,
+        txId: txId.trim(),
+        senderInfo: senderInfo.trim(),
+        method: 'KBZPay',
+        status: 'pending',
+        createdAt: serverTimestamp(),
+      })
+      setSubmitted(true)
+    } catch (err) {
+      console.log('[transaction submit failed]', err)
+      setError('Could not submit. Check your connection and try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   if (!open || typeof document === 'undefined') return null
+
+  const canSubmit = !!user && txId.trim().length > 0 && senderInfo.trim().length > 0 && !submitting
 
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-background text-foreground animate-fade-in">
@@ -54,14 +142,22 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
         <button
           type="button"
           aria-label="Back"
-          onClick={() => (method ? setMethod(null) : onClose())}
+          onClick={onClose}
           className="grid size-9 place-items-center rounded-full transition active:scale-95"
         >
           <ArrowLeft className="size-6" />
         </button>
-        <h2 className="text-xl font-semibold">
-          {method === 'crypto' ? 'Crypto payment' : method === 'kbz' ? 'KBZPay payment' : 'Checkout'}
-        </h2>
+        <h2 className="text-xl font-semibold">Checkout</h2>
+        {user && (
+          <button
+            type="button"
+            onClick={() => signOutUser()}
+            className="ml-auto flex items-center gap-1 rounded-full px-2 py-1 text-[11px] text-muted-foreground transition active:scale-95"
+          >
+            <LogOut className="size-3.5" />
+            Sign out
+          </button>
+        )}
       </div>
 
       <div className="px-4 pb-14">
@@ -74,109 +170,130 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
           </p>
         </div>
 
-        {!method && (
-          <div className="mt-5 space-y-3">
-            <p className="text-sm font-semibold">Choose a payment method</p>
+        {isPro && (
+          <div className="mt-5 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-center">
+            <BadgeCheck className="mx-auto size-6 text-primary" />
+            <p className="mt-1 text-sm font-bold">Pro is active on this account</p>
+            <p className="text-[11px] text-muted-foreground">
+              All premium features are unlocked. Thank you!
+            </p>
+          </div>
+        )}
 
+        {loading ? (
+          <div className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" />
+            Loading…
+          </div>
+        ) : !user ? (
+          <div className="mt-6 space-y-3">
+            <p className="text-sm font-semibold">Sign in to continue</p>
+            <p className="text-[12px] text-muted-foreground">
+              We need your account so we can unlock Pro for you after verifying your payment.
+            </p>
             <button
               type="button"
-              onClick={() => setMethod('crypto')}
-              className="glass-tile flex w-full items-center gap-3 rounded-2xl p-4 text-left transition active:scale-[0.99]"
+              onClick={handleSignIn}
+              disabled={signingIn}
+              className="glass-tile flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold transition active:scale-[0.98] disabled:opacity-60"
             >
-              <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-                <Coins className="size-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-bold">Crypto · Stablecoins</p>
-                <p className="text-[11px] text-muted-foreground">
-                  USDT / USDC — TRC20, BEP20 or Solana. Instant, worldwide.
-                </p>
-              </div>
+              {signingIn ? <Loader2 className="size-4 animate-spin" /> : <GoogleMark className="size-4" />}
+              Sign in with Google
             </button>
-
-            <button
-              type="button"
-              onClick={() => setMethod('kbz')}
-              className="glass-tile flex w-full items-center gap-3 rounded-2xl p-4 text-left transition active:scale-[0.99]"
-            >
+            {error && <p className="text-center text-[11px] text-destructive">{error}</p>}
+          </div>
+        ) : submitted ? (
+          <div className="mt-6 space-y-2 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center">
+            <Check className="mx-auto size-7 text-primary" />
+            <p className="text-sm font-bold">Payment submitted</p>
+            <p className="text-[11px] text-muted-foreground">
+              We verify manually and unlock Pro within 24 hours. Pro turns on automatically here —
+              no need to reinstall.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-5 space-y-3">
+            <div className="glass-tile flex items-center gap-3 rounded-2xl p-4">
               <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
                 <Smartphone className="size-5" />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold">Myanmar manual payment</p>
                 <p className="text-[11px] text-muted-foreground">
-                  KBZPay transfer — send {PRICE_MMK} and upload the receipt.
+                  KBZPay transfer — send {PRICE_MMK}, then submit your transaction details.
                 </p>
               </div>
-            </button>
-          </div>
-        )}
-
-        {method === 'crypto' && (
-          <div className="mt-5 space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Send exactly <span className="font-semibold text-foreground">{PRICE_USD}</span> in
-              USDT or USDC to one of the wallets below, then send us the transaction hash.
-            </p>
-            {CRYPTO_WALLETS.map((w) => (
-              <CopyRow key={w.label} label={w.label} value={w.address} />
-            ))}
-            <p className="text-[11px] text-muted-foreground">
-              Double-check the network before sending. Funds sent on the wrong network cannot be
-              recovered.
-            </p>
-            <ConfirmButton
-              label="I've sent the payment"
-              subject="Myan Pro — Crypto payment"
-            />
-          </div>
-        )}
-
-        {method === 'kbz' && (
-          <div className="mt-5 space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Transfer <span className="font-semibold text-foreground">{PRICE_MMK}</span> via
-              KBZPay to the account below, then send us a screenshot of the receipt.
-            </p>
-            <CopyRow label="KBZPay number" value={KBZ.phone} />
-            <CopyRow label="Account name" value={KBZ.name} />
-            <div className="glass-tile flex items-center gap-3 rounded-2xl p-4">
-              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                <Upload className="size-5" />
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                Attach your KBZPay receipt screenshot in the email so we can activate Pro on your
-                device.
-              </p>
             </div>
-            <ConfirmButton
-              label="I've sent the payment"
-              subject="Myan Pro — KBZPay payment"
-            />
+
+            <p className="text-[11px] text-muted-foreground">
+              Signed in as <span className="font-medium text-foreground">{user.email}</span>
+            </p>
+
+            {settingsError && (
+              <p className="text-[12px] text-destructive">{settingsError}</p>
+            )}
+
+            {!settings && !settingsError ? (
+              <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" />
+                Loading payment details…
+              </div>
+            ) : settings ? (
+              <>
+                {settings.phone && <CopyRow label="KBZPay number" value={settings.phone} />}
+                {settings.name && <CopyRow label="Account name" value={settings.name} />}
+              </>
+            ) : null}
+
+            <div className="space-y-2 pt-1">
+              <label className="block">
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  KBZPay Transaction ID (Last 6 digits) *
+                </span>
+                <input
+                  value={txId}
+                  onChange={(e) => setTxId(e.target.value)}
+                  inputMode="numeric"
+                  maxLength={12}
+                  required
+                  placeholder="e.g. 482913"
+                  className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  Sender Name or Phone Number *
+                </span>
+                <input
+                  value={senderInfo}
+                  onChange={(e) => setSenderInfo(e.target.value)}
+                  maxLength={80}
+                  required
+                  placeholder="e.g. Aung Aung / 09-XXX-XXX-XXX"
+                  className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </label>
+            </div>
+
+            {error && <p className="text-[11px] text-destructive">{error}</p>}
+
+            <button
+              type="button"
+              disabled={!canSubmit}
+              onClick={handleSubmit}
+              className="premium-shine mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98] disabled:opacity-50"
+            >
+              {submitting ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+              I've sent the payment
+            </button>
+            <p className="text-center text-[11px] text-muted-foreground">
+              We verify manually and unlock Pro within 24 hours.
+            </p>
           </div>
         )}
       </div>
     </div>,
     document.body,
-  )
-}
-
-function ConfirmButton({ label, subject }: { label: string; subject: string }) {
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => {
-          window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`
-        }}
-        className="premium-shine mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
-      >
-        <Check className="size-4" />
-        {label}
-      </button>
-      <p className="text-center text-[11px] text-muted-foreground">
-        We verify manually and unlock Pro within 24 hours.
-      </p>
-    </>
   )
 }
