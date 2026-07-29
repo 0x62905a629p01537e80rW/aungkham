@@ -8,7 +8,7 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
   })
 }
 
-function ctxOf(w: number, h: number) {
+export function ctxOf(w: number, h: number) {
   const canvas = document.createElement('canvas')
   canvas.width = Math.max(1, Math.round(w))
   canvas.height = Math.max(1, Math.round(h))
