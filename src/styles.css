@@ -352,3 +352,14 @@ html.screen-masked body {
     var(--checker-size) calc(var(--checker-size) * -1),
     calc(var(--checker-size) * -1) 0;
 }
+
+/* High-contrast checkerboard for small swatch tiles */
+.checker-swatch {
+  --checker-size: 6px;
+  --checker-a: oklch(0.72 0 0);
+  --checker-b: oklch(1 0 0);
+}
+.dark .checker-swatch {
+  --checker-a: oklch(0.5 0 0);
+  --checker-b: oklch(0.86 0 0);
+}

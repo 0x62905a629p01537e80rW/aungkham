@@ -1,6 +1,5 @@
 export const SOLID_COLORS = [
   '#ffffff',
-  '#0f172a',
   '#111111',
   '#f5f5f4',
   '#ef4444',
