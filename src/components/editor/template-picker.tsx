@@ -55,23 +55,25 @@ function TemplateThumb({ template, bg }: { template: TemplateDef; bg: string }) 
   )
 }
 
-export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) {
+export function TemplateGallery({
+  onApply,
+  className,
+}: {
+  onApply: (layers: TextLayer[]) => void
+  className?: string
+}) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
 
   const list = useMemo(
-    () =>
-      TEMPLATES.filter((t) => t.lang === lang && (group === 'All' || t.group === group)),
+    () => TEMPLATES.filter((t) => t.lang === lang && (group === 'All' || t.group === group)),
     [lang, group],
   )
 
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background/85 backdrop-blur-xl">
-      <header className="glass-bar flex h-14 shrink-0 items-center gap-2 border-b border-border/40 px-3">
-        <span className="text-sm font-semibold">Templates</span>
-        <div className="ml-auto flex items-center gap-1 rounded-full border border-border/50 p-0.5">
+    <div className={cn('flex min-h-0 flex-1 flex-col', className)}>
+      <div className="flex shrink-0 items-center justify-end gap-1 pb-2">
+        <div className="glass-tile flex items-center gap-1 rounded-full p-0.5">
           {(['EN', 'MM'] as TemplateLang[]).map((l) => (
             <button
               key={l}
@@ -86,17 +88,9 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close templates"
-          className="rounded-full p-2 text-foreground/80 transition active:scale-95"
-        >
-          <X className="size-5" />
-        </button>
-      </header>
+      </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 overflow-x-auto px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex shrink-0 items-center gap-1.5 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TEMPLATE_GROUPS.map((g) => (
           <button
             key={g}
@@ -115,7 +109,7 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto pb-8">
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-2">
           {list.map((t) => {
             const bg = THUMB_BG[hashOf(t.id) % THUMB_BG.length]
             return (
@@ -123,11 +117,8 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
                 key={t.id}
                 type="button"
                 aria-label={t.name}
-                onClick={() => {
-                  onApply(t.build())
-                  onClose()
-                }}
-                className="w-full border-b border-border/30 px-3 py-3 transition active:opacity-70"
+                onClick={() => onApply(t.build())}
+                className="glass-tile w-full overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
               >
                 <div className="aspect-[16/9] w-full">
                   <TemplateThumb template={t} bg={bg} />
@@ -137,7 +128,34 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
           })}
         </div>
       </div>
+    </div>
+  )
+}
 
+export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) {
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-background/85 backdrop-blur-xl">
+      <header className="glass-bar flex h-14 shrink-0 items-center gap-2 border-b border-border/40 px-3">
+        <span className="text-sm font-semibold">Templates</span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close templates"
+          className="ml-auto rounded-full p-2 text-foreground/80 transition active:scale-95"
+        >
+          <X className="size-5" />
+        </button>
+      </header>
+
+      <TemplateGallery
+        className="px-3 pt-2"
+        onApply={(layers) => {
+          onApply(layers)
+          onClose()
+        }}
+      />
     </div>
   )
 }
