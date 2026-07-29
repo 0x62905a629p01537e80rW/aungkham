@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import {
+  Camera,
   FolderOpen,
   ImageIcon,
   LayoutTemplate,
@@ -32,6 +33,7 @@ export function UploadZone({
 }) {
   const { t } = useI18n()
   const galleryRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('create')
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
   const [projects, setProjects] = useState<SavedProject[]>([])
@@ -124,42 +126,78 @@ export function UploadZone({
       <div className="mx-auto mt-5 flex w-full max-w-sm flex-1 flex-col overflow-y-auto pb-4">
         {tab === 'create' && (
           <div className="flex flex-col gap-5">
-            <button
-              type="button"
-              onClick={() => galleryRef.current?.click()}
-              className="group relative flex h-16 w-full items-center gap-3 overflow-hidden rounded-[1.75rem] px-4 text-left transition active:scale-[0.98]"
-              style={{
-                background:
-                  'linear-gradient(150deg, color-mix(in oklab, var(--card) 62%, transparent), color-mix(in oklab, var(--card) 34%, transparent))',
-                backdropFilter: 'blur(30px) saturate(190%)',
-                border: '1px solid color-mix(in oklab, var(--foreground) 8%, transparent)',
-                boxShadow:
-                  'inset 0 1px 0 var(--glass-rim), inset 0 0 0 1px var(--glass-edge), 0 18px 40px -18px var(--glass-shadow)',
-              }}
-            >
-              {/* specular sheen */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[1.75rem]"
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => galleryRef.current?.click()}
+                className="group relative flex h-16 flex-1 items-center gap-3 overflow-hidden rounded-[1.75rem] px-4 text-left transition active:scale-[0.98]"
                 style={{
                   background:
-                    'linear-gradient(to bottom, color-mix(in oklab, white 22%, transparent), transparent)',
-                }}
-              />
-              <span
-                className="relative grid size-11 shrink-0 place-items-center rounded-2xl text-primary"
-                style={{
-                  background:
-                    'linear-gradient(160deg, color-mix(in oklab, var(--primary) 22%, transparent), color-mix(in oklab, var(--primary) 8%, transparent))',
-                  boxShadow: 'inset 0 1px 0 var(--glass-rim)',
+                    'linear-gradient(150deg, color-mix(in oklab, var(--card) 62%, transparent), color-mix(in oklab, var(--card) 34%, transparent))',
+                  backdropFilter: 'blur(30px) saturate(190%)',
+                  border: '1px solid color-mix(in oklab, var(--foreground) 8%, transparent)',
+                  boxShadow:
+                    'inset 0 1px 0 var(--glass-rim), inset 0 0 0 1px var(--glass-edge), 0 18px 40px -18px var(--glass-shadow)',
                 }}
               >
-                <ImageIcon className="size-5" />
-              </span>
-              <span className="relative flex-1 text-[15px] font-semibold text-foreground">
-                {t('home.chooseLibrary')}
-              </span>
-            </button>
+                {/* specular sheen */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[1.75rem]"
+                  style={{
+                    background:
+                      'linear-gradient(to bottom, color-mix(in oklab, white 22%, transparent), transparent)',
+                  }}
+                />
+                <span
+                  className="relative grid size-11 shrink-0 place-items-center rounded-2xl text-primary"
+                  style={{
+                    background:
+                      'linear-gradient(160deg, color-mix(in oklab, var(--primary) 22%, transparent), color-mix(in oklab, var(--primary) 8%, transparent))',
+                    boxShadow: 'inset 0 1px 0 var(--glass-rim)',
+                  }}
+                >
+                  <ImageIcon className="size-5" />
+                </span>
+                <span className="relative flex-1 text-[15px] font-semibold text-foreground">
+                  {t('home.chooseLibrary')}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                aria-label={t('home.takePhoto') ?? 'Take a photo'}
+                onClick={() => cameraRef.current?.click()}
+                className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-[1.75rem] transition active:scale-[0.98]"
+                style={{
+                  background:
+                    'linear-gradient(150deg, color-mix(in oklab, var(--card) 62%, transparent), color-mix(in oklab, var(--card) 34%, transparent))',
+                  backdropFilter: 'blur(30px) saturate(190%)',
+                  border: '1px solid color-mix(in oklab, var(--foreground) 8%, transparent)',
+                  boxShadow:
+                    'inset 0 1px 0 var(--glass-rim), inset 0 0 0 1px var(--glass-edge), 0 18px 40px -18px var(--glass-shadow)',
+                }}
+              >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[1.75rem]"
+                  style={{
+                    background:
+                      'linear-gradient(to bottom, color-mix(in oklab, white 22%, transparent), transparent)',
+                  }}
+                />
+                <span
+                  className="relative grid size-11 place-items-center rounded-2xl text-primary"
+                  style={{
+                    background:
+                      'linear-gradient(160deg, color-mix(in oklab, var(--primary) 22%, transparent), color-mix(in oklab, var(--primary) 8%, transparent))',
+                    boxShadow: 'inset 0 1px 0 var(--glass-rim)',
+                  }}
+                >
+                  <Camera className="size-5" />
+                </span>
+              </button>
+            </div>
 
 
             <div className="glass-tile rounded-[1.75rem] p-3">
@@ -248,6 +286,14 @@ export function UploadZone({
       </div>
 
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={readFile}
+      />
 
       <ColorPickerFullScreen
         key={picker ?? 'closed'}
