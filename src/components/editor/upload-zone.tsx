@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import {
   FolderOpen,
-  Headphones,
   ImageIcon,
   Images,
   LayoutTemplate,
@@ -245,20 +244,6 @@ export function UploadZone({
       </div>
 
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
-
-      {/* Floating support icon */}
-      <button
-        type="button"
-        aria-label="Support"
-        onClick={() => window.open('https://t.me/myanpro', '_blank', 'noopener,noreferrer')}
-        className="fixed right-5 bottom-5 z-40 grid size-12 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl transition active:scale-95"
-        style={{
-          boxShadow: '0 14px 30px -8px color-mix(in oklab, var(--primary) 55%, transparent)',
-          bottom: 'max(1.25rem, env(safe-area-inset-bottom))',
-        }}
-      >
-        <Headphones className="size-5" />
-      </button>
 
       <ColorPickerFullScreen
         key={picker ?? 'closed'}
