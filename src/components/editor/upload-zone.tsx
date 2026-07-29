@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import {
   FolderOpen,
-  Headphones,
   ImageIcon,
   Images,
   LayoutTemplate,
