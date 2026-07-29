@@ -286,6 +286,14 @@ export function UploadZone({
       </div>
 
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={readFile}
+      />
 
       <ColorPickerFullScreen
         key={picker ?? 'closed'}
