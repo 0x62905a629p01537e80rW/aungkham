@@ -29,6 +29,7 @@ import {
   LayoutTemplate,
   Move,
   Rotate3d,
+  Scissors,
   Spline,
   ArrowDownToLine,
   ArrowUpToLine,
