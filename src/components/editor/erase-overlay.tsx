@@ -248,12 +248,17 @@ export function EraseBar({
 
   return (
     <div
-      className="glass-bar space-y-2 px-4 pb-4 pt-2"
+      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[55vh] space-y-2 overflow-y-auto px-4 pb-4 pt-2"
       style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
     >
-      <div className="flex items-center justify-between">
-        <button type="button" aria-label="Cancel erase" className={iconBtn} onClick={onCancel}>
-          <X className="size-5" />
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          className="flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-medium text-foreground/80 transition active:scale-95"
+          onClick={onCancel}
+        >
+          <X className="size-4" />
+          Cancel
         </button>
         <div className="flex items-center gap-1">
           <button type="button" aria-label="Undo" disabled={!canUndo} className={iconBtn} onClick={onUndo}>
@@ -266,8 +271,13 @@ export function EraseBar({
             <Redo2 className="size-5" />
           </button>
         </div>
-        <button type="button" aria-label="Apply erase" className={cn(iconBtn, 'text-primary')} onClick={onApply}>
-          <Check className="size-6" />
+        <button
+          type="button"
+          className="flex items-center gap-1 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition active:scale-95"
+          onClick={onApply}
+        >
+          <Check className="size-4" />
+          Done
         </button>
       </div>
 
