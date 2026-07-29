@@ -195,11 +195,18 @@ export function ToolBar({
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
   const [eraseOpen, setEraseOpen] = useState(false)
+  const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   useEffect(() => {
     if (!autoOpenTool) return
-    setOpenTool(autoOpenTool)
+    const key = autoOpenTool
     onAutoOpenHandled?.()
+    // Bring the tool button into view first — otherwise the popover opens
+    // off-screen and the user has to know to scroll the rail.
+    const el = toolRefs.current[key]
+    el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+    const timer = setTimeout(() => setOpenTool(key), el ? 320 : 0)
+    return () => clearTimeout(timer)
   }, [autoOpenTool, onAutoOpenHandled])
 
 
@@ -291,6 +298,9 @@ export function ToolBar({
             >
               <PopoverTrigger asChild>
                 <button
+                  ref={(el) => {
+                    toolRefs.current[tool.key] = el
+                  }}
                   type="button"
                   disabled={disabled}
                   className={cn(
