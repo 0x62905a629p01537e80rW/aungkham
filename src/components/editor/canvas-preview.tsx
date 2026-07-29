@@ -245,6 +245,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       stageDown(e)
       if (pointers.current.size > 1) return
       onSelect(id)
+      if (layers.find((l) => l.id === id)?.locked) return
       const el = e.currentTarget
       el.setPointerCapture(e.pointerId)
       const layer = layers.find((l) => l.id === id)
