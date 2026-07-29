@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import {
+  Camera,
   FolderOpen,
   ImageIcon,
   LayoutTemplate,
