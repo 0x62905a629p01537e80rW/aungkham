@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import {
+  Layers,
   Lock,
   Star,
   Trash2,
@@ -136,6 +137,7 @@ type ToolKey =
   | 'gradient'
   | 'texture'
   | 'opacity'
+  | 'blend'
   | 'stroke'
   | 'shadow'
   | 'highlight'
@@ -166,6 +168,7 @@ const TOOLS: ToolDef[] = [
   { key: 'gradient', label: 'Gradient', icon: Blend, needsLayer: true },
   { key: 'texture', label: 'Texture', icon: Grid2x2, needsLayer: true },
   { key: 'opacity', label: 'Opacity', icon: Droplet, needsLayer: true },
+  { key: 'blend', label: 'Blend', icon: Layers, needsLayer: true },
   { key: 'stroke', label: 'Stroke', icon: PenLine, needsLayer: true },
   { key: 'shadow', label: 'Shadow', icon: Sparkles, needsLayer: true },
   { key: 'highlight', label: 'Highlight', icon: Sun, needsLayer: true },
@@ -393,6 +396,25 @@ interface ToolContentProps {
   onDelete: (id: string) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
 }
+
+const BLEND_MODES = [
+  'normal',
+  'multiply',
+  'screen',
+  'overlay',
+  'darken',
+  'lighten',
+  'color-dodge',
+  'color-burn',
+  'hard-light',
+  'soft-light',
+  'difference',
+  'exclusion',
+  'hue',
+  'saturation',
+  'color',
+  'luminosity',
+] as const
 
 function ToolHeading({ children }: { children: React.ReactNode }) {
   return (
@@ -832,6 +854,29 @@ function ToolContent({
         </div>
       )
     }
+    case 'blend':
+      return (
+        <div>
+          <ToolHeading>Blend mode</ToolHeading>
+          <div className="grid grid-cols-3 gap-1.5">
+            {BLEND_MODES.map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => onChange({ blendMode: m })}
+                className={cn(
+                  'truncate rounded-xl border px-2 py-2 text-[10px] font-medium capitalize transition active:scale-95',
+                  (layer.blendMode ?? 'normal') === m
+                    ? 'border-primary bg-primary/15 text-primary'
+                    : 'border-border/60 text-foreground/80',
+                )}
+              >
+                {m.replace('-', ' ')}
+              </button>
+            ))}
+          </div>
+        </div>
+      )
     case 'opacity':
       return (
         <div>
