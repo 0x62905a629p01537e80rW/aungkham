@@ -42,6 +42,7 @@ function ProGem({ className = 'size-4' }: { className?: string }) {
 
 export function PremiumBadge() {
   const [open, setOpen] = useState(false)
+  const [pay, setPay] = useState(false)
 
   return (
     <>
