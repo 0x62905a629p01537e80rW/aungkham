@@ -73,6 +73,7 @@ const DICT = {
     'home.tab.colors': 'အရောင်',
     'home.tab.projects': 'ပရောဂျက်',
     'home.chooseLibrary': 'ဓာတ်ပုံ ရွေးရန်',
+    'home.takePhoto': 'ဓာတ်ပုံ ရိုက်ရန်',
     'home.privacy': 'သင့်ဓာတ်ပုံသည် ဤဖုန်းထဲမှာသာ ရှိပါသည်။',
     'home.solidColors': 'တစ်ရောင်တည်း',
     'home.gradients': 'ရောင်စုံ (Gradient)',
