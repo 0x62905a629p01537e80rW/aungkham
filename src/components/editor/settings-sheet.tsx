@@ -98,29 +98,104 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
             </div>
           ) : (
             <div className="px-4 pb-12">
-              <div className="relative mt-2 overflow-hidden rounded-3xl border border-border/50 bg-muted/40 p-5">
-                <p className="flex items-center gap-2 text-xl font-semibold">
-                  Myan
-                  <span className="rounded-md bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[11px] font-bold text-white">
-                    Pro
-                  </span>
-                </p>
-                <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-                  <li>• Remove ads</li>
-                  <li>• Unlock all features</li>
-                </ul>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpen(false)
-                    onBuyPro?.()
-                  }}
-                  className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-base font-bold text-white transition active:scale-[0.98]"
-                >
-                  <Crown className="size-5" />
-                  Get Premium
-                </button>
-              </div>
+              {isPro ? (
+                <div className="relative mt-2 overflow-hidden rounded-3xl border border-border/50 bg-muted/40 p-5">
+                  <p className="flex items-center gap-2 text-xl font-semibold">
+                    Myan
+                    <span className="rounded-md bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[11px] font-bold text-white">
+                      Pro
+                    </span>
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {user?.email ?? 'Pro active'}
+                  </p>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="rounded-2xl border border-border/50 bg-background/50 p-3">
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Status
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold">Active</p>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-background/50 p-3">
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Expires
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold">
+                        {fmtDate(proExpiresAt) ?? 'Lifetime'}
+                      </p>
+                    </div>
+                  </div>
+                  {proSince && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Activated on {fmtDate(proSince)}
+                    </p>
+                  )}
+                  <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+                    {PRO_BENEFITS.map((b) => (
+                      <li key={b} className="flex items-start gap-2">
+                        <Check className="mt-0.5 size-4 shrink-0 text-[#8b5cf6]" />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void signOutUser()
+                    }}
+                    className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-border/60 text-sm font-semibold transition active:scale-[0.98]"
+                  >
+                    <LogOut className="size-4" />
+                    Log out
+                  </button>
+                </div>
+              ) : (
+                <div className="relative mt-2 overflow-hidden rounded-3xl border border-border/50 bg-muted/40 p-5">
+                  <p className="flex items-center gap-2 text-xl font-semibold">
+                    Myan
+                    <span className="rounded-md bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[11px] font-bold text-white">
+                      Pro
+                    </span>
+                  </p>
+                  <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+                    <li>• Remove ads</li>
+                    <li>• Unlock all features</li>
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false)
+                      onBuyPro?.()
+                    }}
+                    className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-base font-bold text-white transition active:scale-[0.98]"
+                  >
+                    <Crown className="size-5" />
+                    Get Premium
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (user) return
+                      void signIn().catch(() => {})
+                    }}
+                    className="mt-2 w-full text-center text-sm font-medium text-muted-foreground underline underline-offset-4 transition active:opacity-70"
+                  >
+                    {user ? 'Signed in — restore automatic' : 'Login to restore'}
+                  </button>
+                  {user && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void signOutUser()
+                      }}
+                      className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl border border-border/60 text-sm font-semibold transition active:scale-[0.98]"
+                    >
+                      <LogOut className="size-4" />
+                      Log out
+                    </button>
+                  )}
+                </div>
+              )}
 
               <p className="mt-7 mb-1 text-base font-semibold">General</p>
 
