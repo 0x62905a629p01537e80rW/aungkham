@@ -198,6 +198,8 @@ export function ToolBar({
   const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   const autoOpenRef = useRef<string | null>(null)
+  const handledCbRef = useRef(onAutoOpenHandled)
+  handledCbRef.current = onAutoOpenHandled
 
   useEffect(() => {
     if (!autoOpenTool) return
@@ -205,12 +207,10 @@ export function ToolBar({
     const key = autoOpenTool
     autoOpenRef.current = key
 
-    let cancelled = false
     let tries = 0
     // The button may not be mounted yet (shape-only tools appear once the new
     // layer is selected), so poll briefly for it, scroll it into view, then open.
     const tick = () => {
-      if (cancelled) return
       const el = toolRefs.current[key]
       if (!el) {
         if (tries++ < 30) setTimeout(tick, 50)
@@ -218,17 +218,14 @@ export function ToolBar({
       }
       el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
       setTimeout(() => {
-        if (cancelled) return
         setOpenTool(key)
         autoOpenRef.current = null
-        onAutoOpenHandled?.()
+        handledCbRef.current?.()
       }, 380)
     }
     tick()
-    return () => {
-      cancelled = true
-    }
-  }, [autoOpenTool, onAutoOpenHandled])
+  }, [autoOpenTool])
+
 
 
 
