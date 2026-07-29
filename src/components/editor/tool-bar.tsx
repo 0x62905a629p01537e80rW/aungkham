@@ -321,18 +321,27 @@ export function ToolBar({
           const Icon = tool.icon
 
           if (tool.key === 'erase' || tool.key === 'cutout') {
+            const eraseDisabled = tool.key === 'erase' ? layers.length === 0 : disabled
             return (
               <button
                 key={tool.key}
                 type="button"
-                disabled={disabled}
+                disabled={eraseDisabled}
                 ref={(el) => {
                   toolRefs.current[tool.key] = el
                 }}
-                onClick={() => (tool.key === 'erase' ? setEraseOpen(true) : setCutoutOpen(true))}
+                onClick={() => {
+                  if (tool.key === 'cutout') {
+                    setCutoutOpen(true)
+                    return
+                  }
+                  // Erase works without a prior selection: grab the top layer.
+                  if (!selected && layers.length) onSelect(layers[layers.length - 1].id)
+                  setEraseOpen(true)
+                }}
                 className={cn(
                   'flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium text-foreground/75 transition active:scale-95',
-                  disabled && 'opacity-35',
+                  eraseDisabled && 'opacity-35',
                 )}
               >
                 <Icon className="size-[18px]" />
@@ -340,6 +349,7 @@ export function ToolBar({
               </button>
             )
           }
+
 
           return (
             <Popover
