@@ -24,6 +24,7 @@ const DICT = {
     'home.tab.colors': 'Colors',
     'home.tab.projects': 'Projects',
     'home.chooseLibrary': 'Choose from Library',
+    'home.takePhoto': 'Take a photo',
     'home.privacy': 'Your photo stays on this device.',
     'home.solidColors': 'Solid colors',
     'home.gradients': 'Gradients',
