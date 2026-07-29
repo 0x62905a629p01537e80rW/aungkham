@@ -201,13 +201,31 @@ export function ToolBar({
     if (!autoOpenTool) return
     const key = autoOpenTool
     onAutoOpenHandled?.()
-    // Bring the tool button into view first — otherwise the popover opens
-    // off-screen and the user has to know to scroll the rail.
-    const el = toolRefs.current[key]
-    el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
-    const timer = setTimeout(() => setOpenTool(key), el ? 320 : 0)
-    return () => clearTimeout(timer)
+
+    const timers: ReturnType<typeof setTimeout>[] = []
+    // The button may not be mounted yet (shape-only tools appear once the new
+    // layer is selected), so poll briefly for it, scroll it into view, then open.
+    let tries = 0
+    const tick = () => {
+      const el = toolRefs.current[key]
+      if (!el) {
+        if (tries++ < 20) timers.push(setTimeout(tick, 50))
+        return
+      }
+      el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+      // Open after the smooth scroll settles, then re-assert in case an
+      // outside-dismiss from the closing insert dialog swallowed the first one.
+      timers.push(setTimeout(() => setOpenTool(key), 380))
+      timers.push(
+        setTimeout(() => {
+          setOpenTool((cur) => (cur === key ? cur : key))
+        }, 700),
+      )
+    }
+    tick()
+    return () => timers.forEach(clearTimeout)
   }, [autoOpenTool, onAutoOpenHandled])
+
 
 
   return (
