@@ -436,7 +436,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       // Dragging away from the layer centre grows it.
       const dir = st.axis === 'x' ? -1 : 1
       let next = st.startValue + (dir * delta * 200) / span
-      next = Math.max(20, Math.min(400, Math.round(next)))
+      // Dragging past zero mirrors the layer on that axis (negative scale).
+      next = Math.max(-400, Math.min(400, Math.round(next)))
+      if (Math.abs(next) < 5) next = next < 0 ? -5 : 5
       onChange?.(st.id, st.axis === 'x' ? { widthScale: next } : { heightScale: next })
       setStretchHud({ id: st.id, axis: st.axis, value: next })
     }
