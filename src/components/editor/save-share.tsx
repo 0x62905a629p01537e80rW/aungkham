@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, Download, FileText, FolderPlus, Loader2, Lock, Share2 } from 'lucide-react'
+import { ArrowLeft, Download, FileText, FolderPlus, Loader2, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth-provider'
 import { SaveImageDialog } from './save-image-dialog'
@@ -11,7 +11,6 @@ interface SaveShareProps {
   busy?: boolean
   savedProject?: boolean
   onBack: () => void
-  onShare: () => void
   onSaveImage: () => void
   onSaveProject: () => void
 }
@@ -23,7 +22,6 @@ export function SaveShare({
   busy = false,
   savedProject = false,
   onBack,
-  onShare,
   onSaveProject,
 }: SaveShareProps) {
   const { isPro } = useAuth()
@@ -52,7 +50,7 @@ export function SaveShare({
         <Button variant="ghost" size="icon" aria-label="Back" onClick={onBack} className="size-9 rounded-full">
           <ArrowLeft className="size-5" />
         </Button>
-        <h1 className="flex-1 text-center text-base font-semibold">Save and Share</h1>
+        <h1 className="flex-1 text-center text-base font-semibold">Save</h1>
         <div className="size-9" />
       </header>
 
@@ -74,13 +72,6 @@ export function SaveShare({
           )}
 
           <section className="mt-6 rounded-2xl border border-border p-4">
-            <p className="mb-3 text-sm font-medium">Share</p>
-            <Button variant="outline" className="w-full rounded-xl" onClick={onShare} disabled={!preview}>
-              <Share2 className="mr-2 size-4" /> Share To
-            </Button>
-          </section>
-
-          <section className="mt-4 rounded-2xl border border-border p-4">
             <p className="mb-3 text-sm font-medium">Save</p>
             <div className="grid grid-cols-3 gap-3">
               <Button
