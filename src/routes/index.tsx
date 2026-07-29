@@ -29,5 +29,5 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Editor,
+  component: HomePage,
 });
