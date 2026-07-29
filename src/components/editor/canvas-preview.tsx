@@ -22,6 +22,10 @@ interface CanvasPreviewProps {
   selectedId: string | null
   exporting: boolean
   showGrid?: boolean
+  /** Stage-level erase mask (white = keep, transparent = erased) for all layers. */
+  eraseMask?: string
+  /** Extra content rendered inside the image box, e.g. the erase brush surface. */
+  overlay?: ReactNode
   onSelect: (id: string | null) => void
   onMove: (id: string, x: number, y: number) => void
   onResize: (id: string, fontSize: number) => void
