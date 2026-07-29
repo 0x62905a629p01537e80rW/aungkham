@@ -8,7 +8,7 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
   })
 }
 
-function ctxOf(w: number, h: number) {
+export function ctxOf(w: number, h: number) {
   const canvas = document.createElement('canvas')
   canvas.width = Math.max(1, Math.round(w))
   canvas.height = Math.max(1, Math.round(h))
@@ -59,18 +59,61 @@ export async function rotateImage(src: string, deg: 90 | -90 | 180) {
   return canvas.toDataURL('image/png')
 }
 
-/** Fit the image inside a square canvas with a background color. */
-export async function squareFit(src: string, scale = 1, background = '#ffffff') {
+/** Fit the image inside a canvas of the given aspect ratio, with background + offsets. */
+export async function ratioFit(
+  src: string,
+  opts: {
+    ratio?: number
+    scale?: number
+    background?: string
+    offsetX?: number
+    offsetY?: number
+    blurBackground?: number
+    backgroundOpacity?: number
+  } = {},
+) {
+  const {
+    ratio = 1,
+    scale = 1,
+    background = '#ffffff',
+    offsetX = 0,
+    offsetY = 0,
+    blurBackground = 0,
+    backgroundOpacity = 1,
+  } = opts
   const img = await loadImage(src)
-  const size = Math.max(img.naturalWidth, img.naturalHeight)
-  const { canvas, ctx } = ctxOf(size, size)
+  const long = Math.max(img.naturalWidth, img.naturalHeight)
+  const cw = ratio >= 1 ? long : long * ratio
+  const ch = ratio >= 1 ? long / ratio : long
+  const { canvas, ctx } = ctxOf(cw, ch)
+
   ctx.fillStyle = background
-  ctx.fillRect(0, 0, size, size)
-  const base = Math.min(size / img.naturalWidth, size / img.naturalHeight)
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  if (blurBackground > 0) {
+    ctx.save()
+    ctx.globalAlpha = backgroundOpacity
+    ctx.filter = `blur(${blurBackground}px)`
+    const cover = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight) * 1.15
+    const bw = img.naturalWidth * cover
+    const bh = img.naturalHeight * cover
+    ctx.drawImage(img, (canvas.width - bw) / 2, (canvas.height - bh) / 2, bw, bh)
+    ctx.restore()
+    ctx.filter = 'none'
+  }
+
+  const base = Math.min(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight)
   const w = img.naturalWidth * base * scale
   const h = img.naturalHeight * base * scale
-  ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h)
+  const dx = (canvas.width - w) / 2 + (offsetX / 100) * (canvas.width / 2)
+  const dy = (canvas.height - h) / 2 + (offsetY / 100) * (canvas.height / 2)
+  ctx.drawImage(img, dx, dy, w, h)
   return canvas.toDataURL('image/png')
+}
+
+/** Fit the image inside a square canvas with a background color. */
+export async function squareFit(src: string, scale = 1, background = '#ffffff') {
+  return ratioFit(src, { ratio: 1, scale, background })
 }
 
 /** Blur the whole image. amount = px radius. */

@@ -1,14 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Editor } from "@/components/editor/editor";
-import { AppSplash } from "@/components/editor/app-splash";
 
 function HomePage() {
-  return (
-    <>
-      <AppSplash />
-      <Editor />
-    </>
-  );
+  return <Editor />;
 }
 
 export const Route = createFileRoute("/")({

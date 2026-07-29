@@ -21,12 +21,13 @@ import {
   cropImage,
   flipImage,
   loadImage,
+  ratioFit,
   resizeImage,
   rotateImage,
-  squareFit,
 } from '@/lib/image-ops'
+import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
-export type BgTool = 'crop' | 'resize' | 'flip' | 'square' | 'blur'
+export type BgTool = 'crop' | 'resize' | 'flip' | 'fit' | 'blur' | 'frame'
 
 const RATIOS: { label: string; value: number | null }[] = [
   { label: 'Free', value: null },
@@ -38,7 +39,29 @@ const RATIOS: { label: string; value: number | null }[] = [
   { label: '16:9', value: 16 / 9 },
 ]
 
-const FIT_COLORS = ['#ffffff', '#000000', '#f5f5f4', '#e2e8f0', '#1e293b', '#3b82f6']
+const FIT_RATIOS: { label: string; value: number }[] = [
+  { label: '1:1', value: 1 },
+  { label: '4:5', value: 4 / 5 },
+  { label: '3:4', value: 3 / 4 },
+  { label: '2:3', value: 2 / 3 },
+  { label: '9:16', value: 9 / 16 },
+  { label: '4:3', value: 4 / 3 },
+  { label: '3:2', value: 3 / 2 },
+  { label: '16:9', value: 16 / 9 },
+]
+
+const FIT_COLORS = [
+  '#ffffff',
+  '#000000',
+  '#f5f5f4',
+  '#e2e8f0',
+  '#1e293b',
+  '#3b82f6',
+  '#f43f5e',
+  '#facc15',
+  '#10b981',
+  '#a855f7',
+]
 
 interface Props {
   tool: BgTool
@@ -63,9 +86,20 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   // flip/rotate + preview source
   const [working, setWorking] = useState(image)
 
-  // square fit
+  // fit
+  const [fitRatio, setFitRatio] = useState(1)
   const [fitScale, setFitScale] = useState(1)
   const [fitColor, setFitColor] = useState('#ffffff')
+  const [fitBlur, setFitBlur] = useState(0)
+  const [fitBgOpacity, setFitBgOpacity] = useState(1)
+  const [fitX, setFitX] = useState(0)
+  const [fitY, setFitY] = useState(0)
+  const [fitPanel, setFitPanel] = useState<'ratio' | 'color' | 'blur' | 'position'>('ratio')
+  const [fitPreview, setFitPreview] = useState<string | null>(null)
+
+  // frame
+  const [frame, setFrame] = useState<FrameSpec>(FRAMES[0])
+  const [framePreview, setFramePreview] = useState<string | null>(null)
 
   // blur
   const [blurMode, setBlurMode] = useState<'whole' | 'focus'>('whole')
@@ -89,13 +123,62 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
     })
   }, [ratio])
 
+  function fitOptions() {
+    return {
+      ratio: fitRatio,
+      scale: fitScale,
+      background: fitColor,
+      offsetX: fitX,
+      offsetY: fitY,
+      blurBackground: fitBlur,
+      backgroundOpacity: fitBgOpacity,
+    }
+  }
+
+  // Live preview for Fit
+  useEffect(() => {
+    if (tool !== 'fit') return
+    let alive = true
+    const id = setTimeout(() => {
+      ratioFit(working, {
+        ratio: fitRatio,
+        scale: fitScale,
+        background: fitColor,
+        offsetX: fitX,
+        offsetY: fitY,
+        blurBackground: fitBlur,
+        backgroundOpacity: fitBgOpacity,
+      }).then((url) => alive && setFitPreview(url))
+    }, 90)
+    return () => {
+      alive = false
+      clearTimeout(id)
+    }
+  }, [tool, working, fitRatio, fitScale, fitColor, fitX, fitY, fitBlur, fitBgOpacity])
+
+  // Live preview for Frame
+  useEffect(() => {
+    if (tool !== 'frame') return
+    let alive = true
+    if (frame.kind === 'none') {
+      setFramePreview(null)
+      return
+    }
+    applyFrame(working, frame).then((url) => alive && setFramePreview(url))
+    return () => {
+      alive = false
+    }
+  }, [tool, working, frame])
+
   async function apply() {
     setBusy(true)
     try {
       let out = working
       if (tool === 'crop') out = await cropImage(working, rect)
       else if (tool === 'resize') out = await resizeImage(working, rw, rh)
-      else if (tool === 'square') out = await squareFit(working, fitScale, fitColor)
+      else if (tool === 'fit') out = await ratioFit(working, fitOptions())
+      else if (tool === 'frame')
+        out = frame.kind === 'none' ? working : await applyFrame(working, frame)
       else if (tool === 'blur')
         out =
           blurMode === 'whole'
@@ -116,7 +199,9 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
           ? 'Flip & Rotate'
           : tool === 'blur'
             ? 'Blur'
-            : 'Square Fit'
+            : tool === 'frame'
+              ? 'Frame'
+              : 'Fit'
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
@@ -156,23 +241,22 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             onFocus={(f) => setFocus((p) => ({ ...p, ...f }))}
           />
         ) : (
-          <div
-            className="max-h-full max-w-full overflow-hidden rounded-2xl"
-            style={
-              tool === 'square'
-                ? { aspectRatio: '1 / 1', background: fitColor, display: 'grid', placeItems: 'center' }
-                : undefined
-            }
-          >
+          <div className="max-h-full max-w-full overflow-hidden rounded-2xl">
             <img
-              src={working}
+              src={
+                tool === 'fit'
+                  ? (fitPreview ?? working)
+                  : tool === 'frame'
+                    ? (framePreview ?? working)
+                    : working
+              }
               alt="Preview"
               className="max-h-[50dvh] max-w-full object-contain"
-              style={tool === 'square' ? { transform: `scale(${fitScale})` } : undefined}
             />
           </div>
         )}
       </div>
+
 
       <div
         className="shrink-0 space-y-4 border-t border-border bg-background px-4 py-4"
@@ -254,31 +338,134 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
           </div>
         )}
 
-        {tool === 'square' && (
+        {tool === 'frame' && (
+          <div className="-mx-1 grid max-h-[26dvh] grid-cols-4 gap-2 overflow-y-auto px-1">
+            {FRAMES.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFrame(f)}
+                className={cn(
+                  'flex flex-col items-center gap-1 rounded-xl border p-1.5 transition active:scale-95',
+                  frame.id === f.id ? 'border-primary bg-primary/10' : 'border-border/60',
+                )}
+              >
+                <FrameThumb spec={f} />
+                <span className="w-full truncate text-[9px] text-muted-foreground">{f.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {tool === 'fit' && (
           <div className="space-y-4">
-            <SliderField
-              label="Scale"
-              value={fitScale}
-              min={0.3}
-              max={1.5}
-              step={0.01}
-              onChange={setFitScale}
-            />
             <div className="flex gap-2">
-              {FIT_COLORS.map((c) => (
+              {(['ratio', 'color', 'blur', 'position'] as const).map((p) => (
                 <button
-                  key={c}
+                  key={p}
                   type="button"
-                  onClick={() => setFitColor(c)}
-                  aria-label={c}
+                  onClick={() => setFitPanel(p)}
                   className={cn(
-                    'size-9 rounded-full border-2 transition active:scale-95',
-                    fitColor === c ? 'border-primary' : 'border-border',
+                    'flex-1 rounded-full border px-3 py-1.5 text-[11px] font-semibold capitalize transition active:scale-95',
+                    fitPanel === p
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border text-foreground/80',
                   )}
-                  style={{ background: c }}
-                />
+                >
+                  {p}
+                </button>
               ))}
             </div>
+
+            {fitPanel === 'ratio' && (
+              <div className="space-y-3">
+                <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {FIT_RATIOS.map((r) => (
+                    <button
+                      key={r.label}
+                      type="button"
+                      onClick={() => setFitRatio(r.value)}
+                      className={cn(
+                        'shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition active:scale-95',
+                        Math.abs(fitRatio - r.value) < 0.001
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border text-foreground/80',
+                      )}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+                <SliderField
+                  label="Scale"
+                  value={fitScale}
+                  min={0.3}
+                  max={1.5}
+                  step={0.01}
+                  onChange={setFitScale}
+                />
+              </div>
+            )}
+
+            {fitPanel === 'color' && (
+              <div className="flex flex-wrap gap-2">
+                {FIT_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setFitColor(c)}
+                    aria-label={c}
+                    className={cn(
+                      'size-9 rounded-full border-2 transition active:scale-95',
+                      fitColor === c ? 'border-primary' : 'border-border',
+                    )}
+                    style={{ background: c }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {fitPanel === 'blur' && (
+              <div className="space-y-4">
+                <SliderField
+                  label="Blur"
+                  value={fitBlur}
+                  min={0}
+                  max={60}
+                  step={1}
+                  onChange={setFitBlur}
+                />
+                <SliderField
+                  label="Opacity"
+                  value={fitBgOpacity}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={setFitBgOpacity}
+                />
+              </div>
+            )}
+
+            {fitPanel === 'position' && (
+              <div className="space-y-4">
+                <SliderField
+                  label="Horizontal"
+                  value={fitX}
+                  min={-100}
+                  max={100}
+                  step={1}
+                  onChange={setFitX}
+                />
+                <SliderField
+                  label="Vertical"
+                  value={fitY}
+                  min={-100}
+                  max={100}
+                  step={1}
+                  onChange={setFitY}
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -472,6 +659,47 @@ function BlurStage({
       </div>
     </div>
   )
+}
+
+function FrameThumb({ spec }: { spec: FrameSpec }) {
+  const ref = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = ref.current
+    if (!canvas) return
+    const size = 96
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.clearRect(0, 0, size, size)
+
+    const paintPhoto = (x: number, y: number, w: number, h: number) => {
+      const g = ctx.createLinearGradient(x, y, x + w, y + h)
+      g.addColorStop(0, '#94a3b8')
+      g.addColorStop(1, '#475569')
+      ctx.fillStyle = g
+      ctx.fillRect(x, y, w, h)
+    }
+
+    if (spec.kind === 'matte' || spec.kind === 'polaroid') {
+      const pad = (spec.pad ?? 0.06) * size
+      const padBottom = (spec.padBottom ?? spec.pad ?? 0.06) * size
+      ctx.fillStyle = spec.color
+      ctx.fillRect(0, 0, size, size)
+      paintPhoto(pad, pad, size - pad * 2, size - pad - padBottom)
+      if (spec.accent) {
+        ctx.strokeStyle = spec.accent
+        ctx.lineWidth = 1
+        ctx.strokeRect(pad, pad, size - pad * 2, size - pad - padBottom)
+      }
+    } else {
+      paintPhoto(0, 0, size, size)
+      paintFrame(ctx, size, size, spec)
+    }
+  }, [spec])
+
+  return <canvas ref={ref} className="size-full rounded-md" style={{ aspectRatio: '1 / 1' }} />
 }
 
 export const BG_ICONS = { CropIcon, Square }
