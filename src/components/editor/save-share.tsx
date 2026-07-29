@@ -24,7 +24,6 @@ export function SaveShare({
   savedProject = false,
   onBack,
   onShare,
-  onSaveImage,
   onSaveProject,
 }: SaveShareProps) {
   const { isPro } = useAuth()
