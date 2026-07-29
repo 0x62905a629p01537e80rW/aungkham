@@ -21,12 +21,13 @@ import {
   cropImage,
   flipImage,
   loadImage,
+  ratioFit,
   resizeImage,
   rotateImage,
-  squareFit,
 } from '@/lib/image-ops'
+import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
-export type BgTool = 'crop' | 'resize' | 'flip' | 'square' | 'blur'
+export type BgTool = 'crop' | 'resize' | 'flip' | 'fit' | 'blur' | 'frame'
 
 const RATIOS: { label: string; value: number | null }[] = [
   { label: 'Free', value: null },
@@ -38,7 +39,29 @@ const RATIOS: { label: string; value: number | null }[] = [
   { label: '16:9', value: 16 / 9 },
 ]
 
-const FIT_COLORS = ['#ffffff', '#000000', '#f5f5f4', '#e2e8f0', '#1e293b', '#3b82f6']
+const FIT_RATIOS: { label: string; value: number }[] = [
+  { label: '1:1', value: 1 },
+  { label: '4:5', value: 4 / 5 },
+  { label: '3:4', value: 3 / 4 },
+  { label: '2:3', value: 2 / 3 },
+  { label: '9:16', value: 9 / 16 },
+  { label: '4:3', value: 4 / 3 },
+  { label: '3:2', value: 3 / 2 },
+  { label: '16:9', value: 16 / 9 },
+]
+
+const FIT_COLORS = [
+  '#ffffff',
+  '#000000',
+  '#f5f5f4',
+  '#e2e8f0',
+  '#1e293b',
+  '#3b82f6',
+  '#f43f5e',
+  '#facc15',
+  '#10b981',
+  '#a855f7',
+]
 
 interface Props {
   tool: BgTool
