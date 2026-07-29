@@ -433,8 +433,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const rect = containerRef.current?.getBoundingClientRect()
       const span = (st.axis === 'x' ? rect?.width : rect?.height) || 300
       const delta = (st.axis === 'x' ? e.clientX : e.clientY) - st.start
-      // Dragging away from the layer centre grows it.
-      const dir = st.axis === 'x' ? -1 : 1
+      // Dragging down / right decreases the value (and can cross zero to mirror).
+      const dir = -1
       let next = st.startValue + (dir * delta * 200) / span
       // Dragging past zero mirrors the layer on that axis (negative scale).
       next = Math.max(-400, Math.min(400, Math.round(next)))
