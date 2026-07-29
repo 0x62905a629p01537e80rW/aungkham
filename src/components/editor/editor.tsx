@@ -21,6 +21,8 @@ import { PremiumGate, stripPremiumFonts } from './premium-gate'
 import { ProSplash } from './pro-splash'
 import { shouldAskForRating } from '@/lib/rate-us'
 import { AuthProvider } from '@/components/auth-provider'
+import { ScreenGuard } from './screen-guard'
+
 
 
 export function Editor() {
@@ -294,7 +296,9 @@ export function Editor() {
   return (
     <AuthProvider>
     <div className="flex min-h-[100dvh] flex-col bg-background">
+      <ScreenGuard layers={layers} />
       <ProSplash />
+
       <EditorHeader
         hasImage={!!image}
         onNewImage={resetAll}
