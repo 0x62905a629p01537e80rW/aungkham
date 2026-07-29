@@ -29,6 +29,9 @@ export const GRADIENTS: GradientPreset[] = [
   g('Candy', '#ff9a9e', '#fad0c4'),
   g('Mint', '#43e97b', '#38f9d7'),
   g('Dusk', '#4568dc', '#b06ab3'),
+  g('Aurora', '#00c9ff', '#92fe9d'),
+  g('Ember', '#fc466b', '#3f5efb'),
+  g('Gold', '#f6d365', '#fda085'),
 ]
 
 /** Extra curated gradients — popular palettes used across modern UI kits. */

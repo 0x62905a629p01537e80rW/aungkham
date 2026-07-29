@@ -26,6 +26,8 @@ interface EditorHeaderProps {
   onDuplicateLayer?: (id: string) => void
   onDeleteLayer?: (id: string) => void
   onToggleLayerVisibility?: (id: string) => void
+  onToggleLayerLock?: (id: string) => void
+  onReorderLayers?: (from: number, to: number) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
   onInsert?: () => void
 }
@@ -47,6 +49,8 @@ export function EditorHeader({
   onDuplicateLayer,
   onDeleteLayer,
   onToggleLayerVisibility,
+  onToggleLayerLock,
+  onReorderLayers,
   onMoveLayer,
   onInsert,
 }: EditorHeaderProps) {
@@ -135,6 +139,8 @@ export function EditorHeader({
                   onDuplicate={(id) => onDuplicateLayer?.(id)}
                   onDelete={(id) => onDeleteLayer?.(id)}
                   onToggleVisibility={onToggleLayerVisibility}
+                  onToggleLock={onToggleLayerLock}
+                  onReorder={onReorderLayers}
                   onMove={onMoveLayer}
                 />
               </PopoverContent>

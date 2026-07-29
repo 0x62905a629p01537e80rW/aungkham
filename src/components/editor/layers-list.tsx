@@ -1,9 +1,13 @@
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import {
   ArrowDownToLine,
   ArrowUpToLine,
   Copy,
   Eye,
   EyeOff,
+  GripVertical,
+  Lock,
+  LockOpen,
   Plus,
   Trash2,
   Type,
@@ -20,8 +24,12 @@ interface LayersListProps {
   onDuplicate: (id: string) => void
   onDelete: (id: string) => void
   onToggleVisibility?: (id: string) => void
+  onToggleLock?: (id: string) => void
   onMove?: (id: string, dir: 'front' | 'back') => void
+  onReorder?: (from: number, to: number) => void
 }
+
+const ROW_H = 64
 
 export function LayersList({
   layers,
@@ -31,8 +39,38 @@ export function LayersList({
   onDuplicate,
   onDelete,
   onToggleVisibility,
+  onToggleLock,
   onMove,
+  onReorder,
 }: LayersListProps) {
+  const [drag, setDrag] = useState<{ index: number; dy: number } | null>(null)
+  const dragRef = useRef<{ index: number; startY: number } | null>(null)
+
+  function startDrag(e: ReactPointerEvent, index: number) {
+    e.stopPropagation()
+    e.preventDefault()
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    dragRef.current = { index, startY: e.clientY }
+    setDrag({ index, dy: 0 })
+  }
+
+  function moveDrag(e: ReactPointerEvent) {
+    const st = dragRef.current
+    if (!st) return
+    setDrag({ index: st.index, dy: e.clientY - st.startY })
+  }
+
+  function endDrag(e: ReactPointerEvent) {
+    const st = dragRef.current
+    dragRef.current = null
+    if (!st) return
+    const steps = Math.round((e.clientY - st.startY) / ROW_H)
+    setDrag(null)
+    if (!steps) return
+    const to = Math.max(0, Math.min(layers.length - 1, st.index + steps))
+    if (to !== st.index) onReorder?.(st.index, to)
+  }
+
   return (
     <div className="space-y-3 px-4 py-4">
       <div className="flex items-center justify-between">
@@ -51,20 +89,38 @@ export function LayersList({
             No layers yet — tap “Add”.
           </p>
         )}
-        {layers.map((layer) => {
+        {layers.map((layer, index) => {
           const active = layer.id === selectedId
+          const dragging = drag?.index === index
           return (
             <div
               key={layer.id}
               onClick={() => onSelect(layer.id)}
+              style={
+                dragging
+                  ? { transform: `translateY(${drag!.dy}px)`, zIndex: 20, position: 'relative' }
+                  : undefined
+              }
               className={cn(
                 'cursor-pointer rounded-xl border px-3 py-2 transition',
+                dragging && 'shadow-lg transition-none',
                 active
                   ? 'border-primary bg-primary/5'
                   : 'border-transparent bg-muted/50 hover:bg-muted',
               )}
             >
               <div className="flex items-center gap-2">
+                <span
+                  aria-label="Drag to reorder"
+                  onPointerDown={(e) => startDrag(e, index)}
+                  onPointerMove={moveDrag}
+                  onPointerUp={endDrag}
+                  onPointerCancel={endDrag}
+                  onClick={(e) => e.stopPropagation()}
+                  className="-ml-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center text-muted-foreground active:cursor-grabbing"
+                >
+                  <GripVertical className="size-4" />
+                </span>
                 <Type
                   className={cn(
                     'size-4 shrink-0',
@@ -77,9 +133,16 @@ export function LayersList({
                 >
                   {layer.text || 'Empty layer'}
                 </span>
+                {layer.locked && <Lock className="size-3.5 shrink-0 text-primary" />}
               </div>
 
               <div className="mt-1.5 flex items-center justify-end gap-1">
+                <IconBtn
+                  label={layer.locked ? 'Unlock layer' : 'Lock layer'}
+                  onClick={() => onToggleLock?.(layer.id)}
+                >
+                  {layer.locked ? <Lock className="size-3.5" /> : <LockOpen className="size-3.5" />}
+                </IconBtn>
                 <IconBtn
                   label={layer.hidden ? 'Show layer' : 'Hide layer'}
                   onClick={() => onToggleVisibility?.(layer.id)}

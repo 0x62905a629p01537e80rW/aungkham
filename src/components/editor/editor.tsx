@@ -269,6 +269,20 @@ export function Editor() {
     setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, hidden: !l.hidden } : l)))
   }
 
+  function toggleLock(id: string) {
+    setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, locked: !l.locked } : l)))
+  }
+
+  function reorderLayers(from: number, to: number) {
+    setLayers((prev) => {
+      if (from === to || from < 0 || from >= prev.length) return prev
+      const next = [...prev]
+      const [moved] = next.splice(from, 1)
+      next.splice(Math.max(0, Math.min(next.length, to)), 0, moved)
+      return next
+    })
+  }
+
   function moveLayer(id: string, dir: 'front' | 'back') {
     setLayers((prev) => {
       const target = prev.find((l) => l.id === id)
@@ -314,6 +328,8 @@ export function Editor() {
         onDuplicateLayer={duplicateLayer}
         onDeleteLayer={deleteLayer}
         onToggleLayerVisibility={toggleVisibility}
+        onToggleLayerLock={toggleLock}
+        onReorderLayers={reorderLayers}
         onMoveLayer={moveLayer}
         onInsert={() => setInserting(true)}
       />
