@@ -67,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) {
       setIsPro(false)
+      setProExpiresAt(null)
+      setProSince(null)
       return
     }
     let cancelled = false

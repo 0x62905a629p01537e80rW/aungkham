@@ -41,10 +41,14 @@ function ProGem({ className = 'size-4' }: { className?: string }) {
   )
 }
 
+function formatDate(d: Date) {
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
 export function PremiumBadge() {
   const [open, setOpen] = useState(false)
   const [pay, setPay] = useState(false)
-  const { isPro } = useAuth()
+  const { isPro, proExpiresAt, proSince } = useAuth()
 
   return (
     <>
@@ -66,15 +70,42 @@ export function PremiumBadge() {
             </div>
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-center text-xl font-extrabold text-white">
-                Buy Pro
+                {isPro ? 'Pro Active' : 'Buy Pro'}
               </DialogTitle>
               <DialogDescription className="text-center text-xs text-white/85">
-                Unlock everything, forever.
+                {isPro ? 'Thanks for supporting Myan.' : 'Unlock everything, forever.'}
               </DialogDescription>
             </DialogHeader>
           </div>
 
           <div className="space-y-3 px-5 pb-5">
+            {isPro && (
+              <div className="mb-1 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+                <p className="flex items-center gap-1.5 text-sm font-bold text-primary">
+                  <BadgeCheck className="size-4" />
+                  Status: Active
+                </p>
+                <div className="mt-2 space-y-1 text-[12px] text-muted-foreground">
+                  {proSince && (
+                    <p>
+                      Activated on{' '}
+                      <span className="font-semibold text-foreground">{formatDate(proSince)}</span>
+                    </p>
+                  )}
+                  <p>
+                    Expires:{' '}
+                    <span className="font-semibold text-foreground">
+                      {proExpiresAt ? formatDate(proExpiresAt) : 'Never · Lifetime access'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {isPro ? 'Your benefits' : 'What you get'}
+            </p>
+
             {BENEFITS.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start gap-3">
                 <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -87,25 +118,37 @@ export function PremiumBadge() {
               </div>
             ))}
 
-            <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
-              <p className="text-2xl font-extrabold tracking-tight">30,000 MMK</p>
-              <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground">
-                <BadgeCheck className="size-3.5 text-primary" />
-                One-time payment · Lifetime access
-              </p>
-            </div>
+            {isPro ? (
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-primary text-sm font-bold text-primary-foreground transition active:scale-[0.98]"
+              >
+                Done
+              </button>
+            ) : (
+              <>
+                <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
+                  <p className="text-2xl font-extrabold tracking-tight">30,000 MMK</p>
+                  <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground">
+                    <BadgeCheck className="size-3.5 text-primary" />
+                    One-time payment · Lifetime access
+                  </p>
+                </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false)
-                setPay(true)
-              }}
-              className="premium-shine mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
-            >
-              <ProGem className="size-4" />
-              Buy Pro · Lifetime
-            </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false)
+                    setPay(true)
+                  }}
+                  className="premium-shine mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
+                >
+                  <ProGem className="size-4" />
+                  Buy Pro · Lifetime
+                </button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
