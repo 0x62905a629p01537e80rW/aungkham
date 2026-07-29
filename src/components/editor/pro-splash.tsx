@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Layers, Sparkles, Type as TypeIcon, Wand2, ShieldOff, X, Check } from 'lucide-react'
+import { Layers, Loader2, Sparkles, Type as TypeIcon, Wand2, ShieldOff, X, Check } from 'lucide-react'
+import { useAuth } from '@/components/auth-provider'
+import { PaymentPage } from './payment-page'
 
 const SEEN_KEY = 'pro-splash-seen'
 
@@ -32,6 +34,20 @@ function ProGem({ className = 'size-4' }: { className?: string }) {
 
 export function ProSplash() {
   const [open, setOpen] = useState(false)
+  const [pay, setPay] = useState(false)
+  const [restoring, setRestoring] = useState(false)
+  const { isPro, signIn } = useAuth()
+
+  async function handleRestore() {
+    setRestoring(true)
+    try {
+      await signIn()
+    } catch {
+      /* ignore */
+    } finally {
+      setRestoring(false)
+    }
+  }
 
   useEffect(() => {
     try {
@@ -44,7 +60,11 @@ export function ProSplash() {
     }
   }, [])
 
-  if (!open) return null
+  useEffect(() => {
+    if (isPro) setOpen(false)
+  }, [isPro])
+
+  if (!open) return <PaymentPage open={pay} onClose={() => setPay(false)} />
 
   return (
     <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-[#07070c] text-white animate-fade-in">
@@ -62,9 +82,11 @@ export function ProSplash() {
           </button>
           <button
             type="button"
-            onClick={() => setOpen(false)}
-            className="text-sm font-semibold tracking-wide text-white/90"
+            onClick={() => void handleRestore()}
+            disabled={restoring}
+            className="flex items-center gap-1.5 text-sm font-semibold tracking-wide text-white/90 transition active:scale-95 disabled:opacity-60"
           >
+            {restoring && <Loader2 className="size-4 animate-spin" />}
             RESTORE
           </button>
         </div>
@@ -131,7 +153,10 @@ export function ProSplash() {
 
         <button
           type="button"
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            setOpen(false)
+            setPay(true)
+          }}
           className="flex h-13 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] py-4 text-base font-bold shadow-lg transition active:scale-[0.98]"
         >
           Continue
@@ -142,6 +167,7 @@ export function ProSplash() {
           purchase in Google Play.
         </p>
       </div>
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
     </div>
   )
 }
