@@ -1,5 +1,6 @@
-import { ArrowLeft, Download, FolderPlus, Loader2, Share2 } from 'lucide-react'
+import { ArrowLeft, Download, FolderPlus, Loader2, Lock, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/components/auth-provider'
 
 interface SaveShareProps {
   preview: string | null
@@ -22,6 +23,7 @@ export function SaveShare({
   onSaveImage,
   onSaveProject,
 }: SaveShareProps) {
+  const { isPro } = useAuth()
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <header
@@ -62,13 +64,32 @@ export function SaveShare({
           <section className="mt-4 rounded-2xl border border-border p-4">
             <p className="mb-3 text-sm font-medium">Save</p>
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="rounded-xl" onClick={onSaveProject}>
-                <FolderPlus className="mr-2 size-4" /> {savedProject ? 'Saved' : 'Project'}
+              <Button
+                variant="outline"
+                className="rounded-xl"
+                onClick={() => isPro && onSaveProject()}
+                disabled={!isPro}
+              >
+                {isPro ? (
+                  <>
+                    <FolderPlus className="mr-2 size-4" /> {savedProject ? 'Saved' : 'Project'}
+                  </>
+                ) : (
+                  <>
+                    <Lock className="mr-2 size-4" /> Project
+                  </>
+                )}
               </Button>
               <Button className="rounded-xl" onClick={onSaveImage} disabled={!preview}>
                 <Download className="mr-2 size-4" /> Image
               </Button>
             </div>
+            {!isPro && (
+              <p className="mt-3 flex items-center gap-1.5 rounded-xl border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-3 py-2 text-[11px] font-medium text-foreground">
+                <Lock className="size-3.5 shrink-0 text-[#8b5cf6]" />
+                Saving projects is a Pro feature — buy Pro to unlock it.
+              </p>
+            )}
           </section>
         </div>
       </div>
