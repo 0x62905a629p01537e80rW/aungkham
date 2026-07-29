@@ -439,7 +439,6 @@ export function Editor() {
               busy={exporting || !preview}
               savedProject={savedProject}
               onBack={() => setShowSave(false)}
-              onShare={handleShare}
               onSaveImage={handleSaveImage}
               onSaveProject={handleSaveProject}
             />
