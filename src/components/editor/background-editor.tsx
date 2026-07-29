@@ -286,7 +286,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
         ) : (
           <div
             className={cn(
-              'max-h-full max-w-full overflow-hidden rounded-2xl',
+              'max-h-full max-w-full overflow-hidden rounded-none',
               tool === 'fit' && fitColor === 'transparent' && !fitGradient && 'checker-grid',
             )}
           >
