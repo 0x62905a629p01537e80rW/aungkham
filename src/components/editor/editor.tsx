@@ -48,7 +48,6 @@ export function Editor() {
   const [autoOpenTool, setAutoOpenTool] = useState<'outline' | null>(null)
   const [nextRequested, setNextRequested] = useState(false)
   const [erasing, setErasing] = useState(false)
-  const [panelOpen, setPanelOpen] = useState(false)
   const [eraseMask, setEraseMask] = useState<string | undefined>(undefined)
   const [draftMask, setDraftMask] = useState<string | undefined>(undefined)
   const [brush, setBrush] = useState<EraseBrush>(DEFAULT_BRUSH)
@@ -368,14 +367,12 @@ export function Editor() {
             style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom))' }}
           >
             <div
-              className="overflow-hidden bg-card transition-transform duration-300 ease-out"
+              className="overflow-hidden bg-card"
               style={{
                 width: stageSize.w ? `${stageSize.w}px` : '100%',
                 height: stageSize.h ? `${stageSize.h}px` : '100%',
-                transform: panelOpen ? 'translateY(-16dvh)' : 'translateY(0)',
               }}
             >
-
 
 
 
@@ -458,7 +455,6 @@ export function Editor() {
                     ? setRemovingBg(true)
                     : setBgTool(t as BgTool)
             }
-            onPanelChange={setPanelOpen}
             onEraseAll={() => {
               setSelectedId(null)
               setDraftMask(eraseMask)
