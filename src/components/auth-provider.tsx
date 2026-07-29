@@ -13,6 +13,9 @@ type AuthState = {
   user: User | null
   loading: boolean
   isPro: boolean
+  /** null = lifetime / no expiry set */
+  proExpiresAt: Date | null
+  proSince: Date | null
   signIn: () => Promise<void>
   signOutUser: () => Promise<void>
 }
@@ -21,6 +24,8 @@ const AuthContext = createContext<AuthState>({
   user: null,
   loading: true,
   isPro: false,
+  proExpiresAt: null,
+  proSince: null,
   signIn: async () => {},
   signOutUser: async () => {},
 })
