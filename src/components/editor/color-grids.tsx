@@ -30,7 +30,7 @@ export function SolidGrid({
         aria-label="Transparent background"
         title="Transparent"
         onClick={() => onPick('transparent')}
-        className="checker-grid aspect-square rounded-xl border border-border shadow-sm transition active:scale-95"
+        className="checker-grid checker-swatch aspect-square rounded-xl border border-border shadow-sm transition active:scale-95"
       />
 
       {SOLID_COLORS.map((c) => (
