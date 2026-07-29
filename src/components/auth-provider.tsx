@@ -13,6 +13,8 @@ type AuthState = {
   user: User | null
   loading: boolean
   isPro: boolean
+  /** true when a submitted payment is awaiting manual approval */
+  proPending: boolean
   /** null = lifetime / no expiry set */
   proExpiresAt: Date | null
   proSince: Date | null
@@ -24,6 +26,7 @@ const AuthContext = createContext<AuthState>({
   user: null,
   loading: true,
   isPro: false,
+  proPending: false,
   proExpiresAt: null,
   proSince: null,
   signIn: async () => {},
@@ -38,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [isPro, setIsPro] = useState(false)
+  const [proPending, setProPending] = useState(false)
   const [proExpiresAt, setProExpiresAt] = useState<Date | null>(null)
   const [proSince, setProSince] = useState<Date | null>(null)
 
@@ -67,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) {
       setIsPro(false)
+      setProPending(false)
       setProExpiresAt(null)
       setProSince(null)
       return
@@ -137,6 +142,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user])
 
+  // Pending payment: any transactions doc for this user still `pending`
+  useEffect(() => {
+    if (!user) {
+      setProPending(false)
+      return
+    }
+    let cancelled = false
+    let unsub: (() => void) | undefined
+    ;(async () => {
+      const { getDb } = await import('@/lib/firebase')
+      const { collection, onSnapshot, query, where } = await import('firebase/firestore')
+      if (cancelled) return
+      const q = query(
+        collection(getDb(), 'transactions'),
+        where('userId', '==', user.uid),
+        where('status', '==', 'pending'),
+      )
+      unsub = onSnapshot(
+        q,
+        (snap) => setProPending(!snap.empty),
+        (err) => console.log('[pending listener failed]', err),
+      )
+    })().catch((err) => console.log('[pending listener init failed]', err))
+    return () => {
+      cancelled = true
+      unsub?.()
+    }
+  }, [user])
+
   const signIn = useCallback(async () => {
     const { getFirebaseAuth } = await import('@/lib/firebase')
     const { GoogleAuthProvider, signInWithPopup } = await import('firebase/auth')
@@ -150,8 +184,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ user, loading, isPro, proExpiresAt, proSince, signIn, signOutUser }),
-    [user, loading, isPro, proExpiresAt, proSince, signIn, signOutUser],
+    () => ({ user, loading, isPro, proPending, proExpiresAt, proSince, signIn, signOutUser }),
+    [user, loading, isPro, proPending, proExpiresAt, proSince, signIn, signOutUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
