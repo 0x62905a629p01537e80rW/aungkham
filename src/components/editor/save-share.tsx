@@ -28,7 +28,23 @@ export function SaveShare({
   onSaveProject,
 }: SaveShareProps) {
   const { isPro } = useAuth()
+  const [saving, setSaving] = useState(false)
+  const [pdfBusy, setPdfBusy] = useState(false)
+
+  async function handlePdf() {
+    if (!preview || !isPro) return
+    setPdfBusy(true)
+    try {
+      await exportPdf(preview, `${defaultFilename()}.pdf`)
+    } catch (err) {
+      console.log('[pdf export failed]', err)
+    } finally {
+      setPdfBusy(false)
+    }
+  }
+
   return (
+
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <header
         className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-2"
