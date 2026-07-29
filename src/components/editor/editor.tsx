@@ -494,5 +494,6 @@ export function Editor() {
       )}
 
     </div>
+    </AuthProvider>
   )
 }
