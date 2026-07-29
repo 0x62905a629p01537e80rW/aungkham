@@ -48,6 +48,7 @@ export function Editor() {
   const [autoOpenTool, setAutoOpenTool] = useState<'outline' | null>(null)
   const [nextRequested, setNextRequested] = useState(false)
   const [erasing, setErasing] = useState(false)
+  const [panelOpen, setPanelOpen] = useState(false)
   const [eraseMask, setEraseMask] = useState<string | undefined>(undefined)
   const [draftMask, setDraftMask] = useState<string | undefined>(undefined)
   const [brush, setBrush] = useState<EraseBrush>(DEFAULT_BRUSH)
