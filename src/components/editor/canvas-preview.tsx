@@ -550,7 +550,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                 key={layer.id}
                 style={wrapperStyle}
                 className={cn(
-                  isSelected ? 'outline-solid' : 'outline-transparent',
+                  isSelected ? 'outline-solid outline-foreground/60' : 'outline-transparent',
                 )}
 
                 onPointerDown={(e) => handlePointerDown(e, layer.id)}
