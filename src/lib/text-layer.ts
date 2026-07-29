@@ -200,6 +200,7 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     rotation: 0,
     strokeWidth: 0,
     strokeColor: '#000000',
+    strokeOpacity: 1,
     shadowColor: '#000000',
     shadowBlur: 0,
     shadowOffsetX: 0,
@@ -233,6 +234,7 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     widthScale: 100,
     heightScale: 100,
     hidden: false,
+    locked: false,
   }
 }
 
