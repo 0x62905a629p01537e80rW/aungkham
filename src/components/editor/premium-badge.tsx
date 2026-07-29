@@ -48,18 +48,18 @@ function formatDate(d: Date) {
 export function PremiumBadge() {
   const [open, setOpen] = useState(false)
   const [pay, setPay] = useState(false)
-  const { isPro, proExpiresAt, proSince } = useAuth()
+  const { isPro, proPending, proExpiresAt, proSince } = useAuth()
 
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label={isPro ? "Pro active" : "Buy Pro"}
+        aria-label={isPro ? 'Pro active' : proPending ? 'Pro pending' : 'Buy Pro'}
         className="glass-tile relative flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[12px] font-extrabold tracking-tight text-foreground transition active:scale-95"
       >
         <ProGem className="premium-float size-4" />
-        {isPro ? 'Pro' : 'Buy Pro'}
+        {isPro ? 'Pro' : proPending ? 'Pending' : 'Buy Pro'}
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -70,10 +70,14 @@ export function PremiumBadge() {
             </div>
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-center text-xl font-extrabold text-black">
-                {isPro ? 'Pro Active' : 'Buy Pro'}
+                {isPro ? 'Pro Active' : proPending ? 'Pro Pending' : 'Buy Pro'}
               </DialogTitle>
               <DialogDescription className="text-center text-xs text-neutral-600">
-                {isPro ? 'Thanks for supporting Myan.' : 'Unlock everything, forever.'}
+                {isPro
+                  ? 'Thanks for supporting Myan.'
+                  : proPending
+                    ? 'We received your payment info. Verifying now.'
+                    : 'Unlock everything, forever.'}
               </DialogDescription>
             </DialogHeader>
           </div>
@@ -102,6 +106,19 @@ export function PremiumBadge() {
               </div>
             )}
 
+            {!isPro && proPending && (
+              <div className="mb-1 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <p className="flex items-center gap-1.5 text-sm font-bold text-amber-600">
+                  <Clock className="size-4" />
+                  Status: Pending verification
+                </p>
+                <p className="mt-2 text-[12px] text-neutral-600">
+                  Your KBZPay transaction was submitted and is being checked manually. Pro unlocks
+                  automatically once approved — usually within a few hours.
+                </p>
+              </div>
+            )}
+
             <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
               {isPro ? 'Your benefits' : 'What you get'}
             </p>
@@ -118,7 +135,7 @@ export function PremiumBadge() {
               </div>
             ))}
 
-            {isPro ? (
+            {isPro || proPending ? (
               <button
                 type="button"
                 onClick={() => setOpen(false)}
