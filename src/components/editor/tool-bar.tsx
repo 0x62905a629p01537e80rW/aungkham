@@ -382,7 +382,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="glass-panel border-0 bg-transparent shadow-none max-h-[64dvh] w-[min(96vw,380px)] overflow-y-auto overscroll-contain rounded-3xl p-4"
+                className="glass-panel border-0 bg-transparent shadow-none max-h-[42dvh] w-[min(92vw,300px)] overflow-y-auto overscroll-contain rounded-3xl p-4"
               >
                 <ToolContent
                   tool={tool.key}
@@ -661,7 +661,7 @@ function FontPicker({
       )}
 
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto pr-1">
         {items.map((f) => (
           <FontCard
             key={f.key}
