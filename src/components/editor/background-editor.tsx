@@ -661,4 +661,45 @@ function BlurStage({
   )
 }
 
+function FrameThumb({ spec }: { spec: FrameSpec }) {
+  const ref = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = ref.current
+    if (!canvas) return
+    const size = 96
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.clearRect(0, 0, size, size)
+
+    const paintPhoto = (x: number, y: number, w: number, h: number) => {
+      const g = ctx.createLinearGradient(x, y, x + w, y + h)
+      g.addColorStop(0, '#94a3b8')
+      g.addColorStop(1, '#475569')
+      ctx.fillStyle = g
+      ctx.fillRect(x, y, w, h)
+    }
+
+    if (spec.kind === 'matte' || spec.kind === 'polaroid') {
+      const pad = (spec.pad ?? 0.06) * size
+      const padBottom = (spec.padBottom ?? spec.pad ?? 0.06) * size
+      ctx.fillStyle = spec.color
+      ctx.fillRect(0, 0, size, size)
+      paintPhoto(pad, pad, size - pad * 2, size - pad - padBottom)
+      if (spec.accent) {
+        ctx.strokeStyle = spec.accent
+        ctx.lineWidth = 1
+        ctx.strokeRect(pad, pad, size - pad * 2, size - pad - padBottom)
+      }
+    } else {
+      paintPhoto(0, 0, size, size)
+      paintFrame(ctx, size, size, spec)
+    }
+  }, [spec])
+
+  return <canvas ref={ref} className="size-full rounded-md" style={{ aspectRatio: '1 / 1' }} />
+}
+
 export const BG_ICONS = { CropIcon, Square }
