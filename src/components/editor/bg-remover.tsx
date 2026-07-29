@@ -350,8 +350,8 @@ export function BgRemover({ open, src, title = 'Remove background', onClose, onA
               style={{
                 left: cursor.x,
                 top: offsetCursor ? cursor.y - 56 : cursor.y,
-                width: radiusPx() * 2 * view.scale * canvasDisplayRatio(canvasRef.current),
-                height: radiusPx() * 2 * view.scale * canvasDisplayRatio(canvasRef.current),
+                width: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current),
+                height: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current),
                 transform: 'translate(-50%, -50%)',
               }}
             />
