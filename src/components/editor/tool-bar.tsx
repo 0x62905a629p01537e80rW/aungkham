@@ -114,6 +114,8 @@ interface ToolBarProps {
   onAutoOpenHandled?: () => void
   /** Opens brush-erase mode directly on the main canvas (all layers at once). */
   onEraseAll: () => void
+  /** Fires whenever a tool panel opens/closes so the stage can lift out of the way. */
+  onPanelChange?: (open: boolean) => void
 }
 
 const IMAGE_TOOLS = [
@@ -206,10 +208,18 @@ export function ToolBar({
   autoOpenTool,
   onAutoOpenHandled,
   onEraseAll,
+  onPanelChange,
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
   const [cutoutOpen, setCutoutOpen] = useState(false)
   const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+
+  const panelCbRef = useRef(onPanelChange)
+  panelCbRef.current = onPanelChange
+  useEffect(() => {
+    panelCbRef.current?.(openTool !== null)
+  }, [openTool])
+
 
   const autoOpenRef = useRef<string | null>(null)
   const handledCbRef = useRef(onAutoOpenHandled)
@@ -384,7 +394,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="glass-panel border-0 bg-transparent shadow-none max-h-[42dvh] w-[min(92vw,300px)] overflow-y-auto overscroll-contain rounded-3xl p-4"
+                className="glass-panel w-[min(92vw,300px)] rounded-3xl border-0 bg-transparent p-4 shadow-none"
               >
                 <ToolContent
                   tool={tool.key}
