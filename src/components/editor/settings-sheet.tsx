@@ -53,6 +53,7 @@ function Row({
 export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
   const [open, setOpen] = useState(false)
   const [about, setAbout] = useState(false)
+  const { user, isPro, proExpiresAt, proSince, signIn, signOutUser } = useAuth()
 
   return (
     <>
