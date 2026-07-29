@@ -197,34 +197,36 @@ export function ToolBar({
   const [eraseOpen, setEraseOpen] = useState(false)
   const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
+  const autoOpenRef = useRef<string | null>(null)
+  const handledCbRef = useRef(onAutoOpenHandled)
+  handledCbRef.current = onAutoOpenHandled
+
   useEffect(() => {
     if (!autoOpenTool) return
+    if (autoOpenRef.current === autoOpenTool) return
     const key = autoOpenTool
-    onAutoOpenHandled?.()
+    autoOpenRef.current = key
 
-    const timers: ReturnType<typeof setTimeout>[] = []
+    let tries = 0
     // The button may not be mounted yet (shape-only tools appear once the new
     // layer is selected), so poll briefly for it, scroll it into view, then open.
-    let tries = 0
     const tick = () => {
       const el = toolRefs.current[key]
       if (!el) {
-        if (tries++ < 20) timers.push(setTimeout(tick, 50))
+        if (tries++ < 30) setTimeout(tick, 50)
         return
       }
       el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
-      // Open after the smooth scroll settles, then re-assert in case an
-      // outside-dismiss from the closing insert dialog swallowed the first one.
-      timers.push(setTimeout(() => setOpenTool(key), 380))
-      timers.push(
-        setTimeout(() => {
-          setOpenTool((cur) => (cur === key ? cur : key))
-        }, 700),
-      )
+      setTimeout(() => {
+        setOpenTool(key)
+        autoOpenRef.current = null
+        handledCbRef.current?.()
+      }, 380)
     }
     tick()
-    return () => timers.forEach(clearTimeout)
-  }, [autoOpenTool, onAutoOpenHandled])
+  }, [autoOpenTool])
+
+
 
 
 
