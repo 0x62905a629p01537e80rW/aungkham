@@ -45,6 +45,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       selectedId,
       exporting,
       showGrid = false,
+      eraseMask,
+      overlay,
       onSelect,
       onMove,
       onResize,
