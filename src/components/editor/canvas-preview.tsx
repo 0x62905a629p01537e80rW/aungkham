@@ -522,6 +522,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               top: `${layer.y}%`,
               transform: layerTransform(layer),
               opacity: layer.opacity,
+              mixBlendMode: (layer.blendMode ?? 'normal') as CSSProperties['mixBlendMode'],
               whiteSpace: 'nowrap',
               cursor: isEditing ? 'text' : 'move',
               touchAction: 'none',
@@ -617,7 +618,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onDelete(layer.id)
                       }}
                       style={{ left: hx(0), top: hy(0), transform: hTr(-1, -1) }}
-                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <X className="size-4" strokeWidth={2.25} />
                     </button>
@@ -634,7 +635,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         setEditingId(layer.id)
                       }}
                       style={{ left: hx(0), top: hy('100%'), transform: hTr(-1, 1) }}
-                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <Pencil className="size-4" strokeWidth={2.25} />
                     </button>
@@ -645,6 +646,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       onPointerDown={(e) => handleResizeDown(e, layer)}
                       onPointerMove={handleResizeMove}
                       onPointerUp={handleResizeUp}
+                      onPointerCancel={handleResizeUp}
                       onClick={(e) => e.stopPropagation()}
                       style={{
                         cursor: 'nwse-resize',
@@ -653,7 +655,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: hy('100%'),
                         transform: hTr(1, 1),
                       }}
-                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <MoveDiagonal2 className="size-4" strokeWidth={2.25} />
                     </button>
@@ -664,6 +666,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       onPointerDown={(e) => handleRotateDown(e, layer)}
                       onPointerMove={handleRotateMove}
                       onPointerUp={handleRotateUp}
+                      onPointerCancel={handleRotateUp}
                       onClick={(e) => e.stopPropagation()}
                       style={{
                         cursor: 'grab',
@@ -672,7 +675,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: hy(0),
                         transform: hTr(1, -1),
                       }}
-                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <RotateCw className="size-4" strokeWidth={2.25} />
                     </button>
@@ -683,6 +686,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       onPointerDown={(e) => handleStretchDown(e, layer, 'x')}
                       onPointerMove={handleStretchMove}
                       onPointerUp={handleStretchUp}
+                      onPointerCancel={handleStretchUp}
                       onClick={(e) => e.stopPropagation()}
                       style={{
                         cursor: 'ew-resize',
@@ -691,7 +695,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: hy('50%'),
                         transform: hTr(-1, 0),
                       }}
-                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <MoveHorizontal className="size-4" strokeWidth={2.25} />
                     </button>
@@ -709,7 +713,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         onDuplicate?.(layer.id)
                       }}
                       style={{ left: hx('50%'), top: hy('100%'), transform: hTr(0, 1) }}
-                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <CopyPlus className="size-4" strokeWidth={2.25} />
                     </button>
@@ -720,6 +724,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       onPointerDown={(e) => handleStretchDown(e, layer, 'y')}
                       onPointerMove={handleStretchMove}
                       onPointerUp={handleStretchUp}
+                      onPointerCancel={handleStretchUp}
                       onClick={(e) => e.stopPropagation()}
                       style={{
                         cursor: 'ns-resize',
@@ -728,7 +733,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         top: hy(0),
                         transform: hTr(0, -1),
                       }}
-                      className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <MoveVertical className="size-4" strokeWidth={2.25} />
                     </button>
