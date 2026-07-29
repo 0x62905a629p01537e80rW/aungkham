@@ -49,6 +49,7 @@ export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(functi
             top: `${layer.y}%`,
             transform: layerTransform(layer),
             opacity: layer.opacity,
+            mixBlendMode: (layer.blendMode ?? 'normal') as CSSProperties['mixBlendMode'],
             whiteSpace: 'nowrap',
           }
 

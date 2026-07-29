@@ -35,6 +35,7 @@ export interface TextLayer {
   hidden?: boolean
   locked?: boolean
   strokeOpacity?: number
+  blendMode?: string
 
   /* Fill */
   fillType: FillType
@@ -235,6 +236,7 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     heightScale: 100,
     hidden: false,
     locked: false,
+    blendMode: 'normal',
   }
 }
 
