@@ -539,7 +539,6 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             // Keeps handles outside the selection frame, upright and constant size.
             const hTr = (ox: number, oy: number) =>
               `translate(calc(-50% + ${ox * sx * OFF}px), calc(-50% + ${oy * sy * OFF}px)) scale(${inv * sx}, ${inv * sy})`
-            const hTransform = hTr(0, 0)
 
             const textStyle = layerTextStyle(layer)
             const inner = <LayerText layer={layer} />
