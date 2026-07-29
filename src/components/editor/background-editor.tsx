@@ -147,10 +147,17 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
       ratio: fitRatio,
       scale: fitScale,
       background: fitColor,
+      gradient: fitGradient,
       offsetX: fitX,
       offsetY: fitY,
       blurBackground: fitBlur,
       backgroundOpacity: fitBgOpacity,
+      backdropImage: fitBackdrop,
+      backdropBlur: fitBackdropBlur,
+      shadow:
+        fitShadowBlur > 0
+          ? { blur: fitShadowBlur, opacity: fitShadowOpacity, offsetY: fitShadowOffset }
+          : null,
     }
   }
 
@@ -159,21 +166,31 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
     if (tool !== 'fit') return
     let alive = true
     const id = setTimeout(() => {
-      ratioFit(working, {
-        ratio: fitRatio,
-        scale: fitScale,
-        background: fitColor,
-        offsetX: fitX,
-        offsetY: fitY,
-        blurBackground: fitBlur,
-        backgroundOpacity: fitBgOpacity,
-      }).then((url) => alive && setFitPreview(url))
+      ratioFit(working, fitOptions()).then((url) => alive && setFitPreview(url))
     }, 90)
     return () => {
       alive = false
       clearTimeout(id)
     }
-  }, [tool, working, fitRatio, fitScale, fitColor, fitX, fitY, fitBlur, fitBgOpacity])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    tool,
+    working,
+    fitRatio,
+    fitScale,
+    fitColor,
+    fitGradient,
+    fitX,
+    fitY,
+    fitBlur,
+    fitBgOpacity,
+    fitBackdrop,
+    fitBackdropBlur,
+    fitShadowBlur,
+    fitShadowOpacity,
+    fitShadowOffset,
+  ])
+
 
   // Live preview for Frame
   useEffect(() => {
