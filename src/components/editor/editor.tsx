@@ -17,6 +17,7 @@ import { makeSolidDataUrl } from '@/lib/background'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
 import { RateDialog } from './rate-dialog'
+import { PremiumGate, stripPremiumFonts } from './premium-gate'
 import { ProSplash } from './pro-splash'
 import { shouldAskForRating } from '@/lib/rate-us'
 import { AuthProvider } from '@/components/auth-provider'
@@ -40,6 +41,7 @@ export function Editor() {
   const [savedProject, setSavedProject] = useState(false)
   const [rating, setRating] = useState(false)
   const [autoOpenTool, setAutoOpenTool] = useState<'outline' | null>(null)
+  const [nextRequested, setNextRequested] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
   const exportRef = useRef<HTMLDivElement>(null)
   const replaceRef = useRef<HTMLInputElement>(null)
@@ -296,7 +298,7 @@ export function Editor() {
       <EditorHeader
         hasImage={!!image}
         onNewImage={resetAll}
-        onNext={handleNext}
+        onNext={() => setNextRequested(true)}
         showGrid={showGrid}
         onToggleGrid={() => setShowGrid((v) => !v)}
         canUndo={past.current.length > 0}
@@ -453,6 +455,14 @@ export function Editor() {
               onSaveProject={handleSaveProject}
             />
           )}
+
+          <PremiumGate
+            requested={nextRequested}
+            layers={layers}
+            onClear={() => setNextRequested(false)}
+            onProceed={handleNext}
+            onUndoPremiumFonts={() => setLayers((prev) => stripPremiumFonts(prev))}
+          />
 
           <RateDialog open={rating && showSave} onClose={() => setRating(false)} />
 
