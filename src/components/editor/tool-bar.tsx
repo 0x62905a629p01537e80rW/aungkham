@@ -564,11 +564,12 @@ function FontPicker({
       )}
 
       {group === 'mm-premium' && !isPro && (
-        <p className="flex items-center gap-1.5 rounded-xl border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-3 py-2 text-[11px] font-medium text-foreground">
-          <Lock className="size-3.5 shrink-0 text-[#8b5cf6]" />
+        <p className="flex items-center gap-1.5 rounded-xl border border-[#e0a93c]/40 bg-[#e0a93c]/10 px-3 py-2 text-[11px] font-medium text-foreground">
+          <Crown className="size-3.5 shrink-0 text-[#e0a93c]" />
           Premium fonts are free to try — Pro is required to export with them.
         </p>
       )}
+
 
       <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto pr-1">
         {items.map((f) => (
