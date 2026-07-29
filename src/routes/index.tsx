@@ -1,5 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Editor } from "@/components/editor/editor";
+import { AppSplash } from "@/components/editor/app-splash";
+
+function HomePage() {
+  return (
+    <>
+      <AppSplash />
+      <Editor />
+    </>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,5 +29,5 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Editor,
+  component: HomePage,
 });
