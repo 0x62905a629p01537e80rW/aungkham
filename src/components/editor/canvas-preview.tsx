@@ -523,14 +523,23 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               whiteSpace: 'nowrap',
               cursor: isEditing ? 'text' : 'move',
               touchAction: 'none',
-              outlineWidth: `${2 * inv}px`,
-              outlineOffset: `${4 * inv}px`,
+              outlineWidth: `${1 * inv}px`,
+              outlineOffset: `${5 * inv}px`,
+              boxShadow: isSelected
+                ? `0 0 0 ${1 * inv}px color-mix(in oklab, var(--foreground) 55%, transparent)`
+                : undefined,
             }
 
-            const hTransform = `translate(-50%, -50%) scale(${inv * (layer.flipH ? -1 : 1)}, ${inv * (layer.flipV ? -1 : 1)})`
             const mirror = (v: number | string) => (v === 0 ? '100%' : v === '100%' ? 0 : v)
             const hx = (v: number | string) => (layer.flipH ? mirror(v) : v)
             const hy = (v: number | string) => (layer.flipV ? mirror(v) : v)
+            const sx = layer.flipH ? -1 : 1
+            const sy = layer.flipV ? -1 : 1
+            const OFF = 22 * inv
+            // Keeps handles outside the selection frame, upright and constant size.
+            const hTr = (ox: number, oy: number) =>
+              `translate(calc(-50% + ${ox * sx * OFF}px), calc(-50% + ${oy * sy * OFF}px)) scale(${inv * sx}, ${inv * sy})`
+            const hTransform = hTr(0, 0)
 
             const textStyle = layerTextStyle(layer)
             const inner = <LayerText layer={layer} />
@@ -541,8 +550,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                 key={layer.id}
                 style={wrapperStyle}
                 className={cn(
-                  'outline-primary',
-                  isSelected ? 'outline-dashed' : 'outline-transparent',
+                  isSelected ? 'outline-solid' : 'outline-transparent',
                 )}
 
                 onPointerDown={(e) => handlePointerDown(e, layer.id)}
@@ -601,7 +609,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onDelete(layer.id)
                       }}
-                      style={{ left: hx(0), top: hy(0), transform: hTransform }}
+                      style={{ left: hx(0), top: hy(0), transform: hTr(-1, -1) }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <X className="size-4" strokeWidth={2.25} />
@@ -618,7 +626,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         setEditingId(layer.id)
                       }}
-                      style={{ left: hx('100%'), top: hy(0), transform: hTransform }}
+                      style={{ left: hx(0), top: hy('100%'), transform: hTr(-1, 1) }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <Pencil className="size-4" strokeWidth={2.25} />
@@ -636,7 +644,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         touchAction: 'none',
                         left: hx('100%'),
                         top: hy('100%'),
-                        transform: hTransform,
+                        transform: hTr(1, 1),
                       }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
@@ -653,9 +661,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{
                         cursor: 'grab',
                         touchAction: 'none',
-                        left: hx(0),
-                        top: hy('50%'),
-                        transform: hTransform,
+                        left: hx('100%'),
+                        top: hy(0),
+                        transform: hTr(1, -1),
                       }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
@@ -673,8 +681,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         cursor: 'ew-resize',
                         touchAction: 'none',
                         left: hx(0),
-                        top: hy('25%'),
-                        transform: hTransform,
+                        top: hy('50%'),
+                        transform: hTr(-1, 0),
                       }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
@@ -693,7 +701,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onDuplicate?.(layer.id)
                       }}
-                      style={{ left: hx(0), top: hy('75%'), transform: hTransform }}
+                      style={{ left: hx('50%'), top: hy('100%'), transform: hTr(0, 1) }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <CopyPlus className="size-4" strokeWidth={2.25} />
@@ -709,9 +717,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{
                         cursor: 'ns-resize',
                         touchAction: 'none',
-                        left: hx(0),
-                        top: hy('100%'),
-                        transform: hTransform,
+                        left: hx('50%'),
+                        top: hy(0),
+                        transform: hTr(0, -1),
                       }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
