@@ -166,7 +166,6 @@ const TOOLS: ToolDef[] = [
   { key: 'stroke', label: 'Stroke', icon: PenLine, needsLayer: true },
   { key: 'shadow', label: 'Shadow', icon: Sparkles, needsLayer: true },
   { key: 'highlight', label: 'Highlight', icon: Sun, needsLayer: true },
-  { key: 'rotate', label: 'Rotate', icon: RotateCw, needsLayer: true },
   { key: 'rotate3d', label: '3D Rotate', icon: Rotate3d, needsLayer: true },
   { key: 'depth3d', label: '3D', icon: Box, needsLayer: true },
   { key: 'perspective', label: 'Perspective', icon: Frame, needsLayer: true },
@@ -343,7 +342,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="glass-panel border-0 bg-transparent shadow-none w-[min(92vw,300px)] rounded-3xl p-4"
+                className="glass-panel border-0 bg-transparent shadow-none max-h-[42dvh] w-[min(92vw,300px)] overflow-y-auto overscroll-contain rounded-3xl p-4"
               >
                 <ToolContent
                   tool={tool.key}
@@ -855,11 +854,21 @@ function ToolContent({
             onChange={(v) => onChange({ strokeWidth: v })}
           />
           {layer.strokeWidth > 0 && (
-            <ColorField
-              label="Stroke color"
-              value={layer.strokeColor}
-              onChange={(v) => onChange({ strokeColor: v })}
-            />
+            <>
+              <SliderField
+                label="Opacity"
+                value={Math.round((layer.strokeOpacity ?? 1) * 100)}
+                min={0}
+                max={100}
+                suffix="%"
+                onChange={(v) => onChange({ strokeOpacity: v / 100 })}
+              />
+              <ColorField
+                label="Stroke color"
+                value={layer.strokeColor}
+                onChange={(v) => onChange({ strokeColor: v })}
+              />
+            </>
           )}
         </div>
       )
