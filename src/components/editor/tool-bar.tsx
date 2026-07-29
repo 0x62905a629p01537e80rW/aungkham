@@ -112,6 +112,8 @@ interface ToolBarProps {
   ) => void
   autoOpenTool?: ToolKey | null
   onAutoOpenHandled?: () => void
+  /** Opens brush-erase mode directly on the main canvas (all layers at once). */
+  onEraseAll: () => void
 }
 
 const IMAGE_TOOLS = [
