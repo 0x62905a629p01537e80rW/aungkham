@@ -512,6 +512,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             />
           )}
 
+          <div className="absolute inset-0" style={maskStyle}>
           {layers.filter((l) => !l.hidden).map((layer) => {
             const isSelected = layer.id === selectedId && !exporting
             const isEditing = editingId === layer.id && !exporting
