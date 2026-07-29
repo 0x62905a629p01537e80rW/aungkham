@@ -33,6 +33,7 @@ export function UploadZone({
 }) {
   const { t } = useI18n()
   const galleryRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('create')
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
   const [projects, setProjects] = useState<SavedProject[]>([])
