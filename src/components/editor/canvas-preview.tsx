@@ -653,8 +653,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       style={{
                         cursor: 'grab',
                         touchAction: 'none',
-                        left: hx('50%'),
-                        top: hy(0),
+                        left: hx(0),
+                        top: hy('50%'),
                         transform: hTransform,
                       }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
@@ -673,7 +673,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         cursor: 'ew-resize',
                         touchAction: 'none',
                         left: hx(0),
-                        top: hy('50%'),
+                        top: hy('25%'),
                         transform: hTransform,
                       }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
@@ -693,7 +693,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         e.stopPropagation()
                         onDuplicate?.(layer.id)
                       }}
-                      style={{ left: hx('50%'), top: hy('100%'), transform: hTransform }}
+                      style={{ left: hx(0), top: hy('75%'), transform: hTransform }}
                       className="glass-tile absolute flex size-7 items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
                       <CopyPlus className="size-4" strokeWidth={2.25} />
