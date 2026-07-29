@@ -66,20 +66,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let unsub: (() => void) | undefined
     ;(async () => {
       const { getDb } = await import('@/lib/firebase')
-      const { doc, onSnapshot, setDoc, serverTimestamp } = await import('firebase/firestore')
+      const { doc, getDoc, onSnapshot, setDoc, serverTimestamp } = await import('firebase/firestore')
       if (cancelled) return
       const ref = doc(getDb(), 'users', user.uid)
-      // Make sure a user document exists for the admin to flip isPro on.
-      setDoc(
-        ref,
-        {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true },
-      ).catch((err) => console.log('[user doc write failed]', err))
+
+      // Ensure users/{uid} exists. Never overwrite an admin-set isPro flag.
+      try {
+        const snap = await getDoc(ref)
+        if (!snap.exists()) {
+          await setDoc(ref, {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            isPro: false,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          })
+        } else {
+          await setDoc(
+            ref,
+            {
+              email: user.email,
+              displayName: user.displayName,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true },
+          )
+        }
+      } catch (err) {
+        console.log('[user doc write failed]', err)
+      }
+      if (cancelled) return
 
       unsub = onSnapshot(
         ref,
@@ -87,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         (err) => console.log('[pro listener failed]', err),
       )
     })().catch((err) => console.log('[pro listener init failed]', err))
+
     return () => {
       cancelled = true
       unsub?.()
