@@ -525,20 +525,26 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               touchAction: 'none',
               outlineWidth: `${1 * inv}px`,
               outlineOffset: `${5 * inv}px`,
-              boxShadow: isSelected
-                ? `0 0 0 ${1 * inv}px color-mix(in oklab, var(--foreground) 55%, transparent)`
-                : undefined,
             }
 
             const mirror = (v: number | string) => (v === 0 ? '100%' : v === '100%' ? 0 : v)
-            const hx = (v: number | string) => (layer.flipH ? mirror(v) : v)
-            const hy = (v: number | string) => (layer.flipV ? mirror(v) : v)
-            const sx = layer.flipH ? -1 : 1
-            const sy = layer.flipV ? -1 : 1
+            const wS = (layer.widthScale ?? 100) / 100
+            const hS = (layer.heightScale ?? 100) / 100
+            const negW = wS < 0
+            const negH = hS < 0
+            const flipX = layer.flipH !== negW
+            const flipY = layer.flipV !== negH
+            const hx = (v: number | string) => (flipX ? mirror(v) : v)
+            const hy = (v: number | string) => (flipY ? mirror(v) : v)
+            const sx = flipX ? -1 : 1
+            const sy = flipY ? -1 : 1
+            const aw = Math.max(0.1, Math.abs(wS))
+            const ah = Math.max(0.1, Math.abs(hS))
             const OFF = 22 * inv
             // Keeps handles outside the selection frame, upright and constant size.
             const hTr = (ox: number, oy: number) =>
-              `translate(calc(-50% + ${ox * sx * OFF}px), calc(-50% + ${oy * sy * OFF}px)) scale(${inv * sx}, ${inv * sy})`
+              `translate(calc(-50% + ${(ox * sx * OFF) / aw}px), calc(-50% + ${(oy * sy * OFF) / ah}px)) scale(${(inv * sx) / aw}, ${(inv * sy) / ah})`
+
 
             const textStyle = layerTextStyle(layer)
             const inner = <LayerText layer={layer} />
