@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { PremiumBadge } from './premium-badge'
 import { SettingsSheet } from './settings-sheet'
 import { ThemeToggle } from '@/components/theme-provider'
-import { LanguageToggle, useI18n } from '@/components/i18n'
+import { useI18n } from '@/components/i18n'
 import { LayersList } from './layers-list'
 import { cn } from '@/lib/utils'
 import type { TextLayer } from '@/lib/text-layer'
@@ -158,7 +158,6 @@ export function EditorHeader({
           </div>
           <div className="flex items-center gap-1.5">
             <PremiumBadge />
-            <LanguageToggle className="glass-tile size-9 rounded-full text-foreground" />
             <ThemeToggle className="glass-tile size-9 rounded-full text-foreground" />
             <SettingsSheet />
           </div>

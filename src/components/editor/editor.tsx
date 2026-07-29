@@ -278,6 +278,19 @@ export function Editor() {
     })
   }
 
+
+  function applyTemplate(tpl: TextLayer[]) {
+    const bg = makeSolidDataUrl('#ffffff')
+    const img = new Image()
+    img.onload = () => {
+      setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
+      setImage(bg)
+      setLayers(tpl)
+      setSelectedId(tpl[tpl.length - 1]?.id ?? null)
+    }
+    img.src = bg
+  }
+
   return (
     <AuthProvider>
     <div className="flex min-h-[100dvh] flex-col bg-background">
@@ -311,21 +324,12 @@ export function Editor() {
             onImage={handleImage}
             onOpenProject={openProject}
             onStartTemplates={() => setTemplating(true)}
+            onApplyTemplate={applyTemplate}
           />
           <TemplatePicker
             open={templating}
             onClose={() => setTemplating(false)}
-            onApply={(tpl) => {
-              const bg = makeSolidDataUrl('#ffffff')
-              const img = new Image()
-              img.onload = () => {
-                setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
-                setImage(bg)
-                setLayers(tpl)
-                setSelectedId(tpl[tpl.length - 1]?.id ?? null)
-              }
-              img.src = bg
-            }}
+            onApply={applyTemplate}
           />
         </>
       ) : (
