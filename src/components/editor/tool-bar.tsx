@@ -75,6 +75,7 @@ import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
 import { EraseDialog } from './erase-dialog'
+import { BgRemover } from './bg-remover'
 import { ColorPickerPanel, parseGradient } from './color-picker'
 import { DEFAULT_STROKE_WIDTH, OUTLINE_PRESETS, shapeDataUrl } from '@/lib/shapes'
 import { cn } from '@/lib/utils'
@@ -107,7 +108,7 @@ interface ToolBarProps {
   onReplaceImage?: () => void
   onOpenTemplates?: () => void
   onImageTool?: (
-    tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter',
+    tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg',
   ) => void
   autoOpenTool?: ToolKey | null
   onAutoOpenHandled?: () => void
@@ -123,6 +124,7 @@ const IMAGE_TOOLS = [
   { key: 'fit', label: 'Fit', icon: Square },
   { key: 'frame', label: 'Frame', icon: Frame },
   { key: 'blur', label: 'Blur', icon: Aperture },
+  { key: 'removebg', label: 'Remove BG', icon: Scissors },
 ] as const
 
 
@@ -148,6 +150,7 @@ type ToolKey =
   | 'bend'
   | 'skew'
   | 'erase'
+  | 'cutout'
   | 'outline'
 
 interface ToolDef {
@@ -156,6 +159,8 @@ interface ToolDef {
   icon: typeof TypeIcon
   needsLayer: boolean
   shapeOnly?: boolean
+  /** only for image/sticker graphic layers */
+  imageOnly?: boolean
 }
 
 const TOOLS: ToolDef[] = [
@@ -178,6 +183,7 @@ const TOOLS: ToolDef[] = [
   { key: 'bend', label: 'Bend', icon: Spline, needsLayer: true },
   { key: 'skew', label: 'Skew', icon: MoveDiagonal, needsLayer: true },
   { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: true },
+  { key: 'cutout', label: 'Remove BG', icon: Scissors, needsLayer: true, imageOnly: true },
   { key: 'outline', label: 'Outline', icon: Circle, needsLayer: true, shapeOnly: true },
 ]
 
@@ -200,6 +206,7 @@ export function ToolBar({
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
   const [eraseOpen, setEraseOpen] = useState(false)
+  const [cutoutOpen, setCutoutOpen] = useState(false)
   const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   const autoOpenRef = useRef<string | null>(null)
@@ -260,7 +267,16 @@ export function ToolBar({
               key === 'replace'
                 ? onReplaceImage?.()
                 : onImageTool?.(
-                    key as 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter',
+                    key as
+                      | 'crop'
+                      | 'resize'
+                      | 'flip'
+                      | 'fit'
+                      | 'frame'
+                      | 'blur'
+                      | 'adjust'
+                      | 'filter'
+                      | 'removebg',
                   )
             }
             className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
@@ -294,18 +310,25 @@ export function ToolBar({
         <span className="mx-1 h-8 w-px shrink-0 bg-border" />
 
 
-        {TOOLS.filter((tool) => !tool.shapeOnly || !!selected?.graphic?.path).map((tool) => {
+        {TOOLS.filter(
+          (tool) =>
+            (!tool.shapeOnly || !!selected?.graphic?.path) &&
+            (!tool.imageOnly || (!!selected?.graphic && !selected.graphic.path)),
+        ).map((tool) => {
           const disabled = tool.needsLayer && !selected
           const isOpen = openTool === tool.key
           const Icon = tool.icon
 
-          if (tool.key === 'erase') {
+          if (tool.key === 'erase' || tool.key === 'cutout') {
             return (
               <button
                 key={tool.key}
                 type="button"
                 disabled={disabled}
-                onClick={() => setEraseOpen(true)}
+                ref={(el) => {
+                  toolRefs.current[tool.key] = el
+                }}
+                onClick={() => (tool.key === 'erase' ? setEraseOpen(true) : setCutoutOpen(true))}
                 className={cn(
                   'flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium text-foreground/75 transition active:scale-95',
                   disabled && 'opacity-35',
@@ -378,6 +401,17 @@ export function ToolBar({
           onOpenChange={setEraseOpen}
           layer={selected}
           onApply={(mask) => onChange({ eraseMask: mask })}
+        />
+      )}
+
+      {selected?.graphic && (
+        <BgRemover
+          open={cutoutOpen}
+          src={selected.graphic.src}
+          onClose={() => setCutoutOpen(false)}
+          onApply={(url) =>
+            selected.graphic && onChange({ graphic: { ...selected.graphic, src: url } })
+          }
         />
       )}
     </nav>
