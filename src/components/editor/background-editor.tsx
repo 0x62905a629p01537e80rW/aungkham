@@ -86,9 +86,20 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   // flip/rotate + preview source
   const [working, setWorking] = useState(image)
 
-  // square fit
+  // fit
+  const [fitRatio, setFitRatio] = useState(1)
   const [fitScale, setFitScale] = useState(1)
   const [fitColor, setFitColor] = useState('#ffffff')
+  const [fitBlur, setFitBlur] = useState(0)
+  const [fitBgOpacity, setFitBgOpacity] = useState(1)
+  const [fitX, setFitX] = useState(0)
+  const [fitY, setFitY] = useState(0)
+  const [fitPanel, setFitPanel] = useState<'ratio' | 'color' | 'blur' | 'position'>('ratio')
+  const [fitPreview, setFitPreview] = useState<string | null>(null)
+
+  // frame
+  const [frame, setFrame] = useState<FrameSpec>(FRAMES[0])
+  const [framePreview, setFramePreview] = useState<string | null>(null)
 
   // blur
   const [blurMode, setBlurMode] = useState<'whole' | 'focus'>('whole')
@@ -112,13 +123,62 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
     })
   }, [ratio])
 
+  function fitOptions() {
+    return {
+      ratio: fitRatio,
+      scale: fitScale,
+      background: fitColor,
+      offsetX: fitX,
+      offsetY: fitY,
+      blurBackground: fitBlur,
+      backgroundOpacity: fitBgOpacity,
+    }
+  }
+
+  // Live preview for Fit
+  useEffect(() => {
+    if (tool !== 'fit') return
+    let alive = true
+    const id = setTimeout(() => {
+      ratioFit(working, {
+        ratio: fitRatio,
+        scale: fitScale,
+        background: fitColor,
+        offsetX: fitX,
+        offsetY: fitY,
+        blurBackground: fitBlur,
+        backgroundOpacity: fitBgOpacity,
+      }).then((url) => alive && setFitPreview(url))
+    }, 90)
+    return () => {
+      alive = false
+      clearTimeout(id)
+    }
+  }, [tool, working, fitRatio, fitScale, fitColor, fitX, fitY, fitBlur, fitBgOpacity])
+
+  // Live preview for Frame
+  useEffect(() => {
+    if (tool !== 'frame') return
+    let alive = true
+    if (frame.kind === 'none') {
+      setFramePreview(null)
+      return
+    }
+    applyFrame(working, frame).then((url) => alive && setFramePreview(url))
+    return () => {
+      alive = false
+    }
+  }, [tool, working, frame])
+
   async function apply() {
     setBusy(true)
     try {
       let out = working
       if (tool === 'crop') out = await cropImage(working, rect)
       else if (tool === 'resize') out = await resizeImage(working, rw, rh)
-      else if (tool === 'square') out = await squareFit(working, fitScale, fitColor)
+      else if (tool === 'fit') out = await ratioFit(working, fitOptions())
+      else if (tool === 'frame')
+        out = frame.kind === 'none' ? working : await applyFrame(working, frame)
       else if (tool === 'blur')
         out =
           blurMode === 'whole'
@@ -139,7 +199,9 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
           ? 'Flip & Rotate'
           : tool === 'blur'
             ? 'Blur'
-            : 'Square Fit'
+            : tool === 'frame'
+              ? 'Frame'
+              : 'Fit'
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
@@ -179,23 +241,22 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             onFocus={(f) => setFocus((p) => ({ ...p, ...f }))}
           />
         ) : (
-          <div
-            className="max-h-full max-w-full overflow-hidden rounded-2xl"
-            style={
-              tool === 'square'
-                ? { aspectRatio: '1 / 1', background: fitColor, display: 'grid', placeItems: 'center' }
-                : undefined
-            }
-          >
+          <div className="max-h-full max-w-full overflow-hidden rounded-2xl">
             <img
-              src={working}
+              src={
+                tool === 'fit'
+                  ? (fitPreview ?? working)
+                  : tool === 'frame'
+                    ? (framePreview ?? working)
+                    : working
+              }
               alt="Preview"
               className="max-h-[50dvh] max-w-full object-contain"
-              style={tool === 'square' ? { transform: `scale(${fitScale})` } : undefined}
             />
           </div>
         )}
       </div>
+
 
       <div
         className="shrink-0 space-y-4 border-t border-border bg-background px-4 py-4"
