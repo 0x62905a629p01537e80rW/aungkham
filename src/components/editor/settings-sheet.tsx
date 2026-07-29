@@ -294,6 +294,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
         </div>,
         document.body,
       )}
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
     </>
   )
 }
