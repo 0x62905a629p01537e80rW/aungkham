@@ -81,6 +81,17 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     const editorRef = useRef<HTMLTextAreaElement | null>(null)
     const [frame, setFrame] = useState({ w: 0, h: 0 })
 
+    const maskStyle: CSSProperties | undefined = eraseMask
+      ? {
+          WebkitMaskImage: `url(${eraseMask})`,
+          maskImage: `url(${eraseMask})`,
+          WebkitMaskSize: '100% 100%',
+          maskSize: '100% 100%',
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+        }
+      : undefined
+
     // The image box keeps the source aspect ratio so on-canvas percentages and
     // cq font sizes match the exported image exactly.
     const boxSize = (() => {
