@@ -99,12 +99,22 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitRatio, setFitRatio] = useState(1)
   const [fitScale, setFitScale] = useState(1)
   const [fitColor, setFitColor] = useState('#ffffff')
+  const [fitGradient, setFitGradient] = useState<{ from: string; to: string } | null>(null)
   const [fitBlur, setFitBlur] = useState(0)
   const [fitBgOpacity, setFitBgOpacity] = useState(1)
   const [fitX, setFitX] = useState(0)
   const [fitY, setFitY] = useState(0)
-  const [fitPanel, setFitPanel] = useState<'ratio' | 'color' | 'blur' | 'position'>('ratio')
+  const [fitBackdrop, setFitBackdrop] = useState<string | null>(null)
+  const [fitBackdropBlur, setFitBackdropBlur] = useState(10)
+  const [fitShadowBlur, setFitShadowBlur] = useState(0)
+  const [fitShadowOpacity, setFitShadowOpacity] = useState(0.35)
+  const [fitShadowOffset, setFitShadowOffset] = useState(10)
+  const [fitPanel, setFitPanel] = useState<'ratio' | 'color' | 'background' | 'image' | 'shadow'>(
+    'ratio',
+  )
   const [fitPreview, setFitPreview] = useState<string | null>(null)
+  const backdropInput = useRef<HTMLInputElement | null>(null)
+
 
   // frame
   const [frame, setFrame] = useState<FrameSpec>(FRAMES[0])
