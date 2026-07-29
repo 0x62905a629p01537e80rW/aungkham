@@ -237,21 +237,6 @@ export function Editor() {
     link.click()
   }, [preview])
 
-  const handleShare = useCallback(async () => {
-    if (!preview) return
-    try {
-      const blob = await (await fetch(preview)).blob()
-      const file = new File([blob], 'text-on-photo.png', { type: 'image/png' })
-      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean }
-      if (nav.share && nav.canShare?.({ files: [file] })) {
-        await nav.share({ files: [file], title: 'Text on Photo' })
-        return
-      }
-    } catch (err) {
-      console.log('[share failed]', err)
-    }
-    handleSaveImage()
-  }, [preview, handleSaveImage])
 
   void historyTick
 
@@ -454,7 +439,6 @@ export function Editor() {
               busy={exporting || !preview}
               savedProject={savedProject}
               onBack={() => setShowSave(false)}
-              onShare={handleShare}
               onSaveImage={handleSaveImage}
               onSaveProject={handleSaveProject}
             />
