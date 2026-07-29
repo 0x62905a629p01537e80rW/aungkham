@@ -16,13 +16,21 @@ const PRICE_USD = '$12 USD'
 
 type PaySettings = { phone: string; name: string }
 
-function CopyRow({ label, value }: { label: string; value: string }) {
+function CopyRow({
+  label,
+  value,
+  valueClassName,
+}: {
+  label: string
+  value: string
+  valueClassName?: string
+}) {
   const [copied, setCopied] = useState(false)
   return (
     <div className="glass-tile rounded-2xl px-3.5 py-3">
       <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
       <div className="mt-1 flex items-center gap-2">
-        <p className="min-w-0 flex-1 break-all font-mono text-[12px] leading-snug">{value}</p>
+        <p className={`min-w-0 flex-1 break-all font-mono leading-snug ${valueClassName || 'text-[12px]'}`}>{value}</p>
         <button
           type="button"
           aria-label={`Copy ${label}`}
@@ -229,67 +237,85 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
               Signed in as <span className="font-medium text-foreground">{user.email}</span>
             </p>
 
-            {settingsError && (
-              <p className="text-[12px] text-destructive">{settingsError}</p>
-            )}
-
-            {!settings && !settingsError ? (
-              <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" />
-                Loading payment details…
-              </div>
-            ) : settings ? (
-              <>
-                {settings.phone && <CopyRow label="KBZPay number" value={settings.phone} />}
-                {settings.name && <CopyRow label="Account name" value={settings.name} />}
-              </>
-            ) : null}
-
-            <div className="space-y-2 pt-1">
-              <label className="block">
-                <span className="text-[11px] font-medium text-muted-foreground">
-                  KBZPay Transaction ID (Last 6 digits) *
-                </span>
-                <input
-                  value={txId}
-                  onChange={(e) => setTxId(e.target.value)}
-                  inputMode="numeric"
-                  maxLength={12}
-                  required
-                  placeholder="e.g. 482913"
-                  className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
-                />
-              </label>
-
-              <label className="block">
-                <span className="text-[11px] font-medium text-muted-foreground">
-                  Sender Name or Phone Number *
-                </span>
-                <input
-                  value={senderInfo}
-                  onChange={(e) => setSenderInfo(e.target.value)}
-                  maxLength={80}
-                  required
-                  placeholder="e.g. Aung Aung / 09-XXX-XXX-XXX"
-                  className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
-                />
-              </label>
+            {/* Payment details — shown before asking for transaction info */}
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
+              <p className="text-sm font-bold text-primary">Please transfer to:</p>
+              {settingsError && (
+                <p className="mt-1 text-[12px] text-destructive">{settingsError}</p>
+              )}
+              {!settings && !settingsError ? (
+                <div className="mt-2 flex items-center gap-2 text-[12px] text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin" />
+                  Loading payment details…
+                </div>
+              ) : settings ? (
+                <div className="mt-2 space-y-2">
+                  {settings.phone && (
+                    <CopyRow
+                      label="KBZPay number"
+                      value={settings.phone}
+                      valueClassName="text-[14px] font-semibold"
+                    />
+                  )}
+                  {settings.name && (
+                    <CopyRow
+                      label="Account name"
+                      value={settings.name}
+                      valueClassName="text-[14px] font-semibold"
+                    />
+                  )}
+                </div>
+              ) : null}
             </div>
 
-            {error && <p className="text-[11px] text-destructive">{error}</p>}
+            {/* Transaction input fields — only shown after payment details are available */}
+            {settings && !settingsError && (
+              <div className="space-y-2 pt-1">
+                <label className="block">
+                  <span className="text-[11px] font-medium text-muted-foreground">
+                    KBZPay Transaction ID (Last 6 digits) *
+                  </span>
+                  <input
+                    value={txId}
+                    onChange={(e) => setTxId(e.target.value)}
+                    inputMode="numeric"
+                    maxLength={12}
+                    required
+                    placeholder="e.g. 482913"
+                    className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+                  />
+                </label>
 
-            <button
-              type="button"
-              disabled={!canSubmit}
-              onClick={handleSubmit}
-              className="premium-shine mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98] disabled:opacity-50"
-            >
-              {submitting ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
-              I've sent the payment
-            </button>
-            <p className="text-center text-[11px] text-muted-foreground">
-              We verify manually and unlock Pro within 24 hours.
-            </p>
+                <label className="block">
+                  <span className="text-[11px] font-medium text-muted-foreground">
+                    Sender Name or Phone Number *
+                  </span>
+                  <input
+                    value={senderInfo}
+                    onChange={(e) => setSenderInfo(e.target.value)}
+                    maxLength={80}
+                    required
+                    placeholder="e.g. Aung Aung / 09-XXX-XXX-XXX"
+                    className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+                  />
+                </label>
+
+                {error && <p className="text-[11px] text-destructive">{error}</p>}
+
+                <button
+                  type="button"
+                  disabled={!canSubmit}
+                  onClick={handleSubmit}
+                  className="premium-shine mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98] disabled:opacity-50"
+                >
+                  {submitting ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+                  I've sent the payment
+                </button>
+                <p className="text-center text-[11px] text-muted-foreground">
+                  We verify manually and unlock Pro within 24 hours.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
