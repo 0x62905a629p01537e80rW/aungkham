@@ -61,8 +61,18 @@ export function UploadZone({
         }}
       />
 
-      {/* Tabs */}
-      <div className="glass-tile relative mx-auto flex w-full max-w-sm items-center gap-1 rounded-full p-1">
+      {/* Tabs — floating liquid glass pill */}
+      <div
+        className="relative mx-auto flex w-full max-w-sm items-center gap-1 rounded-[2rem] p-1.5"
+        style={{
+          background:
+            'linear-gradient(150deg, color-mix(in oklab, var(--card) 62%, transparent), color-mix(in oklab, var(--card) 34%, transparent))',
+          backdropFilter: 'blur(30px) saturate(190%)',
+          border: '1px solid color-mix(in oklab, var(--foreground) 8%, transparent)',
+          boxShadow:
+            'inset 0 1px 0 var(--glass-rim), inset 0 0 0 1px var(--glass-edge), 0 18px 40px -18px var(--glass-shadow)',
+        }}
+      >
         {(() => {
           const tabs: { id: Tab; label: string; icon: typeof BackgroundIcon }[] = [
             { id: 'create', label: t('home.tab.create'), icon: BackgroundIcon },
@@ -72,12 +82,19 @@ export function UploadZone({
           const index = tabs.findIndex((x) => x.id === tab)
           return (
             <>
+              {/* Glass lens that slides under the active tab */}
               <span
                 aria-hidden
-                className="absolute left-1 top-1 bottom-1 rounded-full bg-primary shadow transition-transform duration-300 ease-out"
+                className="absolute left-1.5 top-1.5 bottom-1.5 rounded-[1.6rem] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.32,1.4,0.4,1)]"
                 style={{
-                  width: `calc((100% - 0.5rem - ${(tabs.length - 1) * 0.25}rem) / ${tabs.length})`,
+                  width: `calc((100% - 0.75rem - ${(tabs.length - 1) * 0.25}rem) / ${tabs.length})`,
                   transform: `translateX(calc(${index} * (100% + 0.25rem)))`,
+                  background:
+                    'linear-gradient(160deg, color-mix(in oklab, var(--background) 88%, transparent), color-mix(in oklab, var(--background) 58%, transparent))',
+                  backdropFilter: 'blur(10px) saturate(150%)',
+                  boxShadow:
+                    'inset 0 1px 0 var(--glass-rim), inset 0 -1px 0 color-mix(in oklab, var(--foreground) 8%, transparent), 0 8px 20px -10px var(--glass-shadow)',
+                  border: '1px solid color-mix(in oklab, var(--foreground) 7%, transparent)',
                 }}
               />
               {tabs.map(({ id, label, icon: Icon }) => (
@@ -85,18 +102,21 @@ export function UploadZone({
                   key={id}
                   type="button"
                   onClick={() => setTab(id)}
-                  className={`relative z-10 flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors duration-200 active:scale-95 ${
-                    tab === id ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                  className={`relative z-10 flex flex-1 flex-col items-center justify-center gap-1 rounded-[1.6rem] px-2 py-2 text-[11px] font-semibold transition-all duration-300 active:scale-95 ${
+                    tab === id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  <Icon className="size-3.5" />
-                  {label}
+                  <Icon
+                    className={`transition-all duration-300 ${tab === id ? 'size-5 scale-105' : 'size-[18px]'}`}
+                  />
+                  <span className="leading-none">{label}</span>
                 </button>
               ))}
             </>
           )
         })()}
       </div>
+
 
       {/* Tab content */}
       <div className="mx-auto mt-5 flex w-full max-w-sm flex-1 flex-col overflow-y-auto pb-4">
