@@ -549,10 +549,10 @@ function FontPicker({
         </>
       )}
 
-      {(lockNote || (group === 'mm-premium' && !isPro)) && (
+      {group === 'mm-premium' && !isPro && (
         <p className="flex items-center gap-1.5 rounded-xl border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-3 py-2 text-[11px] font-medium text-foreground">
           <Lock className="size-3.5 shrink-0 text-[#8b5cf6]" />
-          Premium fonts are for Pro members — buy Pro to unlock them.
+          Premium fonts are free to try — Pro is required to export with them.
         </p>
       )}
 
