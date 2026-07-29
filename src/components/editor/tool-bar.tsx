@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import {
+  Lock,
   Star,
   Trash2,
   Upload,
 } from 'lucide-react'
+import { useAuth } from '@/components/auth-provider'
 import {
   addCustomFont,
   ensureCustomFontsLoaded,
@@ -386,6 +388,7 @@ function FontCard({
   entry,
   active,
   fav,
+  locked = false,
   onSelect,
   onFav,
   onDelete,
@@ -393,6 +396,7 @@ function FontCard({
   entry: FontEntry
   active: boolean
   fav: boolean
+  locked?: boolean
   onSelect: () => void
   onFav: () => void
   onDelete?: () => void
@@ -407,6 +411,11 @@ function FontCard({
       )}
     >
       <button type="button" onClick={onSelect} className="block w-full px-2 pb-1.5 pt-1.5 text-left">
+        {locked && (
+          <span className="absolute inset-0 z-10 grid place-items-center rounded-xl bg-background/60 backdrop-blur-[2px]">
+            <Lock className="size-4 text-[#8b5cf6]" />
+          </span>
+        )}
         <span
           className="block overflow-hidden text-ellipsis whitespace-nowrap py-1 text-[15px] text-foreground"
           style={{ fontFamily: fontFamily(entry.key), lineHeight: entry.myanmar ? 2 : 1.4 }}
