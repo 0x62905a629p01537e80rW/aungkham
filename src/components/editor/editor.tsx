@@ -461,7 +461,8 @@ export function Editor() {
               setErasing(true)
             }}
           />
-          )
+          )}
+
 
 
 
