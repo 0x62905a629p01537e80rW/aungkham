@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import {
   CopyPlus,
   MoveDiagonal2,
@@ -22,6 +22,10 @@ interface CanvasPreviewProps {
   selectedId: string | null
   exporting: boolean
   showGrid?: boolean
+  /** Stage-level erase mask (white = keep, transparent = erased) for all layers. */
+  eraseMask?: string
+  /** Extra content rendered inside the image box, e.g. the erase brush surface. */
+  overlay?: ReactNode
   onSelect: (id: string | null) => void
   onMove: (id: string, x: number, y: number) => void
   onResize: (id: string, fontSize: number) => void
@@ -41,6 +45,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       selectedId,
       exporting,
       showGrid = false,
+      eraseMask,
+      overlay,
       onSelect,
       onMove,
       onResize,
@@ -74,6 +80,17 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     const [guides, setGuides] = useState<{ v: boolean; h: boolean }>({ v: false, h: false })
     const editorRef = useRef<HTMLTextAreaElement | null>(null)
     const [frame, setFrame] = useState({ w: 0, h: 0 })
+
+    const maskStyle: CSSProperties | undefined = eraseMask
+      ? {
+          WebkitMaskImage: `url(${eraseMask})`,
+          maskImage: `url(${eraseMask})`,
+          WebkitMaskSize: '100% 100%',
+          maskSize: '100% 100%',
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+        }
+      : undefined
 
     // The image box keeps the source aspect ratio so on-canvas percentages and
     // cq font sizes match the exported image exactly.
@@ -512,6 +529,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             />
           )}
 
+          <div className="absolute inset-0" style={maskStyle}>
           {layers.filter((l) => !l.hidden).map((layer) => {
             const isSelected = layer.id === selectedId && !exporting
             const isEditing = editingId === layer.id && !exporting
@@ -757,6 +775,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               </div>
             )
           })}
+          </div>
+
+          {overlay}
+
         </div>
         </div>
 
