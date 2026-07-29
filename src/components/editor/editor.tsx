@@ -21,6 +21,8 @@ import { PremiumGate, stripPremiumFonts } from './premium-gate'
 import { ProSplash } from './pro-splash'
 import { shouldAskForRating } from '@/lib/rate-us'
 import { AuthProvider } from '@/components/auth-provider'
+import { ScreenGuard } from './screen-guard'
+
 
 
 export function Editor() {
