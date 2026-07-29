@@ -248,6 +248,13 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                   window.open(PLAY_STORE_URL, '_blank', 'noopener,noreferrer')
                 }}
               />
+              <Row
+                title="Support"
+                desc="Need help? Chat with us on Telegram"
+                onClick={() => {
+                  window.open('https://t.me/myanpro', '_blank', 'noopener,noreferrer')
+                }}
+              />
               <Row title="About us" desc="Learn more about Myan" onClick={() => setAbout(true)} />
 
               <p className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground">
