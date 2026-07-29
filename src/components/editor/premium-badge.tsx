@@ -63,16 +63,16 @@ export function PremiumBadge() {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="glass-panel border-0 bg-transparent shadow-none max-w-[22rem] overflow-hidden rounded-3xl p-0">
-          <div className="premium-shine px-5 pb-6 pt-6 text-center text-white">
-            <div className="mx-auto mb-3 grid size-14 place-items-center rounded-2xl bg-white/20 backdrop-blur">
+        <DialogContent className="glass-panel border-0 bg-white shadow-none max-w-[22rem] overflow-hidden rounded-3xl p-0 text-black dark:bg-white dark:text-black">
+          <div className="px-5 pb-6 pt-6 text-center">
+            <div className="mx-auto mb-3 grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-[#ec4899] to-[#8b5cf6]">
               <ProGem className="premium-float size-8" />
             </div>
             <DialogHeader className="space-y-1">
-              <DialogTitle className="text-center text-xl font-extrabold text-white">
+              <DialogTitle className="text-center text-xl font-extrabold text-black">
                 {isPro ? 'Pro Active' : 'Buy Pro'}
               </DialogTitle>
-              <DialogDescription className="text-center text-xs text-white/85">
+              <DialogDescription className="text-center text-xs text-neutral-600">
                 {isPro ? 'Thanks for supporting Myan.' : 'Unlock everything, forever.'}
               </DialogDescription>
             </DialogHeader>
@@ -80,21 +80,21 @@ export function PremiumBadge() {
 
           <div className="space-y-3 px-5 pb-5">
             {isPro && (
-              <div className="mb-1 rounded-2xl border border-primary/30 bg-primary/5 p-4">
-                <p className="flex items-center gap-1.5 text-sm font-bold text-primary">
+              <div className="mb-1 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <p className="flex items-center gap-1.5 text-sm font-bold text-[#8b5cf6]">
                   <BadgeCheck className="size-4" />
                   Status: Active
                 </p>
-                <div className="mt-2 space-y-1 text-[12px] text-muted-foreground">
+                <div className="mt-2 space-y-1 text-[12px] text-neutral-600">
                   {proSince && (
                     <p>
                       Activated on{' '}
-                      <span className="font-semibold text-foreground">{formatDate(proSince)}</span>
+                      <span className="font-semibold text-black">{formatDate(proSince)}</span>
                     </p>
                   )}
                   <p>
                     Expires:{' '}
-                    <span className="font-semibold text-foreground">
+                    <span className="font-semibold text-black">
                       {proExpiresAt ? formatDate(proExpiresAt) : 'Never · Lifetime access'}
                     </span>
                   </p>
@@ -102,18 +102,18 @@ export function PremiumBadge() {
               </div>
             )}
 
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
               {isPro ? 'Your benefits' : 'What you get'}
             </p>
 
             {BENEFITS.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start gap-3">
-                <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
                   <Icon className="size-4" />
                 </div>
                 <div className="leading-tight">
-                  <p className="text-sm font-semibold">{title}</p>
-                  <p className="text-[11px] text-muted-foreground">{desc}</p>
+                  <p className="text-sm font-semibold text-black">{title}</p>
+                  <p className="text-[11px] text-neutral-600">{desc}</p>
                 </div>
               </div>
             ))}
@@ -122,16 +122,16 @@ export function PremiumBadge() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-primary text-sm font-bold text-primary-foreground transition active:scale-[0.98]"
+                className="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-black text-sm font-bold text-white transition active:scale-[0.98]"
               >
                 Done
               </button>
             ) : (
               <>
-                <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
-                  <p className="text-2xl font-extrabold tracking-tight">30,000 MMK</p>
-                  <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground">
-                    <BadgeCheck className="size-3.5 text-primary" />
+                <div className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-center">
+                  <p className="text-2xl font-extrabold tracking-tight text-black">30,000 MMK</p>
+                  <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] font-medium text-neutral-600">
+                    <BadgeCheck className="size-3.5 text-[#8b5cf6]" />
                     One-time payment · Lifetime access
                   </p>
                 </div>
@@ -142,7 +142,7 @@ export function PremiumBadge() {
                     setOpen(false)
                     setPay(true)
                   }}
-                  className="premium-shine mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
+                  className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
                 >
                   <ProGem className="size-4" />
                   Buy Pro · Lifetime
