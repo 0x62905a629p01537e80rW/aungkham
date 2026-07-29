@@ -107,7 +107,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       unsub = onSnapshot(
         ref,
-        (snap) => setIsPro(snap.data()?.isPro === true),
+        (snap) => {
+          const d = snap.data()
+          setIsPro(d?.isPro === true)
+          const toDate = (v: unknown): Date | null => {
+            if (!v) return null
+            if (typeof v === 'object' && v !== null && 'toDate' in v) {
+              try {
+                return (v as { toDate: () => Date }).toDate()
+              } catch {
+                return null
+              }
+            }
+            const parsed = new Date(v as string | number)
+            return Number.isNaN(parsed.getTime()) ? null : parsed
+          }
+          setProExpiresAt(toDate(d?.proExpiresAt ?? d?.pro_expires_at))
+          setProSince(toDate(d?.proSince ?? d?.pro_since ?? d?.updatedAt))
+        },
         (err) => console.log('[pro listener failed]', err),
       )
     })().catch((err) => console.log('[pro listener init failed]', err))
