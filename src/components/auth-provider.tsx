@@ -38,6 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [isPro, setIsPro] = useState(false)
+  const [proExpiresAt, setProExpiresAt] = useState<Date | null>(null)
+  const [proSince, setProSince] = useState<Date | null>(null)
 
   // Auth session
   useEffect(() => {
