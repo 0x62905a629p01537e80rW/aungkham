@@ -284,7 +284,12 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             onFocus={(f) => setFocus((p) => ({ ...p, ...f }))}
           />
         ) : (
-          <div className="max-h-full max-w-full overflow-hidden rounded-2xl">
+          <div
+            className={cn(
+              'max-h-full max-w-full overflow-hidden rounded-2xl',
+              tool === 'fit' && fitColor === 'transparent' && !fitGradient && 'checker-grid',
+            )}
+          >
             <img
               src={
                 tool === 'fit'
