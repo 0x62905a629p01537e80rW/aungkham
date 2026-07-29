@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { PaymentPage } from './payment-page'
 
 const BENEFITS = [
   { icon: ShieldOff, title: 'No ads', desc: 'Zero interruptions while you edit.' },
@@ -41,6 +42,7 @@ function ProGem({ className = 'size-4' }: { className?: string }) {
 
 export function PremiumBadge() {
   const [open, setOpen] = useState(false)
+  const [pay, setPay] = useState(false)
 
   return (
     <>
@@ -93,6 +95,10 @@ export function PremiumBadge() {
 
             <button
               type="button"
+              onClick={() => {
+                setOpen(false)
+                setPay(true)
+              }}
               className="premium-shine mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
             >
               <ProGem className="size-4" />
@@ -101,6 +107,8 @@ export function PremiumBadge() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
     </>
   )
 }
