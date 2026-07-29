@@ -503,22 +503,38 @@ function FontPicker({
       <ToolHeading>Typeface</ToolHeading>
 
       <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
-        {FONT_GROUPS.map((g) => (
-          <button
-            key={g.key}
-            type="button"
-            onClick={() => setGroup(g.key)}
-            className={cn(
-              'shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition active:scale-95',
-              group === g.key
-                ? 'bg-primary text-primary-foreground'
-                : 'border border-border/60 bg-foreground/5 text-foreground/70',
-            )}
-          >
-            {g.label}
-          </button>
-        ))}
+        {FONT_GROUPS.map((g) => {
+          const premium = g.key === 'mm-premium'
+          const on = group === g.key
+          return (
+            <button
+              key={g.key}
+              type="button"
+              onClick={() => setGroup(g.key)}
+              className={cn(
+                'shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition active:scale-95',
+                premium
+                  ? on
+                    ? 'bg-[linear-gradient(120deg,#f7d774,#e0a93c_45%,#fff1c1_70%,#c98a2b)] text-[#3a2a05] shadow-[0_2px_10px_-2px_rgba(224,169,60,0.7)]'
+                    : 'border border-[#e0a93c]/50 bg-[#e0a93c]/10 text-[#e0a93c]'
+                  : on
+                    ? 'bg-primary text-primary-foreground'
+                    : 'border border-border/60 bg-foreground/5 text-foreground/70',
+              )}
+            >
+              {premium ? (
+                <span className="flex items-center gap-1">
+                  <Crown className="size-3" />
+                  {g.label}
+                </span>
+              ) : (
+                g.label
+              )}
+            </button>
+          )
+        })}
       </div>
+
 
       {group === 'custom' && (
         <>
