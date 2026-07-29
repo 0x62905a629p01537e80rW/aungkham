@@ -95,6 +95,10 @@ export function PremiumBadge() {
 
             <button
               type="button"
+              onClick={() => {
+                setOpen(false)
+                setPay(true)
+              }}
               className="premium-shine mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
             >
               <ProGem className="size-4" />
@@ -103,6 +107,8 @@ export function PremiumBadge() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
     </>
   )
 }
