@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { PLAY_STORE_URL, markRated } from '@/lib/rate-us'
 import { useAuth } from '@/components/auth-provider'
+import { useI18n } from '@/components/i18n'
 
 const PRO_BENEFITS = [
   'No ads, no watermark',
@@ -54,6 +55,7 @@ function Row({
 export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
   const [open, setOpen] = useState(false)
   const [about, setAbout] = useState(false)
+  const { t, lang, setLang } = useI18n()
   const { user, isPro, proPending, proExpiresAt, proSince, signIn, signOutUser } = useAuth()
 
   return (
@@ -81,7 +83,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
             >
               <ArrowLeft className="size-6" />
             </button>
-            <h2 className="text-2xl font-semibold">{about ? 'About us' : 'Settings'}</h2>
+            <h2 className="text-2xl font-semibold">{about ? t('settings.about') : t('settings.title')}</h2>
           </div>
 
           {about ? (
@@ -147,7 +149,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-border/60 text-sm font-semibold transition active:scale-[0.98]"
                   >
                     <LogOut className="size-4" />
-                    Log out
+                    {t('settings.logout')}
                   </button>
                 </div>
               ) : proPending ? (
@@ -177,7 +179,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-border/60 text-sm font-semibold transition active:scale-[0.98]"
                   >
                     <LogOut className="size-4" />
-                    Log out
+                    {t('settings.logout')}
                   </button>
                 </div>
               ) : (
@@ -201,7 +203,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-base font-bold text-white transition active:scale-[0.98]"
                   >
                     <Crown className="size-5" />
-                    Get Premium
+                    {t('settings.getPremium')}
                   </button>
                   <button
                     type="button"
@@ -211,7 +213,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     }}
                     className="mt-2 w-full text-center text-sm font-medium text-muted-foreground underline underline-offset-4 transition active:opacity-70"
                   >
-                    {user ? 'Signed in — restore automatic' : 'Login to restore'}
+                    {user ? 'Signed in — restore automatic' : t('settings.login')}
                   </button>
                   {user && (
                     <button
@@ -222,7 +224,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                       className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl border border-border/60 text-sm font-semibold transition active:scale-[0.98]"
                     >
                       <LogOut className="size-4" />
-                      Log out
+                      {t('settings.logout')}
                     </button>
                   )}
                 </div>
@@ -230,32 +232,55 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
 
               <p className="mt-7 mb-1 text-base font-semibold">General</p>
 
+              <div className="flex items-center justify-between gap-3 border-b border-border/50 px-1 py-4">
+                <div>
+                  <p className="text-base font-semibold">{t('settings.language')}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    {lang === 'my' ? t('lang.myanmar') : t('lang.english')}
+                  </p>
+                </div>
+                <div className="glass-tile flex items-center gap-1 rounded-full p-1">
+                  {(['en', 'my'] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setLang(l)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95 ${
+                        lang === l ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {l === 'en' ? t('lang.english') : t('lang.myanmar')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <Row
-                title="Feedback"
-                desc="Report bugs and tell us what to improve"
+                title={t('settings.feedback')}
+                desc={t('settings.feedbackDesc')}
                 onClick={() => mailto('Myan app — Feedback')}
               />
               <Row
-                title="Request a new feature"
-                desc="Share your ideas to fuel app updates!"
+                title={t('settings.request')}
+                desc={t('settings.requestDesc')}
                 onClick={() => mailto('Myan app — Feature request')}
               />
               <Row
-                title="Rate us on Google Play"
-                desc="Enjoying Myan? Leave us a rating"
+                title={t('settings.rate')}
+                desc={t('settings.rateDesc')}
                 onClick={() => {
                   markRated()
                   window.open(PLAY_STORE_URL, '_blank', 'noopener,noreferrer')
                 }}
               />
               <Row
-                title="Support"
-                desc="Need help? Chat with us on Telegram"
+                title={t('settings.support')}
+                desc={t('settings.supportDesc')}
                 onClick={() => {
                   window.open('https://t.me/myanpro', '_blank', 'noopener,noreferrer')
                 }}
               />
-              <Row title="About us" desc="Learn more about Myan" onClick={() => setAbout(true)} />
+              <Row title={t('settings.about')} desc={t('settings.aboutDesc')} onClick={() => setAbout(true)} />
 
               <p className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Star className="size-3.5" />

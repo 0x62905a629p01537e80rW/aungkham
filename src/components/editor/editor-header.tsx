@@ -4,6 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { PremiumBadge } from './premium-badge'
 import { SettingsSheet } from './settings-sheet'
 import { ThemeToggle } from '@/components/theme-provider'
+import { LanguageToggle, useI18n } from '@/components/i18n'
 import { LayersList } from './layers-list'
 import { cn } from '@/lib/utils'
 import type { TextLayer } from '@/lib/text-layer'
@@ -49,6 +50,7 @@ export function EditorHeader({
   onMoveLayer,
   onInsert,
 }: EditorHeaderProps) {
+  const { t } = useI18n()
   return (
     <header
       className="glass-bar sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/40 px-2"
@@ -151,11 +153,12 @@ export function EditorHeader({
             </div>
             <div className="leading-tight">
               <p className="text-sm font-bold tracking-tight">Myan</p>
-              <p className="text-[11px] text-muted-foreground">Add Text On Photo</p>
+              <p className="text-[11px] text-muted-foreground">{t('brand.tagline')}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
             <PremiumBadge />
+            <LanguageToggle className="glass-tile size-9 rounded-full text-foreground" />
             <ThemeToggle className="glass-tile size-9 rounded-full text-foreground" />
             <SettingsSheet />
           </div>

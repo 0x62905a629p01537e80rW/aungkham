@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { themeInitScript, ThemeProvider } from "@/components/theme-provider";
+import { LanguageProvider } from "@/components/i18n";
+
 
 
 function NotFoundComponent() {
@@ -128,9 +130,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <LanguageProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </LanguageProvider>
       </ThemeProvider>
+
     </QueryClientProvider>
   );
 }
