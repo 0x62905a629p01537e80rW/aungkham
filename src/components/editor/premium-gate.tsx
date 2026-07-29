@@ -1,0 +1,134 @@
+import { useEffect, useState } from 'react'
+import { Type as TypeIcon, Undo2, X } from 'lucide-react'
+import { useAuth } from '@/components/auth-provider'
+import { FONTS, type TextLayer } from '@/lib/text-layer'
+import { PaymentPage } from './payment-page'
+
+const PREMIUM_KEYS = new Set(FONTS.filter((f) => f.category === 'Myanmar Pro').map((f) => f.key))
+
+export function usesPremiumFont(layers: TextLayer[]) {
+  return layers.some((l) => PREMIUM_KEYS.has(l.fontKey))
+}
+
+export function stripPremiumFonts(layers: TextLayer[]): TextLayer[] {
+  return layers.map((l) => (PREMIUM_KEYS.has(l.fontKey) ? { ...l, fontKey: 'pyidaungsu' } : l))
+}
+
+function ProGem({ className = 'size-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <defs>
+        <linearGradient id="gate-gem" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#8b7cf6" />
+          <stop offset="100%" stopColor="#5b4bd6" />
+        </linearGradient>
+      </defs>
+      <path d="M12 2 22 12 12 22 2 12z" fill="url(#gate-gem)" />
+      <path d="M12 6.5 14 10.5 18 12 14 13.5 12 17.5 10 13.5 6 12 10 10.5z" fill="#fff" fillOpacity="0.9" />
+    </svg>
+  )
+}
+
+/**
+ * Intercepts "Next" for free users whose design uses premium fonts.
+ * They can buy Pro, or undo the premium fonts and continue.
+ */
+export function PremiumGate({
+  requested,
+  layers,
+  onClear,
+  onProceed,
+  onUndoPremiumFonts,
+}: {
+  requested: boolean
+  layers: TextLayer[]
+  onClear: () => void
+  onProceed: () => void
+  onUndoPremiumFonts: () => void
+}) {
+  const { isPro } = useAuth()
+  const [open, setOpen] = useState(false)
+  const [pay, setPay] = useState(false)
+
+  useEffect(() => {
+    if (!requested) return
+    onClear()
+    if (isPro || !usesPremiumFont(layers)) {
+      onProceed()
+      return
+    }
+    setOpen(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requested])
+
+  return (
+    <>
+      {open && (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/60 backdrop-blur-sm">
+          <div className="glass-panel w-full max-w-md rounded-t-3xl border-t border-border bg-background p-5 pb-8">
+            <div className="mb-3 flex items-start justify-between">
+              <p className="flex items-center gap-1.5 text-sm font-extrabold text-[#8b5cf6]">
+                <ProGem className="size-4" /> Premium
+              </p>
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={() => setOpen(false)}
+                className="grid size-8 place-items-center rounded-full bg-foreground/10 text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <h2 className="text-xl font-extrabold tracking-tight text-foreground">
+              You're using premium features
+            </h2>
+
+            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
+              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                <TypeIcon className="size-5" />
+              </div>
+              <div className="leading-tight">
+                <p className="text-sm font-semibold text-foreground">Premium Fonts</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Purchase Premium to export with these fonts.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false)
+                setPay(true)
+              }}
+              className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
+            >
+              <ProGem className="size-4" />
+              Purchase Premium To Unlock
+            </button>
+
+            <p className="my-2 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              or
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false)
+                onUndoPremiumFonts()
+                onProceed()
+              }}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-border bg-foreground/5 text-sm font-bold text-foreground transition active:scale-[0.98]"
+            >
+              <Undo2 className="size-4" />
+              Undo the premium fonts
+            </button>
+          </div>
+        </div>
+      )}
+
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
+    </>
+  )
+}
