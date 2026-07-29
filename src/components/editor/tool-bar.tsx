@@ -105,7 +105,9 @@ interface ToolBarProps {
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
   onReplaceImage?: () => void
   onOpenTemplates?: () => void
-  onImageTool?: (tool: 'crop' | 'resize' | 'flip' | 'square' | 'blur' | 'adjust' | 'filter') => void
+  onImageTool?: (
+    tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter',
+  ) => void
   autoOpenTool?: ToolKey | null
   onAutoOpenHandled?: () => void
 }
@@ -117,7 +119,8 @@ const IMAGE_TOOLS = [
   { key: 'crop', label: 'Crop', icon: Crop },
   { key: 'resize', label: 'Resize', icon: Maximize },
   { key: 'flip', label: 'Flip', icon: FlipHorizontal },
-  { key: 'square', label: 'Square', icon: Square },
+  { key: 'fit', label: 'Fit', icon: Square },
+  { key: 'frame', label: 'Frame', icon: Frame },
   { key: 'blur', label: 'Blur', icon: Aperture },
 ] as const
 
