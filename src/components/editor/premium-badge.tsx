@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { PaymentPage } from './payment-page'
+import { useAuth } from '@/components/auth-provider'
 
 const BENEFITS = [
   { icon: ShieldOff, title: 'No ads', desc: 'Zero interruptions while you edit.' },
@@ -43,17 +44,18 @@ function ProGem({ className = 'size-4' }: { className?: string }) {
 export function PremiumBadge() {
   const [open, setOpen] = useState(false)
   const [pay, setPay] = useState(false)
+  const { isPro } = useAuth()
 
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Buy Pro"
+        aria-label={isPro ? "Pro active" : "Buy Pro"}
         className="glass-tile relative flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[12px] font-extrabold tracking-tight text-foreground transition active:scale-95"
       >
         <ProGem className="premium-float size-4" />
-        Buy Pro
+        {isPro ? 'Pro' : 'Buy Pro'}
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
