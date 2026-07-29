@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Check,
   Crown,
+  Headphones,
   LogOut,
   Settings as SettingsIcon,
   Star,
