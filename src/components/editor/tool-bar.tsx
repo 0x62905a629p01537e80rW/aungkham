@@ -246,7 +246,7 @@ export function ToolBar({
         )}
       >
         <span className="mr-1 shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Image
+          BG
         </span>
         {IMAGE_TOOLS.map(({ key, label, icon: Icon }) => (
           <button
@@ -256,7 +256,9 @@ export function ToolBar({
             onClick={() =>
               key === 'replace'
                 ? onReplaceImage?.()
-                : onImageTool?.(key as 'crop' | 'resize' | 'flip' | 'square' | 'blur' | 'adjust' | 'filter')
+                : onImageTool?.(
+                    key as 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter',
+                  )
             }
             className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
           >
