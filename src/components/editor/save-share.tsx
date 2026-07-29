@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ArrowLeft, Download, FileText, FolderPlus, Loader2, Lock } from 'lucide-react'
+import { ArrowLeft, FileText, FolderPlus, Loader2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth-provider'
 import { SaveImageDialog } from './save-image-dialog'
+import { ShareRow } from './share-row'
 import { defaultFilename, exportPdf } from '@/lib/export-image'
 
 interface SaveShareProps {
@@ -72,26 +73,28 @@ export function SaveShare({
           )}
 
           <section className="mt-6 rounded-2xl border border-border p-4">
-            <p className="mb-3 text-sm font-medium">Save</p>
-            <div className="grid grid-cols-3 gap-3">
+            <Button
+              className="h-12 w-full rounded-xl text-base"
+              onClick={() => setSaving(true)}
+              disabled={!preview}
+            >
+              <Save className="mr-2 size-5" /> Save Image
+            </Button>
+
+            <div className="mt-3 grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
-                className="rounded-xl"
+                className="relative rounded-xl"
                 onClick={() => isPro && onSaveProject()}
                 disabled={!isPro}
               >
-                {isPro ? (
-                  <>
-                    <FolderPlus className="mr-1.5 size-4" /> {savedProject ? 'Saved' : 'Project'}
-                  </>
-                ) : (
-                  <>
-                    <Lock className="mr-1.5 size-4" /> Project
-                  </>
+                <FolderPlus className="mr-1.5 size-4" />
+                {isPro && savedProject ? 'Saved' : 'Project'}
+                {!isPro && (
+                  <span className="absolute -right-1 -top-2 rounded bg-[#8b5cf6] px-1 text-[9px] font-bold text-white">
+                    PRO
+                  </span>
                 )}
-              </Button>
-              <Button className="rounded-xl" onClick={() => setSaving(true)} disabled={!preview}>
-                <Download className="mr-1.5 size-4" /> Image
               </Button>
               <Button
                 variant="outline"
@@ -101,10 +104,8 @@ export function SaveShare({
               >
                 {pdfBusy ? (
                   <Loader2 className="mr-1.5 size-4 animate-spin" />
-                ) : isPro ? (
-                  <FileText className="mr-1.5 size-4" />
                 ) : (
-                  <Lock className="mr-1.5 size-4" />
+                  <FileText className="mr-1.5 size-4" />
                 )}
                 PDF
                 {!isPro && (
@@ -114,13 +115,13 @@ export function SaveShare({
                 )}
               </Button>
             </div>
-            {!isPro && (
-              <p className="mt-3 flex items-center gap-1.5 rounded-xl border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-3 py-2 text-[11px] font-medium text-foreground">
-                <Lock className="size-3.5 shrink-0 text-[#8b5cf6]" />
-                Saving projects and PDF export are Pro features — buy Pro to unlock them.
-              </p>
-            )}
           </section>
+
+          <section className="mt-4 rounded-2xl border border-border p-4">
+            <p className="mb-3 text-sm font-medium">Share</p>
+            <ShareRow preview={preview} />
+          </section>
+
         </div>
       </div>
 
