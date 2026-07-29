@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { PaymentPage } from './payment-page'
 
 const BENEFITS = [
   { icon: ShieldOff, title: 'No ads', desc: 'Zero interruptions while you edit.' },
