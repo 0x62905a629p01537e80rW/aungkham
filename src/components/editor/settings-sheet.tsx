@@ -1,7 +1,27 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ArrowLeft, Crown, Settings as SettingsIcon, Star } from 'lucide-react'
+import {
+  ArrowLeft,
+  Check,
+  Crown,
+  LogOut,
+  Settings as SettingsIcon,
+  Star,
+} from 'lucide-react'
 import { PLAY_STORE_URL, markRated } from '@/lib/rate-us'
+import { useAuth } from '@/components/auth-provider'
+
+const PRO_BENEFITS = [
+  'No ads, no watermark',
+  'All premium fonts, styles & effects',
+  'All templates, shapes & stickers',
+  'Priority support & future updates',
+]
+
+function fmtDate(d: Date | null) {
+  if (!d) return null
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+}
 
 const SUPPORT_EMAIL = 'mm.nextlevelcreators@gmail.com'
 
