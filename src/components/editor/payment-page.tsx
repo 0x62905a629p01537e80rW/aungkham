@@ -80,16 +80,15 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       const { collection, getDocs } = await import('firebase/firestore')
       const snap = await getDocs(collection(getDb(), 'payment_settings'))
       if (cancelled) return
-      const docSnap =
-        snap.docs.find((d) => d.id.toLowerCase().includes('kbz')) ?? snap.docs[0]
-      const d = (docSnap?.data() ?? {}) as Record<string, string>
-      const phone = d.kbzPayNumber ?? d.kbzNumber ?? d.phone ?? d.number ?? ''
-      const name = d.accountName ?? d.name ?? d.kbzAccountName ?? ''
-      if (!phone && !name) {
+      if (snap.empty) {
         setSettingsError('Payment details are not configured yet.')
         return
       }
-      setSettings({ phone, name })
+      const d = (snap.docs[0].data() ?? {}) as Record<string, string>
+      setSettings({
+        phone: d.kpay_number ?? '',
+        name: d.kpay_name ?? '',
+      })
     })().catch((err) => {
       console.log('[payment settings failed]', err)
       if (!cancelled) setSettingsError('Could not load payment details. Please try again.')
