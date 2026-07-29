@@ -33,6 +33,7 @@ export function Editor() {
   const [exporting, setExporting] = useState(false)
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const [adjusting, setAdjusting] = useState(false)
+  const [removingBg, setRemovingBg] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [showGrid, setShowGrid] = useState(false)
   const [replacing, setReplacing] = useState(false)
