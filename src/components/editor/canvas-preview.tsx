@@ -11,7 +11,6 @@ import {
   ZoomOut,
   Minimize,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { LayerText, layerTextStyle, layerTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
 
@@ -730,7 +729,6 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
           <div className="absolute inset-0 overflow-hidden" style={maskStyle}>
           {layers.filter((l) => !l.hidden).map((layer) => {
-            const isSelected = layer.id === selectedId && !exporting
             const isEditing = editingId === layer.id && !exporting
             const inv = 1 / view.scale
             const wrapperStyle: CSSProperties = {
