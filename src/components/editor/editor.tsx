@@ -129,6 +129,11 @@ export function Editor() {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
+      setErasing(false)
+      setEraseMask(undefined)
+      setDraftMask(undefined)
+      setEraseBypass(false)
+      setEraseHistory({ canUndo: false, canRedo: false })
       setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
       setImage(dataUrl)
       const first = createTextLayer('Your text')
@@ -229,7 +234,16 @@ export function Editor() {
   }
 
 
+  function clearErase() {
+    setErasing(false)
+    setEraseMask(undefined)
+    setDraftMask(undefined)
+    setEraseBypass(false)
+    setEraseHistory({ canUndo: false, canRedo: false })
+  }
+
   function resetAll() {
+    clearErase()
     setImage(null)
     setLayers([])
     setSelectedId(null)
@@ -355,6 +369,11 @@ export function Editor() {
   }, [image, preview, layers, naturalSize])
 
   const openProject = useCallback((project: SavedProject) => {
+    setErasing(false)
+    setEraseMask(undefined)
+    setDraftMask(undefined)
+    setEraseBypass(false)
+    setEraseHistory({ canUndo: false, canRedo: false })
     setNaturalSize(project.naturalSize)
     setLayers(project.layers ?? [])
     setSelectedId(project.layers?.[0]?.id ?? null)
@@ -396,6 +415,7 @@ export function Editor() {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
+      clearErase()
       setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
       setImage(bg)
       setLayers(tpl)
