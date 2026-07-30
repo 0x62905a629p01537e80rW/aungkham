@@ -415,7 +415,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
         {tool === 'fit' && (
           <div className="space-y-4">
             {/* 1. Shape */}
-            <div className="flex gap-3 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className={cn('flex gap-3 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden', dimWhenDragging)}>
               {FIT_RATIOS.map((r) => {
                 const active = Math.abs(fitRatio - r.value) < 0.001
                 const w = r.value >= 1 ? 26 : 26 * r.value
@@ -450,14 +450,16 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             </div>
 
             {/* 2. Size */}
-            <SliderField {...dragProps}
-              label="Size"
-              value={fitScale}
-              min={0.3}
-              max={1.5}
-              step={0.01}
-              onChange={setFitScale}
-            />
+            <div className={dimUnlessActive('Size')}>
+              <SliderField {...sliderDrag('Size')}
+                label="Size"
+                value={fitScale}
+                min={0.3}
+                max={1.5}
+                step={0.01}
+                onChange={setFitScale}
+              />
+            </div>
 
             {/* 3. Background — one row of choices */}
             <div>
