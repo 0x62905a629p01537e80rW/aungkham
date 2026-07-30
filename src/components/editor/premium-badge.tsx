@@ -116,7 +116,7 @@ export function PremiumBadge() {
                   Status: Pending verification
                 </p>
                 <p className="mt-2 text-[12px] text-muted-foreground">
-                  Your KBZPay transaction was submitted and is being checked manually. Pro unlocks
+                  Your payment was submitted and is being checked manually. Pro unlocks
                   automatically once approved — usually within a few hours.
                 </p>
               </div>
