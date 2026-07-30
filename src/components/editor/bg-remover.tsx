@@ -70,8 +70,19 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
   const [counts, setCounts] = useState({ undo: 0, redo: 0 })
   const [bgMode, setBgMode] = useState<(typeof BG_MODES)[number]>('checker')
   const [offsetCursor, setOffsetCursor] = useState(true)
+  const [offsetY, setOffsetY] = useState(() => {
+    if (typeof window === 'undefined') return 120
+    const saved = Number(window.localStorage.getItem('bgr-cursor-offset'))
+    return Number.isFinite(saved) && saved >= 40 && saved <= 260 ? saved : 120
+  })
   const [view, setView] = useState({ scale: 1, tx: 0, ty: 0 })
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null)
+  const lastPoint = useRef<{ x: number; y: number } | null>(null)
+
+  const changeOffset = (v: number) => {
+    setOffsetY(v)
+    if (typeof window !== 'undefined') window.localStorage.setItem('bgr-cursor-offset', String(v))
+  }
 
   const ctxOf = () => canvasRef.current?.getContext('2d', { willReadFrequently: true }) ?? null
 
@@ -157,21 +168,28 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     return ((size / 100) * 0.12 + 0.01) * Math.max(canvas.width, canvas.height)
   }
 
+  /** Screen point of the actual working tip (finger position lifted by the offset). */
+  const tipOf = (clientX: number, clientY: number) => ({
+    x: clientX,
+    y: offsetCursor && tool !== 'zoom' ? clientY - offsetY : clientY,
+  })
+
   const toImageCoords = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current
     if (!canvas) return null
     const rect = canvas.getBoundingClientRect()
-    const y = offsetCursor && tool !== 'zoom' ? clientY - 56 : clientY
+    if (!rect.width || !rect.height) return null
+    const tip = tipOf(clientX, clientY)
     return {
-      x: ((clientX - rect.left) / rect.width) * canvas.width,
-      y: ((y - rect.top) / rect.height) * canvas.height,
+      x: ((tip.x - rect.left) / rect.width) * canvas.width,
+      y: ((tip.y - rect.top) / rect.height) * canvas.height,
     }
   }
 
-  const brush = (x: number, y: number) => {
+  /** Paint one dab at image coords. */
+  const dab = (x: number, y: number) => {
     const ctx = ctxOf()
-    const canvas = canvasRef.current
-    if (!ctx || !canvas) return
+    if (!ctx) return
     const radius = radiusPx()
     if (tool === 'repair') {
       const orig = originalRef.current
@@ -190,6 +208,22 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     ctx.arc(x, y, radius, 0, Math.PI * 2)
     ctx.fill()
     ctx.restore()
+  }
+
+  /** Paint a continuous stroke by interpolating dabs between two points. */
+  const brush = (x: number, y: number, from?: { x: number; y: number } | null) => {
+    if (!from) {
+      dab(x, y)
+      return
+    }
+    const step = Math.max(1, radiusPx() * 0.3)
+    const dist = Math.hypot(x - from.x, y - from.y)
+    const steps = Math.min(400, Math.ceil(dist / step))
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps
+      dab(from.x + (x - from.x) * t, from.y + (y - from.y) * t)
+    }
+    if (steps === 0) dab(x, y)
   }
 
   const undo = () => {
@@ -304,6 +338,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     snapshot()
     setPending(null)
     drawing.current = true
+    lastPoint.current = p
     brush(p.x, p.y)
     setCursor({ x: e.clientX, y: e.clientY })
   }
@@ -340,14 +375,24 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
       setCursor({ x: e.clientX, y: e.clientY })
     }
     if (!drawing.current) return
-    const p = toImageCoords(e.clientX, e.clientY)
-    if (p) brush(p.x, p.y)
+    // Use coalesced samples so fast strokes stay pixel-accurate.
+    const events =
+      typeof e.nativeEvent.getCoalescedEvents === 'function'
+        ? e.nativeEvent.getCoalescedEvents()
+        : [e.nativeEvent]
+    for (const ev of events.length ? events : [e.nativeEvent]) {
+      const p = toImageCoords(ev.clientX, ev.clientY)
+      if (!p) continue
+      brush(p.x, p.y, lastPoint.current)
+      lastPoint.current = p
+    }
   }
 
   const onUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId)
     if (pointers.current.size < 2) pinch.current = null
     drawing.current = false
+    lastPoint.current = null
     if (tool !== 'magic') setCursor(null)
   }
 
@@ -436,19 +481,41 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
         {/* Brush cursor preview with offset crosshair */}
         {cursor && phase === 'edit' && (tool === 'manual' || tool === 'repair') ? (
           <div className="pointer-events-none fixed inset-0">
+            {offsetCursor ? (
+              <div
+                className="absolute w-px bg-red-500/40"
+                style={{ left: cursor.x, top: cursor.y - offsetY, height: offsetY }}
+              />
+            ) : null}
             <div
               className="absolute rounded-full border-2 border-red-500/80"
               style={{
                 left: cursor.x,
-                top: offsetCursor ? cursor.y - 56 : cursor.y,
+                top: offsetCursor ? cursor.y - offsetY : cursor.y,
                 width: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current),
                 height: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current),
                 transform: 'translate(-50%, -50%)',
               }}
             />
+            {/* Exact tip crosshair for pixel-precise work */}
+            <div
+              className="absolute"
+              style={{
+                left: cursor.x,
+                top: offsetCursor ? cursor.y - offsetY : cursor.y,
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <div className="relative size-6">
+                <span className="absolute left-1/2 top-0 h-2 w-px -translate-x-1/2 bg-red-500" />
+                <span className="absolute bottom-0 left-1/2 h-2 w-px -translate-x-1/2 bg-red-500" />
+                <span className="absolute left-0 top-1/2 h-px w-2 -translate-y-1/2 bg-red-500" />
+                <span className="absolute right-0 top-1/2 h-px w-2 -translate-y-1/2 bg-red-500" />
+              </div>
+            </div>
             {offsetCursor ? (
               <div
-                className="absolute size-3 rounded-full bg-red-500/70"
+                className="absolute size-3 rounded-full border border-white/70 bg-red-500/60"
                 style={{ left: cursor.x, top: cursor.y, transform: 'translate(-50%, -50%)' }}
               />
             ) : null}
@@ -458,11 +525,17 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
         {/* Magic wand target cursor */}
         {cursor && phase === 'edit' && tool === 'magic' ? (
           <div className="pointer-events-none fixed inset-0">
+            {offsetCursor ? (
+              <div
+                className="absolute w-px bg-sky-400/40"
+                style={{ left: cursor.x, top: cursor.y - offsetY, height: offsetY }}
+              />
+            ) : null}
             <div
               className="absolute"
               style={{
                 left: cursor.x,
-                top: offsetCursor ? cursor.y - 56 : cursor.y,
+                top: offsetCursor ? cursor.y - offsetY : cursor.y,
                 transform: 'translate(-50%, -50%)',
               }}
             >
@@ -476,7 +549,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
             </div>
             {offsetCursor ? (
               <div
-                className="absolute size-3 rounded-full bg-sky-400/70"
+                className="absolute size-3 rounded-full border border-white/70 bg-sky-400/60"
                 style={{ left: cursor.x, top: cursor.y, transform: 'translate(-50%, -50%)' }}
               />
             ) : null}
@@ -596,6 +669,12 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
               </button>
             </div>
           </div>
+
+          {offsetCursor && (tool === 'manual' || tool === 'repair' || tool === 'magic') ? (
+            <SliderField label="Cursor Offset" value={offsetY} min={40} max={260} onChange={changeOffset} />
+          ) : null}
+
+
 
           {tool === 'auto' ? (
             <button
