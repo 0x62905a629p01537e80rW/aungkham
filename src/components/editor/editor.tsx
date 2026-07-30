@@ -32,6 +32,7 @@ export function Editor() {
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null)
   const [layers, setLayers] = useState<TextLayer[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [discardOpen, setDiscardOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const [adjusting, setAdjusting] = useState(false)
