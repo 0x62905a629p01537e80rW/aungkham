@@ -382,7 +382,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="glass-panel w-[min(92vw,340px)] rounded-3xl border-0 bg-transparent p-4 shadow-none"
+                className="glass-panel w-[min(92vw,340px)] rounded-3xl border-0 bg-transparent p-4 shadow-none transition-[background-color,backdrop-filter] duration-200 has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-dragging=true]]:![backdrop-filter:none]"
               >
                 <ToolContent
                   tool={tool.key}
@@ -700,6 +700,157 @@ function FontPicker({
   )
 }
 
+type FormatSlider = 'size' | 'width' | 'weight'
+
+function FormatPanel({
+  layer,
+  onChange,
+}: {
+  layer: TextLayer
+  onChange: (patch: Partial<TextLayer>) => void
+}) {
+  const [dragging, setDragging] = useState<FormatSlider | null>(null)
+  const width = layer.widthScale ?? 100
+  const zoomPct = Math.round((layer.fontSize / 12) * 100)
+  const toggle =
+    'flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition active:scale-95'
+
+  const hidden = (key: FormatSlider) =>
+    dragging !== null && dragging !== key
+      ? 'pointer-events-none opacity-0'
+      : 'opacity-100'
+  const fade = 'transition-opacity duration-200'
+  const others = dragging ? 'pointer-events-none opacity-0' : 'opacity-100'
+
+  const drag = (key: FormatSlider) => ({
+    onDragStart: () => setDragging(key),
+    onDragEnd: () => setDragging(null),
+    hideLabel: dragging === key,
+  })
+
+  return (
+    <div
+      className="space-y-4"
+      data-dragging={dragging ? 'true' : 'false'}
+      onPointerUp={() => setDragging(null)}
+      onPointerCancel={() => setDragging(null)}
+    >
+      <div className={cn(fade, others)}>
+        <ToolHeading>Format</ToolHeading>
+      </div>
+
+      <div className={cn(fade, hidden('size'))}>
+        <SliderField
+          label="Size"
+          value={layer.fontSize}
+          min={2}
+          max={40}
+          step={0.5}
+          onChange={(v) => onChange({ fontSize: v })}
+          {...drag('size')}
+        />
+      </div>
+
+      <div className={cn(fade, others, 'flex items-center justify-between')}>
+        <Label className="text-sm font-medium">Zoom</Label>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">{zoomPct}%</span>
+          <button
+            type="button"
+            aria-label="Zoom out"
+            className="flex size-9 items-center justify-center rounded-xl border border-border transition active:scale-95"
+            onClick={() => onChange({ fontSize: Math.max(2, Math.round((layer.fontSize - 0.5) * 2) / 2) })}
+          >
+            <Minus className="size-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Zoom in"
+            className="flex size-9 items-center justify-center rounded-xl border border-border transition active:scale-95"
+            onClick={() => onChange({ fontSize: Math.min(40, Math.round((layer.fontSize + 0.5) * 2) / 2) })}
+          >
+            <Plus className="size-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className={cn(fade, hidden('width'))}>
+        <SliderField
+          label="Width"
+          value={width}
+          min={50}
+          max={200}
+          suffix="%"
+          onChange={(v) => onChange({ widthScale: v })}
+          {...drag('width')}
+        />
+      </div>
+
+      <div className={cn(fade, others, 'flex items-center gap-2')}>
+        <button
+          type="button"
+          onClick={() => onChange({ fontWeight: layer.fontWeight >= 700 ? 400 : 700 })}
+          className={cn(toggle, layer.fontWeight >= 700 ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
+        >
+          <Bold className="size-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange({ italic: !layer.italic })}
+          className={cn(toggle, layer.italic ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
+        >
+          <Italic className="size-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange({ underline: !layer.underline })}
+          className={cn(toggle, layer.underline ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
+        >
+          <Underline className="size-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange({ strike: !layer.strike })}
+          className={cn(toggle, layer.strike ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
+        >
+          <Strikethrough className="size-4" />
+        </button>
+      </div>
+
+      <div className={cn(fade, hidden('weight'))}>
+        <SliderField
+          label="Weight"
+          value={layer.fontWeight}
+          min={100}
+          max={900}
+          step={100}
+          onChange={(v) => onChange({ fontWeight: v })}
+          {...drag('weight')}
+        />
+      </div>
+
+      <div className={cn(fade, others)}>
+        <ToggleGroup
+          type="single"
+          value={layer.align}
+          onValueChange={(v) => v && onChange({ align: v as TextAlign })}
+          className="w-full"
+        >
+          <ToggleGroupItem value="left" aria-label="Align left" className="flex-1">
+            <AlignLeft className="size-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="center" aria-label="Align center" className="flex-1">
+            <AlignCenter className="size-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="right" aria-label="Align right" className="flex-1">
+            <AlignRight className="size-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+    </div>
+  )
+}
+
 
 function ToolContent({
   tool,
@@ -735,115 +886,9 @@ function ToolContent({
       return <FontPicker layer={layer} onChange={onChange} onClose={onCloseTool} />
 
 
-    case 'format': {
-      const width = layer.widthScale ?? 100
-      const toggle =
-        'flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl border text-xs font-semibold transition active:scale-95'
-      const zoomPct = Math.round((layer.fontSize / 12) * 100)
-      return (
-        <div className="space-y-4">
-          <ToolHeading>Format</ToolHeading>
+    case 'format':
+      return <FormatPanel layer={layer} onChange={onChange} />
 
-          <SliderField
-            label="Size"
-            value={layer.fontSize}
-            min={2}
-            max={40}
-            step={0.5}
-            onChange={(v) => onChange({ fontSize: v })}
-          />
-
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">Zoom</Label>
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs tabular-nums text-muted-foreground">{zoomPct}%</span>
-              <button
-                type="button"
-                aria-label="Zoom out"
-                className="flex size-9 items-center justify-center rounded-xl border border-border transition active:scale-95"
-                onClick={() => onChange({ fontSize: Math.max(2, Math.round((layer.fontSize - 0.5) * 2) / 2) })}
-              >
-                <Minus className="size-4" />
-              </button>
-              <button
-                type="button"
-                aria-label="Zoom in"
-                className="flex size-9 items-center justify-center rounded-xl border border-border transition active:scale-95"
-                onClick={() => onChange({ fontSize: Math.min(40, Math.round((layer.fontSize + 0.5) * 2) / 2) })}
-              >
-                <Plus className="size-4" />
-              </button>
-            </div>
-          </div>
-
-          <SliderField
-            label="Width"
-            value={width}
-            min={50}
-            max={200}
-            suffix="%"
-            onChange={(v) => onChange({ widthScale: v })}
-          />
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onChange({ fontWeight: layer.fontWeight >= 700 ? 400 : 700 })}
-              className={cn(toggle, layer.fontWeight >= 700 ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
-            >
-              <Bold className="size-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onChange({ italic: !layer.italic })}
-              className={cn(toggle, layer.italic ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
-            >
-              <Italic className="size-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onChange({ underline: !layer.underline })}
-              className={cn(toggle, layer.underline ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
-            >
-              <Underline className="size-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onChange({ strike: !layer.strike })}
-              className={cn(toggle, layer.strike ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
-            >
-              <Strikethrough className="size-4" />
-            </button>
-          </div>
-
-          <SliderField
-            label="Weight"
-            value={layer.fontWeight}
-            min={100}
-            max={900}
-            step={100}
-            onChange={(v) => onChange({ fontWeight: v })}
-          />
-
-          <ToggleGroup
-            type="single"
-            value={layer.align}
-            onValueChange={(v) => v && onChange({ align: v as TextAlign })}
-            className="w-full"
-          >
-            <ToggleGroupItem value="left" aria-label="Align left" className="flex-1">
-              <AlignLeft className="size-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="center" aria-label="Align center" className="flex-1">
-              <AlignCenter className="size-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="right" aria-label="Align right" className="flex-1">
-              <AlignRight className="size-4" />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-      )
-    }
     case 'spacing':
       return (
         <div className="space-y-4">

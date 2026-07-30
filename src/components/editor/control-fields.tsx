@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { ColorPickerPopover } from './color-picker'
+import { cn } from '@/lib/utils'
+
 
 
 export function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -23,6 +25,9 @@ export function SliderField({
   step = 1,
   suffix = '',
   onChange,
+  onDragStart,
+  onDragEnd,
+  hideLabel = false,
 }: {
   label: string
   value: number
@@ -31,10 +36,18 @@ export function SliderField({
   step?: number
   suffix?: string
   onChange: (v: number) => void
+  onDragStart?: () => void
+  onDragEnd?: () => void
+  hideLabel?: boolean
 }) {
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div
+        className={cn(
+          'flex items-center justify-between transition-opacity duration-200',
+          hideLabel && 'pointer-events-none opacity-0',
+        )}
+      >
         <Label className="text-sm font-medium text-foreground">{label}</Label>
         <span className="font-mono text-xs tabular-nums text-muted-foreground">
           {value}
@@ -46,11 +59,15 @@ export function SliderField({
         min={min}
         max={max}
         step={step}
+        onPointerDown={onDragStart}
+        onPointerUp={onDragEnd}
+        onValueCommit={onDragEnd}
         onValueChange={(v) => onChange(v[0])}
       />
     </div>
   )
 }
+
 
 export function ColorField({
   label,
