@@ -845,7 +845,7 @@ function FontPicker({
 
       <div
         className={cn(
-          'flex max-h-[46dvh] flex-col gap-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-0.5',
+          'flex h-[46dvh] flex-col gap-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-0.5',
           group === 'google' && 'hidden',
         )}
       >
