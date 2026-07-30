@@ -51,6 +51,7 @@ export function PremiumBadge() {
   const [open, setOpen] = useState(false)
   const [pay, setPay] = useState(false)
   const { isPro, proPending, proExpiresAt, proSince } = useAuth()
+  const pricing = usePricing(open)
 
   return (
     <>

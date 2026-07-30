@@ -38,6 +38,7 @@ export function ProSplash() {
   const [pay, setPay] = useState(false)
   const [restoring, setRestoring] = useState(false)
   const { isPro, signIn } = useAuth()
+  const pricing = usePricing(open)
 
   async function handleRestore() {
     setRestoring(true)
