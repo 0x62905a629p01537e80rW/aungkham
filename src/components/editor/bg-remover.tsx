@@ -157,35 +157,83 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     return ((size / 100) * 0.12 + 0.01) * Math.max(canvas.width, canvas.height)
   }
 
+  /** Screen point of the actual working tip (finger position lifted by the offset). */
+  const tipOf = (clientX: number, clientY: number) => ({
+    x: clientX,
+    y: offsetCursor && tool !== 'zoom' ? clientY - offsetY : clientY,
+  })
+
   const toImageCoords = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current
     if (!canvas) return null
     const rect = canvas.getBoundingClientRect()
-    const y = offsetCursor && tool !== 'zoom' ? clientY - 56 : clientY
+    if (!rect.width || !rect.height) return null
+    const tip = tipOf(clientX, clientY)
     return {
-      x: ((clientX - rect.left) / rect.width) * canvas.width,
-      y: ((y - rect.top) / rect.height) * canvas.height,
+      x: ((tip.x - rect.left) / rect.width) * canvas.width,
+      y: ((tip.y - rect.top) / rect.height) * canvas.height,
     }
   }
 
-  const brush = (x: number, y: number) => {
+  /** Paint one dab, or a continuous segment when a previous point exists. */
+  const brush = (x: number, y: number, from?: { x: number; y: number } | null) => {
     const ctx = ctxOf()
     const canvas = canvasRef.current
     if (!ctx || !canvas) return
     const radius = radiusPx()
+    const path = new Path2D()
+    if (from) {
+      path.moveTo(from.x, from.y)
+      path.lineTo(x, y)
+    }
+    path.moveTo(x + radius, y)
+    path.arc(x, y, radius, 0, Math.PI * 2)
+
     if (tool === 'repair') {
       const orig = originalRef.current
       if (!orig) return
       ctx.save()
+      if (from) {
+        ctx.lineWidth = radius * 2
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+      }
       ctx.beginPath()
-      ctx.arc(x, y, radius, 0, Math.PI * 2)
-      ctx.clip()
+      ctx.clip(path)
+      if (from) {
+        // Clip covers the dab; widen with a stroked band for the segment.
+        ctx.restore()
+        ctx.save()
+        ctx.beginPath()
+        ctx.moveTo(from.x, from.y)
+        ctx.lineTo(x, y)
+        ctx.lineWidth = radius * 2
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.strokeStyle = '#000'
+        ctx.save()
+        ctx.clip(path)
+        ctx.drawImage(orig, 0, 0)
+        ctx.restore()
+        ctx.restore()
+        return
+      }
       ctx.drawImage(orig, 0, 0)
       ctx.restore()
       return
     }
+
     ctx.save()
     ctx.globalCompositeOperation = 'destination-out'
+    if (from) {
+      ctx.lineWidth = radius * 2
+      ctx.lineCap = 'round'
+      ctx.lineJoin = 'round'
+      ctx.beginPath()
+      ctx.moveTo(from.x, from.y)
+      ctx.lineTo(x, y)
+      ctx.stroke()
+    }
     ctx.beginPath()
     ctx.arc(x, y, radius, 0, Math.PI * 2)
     ctx.fill()
