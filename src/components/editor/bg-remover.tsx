@@ -339,11 +339,6 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     if ((tool === 'manual' || tool === 'repair' || tool === 'magic') && pointers.current.size === 1) {
       setCursor({ x: e.clientX, y: e.clientY })
     }
-    if (tool === 'magic' && pointers.current.size === 1) {
-      const mp = toImageCoords(e.clientX, e.clientY)
-      if (mp) startOp({ kind: 'magic', x: mp.x, y: mp.y })
-      return
-    }
     if (!drawing.current) return
     const p = toImageCoords(e.clientX, e.clientY)
     if (p) brush(p.x, p.y)
