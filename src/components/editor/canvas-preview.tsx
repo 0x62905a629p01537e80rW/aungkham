@@ -176,9 +176,19 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       })
     }
 
+    // Layer drags are coalesced into one state update per animation frame so
+    // a 120Hz pointer stream never queues more renders than frames.
+    const onMoveRef = useRef(onMove)
+    onMoveRef.current = onMove
+    const dragRectRef = useRef<{ width: number; height: number } | null>(null)
+    const emitMove = useRef(
+      rafThrottle((id: string, x: number, y: number) => onMoveRef.current(id, x, y)),
+    ).current
+
     useEffect(() => () => {
+      emitMove.cancel()
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
-    }, [])
+    }, [emitMove])
 
     function stageDown(e: PointerEvent<HTMLDivElement>) {
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
