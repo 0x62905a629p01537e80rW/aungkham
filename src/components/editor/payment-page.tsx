@@ -218,7 +218,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto perf-scroll bg-background text-foreground animate-fade-in">
       <div
-        className="glass-panel sticky top-0 z-10 flex items-center gap-2.5 rounded-none border-0 px-3 pb-2.5 pt-4"
+        className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-border/60 bg-background px-3 pb-3 pt-4"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
       >
         <button
