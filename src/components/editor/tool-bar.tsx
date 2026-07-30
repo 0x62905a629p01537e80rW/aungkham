@@ -746,7 +746,22 @@ function FontPicker({
       )}
 
 
-      <div className="grid max-h-[46dvh] grid-cols-2 gap-2 overflow-y-auto perf-scroll pr-1">
+      {group === 'google' && (
+        <GoogleFontsPanel
+          activeKey={layer.fontKey}
+          onPick={(key) => {
+            recordRecentFont(key)
+            onChange({ fontKey: key })
+          }}
+        />
+      )}
+
+      <div
+        className={cn(
+          'grid max-h-[46dvh] grid-cols-2 gap-2 overflow-y-auto perf-scroll pr-1',
+          group === 'google' && 'hidden',
+        )}
+      >
         {items.map((f) => (
           <FontCard
             key={f.key}
