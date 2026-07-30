@@ -63,9 +63,12 @@ function TemplateThumb({ template, bg }: { template: TemplateDef; bg: string }) 
 export function TemplateGallery({
   onApply,
   className,
+  scroll = true,
 }: {
   onApply: (layers: TextLayer[], bg?: string) => void
   className?: string
+  /** When false the gallery grows with its content and relies on a parent scroller. */
+  scroll?: boolean
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
@@ -76,7 +79,7 @@ export function TemplateGallery({
   )
 
   return (
-    <div className={cn('flex min-h-0 flex-1 flex-col', className)}>
+    <div className={cn('flex flex-col', scroll && 'min-h-0 flex-1', className)}>
       <div className="flex shrink-0 items-center justify-end gap-1 pb-2">
         <GlassTabs
           size="sm"
@@ -101,7 +104,7 @@ export function TemplateGallery({
       </div>
 
 
-      <div className="min-h-0 flex-1 overflow-y-auto perf-scroll pb-8">
+      <div className={cn(scroll ? 'min-h-0 flex-1 overflow-y-auto perf-scroll pb-8' : 'pb-2')}>
         <div className="flex flex-col gap-2">
           {list.map((t) => {
             const bg = THUMB_BG[hashOf(t.id) % THUMB_BG.length]

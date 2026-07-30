@@ -227,7 +227,7 @@ export function UploadZone({
 
         {tab === 'templates' &&
           (onApplyTemplate ? (
-            <TemplateGallery onApply={onApplyTemplate} />
+            <TemplateGallery scroll={false} onApply={onApplyTemplate} />
           ) : (
             <button
               type="button"
