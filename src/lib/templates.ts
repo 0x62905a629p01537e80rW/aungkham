@@ -6,6 +6,8 @@
 import { createGraphicLayer, createTextLayer, type TextLayer } from '@/lib/text-layer'
 import { shapeDataUrl } from '@/lib/shapes'
 import { PREMIUM_TEMPLATES } from '@/lib/premium-templates'
+import { fitScale, measurable } from '@/lib/template-fit'
+
 
 export type TemplateLang = 'EN' | 'MM'
 
@@ -811,11 +813,17 @@ const DESIGNS: Design[] = [
   },
 ]
 
-/** Upscale every template headline/caption so type reads large on canvas. */
+/** Upscale every template so type reads large on canvas, without overflowing. */
 const TEXT_SCALE = 3
 const TEXT_MAX = 34
 
 function specsToLayers(specs: Spec[]): TextLayer[] {
+  const texts = specs.filter((s) => s.kind === 'text') as Extract<Spec, { kind: 'text' }>[]
+  const scale = fitScale(
+    texts.map((s) => measurable({ ...s.o, text: s.text })),
+    TEXT_SCALE,
+    TEXT_MAX,
+  )
   return specs.map((spec) => {
     if (spec.kind === 'shape') {
       const color = (spec.o.color as string) ?? '#000000'
@@ -823,13 +831,14 @@ function specsToLayers(specs: Spec[]): TextLayer[] {
         { kind: 'shape', src: shapeDataUrl(spec.path, color), aspect: spec.aspect },
         'Shape',
       )
-      return { ...base, ...spec.o, color }
+      return { ...base, ...spec.o, color, fontSize: (spec.o.fontSize ?? 6) * scale }
     }
     const base = createTextLayer(spec.text)
-    const size = Math.min((spec.o.fontSize ?? 6) * TEXT_SCALE, TEXT_MAX)
+    const size = Math.min((spec.o.fontSize ?? 6) * scale, TEXT_MAX)
     return { ...base, ...spec.o, fontSize: size, text: spec.text }
   })
 }
+
 
 function buildAll(): TemplateDef[] {
   const out: TemplateDef[] = []

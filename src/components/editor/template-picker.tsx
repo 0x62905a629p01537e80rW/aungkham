@@ -80,31 +80,33 @@ export function TemplateGallery({
 
   return (
     <div className={cn('flex flex-col', scroll && 'min-h-0 flex-1', className)}>
-      <div className="flex shrink-0 items-center justify-end gap-1 pb-2">
-        <GlassTabs
-          size="sm"
-          className="w-auto"
-          value={lang}
-          onChange={(l) => setLang(l as TemplateLang)}
-          items={[
-            { key: 'EN', label: 'English' },
-            { key: 'MM', label: 'မြန်မာ' },
-          ]}
-        />
+      <div className="sticky top-0 z-10 -mx-1 bg-background/80 px-1 pt-1 backdrop-blur-xl">
+        <div className="flex shrink-0 items-center justify-end gap-1 pb-2">
+          <GlassTabs
+            size="sm"
+            className="w-auto"
+            value={lang}
+            onChange={(l) => setLang(l as TemplateLang)}
+            items={[
+              { key: 'EN', label: 'English' },
+              { key: 'MM', label: 'မြန်မာ' },
+            ]}
+          />
+        </div>
+
+        <div className="shrink-0 pb-2">
+          <GlassTabs
+            variant="chips"
+            size="sm"
+            value={group}
+            onChange={(g) => setGroup(g as typeof group)}
+            items={TEMPLATE_GROUPS.map((g) => ({ key: g, label: g }))}
+          />
+        </div>
       </div>
 
-      <div className="shrink-0 pb-2">
-        <GlassTabs
-          variant="chips"
-          size="sm"
-          value={group}
-          onChange={(g) => setGroup(g as typeof group)}
-          items={TEMPLATE_GROUPS.map((g) => ({ key: g, label: g }))}
-        />
-      </div>
+      <div className={cn(scroll ? 'min-h-0 flex-1 overflow-y-auto perf-scroll no-scrollbar pb-8' : 'pb-2')}>
 
-
-      <div className={cn(scroll ? 'min-h-0 flex-1 overflow-y-auto perf-scroll pb-8' : 'pb-2')}>
         <div className="flex flex-col gap-2">
           {list.map((t) => {
             const bg = THUMB_BG[hashOf(t.id) % THUMB_BG.length]

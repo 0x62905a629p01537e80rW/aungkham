@@ -123,7 +123,7 @@ export function UploadZone({
 
 
       {/* Tab content */}
-      <div className="mx-auto mt-5 flex min-h-0 w-full max-w-sm flex-1 flex-col overflow-y-auto overscroll-contain perf-scroll pb-4">
+      <div className="mx-auto mt-5 flex min-h-0 w-full max-w-sm flex-1 flex-col overflow-y-auto overscroll-contain perf-scroll no-scrollbar px-1 pb-10">
         {tab === 'create' && (
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
@@ -241,7 +241,7 @@ export function UploadZone({
 
         {tab === 'projects' &&
           (projects.length === 0 ? (
-            <div className="glass-panel flex flex-1 flex-col items-center justify-center rounded-3xl px-6 py-12 text-center">
+            <div className="glass-panel mb-2 flex min-h-[24rem] flex-1 flex-col items-center justify-center rounded-3xl px-6 py-12 text-center">
               <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-secondary text-secondary-foreground">
                 <FolderOpen className="size-6 text-primary" />
               </div>

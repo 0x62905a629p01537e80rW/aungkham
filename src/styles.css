@@ -512,3 +512,14 @@ html.perf-interact .checker-grid {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Hide native scrollbars on app scrollers (gesture-driven UI). */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
