@@ -121,7 +121,13 @@ export function FilterEditor({ image, onCancel, onApply }: Props) {
       </header>
 
       <div className="flex flex-1 items-center justify-center overflow-hidden bg-muted/30 p-3">
-        <img src={preview} alt="Filter preview" className="max-h-full max-w-full object-contain" />
+        <img
+          ref={imgRef}
+          src={preview}
+          alt="Filter preview"
+          className="max-h-full max-w-full object-contain"
+        />
+
       </div>
 
       <div
