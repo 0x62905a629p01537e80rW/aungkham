@@ -169,12 +169,19 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       </div>
 
       <div className="px-4 pb-14">
-        <div className="rounded-3xl border border-primary/30 bg-primary/5 p-4 text-center">
+        <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-primary/5 p-4 text-center">
+          <span className="absolute left-0 top-0 rounded-br-2xl bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[10px] font-extrabold text-white">
+            50% OFF
+          </span>
           <p className="text-sm font-semibold">Myan Pro · Lifetime</p>
-          <p className="mt-1 text-2xl font-extrabold tracking-tight">{PRICE_MMK}</p>
+          <p className="text-[11px] text-muted-foreground line-through">{PRICE_OLD_MMK}</p>
+          <p className="mt-0.5 text-2xl font-extrabold tracking-tight">
+            {PRICE_MMK}
+            <span className="ml-1 text-[13px] font-bold text-muted-foreground">OR {PRICE_USD}</span>
+          </p>
           <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
             <BadgeCheck className="size-3.5 text-primary" />
-            One-time payment · approx. {PRICE_USD}
+            One-time payment · limited-time offer
           </p>
         </div>
 
