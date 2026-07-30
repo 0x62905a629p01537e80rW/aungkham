@@ -183,6 +183,16 @@ export function ColorPickerPanel({
 
   useEffect(() => subscribeRecents(() => setRecents(listRecentColors())), [])
 
+  // remember the last colour the user actually settled on
+  const lastValueRef = useRef<string>('')
+  useEffect(
+    () => () => {
+      if (firstRun.current && lastValueRef.current) recordRecentColor(lastValueRef.current)
+    },
+    [],
+  )
+
+
   const pills = useMemo(() => {
     const seen = new Set<string>()
     const out: string[] = []
