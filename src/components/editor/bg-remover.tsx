@@ -331,6 +331,9 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     if (tool === 'magic') {
       setCursor({ x: e.clientX, y: e.clientY })
       startOp({ kind: 'magic', x: p.x, y: p.y })
+      // keep erasing live while the finger stays down and moves
+      drawing.current = true
+      lastPoint.current = p
       return
     }
     if (tool === 'auto') return
