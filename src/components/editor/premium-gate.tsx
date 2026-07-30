@@ -150,6 +150,32 @@ export function PremiumGate({
                   </div>
                 </div>
               )}
+              {usesPremiumTexture(layers) && (
+                <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                    <ImageIcon className="size-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-foreground">Image Texture</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Purchase Premium to export with image-filled text or shapes.
+                    </p>
+                  </div>
+                </div>
+              )}
+              {usesPremiumCutout(layers) && (
+                <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                    <Scissors className="size-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-foreground">Background Removal</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Purchase Premium to export with the removed background.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <button
