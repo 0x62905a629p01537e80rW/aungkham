@@ -1770,6 +1770,8 @@ const LIQUID_PRESETS: {
   { label: 'Dark plate', patch: { liquidTint: 34, liquidBorder: 50, liquidGlow: 22, liquidBlur: 16, liquidPlate: true, liquidDark: true } },
 ]
 
+type LiquidSlider = 'tint' | 'rim' | 'glow' | 'blur'
+
 function LiquidPanel({
   layer,
   onChange,
@@ -1778,14 +1780,39 @@ function LiquidPanel({
   onChange: (patch: Partial<TextLayer>) => void
 }) {
   const on = !!layer.liquidOn
+  const [dragging, setDragging] = useState<LiquidSlider | null>(null)
+  const [peek, setPeek] = useState(false)
+  const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (peekTimer.current) clearTimeout(peekTimer.current) }, [])
+  const quickPeek = () => {
+    setPeek(true)
+    if (peekTimer.current) clearTimeout(peekTimer.current)
+    peekTimer.current = setTimeout(() => setPeek(false), 800)
+  }
+
+  const fade = 'transition-opacity duration-200'
+  const others = dragging ? 'pointer-events-none opacity-0' : 'opacity-100'
+  const hidden = (key: LiquidSlider) =>
+    dragging !== null && dragging !== key ? 'pointer-events-none opacity-0' : 'opacity-100'
+  const drag = (key: LiquidSlider) => ({
+    onDragStart: () => setDragging(key),
+    onDragEnd: () => setDragging(null),
+    hideLabel: dragging === key,
+  })
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div
+      className={cn('space-y-4 transition-opacity duration-300', peek && 'opacity-20')}
+      data-dragging={dragging ? 'true' : 'false'}
+      data-peek={peek ? 'true' : 'false'}
+      onPointerUp={() => setDragging(null)}
+      onPointerCancel={() => setDragging(null)}
+    >
+      <div className={cn(fade, others, 'flex items-center justify-between')}>
         <ToolHeading>Liquid glass</ToolHeading>
         <button
           type="button"
-          onClick={() => onChange({ liquidOn: !on })}
+          onClick={() => { quickPeek(); onChange({ liquidOn: !on }) }}
           className={cn(
             'rounded-full border px-3 py-1 text-[11px] font-semibold transition active:scale-95',
             on ? 'border-primary bg-primary/15 text-primary' : 'border-border/60 text-foreground/75',
@@ -1795,12 +1822,12 @@ function LiquidPanel({
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className={cn(fade, others, 'grid grid-cols-3 gap-1.5')}>
         {LIQUID_PRESETS.map((p) => (
           <button
             key={p.label}
             type="button"
-            onClick={() => onChange({ liquidOn: true, ...p.patch })}
+            onClick={() => { quickPeek(); onChange({ liquidOn: true, ...p.patch }) }}
             className="truncate rounded-xl border border-border/60 px-2 py-2 text-[10px] font-medium text-foreground/80 transition active:scale-95"
           >
             {p.label}
@@ -1810,34 +1837,43 @@ function LiquidPanel({
 
       {on && (
         <>
-          <SliderField
-            label="Tint"
-            value={layer.liquidTint ?? 22}
-            min={0}
-            max={100}
-            suffix="%"
-            onChange={(v) => onChange({ liquidTint: v })}
-          />
-          <SliderField
-            label="Rim light"
-            value={layer.liquidBorder ?? 45}
-            min={0}
-            max={100}
-            suffix="%"
-            onChange={(v) => onChange({ liquidBorder: v })}
-          />
-          <SliderField
-            label="Glow"
-            value={layer.liquidGlow ?? 35}
-            min={0}
-            max={100}
-            suffix="%"
-            onChange={(v) => onChange({ liquidGlow: v })}
-          />
-          <div className="flex gap-1.5">
+          <div className={cn(fade, hidden('tint'))}>
+            <SliderField
+              label="Tint"
+              value={layer.liquidTint ?? 22}
+              min={0}
+              max={100}
+              suffix="%"
+              onChange={(v) => onChange({ liquidTint: v })}
+              {...drag('tint')}
+            />
+          </div>
+          <div className={cn(fade, hidden('rim'))}>
+            <SliderField
+              label="Rim light"
+              value={layer.liquidBorder ?? 45}
+              min={0}
+              max={100}
+              suffix="%"
+              onChange={(v) => onChange({ liquidBorder: v })}
+              {...drag('rim')}
+            />
+          </div>
+          <div className={cn(fade, hidden('glow'))}>
+            <SliderField
+              label="Glow"
+              value={layer.liquidGlow ?? 35}
+              min={0}
+              max={100}
+              suffix="%"
+              onChange={(v) => onChange({ liquidGlow: v })}
+              {...drag('glow')}
+            />
+          </div>
+          <div className={cn(fade, others, 'flex gap-1.5')}>
             <button
               type="button"
-              onClick={() => onChange({ liquidPlate: !layer.liquidPlate })}
+              onClick={() => { quickPeek(); onChange({ liquidPlate: !layer.liquidPlate }) }}
               className={cn(
                 'flex-1 rounded-xl border px-2 py-2 text-[11px] font-medium transition active:scale-95',
                 layer.liquidPlate
@@ -1849,7 +1885,7 @@ function LiquidPanel({
             </button>
             <button
               type="button"
-              onClick={() => onChange({ liquidDark: !layer.liquidDark })}
+              onClick={() => { quickPeek(); onChange({ liquidDark: !layer.liquidDark }) }}
               className={cn(
                 'flex-1 rounded-xl border px-2 py-2 text-[11px] font-medium transition active:scale-95',
                 layer.liquidDark
@@ -1861,17 +1897,21 @@ function LiquidPanel({
             </button>
           </div>
           {layer.liquidPlate && (
-            <SliderField
-              label="Plate blur"
-              value={layer.liquidBlur ?? 8}
-              min={0}
-              max={30}
-              suffix="px"
-              onChange={(v) => onChange({ liquidBlur: v })}
-            />
+            <div className={cn(fade, hidden('blur'))}>
+              <SliderField
+                label="Plate blur"
+                value={layer.liquidBlur ?? 8}
+                min={0}
+                max={30}
+                suffix="px"
+                onChange={(v) => onChange({ liquidBlur: v })}
+                {...drag('blur')}
+              />
+            </div>
           )}
         </>
       )}
     </div>
   )
 }
+
