@@ -144,7 +144,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
   }
 
   async function handleSubmit() {
-    if (!user || !txId.trim() || !senderInfo.trim()) return
+    if (!user || !txId.trim()) return
     setSubmitting(true)
     setError(null)
     try {
@@ -154,7 +154,6 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
         userId: user.uid,
         userEmail: user.email,
         txId: txId.trim(),
-        senderInfo: senderInfo.trim(),
         method: method === 'usdt' ? 'USDT' : 'KBZPay',
         network: method === 'usdt' ? (activeNet?.label ?? '') : '',
         toAddress: method === 'usdt' ? (activeNet?.address ?? '') : '',
