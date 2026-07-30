@@ -79,6 +79,81 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [method, setMethod] = useState<Method>('kbzpay')
+  const [cryptoRef, setCryptoRef] = useState<string | null>(null)
+  const [cryptoDocId, setCryptoDocId] = useState<string | null>(null)
+  const [returned, setReturned] = useState(false)
+  const [openingCheckout, setOpeningCheckout] = useState(false)
+  const awaitingReturn = useRef(false)
+
+  const markReturned = useCallback(() => {
+    if (awaitingReturn.current) setReturned(true)
+  }, [])
+
+  // Detect the user coming back from the Shieldz hosted checkout.
+  useEffect(() => {
+    if (!open || method !== 'crypto') return
+    return onReturnFromCheckout(markReturned)
+  }, [open, method, markReturned])
+
+  /** Create the pending record, then open Shieldz hosted checkout. */
+  async function startCryptoCheckout() {
+    if (!user) return
+    setOpeningCheckout(true)
+    setError(null)
+    try {
+      const reference = cryptoRef ?? makeReference()
+      let docId = cryptoDocId
+      if (!docId) {
+        const { getDb } = await import('@/lib/firebase')
+        const { addDoc, collection, serverTimestamp } = await import('firebase/firestore')
+        const ref = await addDoc(collection(getDb(), 'transactions'), {
+          userId: user.uid,
+          userEmail: user.email,
+          reference,
+          method: 'Shieldz',
+          amountUsd: 8.5,
+          status: 'awaiting_payment',
+          createdAt: serverTimestamp(),
+        })
+        docId = ref.id
+      }
+      setCryptoRef(reference)
+      setCryptoDocId(docId)
+      awaitingReturn.current = true
+      await openShieldzCheckout(
+        buildCheckoutUrl({ reference, email: user.email }),
+        markReturned,
+      )
+    } catch (err) {
+      console.log('[shieldz checkout failed]', err)
+      setError('Could not open the crypto checkout. Check your connection and try again.')
+    } finally {
+      setOpeningCheckout(false)
+    }
+  }
+
+  /** User confirms they paid — flip the record to pending for verification. */
+  async function confirmCryptoPaid() {
+    if (!cryptoDocId) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      const { getDb } = await import('@/lib/firebase')
+      const { doc, serverTimestamp, updateDoc } = await import('firebase/firestore')
+      await updateDoc(doc(getDb(), 'transactions', cryptoDocId), {
+        status: 'pending',
+        paidAt: serverTimestamp(),
+      })
+      awaitingReturn.current = false
+      setSubmitted(true)
+    } catch (err) {
+      console.log('[shieldz confirm failed]', err)
+      setError('Could not confirm. Check your connection and try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   // Fetch KBZPay details from Firestore (payment_settings collection).
   useEffect(() => {
