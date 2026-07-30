@@ -601,7 +601,7 @@ function FontCard({
             className="block overflow-hidden text-ellipsis whitespace-nowrap pb-0.5 text-[19px] text-foreground"
             style={{ fontFamily: fontFamily(entry.key), lineHeight: entry.myanmar ? 1.9 : 1.3 }}
           >
-            {sample || (entry.myanmar ? 'မြန်မာ ဖောင့်စတိုင်' : 'Aa Bb Cc')}
+            {entry.myanmar ? 'မြန်မာ ဖောင့်စတိုင်' : sample || 'Aa Bb Cc'}
           </span>
           <span className="mt-0.5 block truncate text-[9px] uppercase tracking-wider text-muted-foreground">
             {entry.label}
