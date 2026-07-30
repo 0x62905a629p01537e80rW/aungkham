@@ -128,13 +128,32 @@ async function fetchFontFile(family: string): Promise<ArrayBuffer> {
     if (!r.ok) throw new Error('css failed')
     return r.text()
   })
-  const match =
-    css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/) ||
-    css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/)
-  if (!match) throw new Error('no font file found')
-  const res = await fetch(match[1])
+
+  // css2 returns one @font-face per unicode subset (cyrillic, greek, latin…).
+  // Pick the block that actually covers the glyphs we render, otherwise the
+  // installed file has no letters and the text silently falls back.
+  const blocks = css.split('@font-face').slice(1)
+  let best: { url: string; score: number } | null = null
+  for (const block of blocks) {
+    const m =
+      block.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/) ||
+      block.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/)
+    if (!m) continue
+    const range = block.match(/unicode-range:([^;]+);/)?.[1] ?? ''
+    let score = 1
+    if (/U\+1000/i.test(range)) score = 3 // Myanmar
+    else if (/U\+0000|U\+0-00FF|U\+0041|U\+0100/i.test(range)) score = 2 // latin
+    if (!best || score > best.score) best = { url: m[1], score }
+  }
+  if (!best) throw new Error('no font file found')
+  const res = await fetch(best.url)
   if (!res.ok) throw new Error('download failed')
   return res.arrayBuffer()
+}
+
+/** Cache key — bumped when the download logic changes so stale files refetch. */
+function cacheKey(family: string) {
+  return `v2:${family}`
 }
 
 /** Download a Google font and keep it in the app for offline use. */
@@ -143,10 +162,11 @@ export async function installGoogleFont(family: string): Promise<void> {
   const existing = inflight.get(family)
   if (existing) return existing
   const task = (async () => {
-    let buf = await idbGet(family).catch(() => undefined)
+    let buf = await idbGet(cacheKey(family)).catch(() => undefined)
     if (!buf) {
       buf = await fetchFontFile(family)
-      await idbSet(family, buf).catch(() => {})
+      await idbSet(cacheKey(family), buf).catch(() => {})
+      await idbDel(family).catch(() => {})
     }
     await registerBuffer(family, buf)
     const list = listInstalledGoogleFonts()
@@ -161,6 +181,7 @@ export async function installGoogleFont(family: string): Promise<void> {
 }
 
 export async function removeGoogleFont(family: string) {
+  await idbDel(cacheKey(family)).catch(() => {})
   await idbDel(family).catch(() => {})
   loaded.delete(family)
   writeInstalled(listInstalledGoogleFonts().filter((f) => f !== family))
@@ -169,16 +190,21 @@ export async function removeGoogleFont(family: string) {
 /** Re-register every previously downloaded font at app start (works offline). */
 export async function ensureGoogleFontsLoaded() {
   if (typeof window === 'undefined' || !('FontFace' in window)) return
-  for (const family of listInstalledGoogleFonts()) {
+  const installedList = listInstalledGoogleFonts()
+  // Web preview so downloaded fonts always render, even before registration.
+  preloadGoogleFontPreview(installedList)
+  for (const family of installedList) {
     if (loaded.has(family)) continue
     try {
-      const buf = await idbGet(family)
+      const buf = await idbGet(cacheKey(family))
       if (buf) await registerBuffer(family, buf)
+      else await installGoogleFont(family).catch(() => {})
     } catch {
       /* ignore */
     }
   }
 }
+
 
 /** true once the family is usable for rendering/export */
 export function isGoogleFontReady(family: string) {
