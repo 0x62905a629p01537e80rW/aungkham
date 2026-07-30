@@ -397,6 +397,7 @@ export function ToolBar({
                   onDuplicate={onDuplicate}
                   onDelete={onDelete}
                   onMoveLayer={onMoveLayer}
+                  onCloseTool={() => setOpenTool(null)}
                 />
               </PopoverContent>
             </Popover>
