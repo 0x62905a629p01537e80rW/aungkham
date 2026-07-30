@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Circle, Move3d, Pipette, Plus, Trash2, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { GlassTabs } from '@/components/ui/glass-tabs'
 
 // ---------- color math ----------
 
@@ -363,20 +364,17 @@ export function ColorPickerPanel({
       {showFull && (
       <div className="mt-2 flex items-center gap-1.5">
         {allowGradient ? (
-          <div className="flex flex-1 items-center rounded-lg bg-muted p-0.5">
-            {(['solid', 'gradient'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMode(m)}
-                className={`flex-1 rounded-[6px] px-2 py-1 text-[11px] font-semibold capitalize transition ${
-                  mode === m ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'
-                }`}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
+          <GlassTabs
+            size="sm"
+            className="flex-1"
+            value={mode}
+            onChange={(m) => setMode(m as typeof mode)}
+            items={[
+              { key: 'solid', label: 'Solid' },
+              { key: 'gradient', label: 'Gradient' },
+            ]}
+          />
+
         ) : (
           <div className="flex-1" />
         )}
@@ -582,7 +580,7 @@ export function ColorPickerPanel({
         <button
           type="button"
           onClick={() => onConfirm(mode === 'gradient' ? gradientCss : hex)}
-          className="mt-3 h-12 w-full rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg transition active:scale-[0.98]"
+          className="glass-cta mt-3 h-12 w-full rounded-xl text-sm font-semibold active:scale-[0.98]"
         >
           {confirmLabel}
         </button>

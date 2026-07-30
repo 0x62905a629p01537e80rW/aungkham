@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { GlassTabs } from '@/components/ui/glass-tabs'
 import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import type { TextLayer } from '@/lib/text-layer'
@@ -73,40 +74,28 @@ export function TemplateGallery({
   return (
     <div className={cn('flex min-h-0 flex-1 flex-col', className)}>
       <div className="flex shrink-0 items-center justify-end gap-1 pb-2">
-        <div className="glass-tile flex items-center gap-1 rounded-full p-0.5">
-          {(['EN', 'MM'] as TemplateLang[]).map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => setLang(l)}
-              className={cn(
-                'rounded-full px-3 py-1 text-[11px] font-semibold transition',
-                lang === l ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
-              )}
-            >
-              {l === 'EN' ? 'English' : 'မြန်မာ'}
-            </button>
-          ))}
-        </div>
+        <GlassTabs
+          size="sm"
+          className="w-auto"
+          value={lang}
+          onChange={(l) => setLang(l as TemplateLang)}
+          items={[
+            { key: 'EN', label: 'English' },
+            { key: 'MM', label: 'မြန်မာ' },
+          ]}
+        />
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {TEMPLATE_GROUPS.map((g) => (
-          <button
-            key={g}
-            type="button"
-            onClick={() => setGroup(g)}
-            className={cn(
-              'shrink-0 rounded-full px-3 py-1 text-[11px] font-medium transition',
-              group === g
-                ? 'bg-primary text-primary-foreground'
-                : 'glass-tile text-muted-foreground',
-            )}
-          >
-            {g}
-          </button>
-        ))}
+      <div className="shrink-0 pb-2">
+        <GlassTabs
+          variant="chips"
+          size="sm"
+          value={group}
+          onChange={(g) => setGroup(g as typeof group)}
+          items={TEMPLATE_GROUPS.map((g) => ({ key: g, label: g }))}
+        />
       </div>
+
 
       <div className="min-h-0 flex-1 overflow-y-auto pb-8">
         <div className="flex flex-col gap-2">

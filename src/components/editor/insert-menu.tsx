@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { ImageIcon, Shapes, Sticker, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { GlassTabs } from '@/components/ui/glass-tabs'
 import { DEFAULT_STROKE_WIDTH, SHAPES, SHAPE_GROUPS, shapeDataUrl, type ShapeGroup } from '@/lib/shapes'
 import { STICKERS, STICKER_GROUPS, stickerDataUrl } from '@/lib/stickers'
 import type { GraphicContent } from '@/lib/text-layer'
@@ -68,50 +69,38 @@ export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
       </header>
 
       <div className="shrink-0 px-3 pt-3">
-        <div className="glass-panel flex items-center gap-1 rounded-2xl p-1">
-          {TABS.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setTab(key)}
-              className={cn(
-                'flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition',
-                tab === key ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground',
-              )}
-            >
-              <Icon className="size-4" />
-              {label}
-            </button>
-          ))}
-        </div>
+        <GlassTabs
+          value={tab}
+          onChange={(k) => setTab(k as Tab)}
+          items={TABS.map(({ key, label, icon: Icon }) => ({
+            key,
+            label: (
+              <>
+                <Icon className="size-4" />
+                {label}
+              </>
+            ),
+          }))}
+        />
       </div>
 
       {tab !== 'overlay' && (
-        <div className="shrink-0 overflow-x-auto px-3 py-3 [scrollbar-width:none]">
-          <div className="flex w-max gap-1.5">
-            {(tab === 'shapes' ? SHAPE_GROUPS : STICKER_GROUPS).map((g) => {
-              const active = tab === 'shapes' ? g === shapeGroup : g === stickerGroup
-              return (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() =>
-                    tab === 'shapes' ? setShapeGroup(g as ShapeGroup) : setStickerGroup(g)
-                  }
-                  className={cn(
-                    'rounded-full px-3 py-1.5 text-xs font-medium transition',
-                    active
-                      ? 'bg-primary text-primary-foreground'
-                      : 'glass-tile text-muted-foreground',
-                  )}
-                >
-                  {g}
-                </button>
-              )
-            })}
-          </div>
+        <div className="shrink-0 px-3 py-3">
+          <GlassTabs
+            variant="chips"
+            size="sm"
+            value={tab === 'shapes' ? shapeGroup : stickerGroup}
+            onChange={(g) =>
+              tab === 'shapes' ? setShapeGroup(g as ShapeGroup) : setStickerGroup(g)
+            }
+            items={(tab === 'shapes' ? SHAPE_GROUPS : STICKER_GROUPS).map((g) => ({
+              key: g,
+              label: g,
+            }))}
+          />
         </div>
       )}
+
 
       <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-8">
         {tab === 'overlay' && (
@@ -122,7 +111,7 @@ export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
             <button
               type="button"
               onClick={() => galleryRef.current?.click()}
-              className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition active:scale-[0.98]"
+              className="glass-cta flex w-full items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold active:scale-[0.98]"
             >
               <ImageIcon className="size-5" />
               Choose from Library
