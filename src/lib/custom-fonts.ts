@@ -2,6 +2,8 @@ export interface CustomFont {
   id: string
   label: string
   dataUrl: string
+  /** woff / woff2 uploads are a Pro feature */
+  pro?: boolean
 }
 
 const FONTS_KEY = 'myan.customFonts'
