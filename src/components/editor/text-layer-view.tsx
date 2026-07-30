@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import { fontFamily, TEXTURES, type TextLayer } from '@/lib/text-layer'
+import { fontFamily, TEXTURES, type TextLayer , encodeForFont } from '@/lib/text-layer'
 
 
 function hexToRgb(hex: string) {
@@ -222,7 +222,7 @@ function LayerTextImpl({ layer }: { layer: TextLayer }) {
     ? { ...layerTextStyle(layer), ...liquidStyle(layer) }
     : layerTextStyle(layer)
   const bend = layer.bend ?? 0
-  const text = layer.text || ' '
+  const text = encodeForFont(layer.text, layer.fontKey) || ' '
 
   if (bend !== 0 && !text.includes('\n')) {
     const chars = [...text]
