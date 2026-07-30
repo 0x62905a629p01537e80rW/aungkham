@@ -169,7 +169,7 @@ export const PREMIUM_DESIGNS_2: PremiumDesign[] = [
     key: 'party-time',
     label: 'Party Time',
     bg: bgConfetti,
-    en: { main: 'PARTY!', sub: 'LET'S CELEBRATE', font: 'gladolia', subFont: 'oswald' },
+    en: { main: 'PARTY!', sub: 'LETS CELEBRATE', font: 'gladolia', subFont: 'oswald' },
     mm: { main: 'ပါတီပွဲ', sub: 'အတူဆင်နွှဲကြစို့', font: 'layaungthit-k49', subFont: 'layaungthit-k26' },
     main: {
       x: 50, y: 45, fontSize: 12, color: '#ffe600',
