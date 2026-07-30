@@ -108,6 +108,29 @@ const QUICK_SWATCHES = [
   '#ff3b30', '#ff9500', '#ffe93b', '#00c7be', '#34c759',
 ]
 
+const QUICK_GRADIENTS = [
+  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+  'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+  'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+  'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+  'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+  'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+  'linear-gradient(135deg, #5ee7df 0%, #b490ca 100%)',
+  'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
+  'linear-gradient(135deg, #ff512f 0%, #dd2476 100%)',
+  'linear-gradient(135deg, #1f4037 0%, #99f2c8 100%)',
+  'linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)',
+  'linear-gradient(135deg, #cc2b5e 0%, #753a88 100%)',
+  'linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)',
+  'linear-gradient(135deg, #42275a 0%, #734b6d 100%)',
+  'linear-gradient(135deg, #000428 0%, #004e92 100%)',
+  'linear-gradient(135deg, #f7971e 0%, #ffd200 100%)',
+]
+
 const SWATCH_STORAGE_KEY = 'color-picker:saved-swatches'
 
 // ---------- component ----------
