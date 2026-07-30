@@ -56,6 +56,27 @@ export function liquidStyle(layer: TextLayer): CSSProperties {
   }
 }
 
+/** Frosted "liquid glass" look for masked graphics (shapes / stickers). */
+export function liquidGraphicStyle(layer: TextLayer): CSSProperties {
+  const tint = (layer.liquidTint ?? 22) / 100
+  const border = (layer.liquidBorder ?? 45) / 100
+  const glow = (layer.liquidGlow ?? 35) / 100
+  const dark = layer.liquidDark
+  const glass = dark ? '18, 22, 30' : '255, 255, 255'
+  const rim = '255, 255, 255'
+
+  const shadows = [
+    `inset 0 0.02em 0 rgba(${rim}, ${0.7 * border})`,
+    `inset 0 -0.02em 0 rgba(${dark ? '255, 255, 255' : '0, 0, 0'}, ${0.3 * border})`,
+  ]
+  if (glow > 0) shadows.push(`0 0 ${(0.5 * glow).toFixed(3)}em rgba(${rim}, ${glow})`)
+
+  return {
+    background: `linear-gradient(160deg, rgba(${rim}, ${0.55 * border}) 0%, rgba(${glass}, ${Math.max(0.08, tint)}) 45%, rgba(${rim}, ${0.25 * border}) 100%)`,
+    boxShadow: shadows.join(', '),
+  }
+}
+
 export function layerTextStyle(layer: TextLayer): CSSProperties {
   const texture = TEXTURES[layer.texture] ?? TEXTURES.none
   const fillType = layer.fillType ?? (texture.gradient ? 'texture' : 'solid')
@@ -170,11 +191,13 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
         : (layer.fillType ?? 'solid') === 'gradient'
           ? `linear-gradient(${layer.gradientAngle ?? 90}deg, ${layer.gradientFrom}, ${layer.gradientTo})`
           : layer.color
-    return (
+    const liquid = layer.liquidOn ? liquidGraphicStyle(layer) : null
+    const node = (
       <div
         style={{
           ...box,
           background: fill,
+          ...(liquid ?? {}),
           WebkitMaskImage: `url("${g.src}")`,
           maskImage: `url("${g.src}")`,
           WebkitMaskSize: '100% 100%',
@@ -184,7 +207,10 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
         }}
       />
     )
+    if (layer.liquidOn && layer.liquidPlate) return <LiquidPlate layer={layer}>{node}</LiquidPlate>
+    return node
   }
+
 
   return <img src={g.src} alt="" crossOrigin="anonymous" draggable={false} style={box} />
 }
