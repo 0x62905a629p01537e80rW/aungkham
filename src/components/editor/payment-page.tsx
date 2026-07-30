@@ -172,7 +172,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
 
   if (!open || typeof document === 'undefined') return null
 
-  const canSubmit = !!user && txId.trim().length > 0 && senderInfo.trim().length > 0 && !submitting
+  const canSubmit = !!user && txId.trim().length > 0 && !submitting
 
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-background text-foreground animate-fade-in">
