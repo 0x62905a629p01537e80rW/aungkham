@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { X } from 'lucide-react'
+import { Crown, X } from 'lucide-react'
+
 import { cn } from '@/lib/utils'
 import { GlassTabs } from '@/components/ui/glass-tabs'
 import { LayerText, layerTransform } from './text-layer-view'
