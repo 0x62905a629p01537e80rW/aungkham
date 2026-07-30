@@ -96,7 +96,7 @@ export function GlassTabs({
               className={cn(
                 'relative z-10 flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full font-semibold transition-colors duration-300',
                 variant === 'segmented' && 'flex-1',
-                size === 'sm' ? 'px-3 py-1 text-[11px]' : 'px-3 py-2 text-xs',
+                size === 'sm' ? 'px-3 py-1.5 text-[11px] leading-5' : 'px-3 py-2 text-xs leading-5',
                 active ? 'text-primary-foreground' : 'text-muted-foreground',
                 itemClassName,
               )}
