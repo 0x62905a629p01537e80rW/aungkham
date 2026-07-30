@@ -119,9 +119,6 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitShadowOpacity, setFitShadowOpacity] = useState(0.35)
   const [fitShadowOffset, setFitShadowOffset] = useState(10)
   const [fitAdvanced, setFitAdvanced] = useState(false)
-  const [fitPanel, setFitPanel] = useState<'ratio' | 'color' | 'background' | 'image' | 'shadow'>(
-    'ratio',
-  )
   const [fitPreview, setFitPreview] = useState<string | null>(null)
   const backdropInput = useRef<HTMLInputElement | null>(null)
 
