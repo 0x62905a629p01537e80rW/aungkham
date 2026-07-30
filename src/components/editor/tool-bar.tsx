@@ -689,12 +689,14 @@ function FontPicker({
         ? all.filter((f) => favs.includes(f.key))
         : group === 'custom'
           ? all.filter((f) => f.customId)
-          : all.filter(
-              (f) =>
-                !f.customId &&
-                !f.key.startsWith('gf:') &&
-                groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
-            )
+          : group === 'downloaded'
+            ? all.filter((f) => f.key.startsWith('gf:'))
+            : all.filter(
+                (f) =>
+                  !f.customId &&
+                  !f.key.startsWith('gf:') &&
+                  groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
+              )
 
   const q = query.trim().toLowerCase()
   const items = q ? base.filter((f) => f.label.toLowerCase().includes(q)) : base
