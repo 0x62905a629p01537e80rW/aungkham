@@ -1625,19 +1625,46 @@ function PositionPanel({
 }) {
   const [tab, setTab] = useState<(typeof POSITION_TABS)[number]>('Move')
   const [step, setStep] = useState(10)
+  const [dragging, setDragging] = useState<'size' | 'rotation' | null>(null)
+  const [peek, setPeek] = useState(false)
+  const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (peekTimer.current) clearTimeout(peekTimer.current) }, [])
+  const quickPeek = () => {
+    setPeek(true)
+    if (peekTimer.current) clearTimeout(peekTimer.current)
+    peekTimer.current = setTimeout(() => setPeek(false), 800)
+  }
 
-  const nudge = (dx: number, dy: number) =>
+  const fade = 'transition-opacity duration-200'
+  const others = dragging ? 'pointer-events-none opacity-0' : 'opacity-100'
+  const hidden = (key: 'size' | 'rotation') =>
+    dragging !== null && dragging !== key ? 'pointer-events-none opacity-0' : 'opacity-100'
+  const drag = (key: 'size' | 'rotation') => ({
+    onDragStart: () => setDragging(key),
+    onDragEnd: () => setDragging(null),
+    hideLabel: dragging === key,
+  })
+
+  const nudge = (dx: number, dy: number) => {
+    quickPeek()
     onChange({
       x: Math.round((layer.x + (dx * step) / 10) * 10) / 10,
       y: Math.round((layer.y + (dy * step) / 10) * 10) / 10,
     })
+  }
 
   const iconBtn =
     'flex h-9 items-center justify-center rounded-xl border border-border text-foreground transition active:scale-95'
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-1">
+    <div
+      className={cn('space-y-3 transition-opacity duration-300', peek && 'opacity-20')}
+      data-dragging={dragging ? 'true' : 'false'}
+      data-peek={peek ? 'true' : 'false'}
+      onPointerUp={() => setDragging(null)}
+      onPointerCancel={() => setDragging(null)}
+    >
+      <div className={cn(fade, others, 'flex items-center gap-1')}>
         {POSITION_TABS.map((t) => (
           <button
             key={t}
@@ -1652,6 +1679,7 @@ function PositionPanel({
           </button>
         ))}
       </div>
+
 
       {tab === 'Move' && (
         <div className="space-y-3">
