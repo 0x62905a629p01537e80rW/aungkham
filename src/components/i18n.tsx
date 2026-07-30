@@ -63,6 +63,13 @@ const DICT = {
     'discard.cancel': 'Keep editing',
     'discard.confirm': 'Discard & exit',
 
+    'resize.title': 'Resize',
+    'resize.keepAspect': 'Keep Aspect Ratio',
+    'resize.width': 'Width',
+    'resize.height': 'Height',
+    'resize.cancel': 'Cancel',
+    'resize.ok': 'OK',
+
     'template.apply.title': 'Apply template',
     'template.apply.desc': 'Do you want to replace the background with this template, or keep the current background and apply only the text styles?',
     'template.apply.replace': 'Replace background',
@@ -122,6 +129,13 @@ const DICT = {
       'သင်ပြုလုပ်ထားသည်များ သိမ်းထားခြင်း မရှိပါ။ ထွက်လိုက်ပါက အားလုံး ပျောက်ဆုံးသွားပါမည်။',
     'discard.cancel': 'ဆက်တည်းဖြတ်မည်',
     'discard.confirm': 'ဖျက်ပြီး ထွက်မည်',
+
+    'resize.title': 'အရွယ်အစား ပြောင်းရန်',
+    'resize.keepAspect': 'Aspect Ratio ထားရှိရန်',
+    'resize.width': 'အကျယ်',
+    'resize.height': 'အမြင့်',
+    'resize.cancel': 'ပယ်မည်',
+    'resize.ok': 'OK',
 
     'template.apply.title': 'တမ်းပလိတ် ထည့်သွင်းမည်',
     'template.apply.desc': 'ဒီတမ်းပလိတ်၏ နောက်ခံအရောင်ကို အစားထိုးလိုပါသလား၊ သို့မဟုတ် လက်ရှိနောက်ခံကို ထားပြီး စာသားစတိုင်သာ အသုံးပြုလိုပါသလား?',
