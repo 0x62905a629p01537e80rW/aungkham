@@ -33,7 +33,6 @@ export function GoogleFontsPanel({
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // live preview settings
-  const [sample, setSample] = useState('')
   const [size, setSize] = useState(20)
   const [weight, setWeight] = useState(400)
   const [color, setColor] = useState('#ffffff')
@@ -214,7 +213,7 @@ export function GoogleFontsPanel({
                     color,
                   }}
                 >
-                  {sample.trim() || f.f}
+                  {f.f}
                 </span>
                 <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
                   {f.f}
