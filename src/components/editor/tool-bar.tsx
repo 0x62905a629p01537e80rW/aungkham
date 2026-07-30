@@ -382,7 +382,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="glass-panel w-[min(92vw,340px)] rounded-3xl border-0 bg-transparent p-4 shadow-none"
+                className="glass-panel w-[min(92vw,340px)] rounded-3xl border-0 bg-transparent p-4 shadow-none transition-[background-color,backdrop-filter] duration-200 has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-dragging=true]]:![backdrop-filter:none]"
               >
                 <ToolContent
                   tool={tool.key}
