@@ -799,28 +799,28 @@ function FormatPanel({
       <div className={cn(fade, others, 'flex items-center gap-2')}>
         <button
           type="button"
-          onClick={() => onChange({ fontWeight: layer.fontWeight >= 700 ? 400 : 700 })}
+          onClick={() => { quickPeek(); onChange({ fontWeight: layer.fontWeight >= 700 ? 400 : 700 }) }}
           className={cn(toggle, layer.fontWeight >= 700 ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
         >
           <Bold className="size-4" />
         </button>
         <button
           type="button"
-          onClick={() => onChange({ italic: !layer.italic })}
+          onClick={() => { quickPeek(); onChange({ italic: !layer.italic }) }}
           className={cn(toggle, layer.italic ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
         >
           <Italic className="size-4" />
         </button>
         <button
           type="button"
-          onClick={() => onChange({ underline: !layer.underline })}
+          onClick={() => { quickPeek(); onChange({ underline: !layer.underline }) }}
           className={cn(toggle, layer.underline ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
         >
           <Underline className="size-4" />
         </button>
         <button
           type="button"
-          onClick={() => onChange({ strike: !layer.strike })}
+          onClick={() => { quickPeek(); onChange({ strike: !layer.strike }) }}
           className={cn(toggle, layer.strike ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
         >
           <Strikethrough className="size-4" />
@@ -843,9 +843,10 @@ function FormatPanel({
         <ToggleGroup
           type="single"
           value={layer.align}
-          onValueChange={(v) => v && onChange({ align: v as TextAlign })}
+          onValueChange={(v) => { if (v) { quickPeek(); onChange({ align: v as TextAlign }) } }}
           className="w-full"
         >
+
           <ToggleGroupItem value="left" aria-label="Align left" className="flex-1">
             <AlignLeft className="size-4" />
           </ToggleGroupItem>
