@@ -57,6 +57,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
   const [open, setOpen] = useState(false)
   const [about, setAbout] = useState(false)
   const [pay, setPay] = useState(false)
+  const [restore, setRestore] = useState(false)
   const { t, lang, setLang } = useI18n()
   const { user, isPro, proPending, proExpiresAt, proSince, signIn, signOutUser } = useAuth()
 
