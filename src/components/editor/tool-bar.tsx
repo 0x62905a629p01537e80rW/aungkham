@@ -710,6 +710,14 @@ function FormatPanel({
   onChange: (patch: Partial<TextLayer>) => void
 }) {
   const [dragging, setDragging] = useState<FormatSlider | null>(null)
+  const [peek, setPeek] = useState(false)
+  const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (peekTimer.current) clearTimeout(peekTimer.current) }, [])
+  const quickPeek = () => {
+    setPeek(true)
+    if (peekTimer.current) clearTimeout(peekTimer.current)
+    peekTimer.current = setTimeout(() => setPeek(false), 800)
+  }
   const width = layer.widthScale ?? 100
   const zoomPct = Math.round((layer.fontSize / 12) * 100)
   const toggle =
@@ -730,11 +738,13 @@ function FormatPanel({
 
   return (
     <div
-      className="space-y-4"
+      className={cn('space-y-4 transition-opacity duration-300', peek && 'opacity-20')}
       data-dragging={dragging ? 'true' : 'false'}
+      data-peek={peek ? 'true' : 'false'}
       onPointerUp={() => setDragging(null)}
       onPointerCancel={() => setDragging(null)}
     >
+
       <div className={cn(fade, others)}>
         <ToolHeading>Format</ToolHeading>
       </div>
