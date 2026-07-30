@@ -229,7 +229,9 @@ export function ColorPickerPanel({
   // emit (only after the user actually interacts)
   useEffect(() => {
     if (!firstRun.current) return
-    onChange(mode === 'gradient' ? gradientCss : hex)
+    const out = mode === 'gradient' ? gradientCss : hex
+    lastValueRef.current = out
+    onChange(out)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, gradientCss, hex])
 
