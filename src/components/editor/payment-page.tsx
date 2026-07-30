@@ -289,8 +289,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                 </p>
                 <p className="text-[11px] text-muted-foreground">
                   {method === 'usdt'
-                    ? `Send ${settings?.usdtPrice || PRICE_USD} in USDT, then submit your transaction hash.`
-                    : `KBZPay transfer — send ${settings?.priceMmk || PRICE_MMK}, then submit your transaction details.`}
+                    ? `Send ${pricing.priceUsd || settings?.usdtPrice || ''} in USDT, then submit your transaction hash.`
+                    : `KBZPay transfer — send ${pricing.priceMmk}, then submit your transaction details.`}
                 </p>
               </div>
             </div>
