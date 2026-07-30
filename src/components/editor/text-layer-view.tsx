@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { fontFamily, TEXTURES, type TextLayer } from '@/lib/text-layer'
 
 
@@ -244,7 +244,7 @@ export function LayerText({ layer }: { layer: TextLayer }) {
 }
 
 /** Frosted card behind the text. */
-function LiquidPlate({ layer, children }: { layer: TextLayer; children: React.ReactNode }) {
+function LiquidPlate({ layer, children }: { layer: TextLayer; children: ReactNode }) {
   const tint = (layer.liquidTint ?? 22) / 100
   const border = (layer.liquidBorder ?? 45) / 100
   const dark = layer.liquidDark

@@ -43,6 +43,7 @@ import {
   Bold,
   Crop,
   Droplet,
+  Droplets,
   FlipHorizontal,
   ImageUp,
   Italic,
@@ -141,6 +142,7 @@ type ToolKey =
   | 'texture'
   | 'opacity'
   | 'blend'
+  | 'liquid'
   | 'stroke'
   | 'shadow'
   | 'highlight'
@@ -174,6 +176,7 @@ const TOOLS: ToolDef[] = [
   { key: 'texture', label: 'Texture', icon: Grid2x2, needsLayer: true },
   { key: 'opacity', label: 'Opacity', icon: Droplet, needsLayer: true },
   { key: 'blend', label: 'Blend', icon: Layers, needsLayer: true },
+  { key: 'liquid', label: 'Liquid', icon: Droplets, needsLayer: true },
   { key: 'stroke', label: 'Stroke', icon: PenLine, needsLayer: true },
   { key: 'shadow', label: 'Shadow', icon: Sparkles, needsLayer: true },
   { key: 'highlight', label: 'Highlight', icon: Sun, needsLayer: true },
@@ -1153,6 +1156,8 @@ function ToolContent({
           </div>
         </div>
       )
+    case 'liquid':
+      return <LiquidPanel layer={layer} onChange={onChange} />
     case 'opacity':
       return (
         <div>
