@@ -377,33 +377,32 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       ? 'Transaction hash (TxID) *'
                       : 'KBZPay Transaction ID (Last 6 digits) *'}
                   </span>
-                  <input
-                    value={txId}
-                    onChange={(e) => setTxId(e.target.value)}
-                    inputMode={method === 'usdt' ? 'text' : 'numeric'}
-                    maxLength={method === 'usdt' ? 120 : 12}
-                    required
-                    placeholder={method === 'usdt' ? 'e.g. 0x9f3c…' : 'e.g. 482913'}
-                    className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="text-[11px] font-medium text-muted-foreground">
-                    {method === 'usdt'
-                      ? 'Your sending wallet address *'
-                      : 'Sender Name or Phone Number *'}
-                  </span>
-                  <input
-                    value={senderInfo}
-                    onChange={(e) => setSenderInfo(e.target.value)}
-                    maxLength={120}
-                    required
-                    placeholder={
-                      method === 'usdt' ? 'e.g. TQ5x…' : 'e.g. Aung Aung / 09-XXX-XXX-XXX'
-                    }
-                    className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
-                  />
+                  <div className="relative mt-1">
+                    <input
+                      value={txId}
+                      onChange={(e) => setTxId(e.target.value)}
+                      inputMode={method === 'usdt' ? 'text' : 'numeric'}
+                      maxLength={method === 'usdt' ? 120 : 12}
+                      required
+                      placeholder={method === 'usdt' ? 'e.g. 0x9f3c…' : 'e.g. 482913'}
+                      className="glass-tile h-11 w-full rounded-2xl px-3.5 pr-11 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+                    />
+                    <button
+                      type="button"
+                      aria-label="Paste from clipboard"
+                      onClick={async () => {
+                        try {
+                          const text = await navigator.clipboard.readText()
+                          if (text) setTxId(text.trim())
+                        } catch (err) {
+                          console.log('[paste failed]', err)
+                        }
+                      }}
+                      className="absolute right-1.5 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-xl bg-primary/10 text-primary transition active:scale-95"
+                    >
+                      <ClipboardPaste className="size-4" />
+                    </button>
+                  </div>
                 </label>
 
                 {error && <p className="text-[11px] text-destructive">{error}</p>}
