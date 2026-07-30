@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Aperture,
   Check,
+  ChevronDown,
   Circle as CircleIcon,
   Crop as CropIcon,
   Droplet,
@@ -13,6 +14,7 @@ import {
   RectangleHorizontal,
   RotateCcw,
   RotateCw,
+  SlidersHorizontal,
   Square,
   X,
 } from 'lucide-react'
@@ -116,6 +118,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitShadowBlur, setFitShadowBlur] = useState(0)
   const [fitShadowOpacity, setFitShadowOpacity] = useState(0.35)
   const [fitShadowOffset, setFitShadowOffset] = useState(10)
+  const [fitAdvanced, setFitAdvanced] = useState(false)
   const [fitPanel, setFitPanel] = useState<'ratio' | 'color' | 'background' | 'image' | 'shadow'>(
     'ratio',
   )
