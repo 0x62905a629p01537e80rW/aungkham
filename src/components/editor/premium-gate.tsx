@@ -102,16 +102,33 @@ export function PremiumGate({
               You're using premium features
             </h2>
 
-            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
-              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
-                <TypeIcon className="size-5" />
-              </div>
-              <div className="leading-tight">
-                <p className="text-sm font-semibold text-foreground">Premium Fonts</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Purchase Premium to export with these fonts.
-                </p>
-              </div>
+            <div className="mt-4 space-y-2">
+              {usesPremiumFont(layers) && (
+                <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                    <TypeIcon className="size-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-foreground">Premium Fonts</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Purchase Premium to export with these fonts.
+                    </p>
+                  </div>
+                </div>
+              )}
+              {usesPremiumLiquid(layers) && (
+                <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                    <Droplets className="size-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-foreground">Liquid Glass</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Purchase Premium to export with the liquid glass effect.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <button
