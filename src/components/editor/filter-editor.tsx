@@ -129,19 +129,31 @@ export function FilterEditor({ image, onCancel, onApply }: Props) {
           <div className="space-y-2 px-1">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold">{selected.name}</span>
-              <span className="font-mono text-xs tabular-nums text-muted-foreground">
+              <span
+                ref={readoutRef}
+                className="font-mono text-xs tabular-nums text-muted-foreground"
+              >
                 {intensity}
               </span>
             </div>
-            <Slider
-              value={[intensity]}
+            <LiveSlider
+              value={intensity}
               min={0}
               max={100}
               step={1}
-              onValueChange={(v) => setIntensity(v[0])}
+              onLive={(v) => {
+                // DOM-only feedback while dragging: no state, no re-processing
+                if (readoutRef.current) readoutRef.current.textContent = String(v)
+                if (imgRef.current) imgRef.current.style.opacity = String(0.55 + (v / 100) * 0.45)
+              }}
+              onCommit={(v) => {
+                if (imgRef.current) imgRef.current.style.opacity = ''
+                setIntensity(v)
+              }}
             />
           </div>
         )}
+
 
         <div className="flex gap-2 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
