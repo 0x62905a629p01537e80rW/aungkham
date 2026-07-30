@@ -466,13 +466,21 @@ export function ToolBar({
 
       <PaymentPage open={payOpen} onClose={() => setPayOpen(false)} />
 
-      {selected?.graphic && isPro && (
+      {selected?.graphic && (
         <BgRemover
           open={cutoutOpen}
           src={selected.graphic.src}
           onClose={() => setCutoutOpen(false)}
           onApply={(url) =>
-            selected.graphic && onChange({ graphic: { ...selected.graphic, src: url } })
+            selected.graphic &&
+            onChange({
+              graphic: {
+                ...selected.graphic,
+                src: url,
+                cutout: true,
+                originalSrc: selected.graphic.originalSrc ?? selected.graphic.src,
+              },
+            })
           }
         />
       )}
