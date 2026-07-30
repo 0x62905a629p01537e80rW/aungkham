@@ -23,12 +23,12 @@ export function BrandLogo({ className = 'size-9' }: IconProps) {
 
 export function KbzPayMark({ className = 'size-5' }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-      <rect x="1.5" y="3.5" width="21" height="17" rx="4.5" fill="#0057B8" />
-      <path d="M7 8v8M7 12l3.6-4M7 12l3.8 4" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <circle cx="16" cy="12" r="3.1" fill="#F5A623" />
-      <path d="M16 10.2v3.6M14.7 11.4h2.6" stroke="#0057B8" strokeWidth="1.1" strokeLinecap="round" />
-    </svg>
+    <img
+      src={kbzPayLogo.url}
+      alt="KBZPay"
+      className={`${className} object-contain`}
+      aria-hidden="true"
+    />
   )
 }
 
