@@ -519,6 +519,7 @@ type FontGroup =
   | 'mm-premium'
   | 'en-premium'
   | 'google'
+  | 'downloaded'
   | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
@@ -527,9 +528,10 @@ const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'en-premium', label: 'Premium (Eng)' },
   { key: 'mm-premium', label: 'Premium (MM)' },
   { key: 'google', label: 'Google Fonts' },
+  { key: 'downloaded', label: 'Downloaded' },
   { key: 'favorites', label: 'Favorites' },
   { key: 'recent', label: 'Recent' },
-  { key: 'custom', label: 'My Fonts' },
+  { key: 'custom', label: 'Upload' },
 ]
 
 
