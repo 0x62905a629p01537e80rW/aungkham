@@ -369,6 +369,11 @@ export function Editor() {
   }, [image, preview, layers, naturalSize])
 
   const openProject = useCallback((project: SavedProject) => {
+    setErasing(false)
+    setEraseMask(undefined)
+    setDraftMask(undefined)
+    setEraseBypass(false)
+    setEraseHistory({ canUndo: false, canRedo: false })
     setNaturalSize(project.naturalSize)
     setLayers(project.layers ?? [])
     setSelectedId(project.layers?.[0]?.id ?? null)
