@@ -25,6 +25,7 @@ import { AuthProvider } from '@/components/auth-provider'
 import { ScreenGuard } from './screen-guard'
 import { EraseBar, EraseOverlay, DEFAULT_BRUSH, type EraseBrush, type EraseControls } from './erase-overlay'
 import { useI18n } from '@/components/i18n'
+import { ensureGoogleFontsLoaded } from '@/lib/google-fonts'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,6 +73,11 @@ export function Editor() {
   const replaceRef = useRef<HTMLInputElement>(null)
   const stageRef = useRef<HTMLElement>(null)
   const [stageSize, setStageSize] = useState({ w: 0, h: 0 })
+
+  // Re-register downloaded Google fonts so saved projects render offline.
+  useEffect(() => {
+    void ensureGoogleFontsLoaded()
+  }, [])
 
   // Fit the whole image inside the visible stage — never require scrolling.
   useEffect(() => {

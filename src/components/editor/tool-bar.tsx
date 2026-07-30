@@ -17,6 +17,12 @@ import {
   toggleFavorite,
 } from '@/lib/custom-fonts'
 import { listRecentFonts, recordRecentFont, subscribeRecents } from '@/lib/recents'
+import { GoogleFontsPanel } from './google-fonts-panel'
+import {
+  ensureGoogleFontsLoaded,
+  listInstalledGoogleFonts,
+  subscribeGoogleFonts,
+} from '@/lib/google-fonts'
 import {
   AlignCenter,
   Circle,
@@ -500,7 +506,15 @@ function ToolHeading({ children }: { children: React.ReactNode }) {
   )
 }
 
-type FontGroup = 'recent' | 'favorites' | 'english' | 'mm-free' | 'mm-premium' | 'en-premium' | 'custom'
+type FontGroup =
+  | 'recent'
+  | 'favorites'
+  | 'english'
+  | 'mm-free'
+  | 'mm-premium'
+  | 'en-premium'
+  | 'google'
+  | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'recent', label: 'Recent' },
@@ -509,6 +523,7 @@ const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'mm-free', label: 'Myanmar' },
   { key: 'mm-premium', label: 'Premium (MM)' },
   { key: 'en-premium', label: 'Premium (Eng)' },
+  { key: 'google', label: 'Google Fonts' },
   { key: 'custom', label: 'My Fonts' },
 ]
 
@@ -602,7 +617,11 @@ function FontPicker({
 }) {
   const current = FONTS.find((f) => f.key === layer.fontKey)
   const [group, setGroup] = useState<FontGroup>(
-    layer.fontKey.startsWith('custom:') ? 'custom' : groupOf(current?.category ?? 'Sans'),
+    layer.fontKey.startsWith('custom:')
+      ? 'custom'
+      : layer.fontKey.startsWith('gf:')
+        ? 'google'
+        : groupOf(current?.category ?? 'Sans'),
   )
   const [, force] = useState(0)
   const { isPro } = useAuth()
@@ -611,11 +630,14 @@ function FontPicker({
 
   useEffect(() => {
     ensureCustomFontsLoaded()
+    void ensureGoogleFontsLoaded()
     const offFonts = subscribeFonts(() => force((n) => n + 1))
     const offRecents = subscribeRecents(() => force((n) => n + 1))
+    const offGoogle = subscribeGoogleFonts(() => force((n) => n + 1))
     return () => {
       offFonts()
       offRecents()
+      offGoogle()
     }
   }, [])
 
@@ -635,6 +657,11 @@ function FontPicker({
       myanmar: true,
       customId: c.id,
     })),
+    ...listInstalledGoogleFonts().map((family) => ({
+      key: `gf:${family}`,
+      label: family,
+      myanmar: false,
+    })),
   ]
 
   const items =
@@ -644,7 +671,12 @@ function FontPicker({
         ? all.filter((f) => favs.includes(f.key))
         : group === 'custom'
           ? all.filter((f) => f.customId)
-          : all.filter((f) => !f.customId && groupOf(FONTS.find((x) => x.key === f.key)!.category) === group)
+          : all.filter(
+              (f) =>
+                !f.customId &&
+                !f.key.startsWith('gf:') &&
+                groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
+            )
 
 
   return (
@@ -746,7 +778,22 @@ function FontPicker({
       )}
 
 
-      <div className="grid max-h-[46dvh] grid-cols-2 gap-2 overflow-y-auto perf-scroll pr-1">
+      {group === 'google' && (
+        <GoogleFontsPanel
+          activeKey={layer.fontKey}
+          onPick={(key: string) => {
+            recordRecentFont(key)
+            onChange({ fontKey: key })
+          }}
+        />
+      )}
+
+      <div
+        className={cn(
+          'grid max-h-[46dvh] grid-cols-2 gap-2 overflow-y-auto perf-scroll pr-1',
+          group === 'google' && 'hidden',
+        )}
+      >
         {items.map((f) => (
           <FontCard
             key={f.key}

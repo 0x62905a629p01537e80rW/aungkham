@@ -198,6 +198,8 @@ export const FONT_CATEGORIES: FontOption['category'][] = [
 
 export function fontFamily(key: string): string {
   if (key.startsWith('custom:')) return `'CF_${key.slice(7)}', sans-serif`
+  if (key.startsWith('gf:'))
+    return `'GF_${key.slice(3).replace(/[^A-Za-z0-9]+/g, '_')}', sans-serif`
   const f = FONTS.find((f) => f.key === key)
   return f ? `${f.cssVar}, sans-serif` : 'sans-serif'
 }
