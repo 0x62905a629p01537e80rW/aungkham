@@ -88,10 +88,11 @@ export function TemplateGallery({
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
+  const activeGroup = lang === 'EN' && group === 'New' ? 'All' : group
 
   const list = useMemo(
-    () => TEMPLATES.filter((t) => t.lang === lang && (group === 'All' || t.group === group)),
-    [lang, group],
+    () => TEMPLATES.filter((t) => t.lang === lang && (activeGroup === 'All' || t.group === activeGroup)),
+    [lang, activeGroup],
   )
 
   return (
