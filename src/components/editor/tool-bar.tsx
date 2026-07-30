@@ -21,6 +21,8 @@ import { GoogleFontsPanel } from './google-fonts-panel'
 import {
   ensureGoogleFontsLoaded,
   listInstalledGoogleFonts,
+  removeGoogleFont,
+  googleFamilyFromKey,
   subscribeGoogleFonts,
 } from '@/lib/google-fonts'
 import {
