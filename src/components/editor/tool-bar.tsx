@@ -165,6 +165,8 @@ interface ToolDef {
   shapeOnly?: boolean
   /** only for image/sticker graphic layers */
   imageOnly?: boolean
+  /** Pro-only feature — free users can try it, export is gated */
+  pro?: boolean
 }
 
 const TOOLS: ToolDef[] = [
