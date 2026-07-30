@@ -1757,3 +1757,121 @@ function PositionPanel({
 
 /* ---------------- Text style templates ---------------- */
 
+
+const LIQUID_PRESETS: {
+  label: string
+  patch: Partial<TextLayer>
+}[] = [
+  { label: 'Clear', patch: { liquidTint: 14, liquidBorder: 40, liquidGlow: 20, liquidBlur: 6, liquidPlate: false, liquidDark: false } },
+  { label: 'Frosted', patch: { liquidTint: 38, liquidBorder: 55, liquidGlow: 30, liquidBlur: 12, liquidPlate: false, liquidDark: false } },
+  { label: 'Bubble', patch: { liquidTint: 26, liquidBorder: 80, liquidGlow: 65, liquidBlur: 10, liquidPlate: false, liquidDark: false } },
+  { label: 'Plate', patch: { liquidTint: 30, liquidBorder: 60, liquidGlow: 25, liquidBlur: 14, liquidPlate: true, liquidDark: false } },
+  { label: 'Dark', patch: { liquidTint: 35, liquidBorder: 45, liquidGlow: 18, liquidBlur: 12, liquidPlate: false, liquidDark: true } },
+  { label: 'Dark plate', patch: { liquidTint: 34, liquidBorder: 50, liquidGlow: 22, liquidBlur: 16, liquidPlate: true, liquidDark: true } },
+]
+
+function LiquidPanel({
+  layer,
+  onChange,
+}: {
+  layer: TextLayer
+  onChange: (patch: Partial<TextLayer>) => void
+}) {
+  const on = !!layer.liquidOn
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <ToolHeading>Liquid glass</ToolHeading>
+        <button
+          type="button"
+          onClick={() => onChange({ liquidOn: !on })}
+          className={cn(
+            'rounded-full border px-3 py-1 text-[11px] font-semibold transition active:scale-95',
+            on ? 'border-primary bg-primary/15 text-primary' : 'border-border/60 text-foreground/75',
+          )}
+        >
+          {on ? 'On' : 'Off'}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-1.5">
+        {LIQUID_PRESETS.map((p) => (
+          <button
+            key={p.label}
+            type="button"
+            onClick={() => onChange({ liquidOn: true, ...p.patch })}
+            className="truncate rounded-xl border border-border/60 px-2 py-2 text-[10px] font-medium text-foreground/80 transition active:scale-95"
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {on && (
+        <>
+          <SliderField
+            label="Tint"
+            value={layer.liquidTint ?? 22}
+            min={0}
+            max={100}
+            suffix="%"
+            onChange={(v) => onChange({ liquidTint: v })}
+          />
+          <SliderField
+            label="Rim light"
+            value={layer.liquidBorder ?? 45}
+            min={0}
+            max={100}
+            suffix="%"
+            onChange={(v) => onChange({ liquidBorder: v })}
+          />
+          <SliderField
+            label="Glow"
+            value={layer.liquidGlow ?? 35}
+            min={0}
+            max={100}
+            suffix="%"
+            onChange={(v) => onChange({ liquidGlow: v })}
+          />
+          <div className="flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => onChange({ liquidPlate: !layer.liquidPlate })}
+              className={cn(
+                'flex-1 rounded-xl border px-2 py-2 text-[11px] font-medium transition active:scale-95',
+                layer.liquidPlate
+                  ? 'border-primary bg-primary/15 text-primary'
+                  : 'border-border/60 text-foreground/80',
+              )}
+            >
+              Glass plate
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange({ liquidDark: !layer.liquidDark })}
+              className={cn(
+                'flex-1 rounded-xl border px-2 py-2 text-[11px] font-medium transition active:scale-95',
+                layer.liquidDark
+                  ? 'border-primary bg-primary/15 text-primary'
+                  : 'border-border/60 text-foreground/80',
+              )}
+            >
+              Dark glass
+            </button>
+          </div>
+          {layer.liquidPlate && (
+            <SliderField
+              label="Plate blur"
+              value={layer.liquidBlur ?? 8}
+              min={0}
+              max={30}
+              suffix="px"
+              onChange={(v) => onChange({ liquidBlur: v })}
+            />
+          )}
+        </>
+      )}
+    </div>
+  )
+}
