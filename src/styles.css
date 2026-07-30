@@ -197,6 +197,50 @@
   animation: premium-float 2s ease-in-out infinite;
 }
 
+/* Animated Pro emblem */
+@keyframes pro-orb-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pro-orb-pulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.06); filter: brightness(1.18); }
+}
+@keyframes pro-orb-ring {
+  0% { transform: scale(0.85); opacity: 0.55; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.pro-orb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: conic-gradient(from 0deg, #ec4899, #8b5cf6, #3b82f6, #22d3ee, #ec4899);
+  animation: pro-orb-pulse 2.4s ease-in-out infinite;
+}
+.pro-orb::before {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 255, 255, 0.55) 40deg, transparent 90deg);
+  animation: pro-orb-spin 3.2s linear infinite;
+}
+.pro-orb::after {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.02));
+}
+.pro-orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.25rem;
+  border: 2px solid color-mix(in oklab, #8b5cf6 60%, transparent);
+  animation: pro-orb-ring 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
 @keyframes marquee-x {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -448,6 +492,8 @@ html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   overscroll-behavior-y: none;
+  height: 100%;
+  min-height: 100dvh;
 }
 
 body {
@@ -455,6 +501,14 @@ body {
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
+  height: 100%;
+  min-height: 100dvh;
+  margin: 0;
+}
+
+#root,
+body > div {
+  min-height: 100dvh;
 }
 
 /* Promote the gesture surfaces so transforms stay on the GPU. */

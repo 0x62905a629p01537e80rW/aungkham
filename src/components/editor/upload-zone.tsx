@@ -52,8 +52,8 @@ export function UploadZone({
 
   return (
     <div
-      className="relative flex min-h-0 flex-1 flex-col overflow-hidden px-6 pb-8 pt-5"
-      style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}
+      className="relative flex min-h-0 flex-1 flex-col overflow-hidden px-6 pt-5"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       {/* Ambient backdrop */}
       <div
@@ -123,7 +123,7 @@ export function UploadZone({
 
 
       {/* Tab content */}
-      <div className="mx-auto mt-5 flex min-h-0 w-full max-w-sm flex-1 flex-col overflow-y-auto overscroll-contain perf-scroll no-scrollbar px-1 pb-10">
+      <div className="mx-auto mt-5 flex min-h-0 w-full max-w-sm flex-1 flex-col overflow-y-auto overscroll-contain perf-scroll no-scrollbar px-1 pb-3">
         {tab === 'create' && (
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
