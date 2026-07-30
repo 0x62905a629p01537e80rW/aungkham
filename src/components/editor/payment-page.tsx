@@ -5,7 +5,7 @@ import {
   BadgeCheck,
   Check,
   ClipboardPaste,
-  Coins,
+  
   Copy,
   Loader2,
   LogOut,
