@@ -344,7 +344,12 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
 
 
       <div
-        className="absolute inset-x-0 bottom-0 max-h-[62dvh] overflow-y-auto perf-scroll border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-4 pt-3 transition-opacity duration-200 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className={cn(
+          'absolute inset-x-0 bottom-0 max-h-[62dvh] overflow-y-auto perf-scroll border-t px-4 pb-4 pt-3 transition-all duration-200 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          draggingSlider
+            ? 'border-transparent bg-transparent/0 backdrop-blur-none'
+            : 'border-border bg-background/95 backdrop-blur-xl',
+        )}
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
 
