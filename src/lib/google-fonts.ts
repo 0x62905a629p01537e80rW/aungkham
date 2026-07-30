@@ -151,16 +151,22 @@ async function fetchFontFile(family: string): Promise<ArrayBuffer> {
   return res.arrayBuffer()
 }
 
+/** Cache key — bumped when the download logic changes so stale files refetch. */
+function cacheKey(family: string) {
+  return `v2:${family}`
+}
+
 /** Download a Google font and keep it in the app for offline use. */
 export async function installGoogleFont(family: string): Promise<void> {
   if (loaded.has(family)) return
   const existing = inflight.get(family)
   if (existing) return existing
   const task = (async () => {
-    let buf = await idbGet(family).catch(() => undefined)
+    let buf = await idbGet(cacheKey(family)).catch(() => undefined)
     if (!buf) {
       buf = await fetchFontFile(family)
-      await idbSet(family, buf).catch(() => {})
+      await idbSet(cacheKey(family), buf).catch(() => {})
+      await idbDel(family).catch(() => {})
     }
     await registerBuffer(family, buf)
     const list = listInstalledGoogleFonts()
@@ -175,6 +181,7 @@ export async function installGoogleFont(family: string): Promise<void> {
 }
 
 export async function removeGoogleFont(family: string) {
+  await idbDel(cacheKey(family)).catch(() => {})
   await idbDel(family).catch(() => {})
   loaded.delete(family)
   writeInstalled(listInstalledGoogleFonts().filter((f) => f !== family))
@@ -183,16 +190,21 @@ export async function removeGoogleFont(family: string) {
 /** Re-register every previously downloaded font at app start (works offline). */
 export async function ensureGoogleFontsLoaded() {
   if (typeof window === 'undefined' || !('FontFace' in window)) return
-  for (const family of listInstalledGoogleFonts()) {
+  const installedList = listInstalledGoogleFonts()
+  // Web preview so downloaded fonts always render, even before registration.
+  preloadGoogleFontPreview(installedList)
+  for (const family of installedList) {
     if (loaded.has(family)) continue
     try {
-      const buf = await idbGet(family)
+      const buf = await idbGet(cacheKey(family))
       if (buf) await registerBuffer(family, buf)
+      else await installGoogleFont(family).catch(() => {})
     } catch {
       /* ignore */
     }
   }
 }
+
 
 /** true once the family is usable for rendering/export */
 export function isGoogleFontReady(family: string) {
