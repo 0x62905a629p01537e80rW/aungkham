@@ -103,7 +103,8 @@ import {
   type TextAlign,
   type TextLayer,
   type TextureType,
-, encodeForFont } from '@/lib/text-layer'
+  encodeForFont,
+} from '@/lib/text-layer'
 
 import { layerTextStyle } from './text-layer-view'
 
