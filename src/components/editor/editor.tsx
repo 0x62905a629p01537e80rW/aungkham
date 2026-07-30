@@ -229,7 +229,16 @@ export function Editor() {
   }
 
 
+  function clearErase() {
+    setErasing(false)
+    setEraseMask(undefined)
+    setDraftMask(undefined)
+    setEraseBypass(false)
+    setEraseHistory({ canUndo: false, canRedo: false })
+  }
+
   function resetAll() {
+    clearErase()
     setImage(null)
     setLayers([])
     setSelectedId(null)
