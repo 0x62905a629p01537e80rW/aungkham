@@ -601,7 +601,7 @@ function FontCard({
             className="block overflow-hidden text-ellipsis whitespace-nowrap pb-0.5 text-[19px] text-foreground"
             style={{ fontFamily: fontFamily(entry.key), lineHeight: entry.myanmar ? 1.9 : 1.3 }}
           >
-            {sample || (entry.myanmar ? 'မြန်မာစာ' : 'Aa Bb Cc')}
+            {sample || (entry.myanmar ? 'မြန်မာ ဖောင့်စတိုင်' : 'Aa Bb Cc')}
           </span>
           <span className="mt-0.5 block truncate text-[9px] uppercase tracking-wider text-muted-foreground">
             {entry.label}
@@ -786,8 +786,9 @@ function FontPicker({
       </div>
 
 
+      <div className="flex h-[46dvh] flex-col gap-2">
       {group === 'custom' && (
-        <div className="space-y-2">
+        <div className="shrink-0 space-y-2">
           <input
             ref={fileRef}
             type="file"
@@ -840,7 +841,7 @@ function FontPicker({
       )}
 
       {(group === 'mm-premium' || group === 'en-premium') && !isPro && (
-        <p className="flex items-center gap-1.5 rounded-xl border border-[#e0a93c]/40 bg-[#e0a93c]/10 px-3 py-2 text-[11px] font-medium text-foreground">
+        <p className="shrink-0 flex items-center gap-1.5 rounded-xl border border-[#e0a93c]/40 bg-[#e0a93c]/10 px-3 py-2 text-[11px] font-medium text-foreground">
           <Crown className="size-3.5 shrink-0 text-[#e0a93c]" />
           Premium fonts are free to try — Pro is required to export with them.
         </p>
@@ -848,6 +849,7 @@ function FontPicker({
 
 
       {group === 'google' && (
+        <div className="flex min-h-0 flex-1 flex-col">
         <GoogleFontsPanel
           activeKey={layer.fontKey}
           onPick={(key: string) => {
@@ -855,11 +857,12 @@ function FontPicker({
             onChange({ fontKey: key })
           }}
         />
+        </div>
       )}
 
       <div
         className={cn(
-          'flex h-[46dvh] flex-col gap-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-0.5',
+          'flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-0.5',
           group === 'google' && 'hidden',
         )}
       >
