@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { Loader2, X, Check, LogIn } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { usePricing } from '@/lib/pricing'
+import { PREMIUM_DESIGNS } from '@/lib/premium-templates'
 import { PaymentPage } from './payment-page'
 
 const SEEN_KEY = 'pro-splash-seen'
+
+const TILES = PREMIUM_DESIGNS.slice(0, 8).map((d) => ({ bg: d.bg, label: d.label }))
 
 const BENEFITS = [
   'Premium templates — Burmese & English designs',
@@ -110,6 +113,37 @@ export function ProSplash() {
         <p className="mt-1 text-xs text-white/55">One purchase. Every feature, forever.</p>
       </div>
 
+      {/* Looping template tiles */}
+      <div className="relative mt-5 space-y-2 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
+        {[0, 1].map((row) => (
+          <div
+            key={row}
+            className="marquee-track gap-2"
+            style={{
+              animationDuration: row ? '30s' : '24s',
+              animationDirection: row ? 'reverse' : 'normal',
+            }}
+          >
+            {[...TILES, ...TILES].map((t, i) => (
+              <div
+                key={`${row}-${i}`}
+                className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-white/10"
+              >
+                <img
+                  src={t.bg}
+                  alt=""
+                  loading="lazy"
+                  className="size-full object-cover"
+                />
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-1.5 pb-1 pt-3 text-[8px] font-bold uppercase tracking-wide text-white/85">
+                  {t.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
       {/* Benefits */}
       <div className="relative mt-6 flex-1 overflow-y-auto perf-scroll px-5">
         <div className="space-y-2.5 pb-4">
@@ -135,12 +169,19 @@ export function ProSplash() {
           {pricing.originalMmk && (
             <p className="text-[11px] text-white/45 line-through">{pricing.originalMmk}</p>
           )}
-          <p className="text-lg font-bold">
-            {pricing.priceMmk}
-            {pricing.priceUsd && (
-              <span className="text-[11px] font-semibold text-white/60"> OR {pricing.priceUsd}</span>
-            )}
-          </p>
+          {pricing.loaded ? (
+            <p className="text-lg font-bold">
+              {pricing.priceMmk}
+              {pricing.priceUsd && (
+                <span className="text-[11px] font-semibold text-white/60"> OR {pricing.priceUsd}</span>
+              )}
+            </p>
+          ) : (
+            <span className="flex items-center gap-2 py-1 text-white/50">
+              <Loader2 className="size-4 animate-spin" />
+              <span className="text-xs font-semibold">Loading price…</span>
+            </span>
+          )}
           <p className="mt-0.5 text-[10px] text-white/55">One-time payment · Lifetime access</p>
         </div>
 
