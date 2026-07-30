@@ -1684,22 +1684,22 @@ function PositionPanel({
       {tab === 'Move' && (
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
-            <button type="button" className={iconBtn} aria-label="Align left" onClick={() => onChange({ x: 10 })}>
+            <button type="button" className={iconBtn} aria-label="Align left" onClick={() => { quickPeek(); onChange({ x: 10 }) }}>
               <AlignLeft className="size-4" />
             </button>
-            <button type="button" className={iconBtn} aria-label="Center horizontally" onClick={() => onChange({ x: 50 })}>
+            <button type="button" className={iconBtn} aria-label="Center horizontally" onClick={() => { quickPeek(); onChange({ x: 50 }) }}>
               <AlignCenter className="size-4" />
             </button>
-            <button type="button" className={iconBtn} aria-label="Align right" onClick={() => onChange({ x: 90 })}>
+            <button type="button" className={iconBtn} aria-label="Align right" onClick={() => { quickPeek(); onChange({ x: 90 }) }}>
               <AlignRight className="size-4" />
             </button>
-            <button type="button" className={iconBtn} aria-label="Align top" onClick={() => onChange({ y: 10 })}>
+            <button type="button" className={iconBtn} aria-label="Align top" onClick={() => { quickPeek(); onChange({ y: 10 }) }}>
               <ArrowUpToLine className="size-4" />
             </button>
-            <button type="button" className={iconBtn} aria-label="Center vertically" onClick={() => onChange({ y: 50 })}>
+            <button type="button" className={iconBtn} aria-label="Center vertically" onClick={() => { quickPeek(); onChange({ y: 50 }) }}>
               <Move className="size-4" />
             </button>
-            <button type="button" className={iconBtn} aria-label="Align bottom" onClick={() => onChange({ y: 90 })}>
+            <button type="button" className={iconBtn} aria-label="Align bottom" onClick={() => { quickPeek(); onChange({ y: 90 }) }}>
               <ArrowDownToLine className="size-4" />
             </button>
           </div>
@@ -1741,10 +1741,10 @@ function PositionPanel({
       {tab === 'Zoom' && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <button type="button" className={cn(iconBtn, 'flex-1 gap-2 text-xs font-semibold')} onClick={() => onChange({ flipH: !layer.flipH })}>
+            <button type="button" className={cn(iconBtn, 'flex-1 gap-2 text-xs font-semibold')} onClick={() => { quickPeek(); onChange({ flipH: !layer.flipH }) }}>
               <FlipHorizontal className="size-4" /> Flip H
             </button>
-            <button type="button" className={cn(iconBtn, 'flex-1 gap-2 text-xs font-semibold')} onClick={() => onChange({ flipV: !layer.flipV })}>
+            <button type="button" className={cn(iconBtn, 'flex-1 gap-2 text-xs font-semibold')} onClick={() => { quickPeek(); onChange({ flipV: !layer.flipV }) }}>
               <FlipVertical className="size-4" /> Flip V
             </button>
           </div>
@@ -1758,7 +1758,7 @@ function PositionPanel({
                 type="button"
                 aria-label="Zoom out"
                 className={cn(iconBtn, 'w-9')}
-                onClick={() => onChange({ fontSize: Math.max(2, Math.round((layer.fontSize - 0.5) * 2) / 2) })}
+                onClick={() => { quickPeek(); onChange({ fontSize: Math.max(2, Math.round((layer.fontSize - 0.5) * 2) / 2) }) }}
               >
                 <Minus className="size-4" />
               </button>
@@ -1766,7 +1766,7 @@ function PositionPanel({
                 type="button"
                 aria-label="Zoom in"
                 className={cn(iconBtn, 'w-9')}
-                onClick={() => onChange({ fontSize: Math.min(40, Math.round((layer.fontSize + 0.5) * 2) / 2) })}
+                onClick={() => { quickPeek(); onChange({ fontSize: Math.min(40, Math.round((layer.fontSize + 0.5) * 2) / 2) }) }}
               >
                 <Plus className="size-4" />
               </button>
@@ -1789,7 +1789,7 @@ function PositionPanel({
             type="button"
             aria-label="Reset rotation"
             className={cn(iconBtn, 'mx-auto w-12')}
-            onClick={() => onChange({ rotation: 0 })}
+            onClick={() => { quickPeek(); onChange({ rotation: 0 }) }}
           >
             <RotateCcw className="size-4" />
           </button>
@@ -1809,14 +1809,14 @@ function PositionPanel({
           <button
             type="button"
             className={cn(iconBtn, 'gap-2 text-xs font-semibold')}
-            onClick={() => onMoveLayer?.(layer.id, 'front')}
+            onClick={() => { quickPeek(); onMoveLayer?.(layer.id, 'front') }}
           >
             <ArrowUpToLine className="size-4" /> Front
           </button>
           <button
             type="button"
             className={cn(iconBtn, 'gap-2 text-xs font-semibold')}
-            onClick={() => onMoveLayer?.(layer.id, 'back')}
+            onClick={() => { quickPeek(); onMoveLayer?.(layer.id, 'back') }}
           >
             <ArrowDownToLine className="size-4" /> Back
           </button>
