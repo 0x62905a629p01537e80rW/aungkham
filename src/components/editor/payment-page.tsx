@@ -157,8 +157,33 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
     }
   }
 
+  // Pull the hash out of a block-explorer URL if the user pasted a link.
+  function extractHash(raw: string) {
+    const v = raw.trim()
+    if (!/^https?:\/\//i.test(v)) return v
+    const matches = v.match(/[0-9a-zA-Z]{40,100}/g)
+    if (!matches?.length) return v
+    return matches.reduce((a, b) => (b.length >= a.length ? b : a))
+  }
+
+  const cleanedTx = method === 'usdt' ? extractHash(txId) : txId.trim()
+
+  // Validation: KBZPay needs exactly 6 digits; crypto needs a full-length hash (>62 chars).
+  const txError: string | null = (() => {
+    if (!txId.trim()) return null
+    if (method === 'kbzpay') {
+      return /^\d{6}$/.test(txId.trim())
+        ? null
+        : 'Enter exactly the last 6 digits of your KBZPay transaction ID.'
+    }
+    if (cleanedTx.length <= 62) {
+      return 'Transaction hash looks incomplete — paste the full hash (more than 62 characters) or the explorer link.'
+    }
+    return null
+  })()
+
   async function handleSubmit() {
-    if (!user || !txId.trim()) return
+    if (!user || !cleanedTx || txError) return
     setSubmitting(true)
     setError(null)
     try {
@@ -167,7 +192,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       await addDoc(collection(getDb(), 'transactions'), {
         userId: user.uid,
         userEmail: user.email,
-        txId: txId.trim(),
+        txId: cleanedTx,
+        txInput: txId.trim(),
         method: method === 'usdt' ? 'USDT' : 'KBZPay',
         network: method === 'usdt' ? (activeNet?.label ?? '') : '',
         toAddress: method === 'usdt' ? (activeNet?.address ?? '') : '',
@@ -186,7 +212,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
 
   if (!open || typeof document === 'undefined') return null
 
-  const canSubmit = !!user && txId.trim().length > 0 && !submitting
+  const canSubmit = !!user && !!cleanedTx && !txError && !submitting
+
 
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-background text-foreground animate-fade-in">
