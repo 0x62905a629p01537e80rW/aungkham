@@ -711,6 +711,7 @@ function ToolContent({
   onDuplicate,
   onDelete,
   onMoveLayer,
+  onCloseTool,
 }: ToolContentProps) {
   if (!layer) return null
 
@@ -730,7 +731,7 @@ function ToolContent({
         </div>
       )
     case 'font':
-      return <FontPicker layer={layer} onChange={onChange} />
+      return <FontPicker layer={layer} onChange={onChange} onClose={onCloseTool} />
 
 
     case 'format': {
