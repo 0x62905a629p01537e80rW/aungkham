@@ -599,6 +599,29 @@ export function Editor() {
         </>
       )}
 
+      <AlertDialog open={discardOpen} onOpenChange={setDiscardOpen}>
+        <AlertDialogContent className="glass-panel max-w-[min(92vw,340px)] rounded-3xl border-0">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('discard.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('discard.desc')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <AlertDialogAction
+              onClick={() => {
+                setDiscardOpen(false)
+                resetAll()
+              }}
+              className="w-full rounded-full"
+            >
+              {t('discard.confirm')}
+            </AlertDialogAction>
+            <AlertDialogCancel className="mt-0 w-full rounded-full">
+              {t('discard.cancel')}
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
     </AuthProvider>
   )
