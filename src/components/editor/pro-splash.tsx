@@ -1,35 +1,10 @@
 import { useEffect, useState } from 'react'
-import {
-  Layers,
-  LayoutTemplate,
-  Loader2,
-  Sparkles,
-  Type as TypeIcon,
-  Upload,
-  Wand2,
-  Droplets,
-  FileDown,
-  ShieldOff,
-  X,
-  Check,
-} from 'lucide-react'
+import { Loader2, X, Check, LogIn } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { usePricing } from '@/lib/pricing'
 import { PaymentPage } from './payment-page'
 
 const SEEN_KEY = 'pro-splash-seen'
-
-const CARDS = [
-  { icon: ShieldOff, label: 'No ads at all', tint: 'from-[#0ea5e9] to-[#1e3a8a]' },
-  { icon: TypeIcon, label: 'Premium Myanmar fonts', tint: 'from-[#a855f7] to-[#3b0764]' },
-  { icon: LayoutTemplate, label: 'Premium templates', tint: 'from-[#6366f1] to-[#1e1b4b]' },
-  { icon: Upload, label: 'Woff & woff2 font upload', tint: 'from-[#14b8a6] to-[#134e4a]' },
-  { icon: Droplets, label: 'Liquid text & element effects', tint: 'from-[#22d3ee] to-[#0c4a6e]' },
-  { icon: FileDown, label: 'PDF & high quality export', tint: 'from-[#ef4444] to-[#450a0a]' },
-  { icon: Wand2, label: 'Blur, square fit & effects', tint: 'from-[#f59e0b] to-[#7c2d12]' },
-  { icon: Layers, label: 'Unlimited projects', tint: 'from-[#10b981] to-[#064e3b]' },
-  { icon: Sparkles, label: 'No watermark exports', tint: 'from-[#f43f5e] to-[#4c0519]' },
-]
 
 const BENEFITS = [
   'Premium templates — Burmese & English designs',
@@ -66,13 +41,15 @@ export function ProSplash() {
   const [open, setOpen] = useState(false)
   const [pay, setPay] = useState(false)
   const [restoring, setRestoring] = useState(false)
-  const { isPro, signIn } = useAuth()
+  const [askLogin, setAskLogin] = useState(false)
+  const { isPro, signIn, user } = useAuth()
   const pricing = usePricing(open)
 
   async function handleRestore() {
     setRestoring(true)
     try {
       await signIn()
+      setAskLogin(false)
     } catch {
       /* ignore */
     } finally {
@@ -97,96 +74,74 @@ export function ProSplash() {
 
   if (!open) return <PaymentPage open={pay} onClose={() => setPay(false)} />
 
-  return (
-    <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto perf-scroll bg-[#07070c] text-white animate-fade-in">
-      <div className="relative shrink-0 overflow-hidden px-5 pb-4 pt-3">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_-10%,#22d3ee_0%,#0e7490_35%,#0b1120_70%,transparent_100%)] opacity-80" />
-        <div className="relative flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            aria-label="Close"
-            className="grid size-8 place-items-center rounded-full bg-white/10 backdrop-blur transition active:scale-95"
-          >
-            <X className="size-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleRestore()}
-            disabled={restoring}
-            className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-white/90 transition active:scale-95 disabled:opacity-60"
-          >
-            {restoring && <Loader2 className="size-3.5 animate-spin" />}
-            RESTORE
-          </button>
-        </div>
 
-        <div className="relative mt-5 text-center">
-          <div className="flex items-center justify-center gap-2">
-            <h2 className="text-xl font-extrabold tracking-tight">Myan</h2>
-            <span className="flex items-center gap-1 rounded-md bg-[#e11d74] px-2 py-0.5 text-[10px] font-bold">
-              <ProGem className="size-3" />
-              Pro
-            </span>
-          </div>
-          <p className="mt-0.5 text-xs text-white/80">Unlock All Features</p>
-        </div>
+  return (
+    <div className="fixed inset-0 z-[70] flex flex-col bg-[#07070c] text-white animate-fade-in">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[38%] bg-[radial-gradient(110%_70%_at_50%_0%,#7c5cff33_0%,transparent_70%)]" />
+
+      {/* Header */}
+      <div className="relative flex items-center justify-between px-5 pt-4">
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="Close"
+          className="grid size-8 place-items-center rounded-full bg-white/10 transition active:scale-95"
+        >
+          <X className="size-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => (user ? void handleRestore() : setAskLogin(true))}
+          className="text-[11px] font-semibold tracking-[0.14em] text-white/70 transition active:scale-95"
+        >
+          RESTORE
+        </button>
       </div>
 
-      {/* Feature cards rail */}
-      <div className="-mt-1 overflow-hidden pb-3 [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
-        <div className="marquee-track gap-2">
-          {[...CARDS, ...CARDS].map(({ icon: Icon, label, tint }, i) => (
-            <div
-              key={`${label}-${i}`}
-              className={`relative flex h-16 w-16 shrink-0 flex-col justify-end rounded-lg bg-gradient-to-br ${tint} p-2`}
-            >
-              <Icon className="absolute left-2 top-2 size-4 text-white/90" />
-              <p className="text-[9px] font-semibold leading-tight">{label}</p>
+      {/* Title */}
+      <div className="relative mt-6 px-5 text-center">
+        <div className="flex items-center justify-center gap-2">
+          <h2 className="text-2xl font-extrabold tracking-tight">Myan</h2>
+          <span className="flex items-center gap-1 rounded-md bg-[#7c5cff] px-2 py-0.5 text-[10px] font-bold">
+            <ProGem className="size-3" />
+            Pro
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-white/55">One purchase. Every feature, forever.</p>
+      </div>
+
+      {/* Benefits */}
+      <div className="relative mt-6 flex-1 overflow-y-auto perf-scroll px-5">
+        <div className="space-y-2.5 pb-4">
+          {BENEFITS.map((line) => (
+            <div key={line} className="flex items-start gap-2.5">
+              <span className="mt-[1px] grid size-4 shrink-0 place-items-center rounded-full bg-[#7c5cff]/20">
+                <Check className="size-3 text-[#a78bfa]" />
+              </span>
+              <p className="text-[12px] font-medium leading-snug text-white/85">{line}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Benefits */}
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 px-5">
-        {BENEFITS.map((line) => (
-          <div key={line} className="flex items-start gap-2">
-            <span className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full bg-[#7c5cff]">
-              <Check className="size-3" />
-            </span>
-            <p className="text-[11px] font-medium leading-tight text-white/90">{line}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-auto space-y-2 px-5 pb-5 pt-3">
-        <div className="relative rounded-2xl border-2 border-[#7c5cff] bg-white/[0.06] p-3">
+      {/* Price + CTA */}
+      <div className="relative space-y-3 px-5 pb-6 pt-3">
+        <div className="relative rounded-2xl border border-[#7c5cff]/60 bg-white/[0.04] p-4">
           {pricing.promoLabel && (
-            <span className="absolute -top-2 left-3 rounded-md bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[9px] font-extrabold">
+            <span className="absolute -top-2 left-4 rounded-md bg-[#ec4899] px-2 py-0.5 text-[9px] font-bold">
               {pricing.promoLabel}
             </span>
           )}
-          <span className="absolute -top-2 right-3 rounded-md bg-[#7c5cff] px-2 py-0.5 text-[9px] font-bold">
-            Best value
-          </span>
-          <div className="flex items-center gap-3">
-            <span className="grid size-5 place-items-center rounded-full bg-[#7c5cff]">
-              <Check className="size-3.5" />
-            </span>
-            <div>
-              {pricing.originalMmk && (
-                <p className="text-[11px] text-white/60 line-through">{pricing.originalMmk}</p>
-              )}
-              <p className="text-base font-bold">
-                {pricing.priceMmk}
-                {pricing.priceUsd && (
-                  <span className="text-[11px] font-semibold text-white/70"> OR {pricing.priceUsd}</span>
-                )}
-              </p>
-              <p className="text-[10px] text-white/70">One-time payment · Lifetime access</p>
-            </div>
-          </div>
+          {pricing.originalMmk && (
+            <p className="text-[11px] text-white/45 line-through">{pricing.originalMmk}</p>
+          )}
+          <p className="text-lg font-bold">
+            {pricing.priceMmk}
+            {pricing.priceUsd && (
+              <span className="text-[11px] font-semibold text-white/60"> OR {pricing.priceUsd}</span>
+            )}
+          </p>
+          <p className="mt-0.5 text-[10px] text-white/55">One-time payment · Lifetime access</p>
         </div>
 
         <button
@@ -195,17 +150,50 @@ export function ProSplash() {
             setOpen(false)
             setPay(true)
           }}
-          className="flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] py-3 text-sm font-bold shadow-lg transition active:scale-[0.98]"
+          className="flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-sm font-bold shadow-lg transition active:scale-[0.98]"
         >
           Continue
         </button>
 
-        <p className="text-center text-[9px] leading-relaxed text-white/55">
-          The lifetime option is a one-time payment and does not auto-renew. Manage your purchase in Google Play.
+        <p className="text-center text-[9px] leading-relaxed text-white/40">
+          One-time payment, does not auto-renew.
         </p>
       </div>
+
+      {/* Restore login dialog */}
+      {askLogin && (
+        <div className="absolute inset-0 z-10 grid place-items-center bg-black/70 p-6 animate-fade-in">
+          <div className="w-full max-w-[300px] rounded-2xl border border-white/10 bg-[#111119] p-5 text-center">
+            <div className="mx-auto grid size-10 place-items-center rounded-full bg-[#7c5cff]/20">
+              <LogIn className="size-5 text-[#a78bfa]" />
+            </div>
+            <h3 className="mt-3 text-sm font-bold">Sign in to restore</h3>
+            <p className="mt-1 text-[11px] leading-relaxed text-white/60">
+              Log in with the account you used to purchase Pro to restore your purchase.
+            </p>
+            <button
+              type="button"
+              onClick={() => void handleRestore()}
+              disabled={restoring}
+              className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#3b82f6] text-xs font-bold transition active:scale-[0.98] disabled:opacity-60"
+            >
+              {restoring && <Loader2 className="size-3.5 animate-spin" />}
+              Log in with Google
+            </button>
+            <button
+              type="button"
+              onClick={() => setAskLogin(false)}
+              className="mt-2 h-9 w-full rounded-full bg-white/5 text-xs font-semibold text-white/70 transition active:scale-[0.98]"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       <PaymentPage open={pay} onClose={() => setPay(false)} />
     </div>
+
   )
 
 }
