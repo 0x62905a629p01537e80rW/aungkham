@@ -24,7 +24,7 @@ const BENEFITS = [
   { icon: TypeIcon, title: 'Premium fonts', desc: 'Full Myanmar + display font library.' },
   { icon: Wand2, title: 'Premium features', desc: 'Blur, square fit, advanced effects.' },
   { icon: Layers, title: 'Unlimited projects', desc: 'Save and reopen as many as you like.' },
-  { icon: Sparkles, title: 'No watermark', desc: 'Export in full original quality.' },
+  { icon: Droplets, title: 'Liquid effects', desc: 'Liquid glass effects for text & elements.' },
 ]
 
 
