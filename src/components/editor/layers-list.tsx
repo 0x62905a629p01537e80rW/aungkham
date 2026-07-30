@@ -5,12 +5,15 @@ import {
   Copy,
   Eye,
   EyeOff,
+  Check,
   GripVertical,
+  Group,
   Lock,
   LockOpen,
   Plus,
   Trash2,
   Type,
+  Ungroup,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -27,6 +30,8 @@ interface LayersListProps {
   onToggleLock?: (id: string) => void
   onMove?: (id: string, dir: 'front' | 'back') => void
   onReorder?: (from: number, to: number) => void
+  onGroup?: (ids: string[]) => void
+  onUngroup?: (id: string) => void
 }
 
 const ROW_H = 64
@@ -42,7 +47,28 @@ export function LayersList({
   onToggleLock,
   onMove,
   onReorder,
+  onGroup,
+  onUngroup,
 }: LayersListProps) {
+  const [picking, setPicking] = useState(false)
+  const [marked, setMarked] = useState<string[]>([])
+
+  const groupColors = ['#f97316', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6']
+  const groupIds = Array.from(
+    new Set(layers.map((l) => l.groupId).filter(Boolean) as string[]),
+  )
+  const groupColor = (gid?: string) =>
+    gid ? groupColors[groupIds.indexOf(gid) % groupColors.length] : undefined
+
+  function toggleMark(id: string) {
+    setMarked((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+  }
+
+  function commitGroup() {
+    if (marked.length >= 2) onGroup?.(marked)
+    setMarked([])
+    setPicking(false)
+  }
   const [drag, setDrag] = useState<{ index: number; dy: number } | null>(null)
   const dragRef = useRef<{ index: number; startY: number } | null>(null)
 
@@ -77,10 +103,49 @@ export function LayersList({
         <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           Text Layers
         </h3>
-        <Button size="sm" variant="outline" onClick={onAdd} className="h-8 gap-1.5 rounded-full">
-          <Plus className="size-3.5" />
-          Add
-        </Button>
+        <div className="flex items-center gap-1.5">
+          {picking ? (
+            <>
+              <Button
+                size="sm"
+                onClick={commitGroup}
+                disabled={marked.length < 2}
+                className="h-8 gap-1.5 rounded-full"
+              >
+                <Group className="size-3.5" />
+                Group ({marked.length})
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setMarked([])
+                  setPicking(false)
+                }}
+                className="h-8 rounded-full"
+              >
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setPicking(true)}
+                disabled={layers.length < 2}
+                className="h-8 gap-1.5 rounded-full"
+              >
+                <Group className="size-3.5" />
+                Group
+              </Button>
+              <Button size="sm" variant="outline" onClick={onAdd} className="h-8 gap-1.5 rounded-full">
+                <Plus className="size-3.5" />
+                Add
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="space-y-1.5">
@@ -95,7 +160,7 @@ export function LayersList({
           return (
             <div
               key={layer.id}
-              onClick={() => onSelect(layer.id)}
+              onClick={() => (picking ? toggleMark(layer.id) : onSelect(layer.id))}
               style={
                 dragging
                   ? { transform: `translateY(${drag!.dy}px)`, zIndex: 20, position: 'relative' }
@@ -110,6 +175,25 @@ export function LayersList({
               )}
             >
               <div className="flex items-center gap-2">
+                {picking && (
+                  <span
+                    className={cn(
+                      'flex size-5 shrink-0 items-center justify-center rounded-md border',
+                      marked.includes(layer.id)
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-border',
+                    )}
+                  >
+                    {marked.includes(layer.id) && <Check className="size-3.5" />}
+                  </span>
+                )}
+                {layer.groupId && (
+                  <span
+                    aria-label="Grouped"
+                    className="h-6 w-1 shrink-0 rounded-full"
+                    style={{ background: groupColor(layer.groupId) }}
+                  />
+                )}
                 <span
                   aria-label="Drag to reorder"
                   onPointerDown={(e) => startDrag(e, index)}
@@ -137,6 +221,11 @@ export function LayersList({
               </div>
 
               <div className="mt-1.5 flex items-center justify-end gap-1">
+                {layer.groupId && (
+                  <IconBtn label="Ungroup" onClick={() => onUngroup?.(layer.id)}>
+                    <Ungroup className="size-3.5" />
+                  </IconBtn>
+                )}
                 <IconBtn
                   label={layer.locked ? 'Unlock layer' : 'Lock layer'}
                   onClick={() => onToggleLock?.(layer.id)}
