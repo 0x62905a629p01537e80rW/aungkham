@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   BadgeCheck,
   Check,
+  ClipboardPaste,
   Coins,
   Copy,
   Loader2,
