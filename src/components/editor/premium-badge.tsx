@@ -2,8 +2,8 @@ import { useState } from 'react'
 import {
   BadgeCheck,
   Clock,
+  Droplets,
   Layers,
-  Sparkles,
   Type as TypeIcon,
   Wand2,
   ShieldOff,
