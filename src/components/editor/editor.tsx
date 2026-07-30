@@ -39,6 +39,7 @@ import {
 
 
 export function Editor() {
+  const { t } = useI18n()
   const [image, setImage] = useState<string | null>(null)
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null)
   const [layers, setLayers] = useState<TextLayer[]>([])
