@@ -62,6 +62,12 @@ const DICT = {
       'Your current edits are not saved. Leaving now will clear everything on the canvas.',
     'discard.cancel': 'Keep editing',
     'discard.confirm': 'Discard & exit',
+
+    'template.apply.title': 'Apply template',
+    'template.apply.desc': 'Do you want to replace the background with this template, or keep the current background and apply only the text styles?',
+    'template.apply.replace': 'Replace background',
+    'template.apply.styles': 'Styles only',
+    'template.apply.cancel': 'Cancel',
   },
   my: {
     'brand.tagline': 'ဓာတ်ပုံပေါ် စာရေးရန်',
@@ -116,6 +122,12 @@ const DICT = {
       'သင်ပြုလုပ်ထားသည်များ သိမ်းထားခြင်း မရှိပါ။ ထွက်လိုက်ပါက အားလုံး ပျောက်ဆုံးသွားပါမည်။',
     'discard.cancel': 'ဆက်တည်းဖြတ်မည်',
     'discard.confirm': 'ဖျက်ပြီး ထွက်မည်',
+
+    'template.apply.title': 'တမ်းပလိတ် ထည့်သွင်းမည်',
+    'template.apply.desc': 'ဒီတမ်းပလိတ်၏ နောက်ခံအရောင်ကို အစားထိုးလိုပါသလား၊ သို့မဟုတ် လက်ရှိနောက်ခံကို ထားပြီး စာသားစတိုင်သာ အသုံးပြုလိုပါသလား?',
+    'template.apply.replace': 'နောက်ခံ အစားထိုး',
+    'template.apply.styles': 'စတိုင်သာ',
+    'template.apply.cancel': 'ပယ်မည်',
   },
 } as const
 
