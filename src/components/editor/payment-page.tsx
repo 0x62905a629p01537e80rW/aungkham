@@ -77,7 +77,6 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
   const [method, setMethod] = useState<'kbzpay' | 'usdt'>('kbzpay')
   const [net, setNet] = useState('')
   const [txId, setTxId] = useState('')
-  const [senderInfo, setSenderInfo] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
