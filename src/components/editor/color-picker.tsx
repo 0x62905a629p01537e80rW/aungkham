@@ -118,6 +118,8 @@ export function ColorPickerPanel({
   onConfirm,
   confirmLabel = 'Confirm',
   className,
+  collapsibleArea = false,
+  defaultAreaOpen = false,
 }: {
   value: string
   onChange: (v: string) => void
@@ -126,7 +128,11 @@ export function ColorPickerPanel({
   onConfirm?: (v: string) => void
   confirmLabel?: string
   className?: string
+  collapsibleArea?: boolean
+  defaultAreaOpen?: boolean
 }) {
+  const [areaOpen, setAreaOpen] = useState(!collapsibleArea || defaultAreaOpen)
+
   const parsedGradient = useMemo(() => parseGradient(value), [])
   const initialSolid = parsedGradient ? parsedGradient.stops[0].color : value
   const init = hexToRgba(initialSolid)
