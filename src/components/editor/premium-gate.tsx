@@ -197,11 +197,7 @@ export function PremiumGate({
 
             <button
               type="button"
-              onClick={() => {
-                setOpen(false)
-                onUndoPremiumFonts()
-                onProceed()
-              }}
+              onClick={() => setConfirmUndo(true)}
               className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-border bg-foreground/5 text-sm font-bold text-foreground transition active:scale-[0.98]"
             >
               <Undo2 className="size-4" />
@@ -211,7 +207,39 @@ export function PremiumGate({
         </div>
       )}
 
+      {confirmUndo && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-6 backdrop-blur-sm">
+          <div className="glass-panel w-full max-w-xs rounded-3xl border border-border bg-background p-5">
+            <h3 className="text-base font-extrabold text-foreground">Undo premium features?</h3>
+            <p className="mt-1.5 text-[12px] leading-snug text-muted-foreground">
+              Premium fonts, liquid glass, textures and background removal will be reverted on your design.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmUndo(false)}
+                className="h-11 flex-1 rounded-2xl border border-border bg-foreground/5 text-sm font-bold text-foreground transition active:scale-[0.98]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onUndoPremiumFonts()
+                  setConfirmUndo(false)
+                  setOpen(false)
+                }}
+                className="h-11 flex-1 rounded-2xl bg-foreground text-sm font-bold text-background transition active:scale-[0.98]"
+              >
+                Undo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <PaymentPage open={pay} onClose={() => setPay(false)} />
+
     </>
   )
 }
