@@ -394,9 +394,9 @@ export function ToolBar({
                   type="button"
                   disabled={disabled}
                   className={cn(
-                    'flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium transition active:scale-95',
+                    'relative z-10 flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium transition-colors duration-300 active:scale-95',
                     isOpen
-                      ? 'bg-primary/12 text-primary'
+                      ? 'text-primary-foreground'
                       : 'text-foreground/75 hover:text-foreground',
                     disabled && 'opacity-35',
                   )}
