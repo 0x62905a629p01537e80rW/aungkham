@@ -758,6 +758,11 @@ function FontPicker({
                   <Crown className="size-3" />
                   {g.label}
                 </span>
+              ) : g.key === 'custom' ? (
+                <span className="flex items-center gap-1">
+                  <Upload className="size-3" />
+                  {g.label}
+                </span>
               ) : (
                 g.label
               )}
@@ -840,7 +845,7 @@ function FontPicker({
 
       <div
         className={cn(
-          'flex max-h-[46dvh] flex-col gap-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-0.5',
+          'flex h-[46dvh] flex-col gap-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-0.5',
           group === 'google' && 'hidden',
         )}
       >
