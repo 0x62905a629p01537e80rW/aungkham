@@ -611,7 +611,7 @@ export function ColorPickerPanel({
           className="size-[52px] shrink-0 rounded-lg border border-black/10"
           style={{ background: preview }}
         />
-        <div className="grid flex-1 grid-cols-10 gap-1">
+        <div className={`grid flex-1 gap-1 ${mode === 'gradient' ? 'grid-cols-5' : 'grid-cols-10'}`}>
           {pills.map((c) => (
             <button
               key={c}
