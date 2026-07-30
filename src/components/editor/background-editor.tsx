@@ -1,3 +1,4 @@
+import type * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import {
   Aperture,
@@ -139,6 +140,64 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
     draggingSlider && draggingSlider !== label
       ? 'opacity-0 pointer-events-none transition-opacity duration-200'
       : ''
+
+  // Pinch-to-zoom + drag on the Fit preview
+  const gesture = useRef({
+    pts: new Map<number, { x: number; y: number }>(),
+    dist: 0,
+    scale: 1,
+    x: 0,
+    y: 0,
+    last: { x: 0, y: 0 },
+    box: 1,
+  })
+  const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
+  const fitGestures = {
+    onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
+      const g = gesture.current
+      e.currentTarget.setPointerCapture(e.pointerId)
+      g.pts.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      g.box = e.currentTarget.getBoundingClientRect().width || 1
+      g.scale = fitScale
+      g.x = fitX
+      g.y = fitY
+      g.last = { x: e.clientX, y: e.clientY }
+      if (g.pts.size === 2) {
+        const [a, b] = [...g.pts.values()]
+        g.dist = Math.hypot(a.x - b.x, a.y - b.y)
+      }
+      setDraggingSlider('Size')
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
+      const g = gesture.current
+      if (!g.pts.has(e.pointerId)) return
+      g.pts.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      const rect = e.currentTarget.getBoundingClientRect()
+      if (g.pts.size >= 2) {
+        const [a, b] = [...g.pts.values()]
+        const d = Math.hypot(a.x - b.x, a.y - b.y)
+        if (g.dist > 0) setFitScale(clamp((g.scale * d) / g.dist, 0.3, 3))
+      } else {
+        const dx = e.clientX - g.last.x
+        const dy = e.clientY - g.last.y
+        g.last = { x: e.clientX, y: e.clientY }
+        setFitX((v) => clamp(v + (dx / (rect.width / 2)) * 100, -100, 100))
+        setFitY((v) => clamp(v + (dy / (rect.height / 2)) * 100, -100, 100))
+      }
+    },
+    onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => {
+      const g = gesture.current
+      g.pts.delete(e.pointerId)
+      g.dist = 0
+      if (g.pts.size === 0) {
+        if (hideTimer.current) clearTimeout(hideTimer.current)
+        hideTimer.current = setTimeout(() => setDraggingSlider(null), 400)
+      }
+    },
+    onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) => {
+      gesture.current.pts.delete(e.pointerId)
+    },
+  }
 
 
 
@@ -325,7 +384,9 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             className={cn(
               'max-h-full max-w-full overflow-hidden rounded-none',
               tool === 'fit' && fitColor === 'transparent' && !fitGradient && 'checker-grid',
+              tool === 'fit' && 'touch-none select-none',
             )}
+            {...(tool === 'fit' ? fitGestures : {})}
           >
             <img
               src={
@@ -336,6 +397,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                     : working
               }
               alt="Preview"
+              draggable={false}
               className="max-h-[50dvh] max-w-full object-contain"
             />
           </div>
@@ -460,7 +522,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                 label="Size"
                 value={fitScale}
                 min={0.3}
-                max={1.5}
+                max={3}
                 step={0.01}
                 onChange={setFitScale}
               />
