@@ -359,6 +359,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       label="KBZPay number"
                       value={settings.phone}
                       valueClassName="text-[14px] font-semibold"
+                      icon={<KbzPayMark className="size-3.5" />}
                     />
                   )}
                   {settings.name && (
@@ -368,6 +369,12 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       valueClassName="text-[14px] font-semibold"
                     />
                   )}
+                  <CopyRow
+                    label="Amount to send"
+                    value={pricing.priceMmk}
+                    valueClassName="text-[14px] font-semibold"
+                    icon={<Smartphone className="size-3.5 text-primary" />}
+                  />
                 </div>
               ) : settings ? (
                 settings.nets.length === 0 ? (
@@ -376,19 +383,21 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                   </p>
                 ) : (
                   <div className="mt-2 space-y-2">
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="grid grid-cols-2 gap-1.5">
                       {settings.nets.map((n) => (
                         <button
                           key={n.key}
                           type="button"
                           onClick={() => setNet(n.key)}
-                          className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition active:scale-95 ${
+                          className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 text-[11px] font-semibold transition active:scale-95 ${
                             activeNet?.key === n.key
                               ? 'bg-primary text-primary-foreground'
                               : 'glass-tile text-muted-foreground'
                           }`}
                         >
-                          {n.label.replace('USDT · ', '')}
+                          <NetworkMark netKey={n.key} className="size-5 shrink-0" />
+                          <span className="truncate">{n.label.replace('USDT · ', '')}</span>
+                          {activeNet?.key === n.key && <Check className="ml-auto size-3.5 shrink-0" />}
                         </button>
                       ))}
                     </div>
@@ -397,11 +406,24 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                         label={activeNet.label}
                         value={activeNet.address}
                         valueClassName="text-[12px] font-semibold"
+                        icon={<NetworkMark netKey={activeNet.key} className="size-3.5" />}
                       />
                     )}
                     {settings.usdtPrice && (
-                      <CopyRow label="Amount" value={settings.usdtPrice} valueClassName="text-[14px] font-semibold" />
+                      <CopyRow
+                        label="Amount to send"
+                        value={settings.usdtPrice}
+                        valueClassName="text-[14px] font-semibold"
+                        icon={<UsdtMark className="size-3.5" />}
+                      />
                     )}
+                    <p className="text-[11px] text-muted-foreground">
+                      Send only USDT on the selected network. Wrong-network transfers cannot be
+                      recovered.
+                    </p>
+                  </div>
+                )
+
                     <p className="text-[11px] text-muted-foreground">
                       Send only USDT on the selected network. Wrong-network transfers cannot be
                       recovered.
