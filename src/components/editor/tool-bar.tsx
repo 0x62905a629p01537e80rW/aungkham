@@ -605,6 +605,7 @@ function FontPicker({
   const [, force] = useState(0)
   const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
+  const proFileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     ensureCustomFontsLoaded()
