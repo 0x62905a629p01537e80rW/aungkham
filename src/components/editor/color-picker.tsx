@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Circle, Move3d, Pipette, Plus, Trash2, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { GlassTabs } from '@/components/ui/glass-tabs'
+import { listRecentColors, recordRecentColor, subscribeRecents } from '@/lib/recents'
 
 // ---------- color math ----------
 
