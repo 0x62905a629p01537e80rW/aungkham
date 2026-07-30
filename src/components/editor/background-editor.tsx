@@ -120,18 +120,25 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitAdvanced, setFitAdvanced] = useState(false)
   const [fitPreview, setFitPreview] = useState<string | null>(null)
   const backdropInput = useRef<HTMLInputElement | null>(null)
-  const [sliderDragging, setSliderDragging] = useState(false)
+  const [draggingSlider, setDraggingSlider] = useState<string | null>(null)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const dragProps = {
+  const sliderDrag = (label: string) => ({
     onDragStart: () => {
       if (hideTimer.current) clearTimeout(hideTimer.current)
-      setSliderDragging(true)
+      setDraggingSlider(label)
     },
     onDragEnd: () => {
       if (hideTimer.current) clearTimeout(hideTimer.current)
-      hideTimer.current = setTimeout(() => setSliderDragging(false), 500)
+      hideTimer.current = setTimeout(() => setDraggingSlider(null), 500)
     },
-  }
+  })
+  const dimWhenDragging = draggingSlider
+    ? 'opacity-0 pointer-events-none transition-opacity duration-200'
+    : ''
+  const dimUnlessActive = (label: string) =>
+    draggingSlider && draggingSlider !== label
+      ? 'opacity-0 pointer-events-none transition-opacity duration-200'
+      : ''
 
 
 
@@ -337,10 +344,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
 
 
       <div
-        className={cn(
-          'absolute inset-x-0 bottom-0 max-h-[62dvh] overflow-y-auto perf-scroll border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-4 pt-3 transition-opacity duration-200 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          sliderDragging && 'pointer-events-none opacity-0',
-        )}
+        className="absolute inset-x-0 bottom-0 max-h-[62dvh] overflow-y-auto perf-scroll border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-4 pt-3 transition-opacity duration-200 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
 
@@ -411,7 +415,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
         {tool === 'fit' && (
           <div className="space-y-4">
             {/* 1. Shape */}
-            <div className="flex gap-3 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className={cn('flex gap-3 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden', dimWhenDragging)}>
               {FIT_RATIOS.map((r) => {
                 const active = Math.abs(fitRatio - r.value) < 0.001
                 const w = r.value >= 1 ? 26 : 26 * r.value
@@ -446,17 +450,19 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             </div>
 
             {/* 2. Size */}
-            <SliderField {...dragProps}
-              label="Size"
-              value={fitScale}
-              min={0.3}
-              max={1.5}
-              step={0.01}
-              onChange={setFitScale}
-            />
+            <div className={dimUnlessActive('Size')}>
+              <SliderField {...sliderDrag('Size')}
+                label="Size"
+                value={fitScale}
+                min={0.3}
+                max={1.5}
+                step={0.01}
+                onChange={setFitScale}
+              />
+            </div>
 
             {/* 3. Background — one row of choices */}
-            <div>
+            <div className={dimWhenDragging}>
               <p className="mb-2 text-[11px] font-semibold text-muted-foreground">Background</p>
               <div className="flex gap-2 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <button
@@ -583,7 +589,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               <button
                 type="button"
                 onClick={() => setFitAdvanced((v) => !v)}
-                className="flex w-full items-center justify-between text-xs font-semibold active:scale-[0.99]"
+                className={cn('flex w-full items-center justify-between text-xs font-semibold active:scale-[0.99]', dimWhenDragging)}
               >
                 <span className="flex items-center gap-2">
                   <SlidersHorizontal className="size-4 text-primary" /> Adjust
@@ -596,67 +602,81 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               {fitAdvanced && (
                 <div className="mt-3 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <SliderField {...dragProps}
-                      label="Move X"
-                      value={fitX}
-                      min={-100}
-                      max={100}
-                      step={1}
-                      onChange={setFitX}
-                    />
-                    <SliderField {...dragProps}
-                      label="Move Y"
-                      value={fitY}
-                      min={-100}
-                      max={100}
-                      step={1}
-                      onChange={setFitY}
-                    />
-                  </div>
-                  {(fitBlur > 0 || fitBackdrop) && (
-                    <SliderField {...dragProps}
-                      label="Background blur"
-                      value={fitBackdrop ? fitBackdropBlur : fitBlur}
-                      min={0}
-                      max={60}
-                      step={1}
-                      onChange={fitBackdrop ? setFitBackdropBlur : setFitBlur}
-                    />
-                  )}
-                  <SliderField {...dragProps}
-                    label="Background opacity"
-                    value={fitBgOpacity}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onChange={setFitBgOpacity}
-                  />
-                  <SliderField {...dragProps}
-                    label="Shadow"
-                    value={fitShadowBlur}
-                    min={0}
-                    max={100}
-                    step={1}
-                    onChange={setFitShadowBlur}
-                  />
-                  {fitShadowBlur > 0 && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <SliderField {...dragProps}
-                        label="Shadow opacity"
-                        value={fitShadowOpacity}
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        onChange={setFitShadowOpacity}
-                      />
-                      <SliderField {...dragProps}
-                        label="Shadow offset"
-                        value={fitShadowOffset}
+                    <div className={dimUnlessActive('Move X')}>
+                      <SliderField {...sliderDrag('Move X')}
+                        label="Move X"
+                        value={fitX}
                         min={-100}
                         max={100}
                         step={1}
-                        onChange={setFitShadowOffset}
+                        onChange={setFitX}
                       />
+                    </div>
+                    <div className={dimUnlessActive('Move Y')}>
+                      <SliderField {...sliderDrag('Move Y')}
+                        label="Move Y"
+                        value={fitY}
+                        min={-100}
+                        max={100}
+                        step={1}
+                        onChange={setFitY}
+                      />
+                    </div>
+                  </div>
+                  {(fitBlur > 0 || fitBackdrop) && (
+                    <div className={dimUnlessActive('Background blur')}>
+                      <SliderField {...sliderDrag('Background blur')}
+                        label="Background blur"
+                        value={fitBackdrop ? fitBackdropBlur : fitBlur}
+                        min={0}
+                        max={60}
+                        step={1}
+                        onChange={fitBackdrop ? setFitBackdropBlur : setFitBlur}
+                      />
+                    </div>
+                  )}
+                  <div className={dimUnlessActive('Background opacity')}>
+                    <SliderField {...sliderDrag('Background opacity')}
+                      label="Background opacity"
+                      value={fitBgOpacity}
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      onChange={setFitBgOpacity}
+                    />
+                  </div>
+                  <div className={dimUnlessActive('Shadow')}>
+                    <SliderField {...sliderDrag('Shadow')}
+                      label="Shadow"
+                      value={fitShadowBlur}
+                      min={0}
+                      max={100}
+                      step={1}
+                      onChange={setFitShadowBlur}
+                    />
+                  </div>
+                  {fitShadowBlur > 0 && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className={dimUnlessActive('Shadow opacity')}>
+                        <SliderField {...sliderDrag('Shadow opacity')}
+                          label="Shadow opacity"
+                          value={fitShadowOpacity}
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          onChange={setFitShadowOpacity}
+                        />
+                      </div>
+                      <div className={dimUnlessActive('Shadow offset')}>
+                        <SliderField {...sliderDrag('Shadow offset')}
+                          label="Shadow offset"
+                          value={fitShadowOffset}
+                          min={-100}
+                          max={100}
+                          step={1}
+                          onChange={setFitShadowOffset}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -669,7 +689,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
 
         {tool === 'blur' && (
           <div className="space-y-4">
-            <div className="flex gap-2">
+            <div className={cn('flex gap-2', dimWhenDragging)}>
               {(['whole', 'focus'] as const).map((m) => (
                 <button
                   key={m}
@@ -686,23 +706,27 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                 </button>
               ))}
             </div>
-            <SliderField {...dragProps}
-              label="Blur amount"
-              value={blurAmount}
-              min={1}
-              max={40}
-              step={1}
-              onChange={setBlurAmount}
-            />
-            {blurMode === 'focus' && (
-              <SliderField {...dragProps}
-                label="Focus size"
-                value={focus.r}
-                min={0.1}
-                max={0.8}
-                step={0.01}
-                onChange={(v) => setFocus((p) => ({ ...p, r: v }))}
+            <div className={dimUnlessActive('Blur amount')}>
+              <SliderField {...sliderDrag('Blur amount')}
+                label="Blur amount"
+                value={blurAmount}
+                min={1}
+                max={40}
+                step={1}
+                onChange={setBlurAmount}
               />
+            </div>
+            {blurMode === 'focus' && (
+              <div className={dimUnlessActive('Focus size')}>
+                <SliderField {...sliderDrag('Focus size')}
+                  label="Focus size"
+                  value={focus.r}
+                  min={0.1}
+                  max={0.8}
+                  step={0.01}
+                  onChange={(v) => setFocus((p) => ({ ...p, r: v }))}
+                />
+              </div>
             )}
           </div>
         )}
