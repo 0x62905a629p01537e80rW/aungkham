@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Download, Loader2, Search, Trash2, WifiOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ColorPickerPopover } from './color-picker'
 import {
   GOOGLE_FONTS,
   googleCssFamily,
@@ -15,7 +14,7 @@ import {
   subscribeGoogleFonts,
 } from '@/lib/google-fonts'
 
-const WEIGHTS = [300, 400, 500, 600, 700, 800, 900]
+
 
 export function GoogleFontsPanel({
   activeKey,
@@ -25,7 +24,7 @@ export function GoogleFontsPanel({
   onPick: (fontKey: string) => void
 }) {
   const [query, setQuery] = useState('')
-  const [onlyInstalled, setOnlyInstalled] = useState(false)
+  const [onlyInstalled] = useState(false)
   const [limit, setLimit] = useState(60)
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
