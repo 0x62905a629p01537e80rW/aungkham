@@ -562,7 +562,7 @@ function FontCard({
   return (
     <div
       className={cn(
-        'group relative flex items-center gap-2 overflow-hidden rounded-2xl border pr-1.5 transition',
+        'group relative flex shrink-0 items-center gap-2 overflow-hidden rounded-2xl border pr-1.5 transition',
         active
           ? 'border-primary bg-primary/15 shadow-[0_0_0_1px_var(--color-primary)]'
           : 'border-border/60 bg-foreground/5 hover:bg-foreground/10',
