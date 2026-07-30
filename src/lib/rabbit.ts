@@ -783,8 +783,7 @@ const zg2uni = (output: string): string => {
 const replace_with_rule = (rule: { from: string; to: string }[], output: string) => {
   rule.forEach((r) => {
     const from_regex = new RegExp(r.from, 'g')
-    const to = r.to.replace(/\$/g, '$$$$')
-    output = output.replace(from_regex, to)
+    output = output.replace(from_regex, r.to)
   })
   return output
 }
