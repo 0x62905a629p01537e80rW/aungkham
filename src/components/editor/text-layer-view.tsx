@@ -27,6 +27,35 @@ function depthShadow(layer: TextLayer): string[] {
   return out
 }
 
+/** Frosted "liquid glass" look applied on top of the normal fill. */
+export function liquidStyle(layer: TextLayer): CSSProperties {
+  const tint = (layer.liquidTint ?? 22) / 100
+  const border = (layer.liquidBorder ?? 45) / 100
+  const glow = (layer.liquidGlow ?? 35) / 100
+  const dark = layer.liquidDark
+  const glass = dark ? '18, 22, 30' : '255, 255, 255'
+  const rim = dark ? '255, 255, 255' : '255, 255, 255'
+
+  const shadows = [
+    `0 -0.012em 0.01em rgba(${rim}, ${0.85 * border})`,
+    `0 0.014em 0.012em rgba(${dark ? '255, 255, 255' : '0, 0, 0'}, ${0.35 * border})`,
+    `0 0.05em 0.09em rgba(0, 0, 0, ${0.3 + 0.25 * tint})`,
+  ]
+  if (glow > 0) shadows.push(`0 0 ${(0.35 * glow).toFixed(3)}em rgba(${rim}, ${glow})`)
+
+  return {
+    color: `rgba(${glass}, ${Math.max(0.05, tint)})`,
+    WebkitTextFillColor: `rgba(${glass}, ${Math.max(0.05, tint)})`,
+    backgroundImage: `linear-gradient(160deg, rgba(${rim}, ${0.5 * border}) 0%, rgba(${glass}, ${tint}) 45%, rgba(${rim}, ${0.22 * border}) 100%)`,
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    WebkitTextStrokeWidth: border > 0 ? `${(border * 0.045).toFixed(4)}em` : undefined,
+    WebkitTextStrokeColor: `rgba(${rim}, ${0.35 + 0.5 * border})`,
+    paintOrder: 'stroke fill',
+    textShadow: shadows.join(', '),
+  }
+}
+
 export function layerTextStyle(layer: TextLayer): CSSProperties {
   const texture = TEXTURES[layer.texture] ?? TEXTURES.none
   const fillType = layer.fillType ?? (texture.gradient ? 'texture' : 'solid')
@@ -162,7 +191,9 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
 
 export function LayerText({ layer }: { layer: TextLayer }) {
   if (layer.graphic) return <LayerGraphic layer={layer} />
-  const style = layerTextStyle(layer)
+  const style = layer.liquidOn
+    ? { ...layerTextStyle(layer), ...liquidStyle(layer) }
+    : layerTextStyle(layer)
   const bend = layer.bend ?? 0
   const text = layer.text || ' '
 
@@ -207,7 +238,33 @@ export function LayerText({ layer }: { layer: TextLayer }) {
     )
   }
 
-  return <p style={style}>{text}</p>
+  const node = <p style={style}>{text}</p>
+  if (layer.liquidOn && layer.liquidPlate) return <LiquidPlate layer={layer}>{node}</LiquidPlate>
+  return node
+}
+
+/** Frosted card behind the text. */
+function LiquidPlate({ layer, children }: { layer: TextLayer; children: React.ReactNode }) {
+  const tint = (layer.liquidTint ?? 22) / 100
+  const border = (layer.liquidBorder ?? 45) / 100
+  const dark = layer.liquidDark
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        padding: '0.14em 0.34em',
+        borderRadius: '0.3em',
+        background: dark
+          ? `rgba(16, 20, 28, ${0.18 + tint * 0.5})`
+          : `rgba(255, 255, 255, ${0.1 + tint * 0.5})`,
+        border: `1px solid rgba(255, 255, 255, ${0.2 + border * 0.5})`,
+        backdropFilter: `blur(${layer.liquidBlur ?? 8}px) saturate(160%)`,
+        boxShadow: `inset 0 1px 0 rgba(255,255,255,${0.35 + border * 0.4}), 0 8px 24px rgba(0,0,0,0.22)`,
+      }}
+    >
+      {children}
+    </span>
+  )
 }
 
 function withAlpha(hex: string, alpha: number): string {
