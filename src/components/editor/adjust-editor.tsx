@@ -18,7 +18,7 @@ import {
   Waves,
   X,
 } from 'lucide-react'
-import { Slider } from '@/components/ui/slider'
+import { LiveSlider } from './live-slider'
 import { cn } from '@/lib/utils'
 import { loadImage } from '@/lib/image-ops'
 import {
