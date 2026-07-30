@@ -379,10 +379,6 @@ export function ToolBar({
                 }}
                 onClick={() => {
                   if (tool.key === 'cutout') {
-                    if (!isPro) {
-                      setPayOpen(true)
-                      return
-                    }
                     setCutoutOpen(true)
                     return
                   }
