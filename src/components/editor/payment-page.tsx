@@ -290,8 +290,24 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
           <div className="mt-5 space-y-3">
             <GlassTabs
               items={[
-                { key: 'kbzpay', label: 'KBZPay' },
-                { key: 'usdt', label: 'USDT Crypto' },
+                {
+                  key: 'kbzpay',
+                  label: (
+                    <>
+                      <KbzPayMark className="size-4" />
+                      KBZPay
+                    </>
+                  ),
+                },
+                {
+                  key: 'usdt',
+                  label: (
+                    <>
+                      <UsdtMark className="size-4" />
+                      USDT Crypto
+                    </>
+                  ),
+                },
               ]}
               value={method}
               onChange={(k) => setMethod(k as 'kbzpay' | 'usdt')}
@@ -299,7 +315,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
 
             <div className="glass-tile flex items-center gap-3 rounded-2xl p-4">
               <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-                {method === 'usdt' ? <Coins className="size-5" /> : <Smartphone className="size-5" />}
+                {method === 'usdt' ? <UsdtMark className="size-6" /> : <KbzPayMark className="size-6" />}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold">
@@ -311,7 +327,15 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                     : `KBZPay transfer — send ${pricing.priceMmk}, then submit your transaction details.`}
                 </p>
               </div>
+              {method === 'usdt' && (
+                <div className="ml-auto flex shrink-0 -space-x-1.5">
+                  {['trc20', 'bep20', 'erc20', 'sol'].map((k) => (
+                    <NetworkMark key={k} netKey={k} className="size-5 rounded-full ring-2 ring-background" />
+                  ))}
+                </div>
+              )}
             </div>
+
 
             <p className="text-[11px] text-muted-foreground">
               Signed in as <span className="font-medium text-foreground">{user.email}</span>
