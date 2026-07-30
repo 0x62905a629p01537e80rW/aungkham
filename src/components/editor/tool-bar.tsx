@@ -310,7 +310,15 @@ export function ToolBar({
         ))}
       </div>
 
-      <div className="flex items-center gap-1 overflow-x-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="overflow-x-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+       <div className="relative flex w-max items-center gap-1">
+        {pill && (
+          <span
+            aria-hidden
+            className="glass-indicator pointer-events-none absolute inset-y-0 rounded-2xl"
+            style={{ transform: `translateX(${pill.left}px)`, width: pill.width }}
+          />
+        )}
         <button
           type="button"
           onClick={onAdd}
