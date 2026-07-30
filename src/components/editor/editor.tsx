@@ -162,6 +162,20 @@ export function Editor() {
     setLayers([])
     setSelectedId(null)
     setNaturalSize(null)
+    setShowSave(false)
+    past.current = []
+    future.current = []
+    lastSnap.current = { image: null, layers: [], naturalSize: null }
+    skipHistory.current = true
+    setHistoryTick((t) => t + 1)
+  }
+
+  function requestExit() {
+    if (layers.length === 0) {
+      resetAll()
+      return
+    }
+    setDiscardOpen(true)
   }
 
 
