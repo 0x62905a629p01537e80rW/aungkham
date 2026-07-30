@@ -617,7 +617,11 @@ export function ColorPickerPanel({
       {onConfirm && (
         <button
           type="button"
-          onClick={() => onConfirm(mode === 'gradient' ? gradientCss : hex)}
+          onClick={() => {
+            const out = mode === 'gradient' ? gradientCss : hex
+            recordRecentColor(out)
+            onConfirm(out)
+          }}
           className="glass-cta mt-3 h-12 w-full rounded-xl text-sm font-semibold active:scale-[0.98]"
         >
           {confirmLabel}
