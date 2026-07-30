@@ -689,7 +689,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
 
         {tool === 'blur' && (
           <div className="space-y-4">
-            <div className="flex gap-2">
+            <div className={cn('flex gap-2', dimWhenDragging)}>
               {(['whole', 'focus'] as const).map((m) => (
                 <button
                   key={m}
@@ -706,23 +706,27 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                 </button>
               ))}
             </div>
-            <SliderField {...dragProps}
-              label="Blur amount"
-              value={blurAmount}
-              min={1}
-              max={40}
-              step={1}
-              onChange={setBlurAmount}
-            />
-            {blurMode === 'focus' && (
-              <SliderField {...dragProps}
-                label="Focus size"
-                value={focus.r}
-                min={0.1}
-                max={0.8}
-                step={0.01}
-                onChange={(v) => setFocus((p) => ({ ...p, r: v }))}
+            <div className={dimUnlessActive('Blur amount')}>
+              <SliderField {...sliderDrag('Blur amount')}
+                label="Blur amount"
+                value={blurAmount}
+                min={1}
+                max={40}
+                step={1}
+                onChange={setBlurAmount}
               />
+            </div>
+            {blurMode === 'focus' && (
+              <div className={dimUnlessActive('Focus size')}>
+                <SliderField {...sliderDrag('Focus size')}
+                  label="Focus size"
+                  value={focus.r}
+                  min={0.1}
+                  max={0.8}
+                  step={0.01}
+                  onChange={(v) => setFocus((p) => ({ ...p, r: v }))}
+                />
+              </div>
             )}
           </div>
         )}
