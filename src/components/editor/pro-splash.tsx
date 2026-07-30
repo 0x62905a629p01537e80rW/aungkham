@@ -150,12 +150,8 @@ export function ProSplash() {
       </div>
 
       {/* Benefits */}
-      <div className="space-y-3 px-6">
-        {[
-          'Get access to all pro features',
-          'Access premium fonts, styles and effects',
-          'Remove all ads and watermark',
-        ].map((line) => (
+      <div className="space-y-2.5 px-6">
+        {BENEFITS.map((line) => (
           <div key={line} className="flex items-start gap-3">
             <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-[#7c5cff]">
               <Check className="size-3.5" />
@@ -164,6 +160,7 @@ export function ProSplash() {
           </div>
         ))}
       </div>
+
 
 
       <div className="mt-auto space-y-3 px-5 pb-6">
