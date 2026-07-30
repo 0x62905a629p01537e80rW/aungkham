@@ -17,6 +17,9 @@ import {
   X,
 } from 'lucide-react'
 
+import { useI18n } from '@/components/i18n'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { SliderField } from './control-fields'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
