@@ -172,11 +172,29 @@ export function ColorPickerPanel({
     }
   })
 
+  const [recents, setRecents] = useState<string[]>(() => listRecentColors())
+
   const areaRef = useRef<HTMLDivElement>(null)
   const hueRef = useRef<HTMLDivElement>(null)
   const alphaRef = useRef<HTMLDivElement>(null)
   const stopsRef = useRef<HTMLDivElement>(null)
   const firstRun = useRef(false)
+
+  useEffect(() => subscribeRecents(() => setRecents(listRecentColors())), [])
+
+  const pills = useMemo(() => {
+    const seen = new Set<string>()
+    const out: string[] = []
+    for (const c of [...recents, ...QUICK_SWATCHES]) {
+      const k = c.toLowerCase()
+      if (seen.has(k)) continue
+      seen.add(k)
+      out.push(c)
+      if (out.length === 20) break
+    }
+    return out
+  }, [recents])
+
 
   const rgb = useMemo(() => hsvToRgb(h, s, v), [h, s, v])
   const hex = useMemo(() => rgbaToHex(rgb.r, rgb.g, rgb.b, a), [rgb, a])
