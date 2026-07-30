@@ -30,20 +30,33 @@ export function buildCheckoutUrl(opts: { reference: string; email?: string | nul
   return url.toString()
 }
 
-function isNative() {
-  return typeof window !== 'undefined' && !!(window as any).Capacitor?.isNativePlatform?.()
+type Listener = { remove: () => void }
+type BrowserPlugin = {
+  open: (o: { url: string }) => Promise<void>
+  addListener: (e: string, cb: () => void) => Promise<Listener> | Listener
+}
+type AppPlugin = {
+  addListener: (e: string, cb: (data: any) => void) => Promise<Listener> | Listener
 }
 
-/** Opens the hosted checkout. Resolves once the in-app browser is closed (native). */
+function cap() {
+  return (globalThis as any).Capacitor
+}
+
+function isNative() {
+  return !!cap()?.isNativePlatform?.()
+}
+
+/** Opens the hosted checkout. Uses the native in-app browser when available. */
 export async function openShieldzCheckout(url: string, onClosed?: () => void) {
-  if (isNative()) {
+  const browser: BrowserPlugin | undefined = cap()?.Plugins?.Browser
+  if (isNative() && browser && typeof browser.open === 'function') {
     try {
-      const { Browser } = await import('@capacitor/browser')
-      const handle = await Browser.addListener('browserFinished', () => {
+      const handle = await browser.addListener('browserFinished', () => {
         handle.remove()
         onClosed?.()
       })
-      await Browser.open({ url, presentationStyle: 'popover' })
+      await browser.open({ url })
       return
     } catch (err) {
       console.log('[shieldz] capacitor browser unavailable', err)
@@ -69,15 +82,15 @@ export function onReturnFromCheckout(cb: () => void) {
     window.removeEventListener('focus', cb)
   })
 
-  if (isNative()) {
+  const app: AppPlugin | undefined = cap()?.Plugins?.App
+  if (isNative() && app && typeof app.addListener === 'function') {
     ;(async () => {
       try {
-        const { App } = await import('@capacitor/app')
-        const urlSub = await App.addListener('appUrlOpen', (e) => {
-          if (e.url?.startsWith('myan://pay')) cb()
+        const urlSub = await app.addListener('appUrlOpen', (e: { url?: string }) => {
+          if (e?.url?.startsWith('myan://pay')) cb()
         })
-        const stateSub = await App.addListener('appStateChange', ({ isActive }) => {
-          if (isActive) cb()
+        const stateSub = await app.addListener('appStateChange', (s: { isActive?: boolean }) => {
+          if (s?.isActive) cb()
         })
         cleanups.push(() => {
           urlSub.remove()
