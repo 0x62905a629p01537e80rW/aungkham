@@ -132,8 +132,56 @@ export function Editor() {
     img.src = dataUrl
   }, [])
 
+  function groupIdsOf(id: string): string[] {
+    const target = layers.find((l) => l.id === id)
+    if (!target?.groupId) return [id]
+    return layers.filter((l) => l.groupId === target.groupId).map((l) => l.id)
+  }
+
   function updateLayer(id: string, patch: Partial<TextLayer>) {
-    setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)))
+    setLayers((prev) => {
+      const target = prev.find((l) => l.id === id)
+      if (!target) return prev
+      const mates = target.groupId
+        ? prev.filter((l) => l.groupId === target.groupId && l.id !== id)
+        : []
+      if (!mates.length) return prev.map((l) => (l.id === id ? { ...l, ...patch } : l))
+      // move the whole group by the same delta
+      const dx = patch.x !== undefined ? patch.x - target.x : 0
+      const dy = patch.y !== undefined ? patch.y - target.y : 0
+      const dRot = patch.rotation !== undefined ? patch.rotation - target.rotation : 0
+      const scale = patch.fontSize !== undefined && target.fontSize ? patch.fontSize / target.fontSize : 1
+      return prev.map((l) => {
+        if (l.id === id) return { ...l, ...patch }
+        if (l.groupId !== target.groupId) return l
+        const next: TextLayer = { ...l }
+        if (dx || dy) {
+          next.x = l.x + dx
+          next.y = l.y + dy
+        }
+        if (dRot) next.rotation = l.rotation + dRot
+        if (scale !== 1) next.fontSize = Math.max(1, l.fontSize * scale)
+        if (patch.hidden !== undefined) next.hidden = patch.hidden
+        if (patch.locked !== undefined) next.locked = patch.locked
+        return next
+      })
+    })
+  }
+
+  function groupLayers(ids: string[]) {
+    if (ids.length < 2) return
+    const gid = `grp-${Date.now()}`
+    setLayers((prev) => prev.map((l) => (ids.includes(l.id) ? { ...l, groupId: gid } : l)))
+    setSelectedId(ids[ids.length - 1])
+  }
+
+  function ungroupLayer(id: string) {
+    const target = layers.find((l) => l.id === id)
+    if (!target?.groupId) return
+    const gid = target.groupId
+    setLayers((prev) =>
+      prev.map((l) => (l.groupId === gid ? { ...l, groupId: undefined } : l)),
+    )
   }
 
   function addLayer() {
@@ -150,25 +198,30 @@ export function Editor() {
   }
 
   function duplicateLayer(id: string) {
-    const src = layers.find((l) => l.id === id)
-    if (!src) return
-    const copy: TextLayer = {
+    const ids = groupIdsOf(id)
+    const sources = layers.filter((l) => ids.includes(l.id))
+    if (!sources.length) return
+    const gid = sources.length > 1 ? `grp-${Date.now()}` : undefined
+    const copies = sources.map((src, i) => ({
       ...src,
-      id: createTextLayer().id,
+      id: `${createTextLayer().id}-${i}`,
+      groupId: gid,
       x: Math.min(100, src.x + 5),
       y: Math.min(100, src.y + 5),
-    }
-    setLayers((prev) => [...prev, copy])
-    setSelectedId(copy.id)
+    }))
+    setLayers((prev) => [...prev, ...copies])
+    setSelectedId(copies[copies.length - 1].id)
   }
 
   function deleteLayer(id: string) {
+    const ids = groupIdsOf(id)
     setLayers((prev) => {
-      const next = prev.filter((l) => l.id !== id)
-      if (selectedId === id) setSelectedId(next[0]?.id ?? null)
+      const next = prev.filter((l) => !ids.includes(l.id))
+      if (selectedId && ids.includes(selectedId)) setSelectedId(next[0]?.id ?? null)
       return next
     })
   }
+
 
   function resetAll() {
     setImage(null)
