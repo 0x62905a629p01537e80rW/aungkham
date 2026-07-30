@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { X } from 'lucide-react'
+import { Crown, X } from 'lucide-react'
+import { useAuth } from '@/components/auth-provider'
+import { PaymentPage } from './payment-page'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import {
@@ -16,6 +18,13 @@ import {
 
 const FORMATS: ExportFormat[] = ['jpeg', 'png', 'webp']
 
+const SCALES: { value: number; label: string; pro: boolean }[] = [
+  { value: 1, label: '1x', pro: false },
+  { value: 2, label: '2x HD', pro: true },
+  { value: 3, label: '3x', pro: true },
+  { value: 4, label: '4x Ultra', pro: true },
+]
+
 interface SaveImageDialogProps {
   open: boolean
   preview: string | null
@@ -27,10 +36,32 @@ export function SaveImageDialog({ open, preview, onClose }: SaveImageDialogProps
   const [format, setFormat] = useState<ExportFormat>('png')
   const [quality, setQuality] = useState(100)
   const [size, setSize] = useState<number | null>(null)
+  const { isPro } = useAuth()
+  const [scale, setScale] = useState(1)
+  const [pay, setPay] = useState(false)
+  const [dims, setDims] = useState<{ w: number; h: number } | null>(null)
 
   useEffect(() => {
     if (open) setName(defaultFilename())
   }, [open])
+
+  useEffect(() => {
+    if (!isPro) setScale(1)
+  }, [isPro])
+
+  // Track the source pixel size so we can show the exported resolution.
+  useEffect(() => {
+    if (!open || !preview) return
+    let cancelled = false
+    const img = new Image()
+    img.onload = () => {
+      if (!cancelled) setDims({ w: img.naturalWidth, h: img.naturalHeight })
+    }
+    img.src = preview
+    return () => {
+      cancelled = true
+    }
+  }, [open, preview])
 
   // Estimate output size whenever the encoding settings change.
   useEffect(() => {
@@ -38,14 +69,14 @@ export function SaveImageDialog({ open, preview, onClose }: SaveImageDialogProps
     let cancelled = false
     setSize(null)
     const id = setTimeout(async () => {
-      const url = await encodeImage(preview, format, quality)
+      const url = await encodeImage(preview, format, quality, scale)
       if (!cancelled) setSize(dataUrlSize(url))
     }, 150)
     return () => {
       cancelled = true
       clearTimeout(id)
     }
-  }, [open, preview, format, quality])
+  }, [open, preview, format, quality, scale])
 
   const filename = useMemo(
     () => `${name || defaultFilename()}.${FORMAT_EXT[format]}`,
@@ -56,7 +87,7 @@ export function SaveImageDialog({ open, preview, onClose }: SaveImageDialogProps
 
   async function handleSave() {
     if (!preview) return
-    const url = await encodeImage(preview, format, quality)
+    const url = await encodeImage(preview, format, quality, isPro ? scale : 1)
     downloadDataUrl(url, filename)
     onClose()
   }
@@ -112,6 +143,43 @@ export function SaveImageDialog({ open, preview, onClose }: SaveImageDialogProps
           </div>
         </div>
 
+        <div className="mt-5">
+          <div className="flex items-baseline justify-between">
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              High quality
+              {!isPro && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] px-1.5 py-[2px] text-[9px] font-bold uppercase leading-none text-[#3a2a05]">
+                  <Crown className="size-2.5" strokeWidth={2.6} /> Pro
+                </span>
+              )}
+            </p>
+            {dims && (
+              <p className="text-[11px] tabular-nums text-muted-foreground">
+                {Math.round(dims.w * scale)} x {Math.round(dims.h * scale)}
+              </p>
+            )}
+          </div>
+          <div className="mt-2 grid grid-cols-4 gap-2">
+            {SCALES.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => (s.pro && !isPro ? setPay(true) : setScale(s.value))}
+                className={`relative h-9 rounded-xl border text-[11px] font-semibold transition active:scale-95 ${
+                  scale === s.value
+                    ? 'border-primary bg-primary/15 text-primary'
+                    : 'border-border text-muted-foreground'
+                }`}
+              >
+                {s.label}
+                {s.pro && !isPro && (
+                  <Crown className="absolute -right-1 -top-1 size-3 text-[#e0a93c]" strokeWidth={3} />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {supportsQuality(format) && (
           <div className="mt-5">
             <div className="flex items-baseline justify-between">
@@ -143,6 +211,7 @@ export function SaveImageDialog({ open, preview, onClose }: SaveImageDialogProps
           </Button>
         </div>
       </div>
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
     </div>
   )
 }

@@ -295,6 +295,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
       return
     }
     if (tool === 'magic') {
+      setCursor({ x: e.clientX, y: e.clientY })
       startOp({ kind: 'magic', x: p.x, y: p.y })
       return
     }
@@ -335,7 +336,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
       return
     }
 
-    if ((tool === 'manual' || tool === 'repair') && pointers.current.size === 1) {
+    if ((tool === 'manual' || tool === 'repair' || tool === 'magic') && pointers.current.size === 1) {
       setCursor({ x: e.clientX, y: e.clientY })
     }
     if (!drawing.current) return
@@ -347,7 +348,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     pointers.current.delete(e.pointerId)
     if (pointers.current.size < 2) pinch.current = null
     drawing.current = false
-    setCursor(null)
+    if (tool !== 'magic') setCursor(null)
   }
 
   const sliderLabel =
@@ -426,7 +427,9 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
             onPointerMove={onMove}
             onPointerUp={onUp}
             onPointerCancel={onUp}
-            onPointerLeave={() => setCursor(null)}
+            onPointerLeave={() => {
+              if (tool !== 'magic') setCursor(null)
+            }}
           />
         </div>
 
@@ -446,6 +449,34 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
             {offsetCursor ? (
               <div
                 className="absolute size-3 rounded-full bg-red-500/70"
+                style={{ left: cursor.x, top: cursor.y, transform: 'translate(-50%, -50%)' }}
+              />
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* Magic wand target cursor */}
+        {cursor && phase === 'edit' && tool === 'magic' ? (
+          <div className="pointer-events-none fixed inset-0">
+            <div
+              className="absolute"
+              style={{
+                left: cursor.x,
+                top: offsetCursor ? cursor.y - 56 : cursor.y,
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <div className="relative size-11 rounded-full border-2 border-sky-400/90 shadow-[0_0_0_1px_rgba(0,0,0,0.35)]">
+                <span className="absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 bg-sky-400/90" />
+                <span className="absolute bottom-0 left-1/2 h-3 w-px -translate-x-1/2 bg-sky-400/90" />
+                <span className="absolute left-0 top-1/2 h-px w-3 -translate-y-1/2 bg-sky-400/90" />
+                <span className="absolute right-0 top-1/2 h-px w-3 -translate-y-1/2 bg-sky-400/90" />
+                <span className="absolute left-1/2 top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-400" />
+              </div>
+            </div>
+            {offsetCursor ? (
+              <div
+                className="absolute size-3 rounded-full bg-sky-400/70"
                 style={{ left: cursor.x, top: cursor.y, transform: 'translate(-50%, -50%)' }}
               />
             ) : null}

@@ -89,6 +89,7 @@ import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
 import { BgRemover } from './bg-remover'
+import { PaymentPage } from './payment-page'
 import { ColorPickerPanel, parseGradient } from './color-picker'
 import { DEFAULT_STROKE_WIDTH, OUTLINE_PRESETS, shapeDataUrl } from '@/lib/shapes'
 import { cn } from '@/lib/utils'
@@ -187,7 +188,7 @@ const TOOLS: ToolDef[] = [
   { key: 'position', label: 'Position', icon: Move, needsLayer: true },
   { key: 'color', label: 'Color', icon: Palette, needsLayer: true },
   { key: 'gradient', label: 'Gradient', icon: Blend, needsLayer: true },
-  { key: 'texture', label: 'Texture', icon: Grid2x2, needsLayer: true },
+  { key: 'texture', label: 'Texture', icon: Grid2x2, needsLayer: true, pro: true },
   { key: 'opacity', label: 'Opacity', icon: Droplet, needsLayer: true },
   { key: 'blend', label: 'Blend', icon: Layers, needsLayer: true },
   { key: 'liquid', label: 'Liquid', icon: Droplets, needsLayer: true, pro: true },
@@ -200,7 +201,7 @@ const TOOLS: ToolDef[] = [
   { key: 'bend', label: 'Bend', icon: Spline, needsLayer: true },
   { key: 'skew', label: 'Skew', icon: MoveDiagonal, needsLayer: true },
   { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: false },
-  { key: 'cutout', label: 'Remove BG', icon: Scissors, needsLayer: true, imageOnly: true },
+  { key: 'cutout', label: 'Remove BG', icon: Scissors, needsLayer: true, imageOnly: true, pro: true },
   { key: 'outline', label: 'Outline', icon: Circle, needsLayer: true, shapeOnly: true },
 ]
 
@@ -224,6 +225,8 @@ export function ToolBar({
 }: ToolBarProps) {
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
   const [cutoutOpen, setCutoutOpen] = useState(false)
+  const { isPro } = useAuth()
+  const [payOpen, setPayOpen] = useState(false)
   const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [pill, setPill] = useState<{ left: number; width: number } | null>(null)
 
@@ -376,6 +379,10 @@ export function ToolBar({
                 }}
                 onClick={() => {
                   if (tool.key === 'cutout') {
+                    if (!isPro) {
+                      setPayOpen(true)
+                      return
+                    }
                     setCutoutOpen(true)
                     return
                   }
@@ -387,7 +394,12 @@ export function ToolBar({
                   eraseDisabled && 'opacity-35',
                 )}
               >
-                <Icon className="size-[18px]" />
+                <span className="relative">
+                  <Icon className="size-[18px]" />
+                  {tool.pro && !isPro ? (
+                    <Crown className="absolute -right-2 -top-1.5 size-2.5 text-[#e0a93c]" strokeWidth={3} />
+                  ) : null}
+                </span>
                 {tool.label}
               </button>
             )
@@ -456,7 +468,9 @@ export function ToolBar({
        </div>
       </div>
 
-      {selected?.graphic && (
+      <PaymentPage open={payOpen} onClose={() => setPayOpen(false)} />
+
+      {selected?.graphic && isPro && (
         <BgRemover
           open={cutoutOpen}
           src={selected.graphic.src}
@@ -905,6 +919,8 @@ function TexturePanel({
   layer: TextLayer
   onChange: (patch: Partial<TextLayer>) => void
 }) {
+  const { isPro } = useAuth()
+  const [pay, setPay] = useState(false)
   const [dragging, setDragging] = useState<TextureSlider | null>(null)
   const [peek, setPeek] = useState(false)
   const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -932,6 +948,30 @@ function TexturePanel({
     rotateImage(src, deg)
       .then((url) => onChange({ textureImage: url, fillType: 'texture' }))
       .catch(() => undefined)
+  }
+
+  if (!isPro) {
+    return (
+      <div className="space-y-3">
+        <span className="flex items-center gap-2 leading-none [&_*]:mb-0">
+          <ToolHeading>Texture from image</ToolHeading>
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] px-1.5 py-[3px] text-[9px] font-bold uppercase leading-none text-[#3a2a05]">
+            <Crown className="size-2.5" strokeWidth={2.6} /> Pro
+          </span>
+        </span>
+        <p className="rounded-xl border border-[#e0a93c]/40 bg-[#e0a93c]/10 px-3 py-2 text-[11px] font-medium text-foreground">
+          Fill your text or shapes with any image. Available with Premium.
+        </p>
+        <button
+          type="button"
+          onClick={() => setPay(true)}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-xs font-bold text-white transition active:scale-[0.98]"
+        >
+          <Crown className="size-4" /> Unlock Texture with Premium
+        </button>
+        <PaymentPage open={pay} onClose={() => setPay(false)} />
+      </div>
+    )
   }
 
   return (
