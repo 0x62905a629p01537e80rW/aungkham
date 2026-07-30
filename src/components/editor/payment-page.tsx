@@ -465,12 +465,22 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                   <div className="relative mt-1">
                     <input
                       value={txId}
-                      onChange={(e) => setTxId(e.target.value)}
+                      onChange={(e) =>
+                        setTxId(
+                          method === 'kbzpay'
+                            ? e.target.value.replace(/\D/g, '').slice(0, 6)
+                            : e.target.value,
+                        )
+                      }
                       inputMode={method === 'usdt' ? 'text' : 'numeric'}
-                      maxLength={method === 'usdt' ? 120 : 12}
+                      maxLength={method === 'usdt' ? 200 : 6}
                       required
-                      placeholder={method === 'usdt' ? 'e.g. 0x9f3c…' : 'e.g. 482913'}
-                      className="glass-tile h-11 w-full rounded-2xl px-3.5 pr-11 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+                      placeholder={
+                        method === 'usdt' ? 'Paste full hash or explorer link' : 'e.g. 482913'
+                      }
+                      className={`glass-tile h-11 w-full rounded-2xl px-3.5 pr-11 text-sm outline-none focus:ring-2 ${
+                        txError ? 'ring-2 ring-destructive/50' : 'focus:ring-primary/40'
+                      }`}
                     />
                     <button
                       type="button"
@@ -478,7 +488,12 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       onClick={async () => {
                         try {
                           const text = await navigator.clipboard.readText()
-                          if (text) setTxId(text.trim())
+                          if (text)
+                            setTxId(
+                              method === 'kbzpay'
+                                ? text.replace(/\D/g, '').slice(0, 6)
+                                : text.trim(),
+                            )
                         } catch (err) {
                           console.log('[paste failed]', err)
                         }
@@ -488,7 +503,17 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       <ClipboardPaste className="size-4" />
                     </button>
                   </div>
+                  {txError ? (
+                    <p className="mt-1 text-[11px] text-destructive">{txError}</p>
+                  ) : (
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {method === 'usdt'
+                        ? 'Full transaction hash (63+ characters). Explorer links (https://…) are accepted.'
+                        : `Exactly 6 digits — ${txId.trim().length}/6 entered.`}
+                    </p>
+                  )}
                 </label>
+
 
                 {error && <p className="text-[11px] text-destructive">{error}</p>}
 
