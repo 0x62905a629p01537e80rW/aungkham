@@ -88,6 +88,7 @@ export function PremiumGate({
   const { isPro } = useAuth()
   const [open, setOpen] = useState(false)
   const [pay, setPay] = useState(false)
+  const [confirmUndo, setConfirmUndo] = useState(false)
 
   useEffect(() => {
     if (!requested) return
