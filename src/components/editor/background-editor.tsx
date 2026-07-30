@@ -1055,4 +1055,95 @@ function FrameThumb({ spec }: { spec: FrameSpec }) {
   return <canvas ref={ref} className="size-full rounded-none" style={{ aspectRatio: '1 / 1' }} />
 }
 
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b)
+}
+function ratioString(w: number, h: number): string {
+  const g = gcd(Math.round(w), Math.round(h))
+  return `${Math.round(w / g)}:${Math.round(h / g)}`
+}
+
+interface ResizeDialogProps {
+  natural: { w: number; h: number } | null
+  rw: number
+  rh: number
+  keepAspect: boolean
+  onChange: (v: { w: number; h: number; keepAspect: boolean }) => void
+  onCancel: () => void
+  onApply: () => void
+}
+
+function ResizeDialog({ natural, rw, rh, keepAspect, onChange, onCancel, onApply }: ResizeDialogProps) {
+  const { t } = useI18n()
+  const ratio = natural ? ratioString(natural.w, natural.h) : '1:1'
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+      <div className="glass-panel w-full max-w-[360px] rounded-2xl p-5 shadow-2xl">
+        <h3 className="mb-4 text-center text-base font-semibold">{t('resize.title')}</h3>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="keepAspect"
+                checked={keepAspect}
+                onCheckedChange={(v) => onChange({ w: rw, h: rh, keepAspect: v === true })}
+              />
+              <Label htmlFor="keepAspect" className="cursor-pointer text-sm font-medium">
+                {t('resize.keepAspect')}
+              </Label>
+            </div>
+            <span className="text-xs text-muted-foreground">{ratio}</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex-1 space-y-1">
+              <Label className="text-[11px] text-muted-foreground">{t('resize.width')}</Label>
+              <Input
+                type="number"
+                value={rw}
+                onChange={(e) => {
+                  const v = Number(e.target.value) || 0
+                  if (keepAspect && natural) {
+                    onChange({ w: v, h: Math.round((v * natural.h) / natural.w), keepAspect })
+                  } else {
+                    onChange({ w: v, h: rh, keepAspect })
+                  }
+                }}
+                className="h-10 rounded-lg text-center text-sm"
+              />
+            </div>
+            <div className="flex-1 space-y-1">
+              <Label className="text-[11px] text-muted-foreground">{t('resize.height')}</Label>
+              <Input
+                type="number"
+                value={rh}
+                onChange={(e) => {
+                  const v = Number(e.target.value) || 0
+                  if (keepAspect && natural) {
+                    onChange({ w: Math.round((v * natural.w) / natural.h), h: v, keepAspect })
+                  } else {
+                    onChange({ w: rw, h: v, keepAspect })
+                  }
+                }}
+                className="h-10 rounded-lg text-center text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-end gap-2">
+          <Button variant="ghost" onClick={onCancel} className="text-sm font-medium">
+            {t('resize.cancel')}
+          </Button>
+          <Button onClick={onApply} className="text-sm font-medium">
+            {t('resize.ok')}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export const BG_ICONS = { CropIcon, Square }
