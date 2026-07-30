@@ -673,7 +673,7 @@ function FontPicker({
     })),
   ]
 
-  const items =
+  const base =
     group === 'recent'
       ? (recents.map((k) => all.find((f) => f.key === k)).filter(Boolean) as FontEntry[])
       : group === 'favorites'
@@ -687,12 +687,42 @@ function FontPicker({
                 groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
             )
 
+  const q = query.trim().toLowerCase()
+  const items = q ? base.filter((f) => f.label.toLowerCase().includes(q)) : base
+
+  const sample = (layer.text || '').split('\n')[0].slice(0, 18).trim()
 
   return (
-    <div className="space-y-3">
-      <ToolHeading>Typeface</ToolHeading>
+    <div className="space-y-2.5">
+      <div className="flex items-center gap-2">
+        <ToolHeading>Typeface</ToolHeading>
+        <span className="mb-3 ml-auto text-[10px] font-medium text-muted-foreground">
+          {items.length}
+        </span>
+      </div>
 
-      <div className="-mx-1 flex gap-1.5 overflow-x-auto perf-scroll px-1 pb-1 [scrollbar-width:none]">
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search fonts"
+          className="h-9 w-full rounded-full border border-border/60 bg-foreground/5 pl-8 pr-8 text-[12px] text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/60"
+        />
+        {query && (
+          <button
+            type="button"
+            aria-label="Clear search"
+            onClick={() => setQuery('')}
+            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground active:scale-90"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
+      </div>
+
+      <div className="-mx-1 flex gap-1.5 overflow-x-auto perf-scroll no-scrollbar px-1 pb-1 [scrollbar-width:none]">
+
         {FONT_GROUPS.map((g) => {
           const premium = g.key === 'mm-premium' || g.key === 'en-premium'
           const on = group === g.key
