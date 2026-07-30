@@ -79,7 +79,7 @@ export function TemplateGallery({
   scroll = true,
   onRequestChoice,
 }: {
-  onApply: (layers: TextLayer[], bg?: string) => void
+  onApply?: (layers: TextLayer[], bg?: string) => void
   className?: string
   /** When false the gallery grows with its content and relies on a parent scroller. */
   scroll?: boolean
