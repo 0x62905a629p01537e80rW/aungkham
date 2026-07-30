@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Crown, X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -88,6 +88,14 @@ export function TemplateGallery({
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
+  // "New" holds the imported Myanmar-only designs, so hide it for English.
+  const groups = useMemo(
+    () => TEMPLATE_GROUPS.filter((g) => g !== 'New' || lang === 'MM'),
+    [lang],
+  )
+  useEffect(() => {
+    if (!groups.includes(group)) setGroup('All')
+  }, [groups, group])
 
   const list = useMemo(
     () => TEMPLATES.filter((t) => t.lang === lang && (group === 'All' || t.group === group)),
@@ -116,7 +124,7 @@ export function TemplateGallery({
             size="sm"
             value={group}
             onChange={(g) => setGroup(g as typeof group)}
-            items={TEMPLATE_GROUPS.map((g) => ({ key: g, label: g }))}
+            items={groups.map((g) => ({ key: g, label: g }))}
           />
         </div>
       </div>
