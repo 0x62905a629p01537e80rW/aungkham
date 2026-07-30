@@ -727,7 +727,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             alt="Editing canvas"
             crossOrigin="anonymous"
             className="block h-full w-full object-fill"
+            decoding="async"
+            fetchPriority="high"
             draggable={false}
+            style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
           />
 
 

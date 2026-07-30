@@ -69,7 +69,7 @@ export function ProSplash() {
   if (!open) return <PaymentPage open={pay} onClose={() => setPay(false)} />
 
   return (
-    <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-[#07070c] text-white animate-fade-in">
+    <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto perf-scroll bg-[#07070c] text-white animate-fade-in">
       {/* Hero */}
       <div className="relative shrink-0 overflow-hidden px-5 pb-8 pt-4">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_-10%,#22d3ee_0%,#0e7490_35%,#0b1120_70%,transparent_100%)] opacity-80" />

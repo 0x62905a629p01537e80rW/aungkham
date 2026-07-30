@@ -267,7 +267,7 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
 
 
         {/* items rail */}
-        <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="-mx-1 flex gap-1.5 overflow-x-auto perf-scroll px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {items.map(({ key, label, icon: Icon }) => {
             const changed = adj[key] !== DEFAULT_ADJUSTMENTS[key]
             const isActive = active === key

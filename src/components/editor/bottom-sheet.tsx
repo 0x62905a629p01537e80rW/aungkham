@@ -55,7 +55,7 @@ export function BottomSheet({ open, title, onClose, children }: BottomSheetProps
             <X className="size-4" />
           </button>
         </div>
-        <div className="overflow-y-auto overscroll-contain">{children}</div>
+        <div className="overflow-y-auto perf-scroll overscroll-contain">{children}</div>
       </div>
     </>
   )

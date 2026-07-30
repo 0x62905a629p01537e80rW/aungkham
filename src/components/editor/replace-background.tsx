@@ -44,7 +44,7 @@ export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundPr
         <div className="size-9" />
       </header>
 
-      <div className="flex-1 space-y-6 overflow-y-auto p-4">
+      <div className="flex-1 space-y-6 overflow-y-auto perf-scroll p-4">
         <div className="mx-auto w-full max-w-sm space-y-3">
           <button
             type="button"

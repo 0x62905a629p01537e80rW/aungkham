@@ -55,7 +55,7 @@ export function SaveShare({
         <div className="size-9" />
       </header>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto perf-scroll p-4">
         <div className="mx-auto w-full max-w-md">
           <div className="overflow-hidden rounded-2xl bg-muted ring-1 ring-border">
             {busy || !preview ? (

@@ -73,7 +73,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
       </button>
 
       {open && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[65] overflow-y-auto bg-background text-foreground animate-fade-in">
+        <div className="fixed inset-0 z-[65] overflow-y-auto perf-scroll bg-background text-foreground animate-fade-in">
           <div
             className="flex items-center gap-4 px-4 pb-2 pt-4"
             style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}

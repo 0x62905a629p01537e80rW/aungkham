@@ -730,7 +730,7 @@ export function ColorPickerFullScreen({
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background/70 backdrop-blur-sm">
       <div
-        className="flex flex-1 flex-col overflow-y-auto bg-background"
+        className="flex flex-1 flex-col overflow-y-auto perf-scroll bg-background"
         style={{
           paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
           paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
