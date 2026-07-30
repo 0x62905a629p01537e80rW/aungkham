@@ -670,6 +670,12 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
             </div>
           </div>
 
+          {offsetCursor && (tool === 'manual' || tool === 'repair' || tool === 'magic') ? (
+            <SliderField label="Cursor Offset" value={offsetY} min={40} max={260} onChange={changeOffset} />
+          ) : null}
+
+
+
           {tool === 'auto' ? (
             <button
               type="button"
