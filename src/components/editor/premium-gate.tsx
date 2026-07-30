@@ -157,7 +157,7 @@ export function PremiumGate({
               className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-border bg-foreground/5 text-sm font-bold text-foreground transition active:scale-[0.98]"
             >
               <Undo2 className="size-4" />
-              Undo the premium fonts
+              Undo the premium features
             </button>
           </div>
         </div>
