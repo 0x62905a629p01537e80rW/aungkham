@@ -196,8 +196,10 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
   function livePreview(v: number) {
     const view = viewRef.current
     if (!view) return
-    view.style.filter = previewFilter(active, v, DEFAULT_ADJUSTMENTS[active])
+    // relative to whatever is currently painted on the canvas
+    view.style.filter = previewFilter(active, v, adjRef.current[active])
   }
+
 
   function setValue(v: number) {
     const view = viewRef.current
