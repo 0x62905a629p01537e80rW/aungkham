@@ -860,7 +860,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
         {!exporting && (
           <div
-            className="absolute bottom-2 right-2 flex flex-col gap-1"
+            className="absolute bottom-5 right-2 flex flex-col gap-1"
             onPointerDown={(e) => e.stopPropagation()}
           >
             <button
