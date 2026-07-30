@@ -129,6 +129,11 @@ export function Editor() {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
+      setErasing(false)
+      setEraseMask(undefined)
+      setDraftMask(undefined)
+      setEraseBypass(false)
+      setEraseHistory({ canUndo: false, canRedo: false })
       setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
       setImage(dataUrl)
       const first = createTextLayer('Your text')
