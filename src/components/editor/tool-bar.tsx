@@ -429,6 +429,7 @@ interface ToolContentProps {
   onDuplicate: (id: string) => void
   onDelete: (id: string) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
+  onCloseTool?: () => void
 }
 
 const BLEND_MODES = [
