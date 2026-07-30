@@ -528,18 +528,18 @@ export function ColorPickerPanel({
         />
       </div>)}
 
-      {/* Preview + swatches */}
+      {/* Preview + recently used pills */}
       <div className="mt-2 flex items-start gap-1.5">
         <div
           className="size-[52px] shrink-0 rounded-lg border border-black/10"
           style={{ background: preview }}
         />
         <div className="grid flex-1 grid-cols-10 gap-1">
-          {QUICK_SWATCHES.map((c) => (
+          {pills.map((c) => (
             <button
               key={c}
               type="button"
-              onClick={() => { setMode('solid'); submitHex(c) }}
+              onClick={() => pickPreset(c)}
               className="aspect-square rounded-[4px] border border-black/10 transition active:scale-90"
               style={{ background: c }}
               aria-label={c}
@@ -547,6 +547,7 @@ export function ColorPickerPanel({
           ))}
         </div>
       </div>
+
 
       {customSwatches.length > 0 && (
         <div className="mt-1.5 grid grid-cols-10 gap-1">
