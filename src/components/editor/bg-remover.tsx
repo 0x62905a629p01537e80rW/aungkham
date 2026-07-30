@@ -778,7 +778,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
             <p className="text-sm font-semibold">How to use</p>
             <p><b>AI-Auto</b> — removes the outer background in one tap.</p>
             <p><b>Auto-Color</b> — tap a color to erase it everywhere; drag the threshold to fine-tune.</p>
-            <p><b>Magic</b> — tap an area to erase connected pixels of a similar color.</p>
+            <p><b>Magic</b> — hold on an area for about half a second to erase connected pixels of a similar color; keep holding elsewhere to continue.</p>
             <p><b>Manual / Repair</b> — brush to erase or bring pixels back.</p>
             <p><b>Zoom</b> — drag to pan, pinch or use +/− to zoom.</p>
             <p><b>Done</b> — go to Smooth Edge, pick 0–5, then Save.</p>
