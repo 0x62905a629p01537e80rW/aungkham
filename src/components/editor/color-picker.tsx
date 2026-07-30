@@ -314,6 +314,7 @@ export function ColorPickerPanel({
     'url("data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22><rect width=%225%22 height=%225%22 fill=%22%23ccc%22/><rect x=%225%22 y=%225%22 width=%225%22 height=%225%22 fill=%22%23ccc%22/></svg>")'
 
   const preview = mode === 'gradient' ? gradientCss : solidHex
+  const showFull = !collapsibleArea || areaOpen
 
   return (
     <div
@@ -336,7 +337,7 @@ export function ColorPickerPanel({
             />
             {areaOpen ? 'Hide color area' : 'Show color area'}
           </span>
-          <ChevronDown className={`size-3.5 transition-transform ${areaOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`size-3.5 transition-transform ${areaOpen ? '' : 'rotate-180'}`} />
         </button>
       )}
 
@@ -359,6 +360,7 @@ export function ColorPickerPanel({
 
 
       {/* Solid / Gradient + tools */}
+      {showFull && (
       <div className="mt-2 flex items-center gap-1.5">
         {allowGradient ? (
           <div className="flex flex-1 items-center rounded-lg bg-muted p-0.5">
@@ -395,9 +397,10 @@ export function ColorPickerPanel({
           <Plus className="size-3.5" />
         </button>
       </div>
+      )}
 
       {/* Gradient controls */}
-      {allowGradient && mode === 'gradient' && (
+      {showFull && allowGradient && mode === 'gradient' && (
         <>
           <div className="mt-1.5 flex items-center gap-1 rounded-lg bg-muted px-1 py-1">
             <button
@@ -484,7 +487,7 @@ export function ColorPickerPanel({
       )}
 
       {/* Hue slider */}
-      <div
+      {showFull && (<div
         ref={hueRef}
         className="relative mt-2 h-3 w-full cursor-pointer touch-none rounded-full border border-black/10"
         style={{ background: 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)' }}
@@ -494,10 +497,10 @@ export function ColorPickerPanel({
           className="pointer-events-none absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
           style={{ left: `${(h / 360) * 100}%`, background: hueColor }}
         />
-      </div>
+      </div>)}
 
       {/* Alpha slider */}
-      <div
+      {showFull && (<div
         ref={alphaRef}
         className="relative mt-2 h-3 w-full cursor-pointer touch-none rounded-full border border-black/10"
         style={{ backgroundImage: `linear-gradient(to right, transparent, ${solidHex}), ${checker}` }}
@@ -507,10 +510,10 @@ export function ColorPickerPanel({
           className="pointer-events-none absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
           style={{ left: `${a * 100}%`, background: solidHex }}
         />
-      </div>
+      </div>)}
 
       {/* HEX / R / G / B / A fields */}
-      <div className="mt-2 grid grid-cols-[1.6fr_1fr_1fr_1fr_1fr] gap-1">
+      {showFull && (<div className="mt-2 grid grid-cols-[1.6fr_1fr_1fr_1fr_1fr] gap-1">
         <Field
           label="HEX"
           value={hexInput}
@@ -525,7 +528,7 @@ export function ColorPickerPanel({
           value={String(Math.round(a * 100))}
           onCommit={(x) => { touch(); setA(clamp((parseFloat(x) || 0) / 100)) }}
         />
-      </div>
+      </div>)}
 
       {/* Preview + swatches */}
       <div className="mt-2 flex items-start gap-1.5">
