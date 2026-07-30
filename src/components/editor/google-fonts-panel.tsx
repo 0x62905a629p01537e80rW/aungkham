@@ -94,8 +94,8 @@ export function GoogleFontsPanel({
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-foreground/5 px-3 py-2">
+    <div className="flex h-full min-h-0 flex-col gap-2">
+      <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-border/60 bg-foreground/5 px-3 py-2">
         <Search className="size-3.5 shrink-0 text-muted-foreground" />
         <input
           value={query}
@@ -106,7 +106,7 @@ export function GoogleFontsPanel({
       </div>
 
       {/* live preview controls */}
-      <div className="space-y-2 rounded-2xl border border-border/60 bg-foreground/5 p-2.5">
+      <div className="shrink-0 space-y-2 rounded-2xl border border-border/60 bg-foreground/5 p-2.5">
         <div className="flex items-center gap-2">
           <input
             value={sample}
@@ -174,7 +174,7 @@ export function GoogleFontsPanel({
         </div>
       </div>
 
-      <p className="flex items-center gap-1.5 text-[10px] leading-snug text-muted-foreground">
+      <p className="flex shrink-0 items-center gap-1.5 text-[10px] leading-snug text-muted-foreground">
         <WifiOff className="size-3 shrink-0" />
         Preview any font live, then tap to download it once — it is saved in the app and works
         offline after that.
@@ -194,7 +194,7 @@ export function GoogleFontsPanel({
             setLimit((n) => n + 60)
           }
         }}
-        className="max-h-[42dvh] space-y-1.5 overflow-y-auto perf-scroll pr-1"
+        className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-1"
       >
         {shown.map((f) => {
           const key = googleFontKey(f.f)
@@ -223,7 +223,7 @@ export function GoogleFontsPanel({
                 </span>
                 <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
                   {f.f}
-                  {f.s.includes('myanmar') ? ' • မြန်မာ' : ''}
+                  {f.s.includes('myanmar') ? ' • မြန်မာ ဖောင့်စတိုင်' : ''}
                 </span>
               </button>
 
