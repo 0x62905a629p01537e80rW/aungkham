@@ -24,27 +24,35 @@ const Slider = React.forwardRef<
     <SliderPrimitive.Root
       ref={ref}
       className={cn(
-        "relative flex w-full touch-none select-none items-center py-2",
+        "glass-tile relative flex w-full touch-none select-none items-center rounded-full px-3 py-2.5",
         className,
       )}
       {...props}
     >
-      <SliderPrimitive.Track className="relative h-[3px] w-full grow overflow-hidden rounded-full bg-primary/25">
+      <SliderPrimitive.Track className="relative h-[6px] w-full grow rounded-full bg-foreground/10">
+        {/* tick dots */}
+        <span className="pointer-events-none absolute inset-x-2 top-1/2 flex -translate-y-1/2 justify-between">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <span key={i} className="size-[3px] rounded-full bg-foreground/20" />
+          ))}
+        </span>
         <SliderPrimitive.Range className="absolute h-full rounded-full bg-primary" />
       </SliderPrimitive.Track>
       {values.map((v, i) => (
         <SliderPrimitive.Thumb
           key={i}
           className={cn(
-            "group grid size-7 place-items-center rounded-full bg-background",
-            "shadow-[0_2px_8px_rgba(0,0,0,0.18)] ring-1 ring-primary/25",
+            "group grid size-7 place-items-center rounded-full",
+            "bg-[color-mix(in_oklab,var(--background)_92%,white)] backdrop-blur-md",
+            "shadow-[0_1px_1px_rgba(0,0,0,0.10),0_6px_14px_-4px_rgba(0,0,0,0.28),inset_0_1px_0_var(--glass-rim)]",
+            "ring-1 ring-foreground/10",
             "transition-transform duration-150 ease-out will-change-transform",
-            "focus-visible:outline-none active:scale-125 data-[state=active]:scale-125",
+            "focus-visible:outline-none active:scale-115 data-[state=active]:scale-115",
             "disabled:pointer-events-none disabled:opacity-50",
           )}
         >
           {showValue && (
-            <span className="pointer-events-none select-none font-mono text-[10px] font-semibold leading-none tabular-nums text-primary">
+            <span className="pointer-events-none select-none font-mono text-[10px] font-semibold leading-none tabular-nums text-foreground/70">
               {formatValue ? formatValue(v) : Math.round(v)}
             </span>
           )}
@@ -53,6 +61,7 @@ const Slider = React.forwardRef<
     </SliderPrimitive.Root>
   );
 });
+
 Slider.displayName = SliderPrimitive.Root.displayName;
 
 export { Slider };
