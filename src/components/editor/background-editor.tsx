@@ -1099,10 +1099,10 @@ function ResizeDialog({ natural, rw, rh, keepAspect, onChange, onCancel, onApply
         </div>
 
         <div className="mt-6 flex items-center justify-end gap-2">
-          <Button variant="ghost" onClick={onCancel} className="text-sm font-medium">
+          <Button variant="ghost" onClick={onCancel} className="text-sm font-medium uppercase tracking-wide">
             {t('resize.cancel')}
           </Button>
-          <Button onClick={onApply} className="text-sm font-medium">
+          <Button onClick={onApply} className="text-sm font-medium uppercase tracking-wide">
             {t('resize.ok')}
           </Button>
         </div>
