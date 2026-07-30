@@ -102,7 +102,7 @@ export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
       )}
 
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-8">
+      <div className="min-h-0 flex-1 overflow-y-auto perf-scroll px-3 pb-8">
         {tab === 'overlay' && (
           <div className="mx-auto w-full max-w-sm space-y-3 pt-4">
             <p className="text-center text-xs text-muted-foreground">

@@ -248,7 +248,7 @@ export function EraseBar({
 
   return (
     <div
-      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[55vh] space-y-2 overflow-y-auto px-4 pb-4 pt-2"
+      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[55vh] space-y-2 overflow-y-auto perf-scroll px-4 pb-4 pt-2"
       style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
     >
       <div className="flex items-center justify-between gap-2">

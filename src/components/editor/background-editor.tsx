@@ -311,7 +311,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
         {tool === 'crop' && (
-          <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex gap-2 overflow-x-auto perf-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {RATIOS.map((r) => (
               <button
                 key={r.label}
@@ -387,7 +387,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
         )}
 
         {tool === 'frame' && (
-          <div className="-mx-1 grid max-h-[26dvh] grid-cols-4 gap-2 overflow-y-auto px-1">
+          <div className="-mx-1 grid max-h-[26dvh] grid-cols-4 gap-2 overflow-y-auto perf-scroll px-1">
             {FRAMES.map((f) => (
               <button
                 key={f.id}
@@ -412,7 +412,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             <div className="min-h-[86px]">
               {fitPanel === 'ratio' && (
                 <div className="space-y-3">
-                  <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <div className="flex gap-3 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {FIT_RATIOS.map((r) => {
                       const active = Math.abs(fitRatio - r.value) < 0.001
                       const w = r.value >= 1 ? 26 : 26 * r.value
@@ -458,7 +458,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
 
               {fitPanel === 'color' && (
                 <div className="space-y-3">
-                  <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <div className="flex gap-2 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     <label
                       className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border-2 border-border"
                       style={{ background: fitColor }}
@@ -492,7 +492,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                       />
                     ))}
                   </div>
-                  <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <div className="flex gap-2 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {FIT_GRADIENTS.map((g) => (
                       <button
                         key={g.from + g.to}

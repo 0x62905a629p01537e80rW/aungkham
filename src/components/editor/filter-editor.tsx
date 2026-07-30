@@ -143,7 +143,7 @@ export function FilterEditor({ image, onCancel, onApply }: Props) {
           </div>
         )}
 
-        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-2 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
             onClick={() => setSelected(null)}

@@ -65,7 +65,7 @@ export function GlassTabs({
       className={cn(
         'glass-panel relative rounded-full',
         pad,
-        variant === 'chips' && 'overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+        variant === 'chips' && 'overflow-x-auto perf-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         className,
       )}
     >

@@ -97,7 +97,7 @@ export function TemplateGallery({
       </div>
 
 
-      <div className="min-h-0 flex-1 overflow-y-auto pb-8">
+      <div className="min-h-0 flex-1 overflow-y-auto perf-scroll pb-8">
         <div className="flex flex-col gap-2">
           {list.map((t) => {
             const bg = THUMB_BG[hashOf(t.id) % THUMB_BG.length]

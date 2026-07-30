@@ -277,7 +277,7 @@ export function ToolBar({
       <div
         aria-hidden={!!selected}
         className={cn(
-          'flex items-center gap-1 overflow-x-auto border-b border-border/60 px-2 py-1.5 transition duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          'flex items-center gap-1 overflow-x-auto perf-scroll border-b border-border/60 px-2 py-1.5 transition duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
           selected && 'pointer-events-none select-none opacity-45',
         )}
       >
@@ -313,7 +313,7 @@ export function ToolBar({
         ))}
       </div>
 
-      <div className="overflow-x-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="overflow-x-auto perf-scroll px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
        <div className="relative flex w-max items-center gap-1">
         {pill && (
           <span
@@ -649,7 +649,7 @@ function FontPicker({
     <div className="space-y-3">
       <ToolHeading>Typeface</ToolHeading>
 
-      <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
+      <div className="-mx-1 flex gap-1.5 overflow-x-auto perf-scroll px-1 pb-1 [scrollbar-width:none]">
         {FONT_GROUPS.map((g) => {
           const premium = g.key === 'mm-premium'
           const on = group === g.key
@@ -744,7 +744,7 @@ function FontPicker({
       )}
 
 
-      <div className="grid max-h-[46dvh] grid-cols-2 gap-2 overflow-y-auto pr-1">
+      <div className="grid max-h-[46dvh] grid-cols-2 gap-2 overflow-y-auto perf-scroll pr-1">
         {items.map((f) => (
           <FontCard
             key={f.key}

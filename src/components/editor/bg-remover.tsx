@@ -586,7 +586,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
             </p>
           ) : null}
 
-          <div className="flex items-center gap-1 overflow-x-auto">
+          <div className="flex items-center gap-1 overflow-x-auto perf-scroll">
             {tools.map((t) => (
               <button
                 key={t.key}

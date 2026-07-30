@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
+import { beginInteraction, endInteraction, rafThrottle } from '@/lib/perf'
 import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { ColorPickerPopover } from './color-picker'
@@ -40,6 +41,36 @@ export function SliderField({
   onDragEnd?: () => void
   hideLabel?: boolean
 }) {
+  // Slider scrubbing fires far faster than the display refresh; coalescing to
+  // one update per frame keeps heavy re-renders (canvas filters, text layout)
+  // inside the 8.3ms budget of a 120Hz screen.
+  const onChangeRef = useRef(onChange)
+  onChangeRef.current = onChange
+  const emit = useRef(rafThrottle((v: number) => onChangeRef.current(v))).current
+  const activeRef = useRef(false)
+
+  useEffect(() => () => {
+    emit.cancel()
+    if (activeRef.current) endInteraction()
+  }, [emit])
+
+  const start = () => {
+    if (!activeRef.current) {
+      activeRef.current = true
+      beginInteraction()
+    }
+    onDragStart?.()
+  }
+
+  const end = () => {
+    emit.flush()
+    if (activeRef.current) {
+      activeRef.current = false
+      endInteraction()
+    }
+    onDragEnd?.()
+  }
+
   return (
     <div className="space-y-2">
       <div
@@ -59,10 +90,10 @@ export function SliderField({
         min={min}
         max={max}
         step={step}
-        onPointerDown={onDragStart}
-        onPointerUp={onDragEnd}
-        onValueCommit={onDragEnd}
-        onValueChange={(v) => onChange(v[0])}
+        onPointerDown={start}
+        onPointerUp={end}
+        onValueCommit={end}
+        onValueChange={(v) => emit(v[0])}
       />
     </div>
   )

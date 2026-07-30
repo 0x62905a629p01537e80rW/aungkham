@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { LayerText, layerTextStyle, layerTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
+import { pulseInteraction, rafThrottle } from '@/lib/perf'
 
 interface CanvasPreviewProps {
   image: string
@@ -175,11 +176,22 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       })
     }
 
+    // Layer drags are coalesced into one state update per animation frame so
+    // a 120Hz pointer stream never queues more renders than frames.
+    const onMoveRef = useRef(onMove)
+    onMoveRef.current = onMove
+    const dragRectRef = useRef<{ width: number; height: number } | null>(null)
+    const emitMove = useRef(
+      rafThrottle((id: string, x: number, y: number) => onMoveRef.current(id, x, y)),
+    ).current
+
     useEffect(() => () => {
+      emitMove.cancel()
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
-    }, [])
+    }, [emitMove])
 
     function stageDown(e: PointerEvent<HTMLDivElement>) {
+      pulseInteraction(400)
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       measureBase()
       if (pointers.current.size >= 2) {
@@ -199,6 +211,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
     function stageMove(e: PointerEvent<HTMLDivElement>) {
       if (!pointers.current.has(e.pointerId)) return
+      pulseInteraction(400)
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       const pinch = pinchRef.current
       if (pinch && pointers.current.size >= 2) {
@@ -287,8 +300,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const dy = e.clientY - st.startY
       if (!st.moved && Math.hypot(dx, dy) < 4) return
       st.moved = true
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = dragRectRef.current ?? containerRef.current?.getBoundingClientRect() ?? null
       if (!rect || !rect.width || !rect.height) return
+      dragRectRef.current = { width: rect.width, height: rect.height }
 
       // Move by pointer delta from where the layer was grabbed, so the text
       // keeps its offset under the finger instead of snapping its centre.
@@ -303,13 +317,15 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       if (snapH) y = 50
       setGuides((g) => (g.v === snapV && g.h === snapH ? g : { v: snapV, h: snapH }))
 
-      onMove(st.id, Math.max(-200, Math.min(300, x)), Math.max(-200, Math.min(300, y)))
+      emitMove(st.id, Math.max(-200, Math.min(300, x)), Math.max(-200, Math.min(300, y)))
     }
 
 
 
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
       stageUp(e)
+      emitMove.flush()
+      dragRectRef.current = null
       setGuides({ v: false, h: false })
       const st = dragState.current
       dragState.current = null
@@ -711,7 +727,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             alt="Editing canvas"
             crossOrigin="anonymous"
             className="block h-full w-full object-fill"
+            decoding="async"
+            fetchPriority="high"
             draggable={false}
+            style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
           />
 
 
