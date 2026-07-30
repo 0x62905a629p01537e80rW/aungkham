@@ -1,35 +1,10 @@
 import { useEffect, useState } from 'react'
-import {
-  Layers,
-  LayoutTemplate,
-  Loader2,
-  Sparkles,
-  Type as TypeIcon,
-  Upload,
-  Wand2,
-  Droplets,
-  FileDown,
-  ShieldOff,
-  X,
-  Check,
-} from 'lucide-react'
+import { Loader2, X, Check, LogIn } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { usePricing } from '@/lib/pricing'
 import { PaymentPage } from './payment-page'
 
 const SEEN_KEY = 'pro-splash-seen'
-
-const CARDS = [
-  { icon: ShieldOff, label: 'No ads at all', tint: 'from-[#0ea5e9] to-[#1e3a8a]' },
-  { icon: TypeIcon, label: 'Premium Myanmar fonts', tint: 'from-[#a855f7] to-[#3b0764]' },
-  { icon: LayoutTemplate, label: 'Premium templates', tint: 'from-[#6366f1] to-[#1e1b4b]' },
-  { icon: Upload, label: 'Woff & woff2 font upload', tint: 'from-[#14b8a6] to-[#134e4a]' },
-  { icon: Droplets, label: 'Liquid text & element effects', tint: 'from-[#22d3ee] to-[#0c4a6e]' },
-  { icon: FileDown, label: 'PDF & high quality export', tint: 'from-[#ef4444] to-[#450a0a]' },
-  { icon: Wand2, label: 'Blur, square fit & effects', tint: 'from-[#f59e0b] to-[#7c2d12]' },
-  { icon: Layers, label: 'Unlimited projects', tint: 'from-[#10b981] to-[#064e3b]' },
-  { icon: Sparkles, label: 'No watermark exports', tint: 'from-[#f43f5e] to-[#4c0519]' },
-]
 
 const BENEFITS = [
   'Premium templates — Burmese & English designs',
@@ -66,13 +41,15 @@ export function ProSplash() {
   const [open, setOpen] = useState(false)
   const [pay, setPay] = useState(false)
   const [restoring, setRestoring] = useState(false)
-  const { isPro, signIn } = useAuth()
+  const [askLogin, setAskLogin] = useState(false)
+  const { isPro, signIn, user } = useAuth()
   const pricing = usePricing(open)
 
   async function handleRestore() {
     setRestoring(true)
     try {
       await signIn()
+      setAskLogin(false)
     } catch {
       /* ignore */
     } finally {
@@ -96,6 +73,7 @@ export function ProSplash() {
   }, [isPro])
 
   if (!open) return <PaymentPage open={pay} onClose={() => setPay(false)} />
+
 
   return (
     <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto perf-scroll bg-[#07070c] text-white animate-fade-in">
