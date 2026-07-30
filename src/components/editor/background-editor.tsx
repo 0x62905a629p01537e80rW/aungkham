@@ -589,7 +589,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               <button
                 type="button"
                 onClick={() => setFitAdvanced((v) => !v)}
-                className="flex w-full items-center justify-between text-xs font-semibold active:scale-[0.99]"
+                className={cn('flex w-full items-center justify-between text-xs font-semibold active:scale-[0.99]', dimWhenDragging)}
               >
                 <span className="flex items-center gap-2">
                   <SlidersHorizontal className="size-4 text-primary" /> Adjust
@@ -602,67 +602,81 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               {fitAdvanced && (
                 <div className="mt-3 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <SliderField {...dragProps}
-                      label="Move X"
-                      value={fitX}
-                      min={-100}
-                      max={100}
-                      step={1}
-                      onChange={setFitX}
-                    />
-                    <SliderField {...dragProps}
-                      label="Move Y"
-                      value={fitY}
-                      min={-100}
-                      max={100}
-                      step={1}
-                      onChange={setFitY}
-                    />
-                  </div>
-                  {(fitBlur > 0 || fitBackdrop) && (
-                    <SliderField {...dragProps}
-                      label="Background blur"
-                      value={fitBackdrop ? fitBackdropBlur : fitBlur}
-                      min={0}
-                      max={60}
-                      step={1}
-                      onChange={fitBackdrop ? setFitBackdropBlur : setFitBlur}
-                    />
-                  )}
-                  <SliderField {...dragProps}
-                    label="Background opacity"
-                    value={fitBgOpacity}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onChange={setFitBgOpacity}
-                  />
-                  <SliderField {...dragProps}
-                    label="Shadow"
-                    value={fitShadowBlur}
-                    min={0}
-                    max={100}
-                    step={1}
-                    onChange={setFitShadowBlur}
-                  />
-                  {fitShadowBlur > 0 && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <SliderField {...dragProps}
-                        label="Shadow opacity"
-                        value={fitShadowOpacity}
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        onChange={setFitShadowOpacity}
-                      />
-                      <SliderField {...dragProps}
-                        label="Shadow offset"
-                        value={fitShadowOffset}
+                    <div className={dimUnlessActive('Move X')}>
+                      <SliderField {...sliderDrag('Move X')}
+                        label="Move X"
+                        value={fitX}
                         min={-100}
                         max={100}
                         step={1}
-                        onChange={setFitShadowOffset}
+                        onChange={setFitX}
                       />
+                    </div>
+                    <div className={dimUnlessActive('Move Y')}>
+                      <SliderField {...sliderDrag('Move Y')}
+                        label="Move Y"
+                        value={fitY}
+                        min={-100}
+                        max={100}
+                        step={1}
+                        onChange={setFitY}
+                      />
+                    </div>
+                  </div>
+                  {(fitBlur > 0 || fitBackdrop) && (
+                    <div className={dimUnlessActive('Background blur')}>
+                      <SliderField {...sliderDrag('Background blur')}
+                        label="Background blur"
+                        value={fitBackdrop ? fitBackdropBlur : fitBlur}
+                        min={0}
+                        max={60}
+                        step={1}
+                        onChange={fitBackdrop ? setFitBackdropBlur : setFitBlur}
+                      />
+                    </div>
+                  )}
+                  <div className={dimUnlessActive('Background opacity')}>
+                    <SliderField {...sliderDrag('Background opacity')}
+                      label="Background opacity"
+                      value={fitBgOpacity}
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      onChange={setFitBgOpacity}
+                    />
+                  </div>
+                  <div className={dimUnlessActive('Shadow')}>
+                    <SliderField {...sliderDrag('Shadow')}
+                      label="Shadow"
+                      value={fitShadowBlur}
+                      min={0}
+                      max={100}
+                      step={1}
+                      onChange={setFitShadowBlur}
+                    />
+                  </div>
+                  {fitShadowBlur > 0 && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className={dimUnlessActive('Shadow opacity')}>
+                        <SliderField {...sliderDrag('Shadow opacity')}
+                          label="Shadow opacity"
+                          value={fitShadowOpacity}
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          onChange={setFitShadowOpacity}
+                        />
+                      </div>
+                      <div className={dimUnlessActive('Shadow offset')}>
+                        <SliderField {...sliderDrag('Shadow offset')}
+                          label="Shadow offset"
+                          value={fitShadowOffset}
+                          min={-100}
+                          max={100}
+                          step={1}
+                          onChange={setFitShadowOffset}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
