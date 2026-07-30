@@ -439,6 +439,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
   const onUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId)
     if (pointers.current.size < 2) pinch.current = null
+    cancelMagicHold()
     drawing.current = false
     lastPoint.current = null
     if (tool !== 'magic') setCursor(null)
