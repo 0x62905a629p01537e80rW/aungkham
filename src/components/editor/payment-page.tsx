@@ -191,28 +191,33 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-background text-foreground animate-fade-in">
       <div
-        className="flex items-center gap-3 px-4 pb-2 pt-4"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
+        className="glass-panel sticky top-0 z-10 flex items-center gap-2.5 rounded-none border-0 px-3 pb-2.5 pt-4"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
       >
         <button
           type="button"
           aria-label="Back"
           onClick={onClose}
-          className="grid size-9 place-items-center rounded-full transition active:scale-95"
+          className="grid size-10 shrink-0 place-items-center rounded-full transition active:scale-95"
         >
           <ArrowLeft className="size-6" />
         </button>
-        <h2 className="text-xl font-semibold">Checkout</h2>
+        <BrandLogo className="size-9 shrink-0" />
+        <div className="min-w-0 leading-tight">
+          <p className="text-[15px] font-bold tracking-tight">Checkout</p>
+          <p className="truncate text-[11px] text-muted-foreground">Myan Pro · Lifetime</p>
+        </div>
         {user && (
           <button
             type="button"
             onClick={() => signOutUser()}
-            className="ml-auto flex items-center gap-1 rounded-full px-2 py-1 text-[11px] text-muted-foreground transition active:scale-95"
+            className="ml-auto flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-[11px] text-muted-foreground transition active:scale-95"
           >
             <LogOut className="size-3.5" />
             Sign out
           </button>
         )}
+
       </div>
 
       <div className="px-4 pb-14">
