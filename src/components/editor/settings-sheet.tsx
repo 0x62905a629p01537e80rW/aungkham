@@ -245,14 +245,20 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     <div className="glass-panel relative w-full max-w-sm rounded-3xl p-6 text-center">
                       <p className="text-lg font-bold">Restore Pro</p>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        To restore your Pro purchase, you need to log in with the account you
-                        used to buy it.
+                        {user
+                          ? 'This is a free account. We found no purchase history for ' +
+                            (user.email ?? 'this account') +
+                            '. If you paid with another account, sign out and log in with it.'
+                          : 'To restore your Pro purchase, you need to log in with the account you used to buy it.'}
                       </p>
                       <button
                         type="button"
                         onClick={() => {
                           if (user) {
                             setRestore(false)
+                            setOpen(false)
+                            if (onBuyPro) onBuyPro()
+                            else setPay(true)
                             return
                           }
                           void signIn()
@@ -261,7 +267,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                         }}
                         className="premium-glass mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-base font-bold transition active:scale-[0.98]"
                       >
-                        {user ? 'Signed in — checking' : 'Login'}
+                        {user ? 'Buy now' : 'Login'}
                       </button>
                       <button
                         type="button"
