@@ -123,7 +123,7 @@ export function UploadZone({
 
 
       {/* Tab content */}
-      <div className="mx-auto mt-5 flex min-h-0 w-full max-w-sm flex-1 flex-col overflow-y-auto overscroll-contain perf-scroll pb-4">
+      <div className="mx-auto mt-5 flex min-h-0 w-full max-w-sm flex-1 flex-col overflow-y-auto overscroll-contain perf-scroll no-scrollbar px-1 pb-10">
         {tab === 'create' && (
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
