@@ -866,7 +866,7 @@ function FontPicker({
                   }
                 : f.key.startsWith('gf:')
                   ? () => {
-                      void removeGoogleFont(googleFamilyFromKey(f.key))
+                      void removeGoogleFont(googleFamilyFromKey(f.key) ?? f.label)
                       if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
                     }
                   : undefined
