@@ -157,8 +157,33 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
     }
   }
 
+  // Pull the hash out of a block-explorer URL if the user pasted a link.
+  function extractHash(raw: string) {
+    const v = raw.trim()
+    if (!/^https?:\/\//i.test(v)) return v
+    const matches = v.match(/[0-9a-zA-Z]{40,100}/g)
+    if (!matches?.length) return v
+    return matches.reduce((a, b) => (b.length >= a.length ? b : a))
+  }
+
+  const cleanedTx = method === 'usdt' ? extractHash(txId) : txId.trim()
+
+  // Validation: KBZPay needs exactly 6 digits; crypto needs a full-length hash (>62 chars).
+  const txError: string | null = (() => {
+    if (!txId.trim()) return null
+    if (method === 'kbzpay') {
+      return /^\d{6}$/.test(txId.trim())
+        ? null
+        : 'Enter exactly the last 6 digits of your KBZPay transaction ID.'
+    }
+    if (cleanedTx.length <= 62) {
+      return 'Transaction hash looks incomplete — paste the full hash (more than 62 characters) or the explorer link.'
+    }
+    return null
+  })()
+
   async function handleSubmit() {
-    if (!user || !txId.trim()) return
+    if (!user || !cleanedTx || txError) return
     setSubmitting(true)
     setError(null)
     try {
@@ -167,7 +192,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       await addDoc(collection(getDb(), 'transactions'), {
         userId: user.uid,
         userEmail: user.email,
-        txId: txId.trim(),
+        txId: cleanedTx,
+        txInput: txId.trim(),
         method: method === 'usdt' ? 'USDT' : 'KBZPay',
         network: method === 'usdt' ? (activeNet?.label ?? '') : '',
         toAddress: method === 'usdt' ? (activeNet?.address ?? '') : '',
@@ -186,7 +212,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
 
   if (!open || typeof document === 'undefined') return null
 
-  const canSubmit = !!user && txId.trim().length > 0 && !submitting
+  const canSubmit = !!user && !!cleanedTx && !txError && !submitting
+
 
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-background text-foreground animate-fade-in">
@@ -438,12 +465,22 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                   <div className="relative mt-1">
                     <input
                       value={txId}
-                      onChange={(e) => setTxId(e.target.value)}
+                      onChange={(e) =>
+                        setTxId(
+                          method === 'kbzpay'
+                            ? e.target.value.replace(/\D/g, '').slice(0, 6)
+                            : e.target.value,
+                        )
+                      }
                       inputMode={method === 'usdt' ? 'text' : 'numeric'}
-                      maxLength={method === 'usdt' ? 120 : 12}
+                      maxLength={method === 'usdt' ? 200 : 6}
                       required
-                      placeholder={method === 'usdt' ? 'e.g. 0x9f3c…' : 'e.g. 482913'}
-                      className="glass-tile h-11 w-full rounded-2xl px-3.5 pr-11 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+                      placeholder={
+                        method === 'usdt' ? 'Paste full hash or explorer link' : 'e.g. 482913'
+                      }
+                      className={`glass-tile h-11 w-full rounded-2xl px-3.5 pr-11 text-sm outline-none focus:ring-2 ${
+                        txError ? 'ring-2 ring-destructive/50' : 'focus:ring-primary/40'
+                      }`}
                     />
                     <button
                       type="button"
@@ -451,7 +488,12 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       onClick={async () => {
                         try {
                           const text = await navigator.clipboard.readText()
-                          if (text) setTxId(text.trim())
+                          if (text)
+                            setTxId(
+                              method === 'kbzpay'
+                                ? text.replace(/\D/g, '').slice(0, 6)
+                                : text.trim(),
+                            )
                         } catch (err) {
                           console.log('[paste failed]', err)
                         }
@@ -461,7 +503,17 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       <ClipboardPaste className="size-4" />
                     </button>
                   </div>
+                  {txError ? (
+                    <p className="mt-1 text-[11px] text-destructive">{txError}</p>
+                  ) : (
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {method === 'usdt'
+                        ? 'Full transaction hash (63+ characters). Explorer links (https://…) are accepted.'
+                        : `Exactly 6 digits — ${txId.trim().length}/6 entered.`}
+                    </p>
+                  )}
                 </label>
+
 
                 {error && <p className="text-[11px] text-destructive">{error}</p>}
 
