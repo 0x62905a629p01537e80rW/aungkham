@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Download, Loader2, Search, Trash2, WifiOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ColorPickerPopover } from './color-picker'
 import {
   GOOGLE_FONTS,
   googleCssFamily,
@@ -15,7 +14,7 @@ import {
   subscribeGoogleFonts,
 } from '@/lib/google-fonts'
 
-const WEIGHTS = [300, 400, 500, 600, 700, 800, 900]
+
 
 export function GoogleFontsPanel({
   activeKey,
@@ -25,17 +24,17 @@ export function GoogleFontsPanel({
   onPick: (fontKey: string) => void
 }) {
   const [query, setQuery] = useState('')
-  const [onlyInstalled, setOnlyInstalled] = useState(false)
+  const [onlyInstalled] = useState(false)
   const [limit, setLimit] = useState(60)
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [, force] = useState(0)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // live preview settings
-  const [size, setSize] = useState(20)
-  const [weight, setWeight] = useState(400)
-  const [color, setColor] = useState('#ffffff')
+  // fixed preview appearance
+  const size = 20
+  const weight = 400
+
 
   useEffect(() => subscribeGoogleFonts(() => force((n) => n + 1)), [])
   useEffect(() => setLimit(60), [query, onlyInstalled])
@@ -104,75 +103,12 @@ export function GoogleFontsPanel({
         />
       </div>
 
-      {/* live preview controls */}
-      <div className="shrink-0 space-y-2 rounded-2xl border border-border/60 bg-foreground/5 p-2.5">
-        <div className="flex items-center justify-end gap-2">
-          <ColorPickerPopover value={color} onChange={setColor}>
-            <button
-              type="button"
-              aria-label="Preview color"
-              className="relative size-8 shrink-0 overflow-hidden rounded-xl border border-border shadow-sm"
-            >
-              <span className="absolute inset-0" style={{ backgroundColor: color }} />
-            </button>
-          </ColorPickerPopover>
-        </div>
-
-
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Size
-          </span>
-          <input
-            type="range"
-            min={12}
-            max={48}
-            step={1}
-            value={size}
-            onChange={(e) => setSize(Number(e.target.value))}
-            className="h-1 min-w-0 flex-1 accent-primary"
-          />
-          <span className="w-7 shrink-0 text-right font-mono text-[10px] tabular-nums text-muted-foreground">
-            {size}
-          </span>
-        </div>
-
-        <div className="-mx-0.5 flex gap-1 overflow-x-auto perf-scroll px-0.5 [scrollbar-width:none]">
-          {WEIGHTS.map((w) => (
-            <button
-              key={w}
-              type="button"
-              onClick={() => setWeight(w)}
-              className={cn(
-                'shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold transition active:scale-95',
-                weight === w
-                  ? 'bg-primary text-primary-foreground'
-                  : 'border border-border/60 bg-background/40 text-foreground/70',
-              )}
-            >
-              {w}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setOnlyInstalled((v) => !v)}
-            className={cn(
-              'ml-auto shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold transition active:scale-95',
-              onlyInstalled
-                ? 'bg-primary text-primary-foreground'
-                : 'border border-border/60 bg-background/40 text-foreground/70',
-            )}
-          >
-            Downloaded ({installed.length})
-          </button>
-        </div>
-      </div>
-
       <p className="flex shrink-0 items-center gap-1.5 text-[10px] leading-snug text-muted-foreground">
         <WifiOff className="size-3 shrink-0" />
         Preview any font live, then tap to download it once — it is saved in the app and works
         offline after that.
       </p>
+
 
       {error && (
         <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-[11px] text-foreground">
@@ -210,7 +146,6 @@ export function GoogleFontsPanel({
                     fontFamily: `'${googleCssFamily(f.f)}', '${f.f}', sans-serif`,
                     fontSize: size,
                     fontWeight: w,
-                    color,
                   }}
                 >
                   {f.f}
