@@ -9,6 +9,8 @@ export type Pricing = {
   priceUsd: string
   /** e.g. "50% OFF" — empty when not configured */
   promoLabel: string
+  /** true once a Firestore snapshot (or an error) has settled */
+  loaded: boolean
 }
 
 export const DEFAULT_PRICING: Pricing = {
@@ -16,7 +18,9 @@ export const DEFAULT_PRICING: Pricing = {
   originalMmk: '',
   priceUsd: '',
   promoLabel: '',
+  loaded: false,
 }
+
 
 function raw(v: unknown): string | undefined {
   if (typeof v === 'string') return v.trim() || undefined
