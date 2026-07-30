@@ -16,6 +16,7 @@ import {
   subscribeFonts,
   toggleFavorite,
 } from '@/lib/custom-fonts'
+import { listRecentFonts, recordRecentFont, subscribeRecents } from '@/lib/recents'
 import {
   AlignCenter,
   Circle,
@@ -492,9 +493,10 @@ function ToolHeading({ children }: { children: React.ReactNode }) {
   )
 }
 
-type FontGroup = 'favorites' | 'english' | 'mm-free' | 'mm-premium' | 'custom'
+type FontGroup = 'recent' | 'favorites' | 'english' | 'mm-free' | 'mm-premium' | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
+  { key: 'recent', label: 'Recent' },
   { key: 'favorites', label: 'Favorites' },
   { key: 'english', label: 'English' },
   { key: 'mm-free', label: 'Myanmar' },
@@ -599,11 +601,17 @@ function FontPicker({
 
   useEffect(() => {
     ensureCustomFontsLoaded()
-    return subscribeFonts(() => force((n) => n + 1))
+    const offFonts = subscribeFonts(() => force((n) => n + 1))
+    const offRecents = subscribeRecents(() => force((n) => n + 1))
+    return () => {
+      offFonts()
+      offRecents()
+    }
   }, [])
 
   const customs = listCustomFonts()
   const favs = listFavorites()
+  const recents = listRecentFonts()
 
   const all: FontEntry[] = [
     ...FONTS.map((f) => ({
@@ -620,11 +628,14 @@ function FontPicker({
   ]
 
   const items =
-    group === 'favorites'
-      ? all.filter((f) => favs.includes(f.key))
-      : group === 'custom'
-        ? all.filter((f) => f.customId)
-        : all.filter((f) => !f.customId && groupOf(FONTS.find((x) => x.key === f.key)!.category) === group)
+    group === 'recent'
+      ? (recents.map((k) => all.find((f) => f.key === k)).filter(Boolean) as FontEntry[])
+      : group === 'favorites'
+        ? all.filter((f) => favs.includes(f.key))
+        : group === 'custom'
+          ? all.filter((f) => f.customId)
+          : all.filter((f) => !f.customId && groupOf(FONTS.find((x) => x.key === f.key)!.category) === group)
+
 
   return (
     <div className="space-y-3">
@@ -706,6 +717,7 @@ function FontPicker({
             fav={favs.includes(f.key)}
             locked={false}
             onSelect={() => {
+              recordRecentFont(f.key)
               onChange({ fontKey: f.key })
               onClose?.()
             }}
@@ -722,9 +734,11 @@ function FontPicker({
         ))}
         {items.length === 0 && (
           <p className="col-span-2 py-6 text-center text-xs text-muted-foreground">
-            {group === 'favorites'
-              ? 'No favorite fonts yet — tap the star on any font.'
-              : 'No custom fonts yet — upload one above.'}
+            {group === 'recent'
+              ? 'No recent fonts yet — pick a font and it shows up here.'
+              : group === 'favorites'
+                ? 'No favorite fonts yet — tap the star on any font.'
+                : 'No custom fonts yet — upload one above.'}
           </p>
         )}
       </div>

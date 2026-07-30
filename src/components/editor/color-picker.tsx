@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Circle, Move3d, Pipette, Plus, Trash2, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { GlassTabs } from '@/components/ui/glass-tabs'
+import { listRecentColors, recordRecentColor, subscribeRecents } from '@/lib/recents'
 
 // ---------- color math ----------
 
@@ -172,11 +173,39 @@ export function ColorPickerPanel({
     }
   })
 
+  const [recents, setRecents] = useState<string[]>(() => listRecentColors())
+
   const areaRef = useRef<HTMLDivElement>(null)
   const hueRef = useRef<HTMLDivElement>(null)
   const alphaRef = useRef<HTMLDivElement>(null)
   const stopsRef = useRef<HTMLDivElement>(null)
   const firstRun = useRef(false)
+
+  useEffect(() => subscribeRecents(() => setRecents(listRecentColors())), [])
+
+  // remember the last colour the user actually settled on
+  const lastValueRef = useRef<string>('')
+  useEffect(
+    () => () => {
+      if (firstRun.current && lastValueRef.current) recordRecentColor(lastValueRef.current)
+    },
+    [],
+  )
+
+
+  const pills = useMemo(() => {
+    const seen = new Set<string>()
+    const out: string[] = []
+    for (const c of [...recents, ...QUICK_SWATCHES]) {
+      const k = c.toLowerCase()
+      if (seen.has(k)) continue
+      seen.add(k)
+      out.push(c)
+      if (out.length === 20) break
+    }
+    return out
+  }, [recents])
+
 
   const rgb = useMemo(() => hsvToRgb(h, s, v), [h, s, v])
   const hex = useMemo(() => rgbaToHex(rgb.r, rgb.g, rgb.b, a), [rgb, a])
@@ -200,7 +229,9 @@ export function ColorPickerPanel({
   // emit (only after the user actually interacts)
   useEffect(() => {
     if (!firstRun.current) return
-    onChange(mode === 'gradient' ? gradientCss : hex)
+    const out = mode === 'gradient' ? gradientCss : hex
+    lastValueRef.current = out
+    onChange(out)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, gradientCss, hex])
 
@@ -274,8 +305,25 @@ export function ColorPickerPanel({
     }
   }
 
+  function pickPreset(c: string) {
+    const g = parseGradient(c)
+    if (g && allowGradient) {
+      setGradType(g.type)
+      setAngle(g.angle)
+      setStops(g.stops)
+      setActiveStop(0)
+      setMode('gradient')
+      applyColorToEditor(g.stops[0].color)
+    } else {
+      setMode('solid')
+      submitHex(c)
+    }
+    recordRecentColor(c)
+  }
+
   function addSwatch() {
     const entry = mode === 'gradient' ? gradientCss : hex
+    recordRecentColor(entry)
     setCustomSwatches((prev) => {
       const next = prev.includes(entry) ? prev : [entry, ...prev].slice(0, 20)
       try {
@@ -286,6 +334,7 @@ export function ColorPickerPanel({
       return next
     })
   }
+
 
   function selectStop(i: number) {
     setActiveStop(i)
@@ -528,18 +577,18 @@ export function ColorPickerPanel({
         />
       </div>)}
 
-      {/* Preview + swatches */}
+      {/* Preview + recently used pills */}
       <div className="mt-2 flex items-start gap-1.5">
         <div
           className="size-[52px] shrink-0 rounded-lg border border-black/10"
           style={{ background: preview }}
         />
         <div className="grid flex-1 grid-cols-10 gap-1">
-          {QUICK_SWATCHES.map((c) => (
+          {pills.map((c) => (
             <button
               key={c}
               type="button"
-              onClick={() => { setMode('solid'); submitHex(c) }}
+              onClick={() => pickPreset(c)}
               className="aspect-square rounded-[4px] border border-black/10 transition active:scale-90"
               style={{ background: c }}
               aria-label={c}
@@ -547,6 +596,7 @@ export function ColorPickerPanel({
           ))}
         </div>
       </div>
+
 
       {customSwatches.length > 0 && (
         <div className="mt-1.5 grid grid-cols-10 gap-1">
@@ -579,7 +629,11 @@ export function ColorPickerPanel({
       {onConfirm && (
         <button
           type="button"
-          onClick={() => onConfirm(mode === 'gradient' ? gradientCss : hex)}
+          onClick={() => {
+            const out = mode === 'gradient' ? gradientCss : hex
+            recordRecentColor(out)
+            onConfirm(out)
+          }}
           className="glass-cta mt-3 h-12 w-full rounded-xl text-sm font-semibold active:scale-[0.98]"
         >
           {confirmLabel}
