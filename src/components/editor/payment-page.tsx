@@ -76,13 +76,15 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
   const [signingIn, setSigningIn] = useState(false)
   const [settings, setSettings] = useState<PaySettings | null>(null)
   const [settingsError, setSettingsError] = useState<string | null>(null)
+  const [method, setMethod] = useState<'kbzpay' | 'usdt'>('kbzpay')
+  const [net, setNet] = useState('')
   const [txId, setTxId] = useState('')
   const [senderInfo, setSenderInfo] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch KBZPay details from Firestore (payment_settings collection).
+  // Fetch KBZPay + crypto details from Firestore (payment_settings collection).
   useEffect(() => {
     if (!open) return
     let cancelled = false
@@ -97,10 +99,24 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
         return
       }
       const d = (snap.docs[0].data() ?? {}) as Record<string, string>
+      const nets: CryptoNet[] = [
+        { key: 'trc20', label: 'USDT · TRC20 (Tron)', address: d.usdt_trx_address ?? '' },
+        { key: 'bep20', label: 'USDT · BEP20 (BSC)', address: d.usdt_bep20_address ?? '' },
+        { key: 'erc20', label: 'USDT · ERC20 (Ethereum)', address: d.usdt_erc20_address ?? '' },
+        {
+          key: 'sol',
+          label: 'USDT · Solana',
+          address: d.usdt_sol_address ?? d.usdt_sol_addresa ?? '',
+        },
+      ].filter((n) => n.address.trim().length > 0)
       setSettings({
         phone: d.kpay_number ?? '',
         name: d.kpay_name ?? '',
+        priceMmk: d.price_mmk ?? '',
+        usdtPrice: d.usdt_price ?? '',
+        nets,
       })
+      if (nets.length) setNet((prev) => prev || nets[0].key)
     })().catch((err) => {
       console.log('[payment settings failed]', err)
       if (!cancelled) setSettingsError('Could not load payment details. Please try again.')
@@ -109,6 +125,11 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       cancelled = true
     }
   }, [open])
+
+  const activeNet = useMemo(
+    () => settings?.nets.find((n) => n.key === net) ?? settings?.nets[0] ?? null,
+    [settings, net],
+  )
 
   async function handleSignIn() {
     setSigningIn(true)
@@ -135,7 +156,9 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
         userEmail: user.email,
         txId: txId.trim(),
         senderInfo: senderInfo.trim(),
-        method: 'KBZPay',
+        method: method === 'usdt' ? 'USDT' : 'KBZPay',
+        network: method === 'usdt' ? (activeNet?.label ?? '') : '',
+        toAddress: method === 'usdt' ? (activeNet?.address ?? '') : '',
         status: 'pending',
         createdAt: serverTimestamp(),
       })
@@ -147,6 +170,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       setSubmitting(false)
     }
   }
+
 
   if (!open || typeof document === 'undefined') return null
 
