@@ -56,6 +56,7 @@ export function pricingFromDoc(d: Record<string, unknown>): Pricing {
     originalMmk: formatMmk(raw(d.original_price)),
     priceUsd: formatUsd(raw(d.usdt_price)),
     promoLabel: formatPromo(raw(d.promo_percent)),
+    loaded: true,
   }
 }
 
@@ -78,16 +79,24 @@ async function start() {
     onSnapshot(
       collection(getDb(), 'payment_settings'),
       (snap) => {
-        if (snap.empty) return
+        if (snap.empty) {
+          emit({ ...current, loaded: true })
+          return
+        }
         emit(pricingFromDoc((snap.docs[0].data() ?? {}) as Record<string, unknown>))
       },
-      (err) => console.log('[pricing subscribe failed]', err),
+      (err) => {
+        console.log('[pricing subscribe failed]', err)
+        emit({ ...current, loaded: true })
+      },
     )
   } catch (err) {
     started = false
     console.log('[pricing init failed]', err)
+    emit({ ...current, loaded: true })
   }
 }
+
 
 export async function fetchPricing(): Promise<Pricing> {
   void start()
