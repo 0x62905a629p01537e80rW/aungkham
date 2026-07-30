@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { fontFamily, TEXTURES, type TextLayer } from '@/lib/text-layer'
 
@@ -215,7 +216,7 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
   return <img src={g.src} alt="" crossOrigin="anonymous" draggable={false} style={box} />
 }
 
-export function LayerText({ layer }: { layer: TextLayer }) {
+function LayerTextImpl({ layer }: { layer: TextLayer }) {
   if (layer.graphic) return <LayerGraphic layer={layer} />
   const style = layer.liquidOn
     ? { ...layerTextStyle(layer), ...liquidStyle(layer) }
@@ -300,3 +301,9 @@ function withAlpha(hex: string, alpha: number): string {
   const n = parseInt(m[1], 16)
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`
 }
+
+/**
+ * Memoised: while one layer is being dragged the others keep their previous
+ * render, which removes most of the per-frame work on busy canvases.
+ */
+export const LayerText = memo(LayerTextImpl)
