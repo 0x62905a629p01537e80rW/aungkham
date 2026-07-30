@@ -232,7 +232,7 @@ export function UploadZone({
             <button
               type="button"
               onClick={onStartTemplates}
-              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-primary text-base font-semibold text-primary-foreground shadow-lg transition active:scale-[0.98]"
+              className="glass-cta flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl text-base font-semibold active:scale-[0.98]"
             >
               <LayoutTemplate className="size-5" />
               {t('home.templates')}

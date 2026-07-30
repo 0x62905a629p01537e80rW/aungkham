@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { ImageIcon, Shapes, Sticker, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { GlassTabs } from '@/components/ui/glass-tabs'
 import { DEFAULT_STROKE_WIDTH, SHAPES, SHAPE_GROUPS, shapeDataUrl, type ShapeGroup } from '@/lib/shapes'
 import { STICKERS, STICKER_GROUPS, stickerDataUrl } from '@/lib/stickers'
 import type { GraphicContent } from '@/lib/text-layer'
@@ -110,7 +111,7 @@ export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
             <button
               type="button"
               onClick={() => galleryRef.current?.click()}
-              className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition active:scale-[0.98]"
+              className="glass-cta flex w-full items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold active:scale-[0.98]"
             >
               <ImageIcon className="size-5" />
               Choose from Library
