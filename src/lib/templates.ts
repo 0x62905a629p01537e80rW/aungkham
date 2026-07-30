@@ -5,6 +5,7 @@
  */
 import { createGraphicLayer, createTextLayer, type TextLayer } from '@/lib/text-layer'
 import { shapeDataUrl } from '@/lib/shapes'
+import { PREMIUM_TEMPLATES } from '@/lib/premium-templates'
 
 export type TemplateLang = 'EN' | 'MM'
 
@@ -13,6 +14,8 @@ export interface TemplateDef {
   name: string
   lang: TemplateLang
   group: string
+  /** optional background image applied with the template */
+  bg?: string
   build: () => TextLayer[]
 }
 
@@ -844,6 +847,6 @@ function buildAll(): TemplateDef[] {
   return out
 }
 
-export const TEMPLATES: TemplateDef[] = buildAll()
+export const TEMPLATES: TemplateDef[] = [...PREMIUM_TEMPLATES, ...buildAll()]
 
-export const TEMPLATE_GROUPS: string[] = ['All', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
+export const TEMPLATE_GROUPS: string[] = ['All', 'Premium', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
