@@ -1913,6 +1913,14 @@ function LiquidPanel({
         </button>
       </div>
 
+      {!isPro && (
+        <p className={cn(fade, others, 'flex items-center gap-1.5 rounded-xl border border-[#e0a93c]/40 bg-[#e0a93c]/10 px-3 py-2 text-[11px] font-medium text-foreground')}>
+          <Crown className="size-3.5 shrink-0 text-[#e0a93c]" />
+          Liquid glass is free to try — Pro is required to export with it.
+        </p>
+      )}
+
+
       <div className={cn(fade, others, 'grid grid-cols-3 gap-1.5')}>
         {LIQUID_PRESETS.map((p) => (
           <button
