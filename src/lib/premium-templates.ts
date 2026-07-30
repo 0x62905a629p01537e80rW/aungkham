@@ -5,6 +5,8 @@
  * Every design exists in both English and Myanmar with its own typeface.
  */
 import { createTextLayer, type TextLayer } from '@/lib/text-layer'
+import { fitScale, measurable } from '@/lib/template-fit'
+
 
 import bgBlueRays from '@/assets/templates/bg-blue-rays.jpg'
 import bgYellowPop from '@/assets/templates/bg-yellow-pop.jpg'
