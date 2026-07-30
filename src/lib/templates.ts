@@ -71,7 +71,7 @@ interface Colors {
 }
 
 const EN_FONT = { display: 'anton', body: 'montserrat', serif: 'playfair' }
-const MM_FONT = { display: 'myanmar-khittar', body: 'pyidaungsu', serif: 'myanmar-taunggyi' }
+const MM_FONT = { display: 'myanmarsquare', body: 'layaungthit-k26', serif: 'myanmaryinmar' }
 type Fonts = typeof EN_FONT
 
 interface Design {
@@ -811,6 +811,10 @@ const DESIGNS: Design[] = [
   },
 ]
 
+/** Upscale every template headline/caption so type reads large on canvas. */
+const TEXT_SCALE = 3
+const TEXT_MAX = 34
+
 function specsToLayers(specs: Spec[]): TextLayer[] {
   return specs.map((spec) => {
     if (spec.kind === 'shape') {
@@ -822,7 +826,8 @@ function specsToLayers(specs: Spec[]): TextLayer[] {
       return { ...base, ...spec.o, color }
     }
     const base = createTextLayer(spec.text)
-    return { ...base, ...spec.o, text: spec.text }
+    const size = Math.min((spec.o.fontSize ?? 6) * TEXT_SCALE, TEXT_MAX)
+    return { ...base, ...spec.o, fontSize: size, text: spec.text }
   })
 }
 

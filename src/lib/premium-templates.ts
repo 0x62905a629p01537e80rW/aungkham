@@ -33,7 +33,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Goal Blast',
     bg: bgBlueRays,
     en: { main: 'GOAL!', sub: 'MATCH DAY HIGHLIGHT', font: 'mochi-boom-extrude', subFont: 'montserrat' },
-    mm: { main: 'ဂိုး ဝင်!', sub: 'ပွဲစဉ်အထူးအစီအစဉ်', font: 'myanmarsquare', subFont: 'pyidaungsu' },
+    mm: { main: 'ဂိုး ဝင်!', sub: 'ပွဲစဉ်အထူးအစီအစဉ်', font: 'myanmarsquare', subFont: 'layaungthit-k26' },
     main: {
       x: 50, y: 44, fontSize: 15, color: '#ffffff',
       strokeWidth: 1.6, strokeColor: '#0b1b3a',
@@ -47,7 +47,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Oops Pop',
     bg: bgYellowPop,
     en: { main: 'OOPS!', sub: 'COMIC TEXT EFFECT', font: 'mochi-boom', subFont: 'montserrat' },
-    mm: { main: 'အိုး!', sub: 'ကာတွန်းစာလုံးအထူး', font: 'choco-cooky', subFont: 'pyidaungsu' },
+    mm: { main: 'အိုး!', sub: 'ကာတွန်းစာလုံးအထူး', font: 'myanmarsabae', subFont: 'layaungthit-k39' },
     main: {
       x: 50, y: 45, fontSize: 17, color: '#ffd400',
       strokeWidth: 1.8, strokeColor: '#14203d',
@@ -61,7 +61,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Whoosh',
     bg: bgYellowPop,
     en: { main: 'WHOOSH', sub: 'FULLY EDITABLE', font: 'the-last-trunks', subFont: 'oswald' },
-    mm: { main: 'ဝှုန်း', sub: 'အပြည့်အဝ ပြင်နိုင်', font: 'myanmar-jojar', subFont: 'myanmar-april' },
+    mm: { main: 'ဝှုန်း', sub: 'အပြည့်အဝ ပြင်နိုင်', font: 'koz033', subFont: 'layaungthit-k44' },
     main: {
       x: 50, y: 46, fontSize: 12, color: '#14203d',
       strokeWidth: 1.2, strokeColor: '#ffffff',
@@ -76,7 +76,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Spoof Sticker',
     bg: bgPastelSky,
     en: { main: 'SPOOF', sub: 'STICKER STYLE', font: 'milkyway', subFont: 'poppins' },
-    mm: { main: 'ဟာသ', sub: 'စတစ်ကာ ပုံစံ', font: 'myanmargantgaw', subFont: 'pyidaungsu' },
+    mm: { main: 'ဟာသ', sub: 'စတစ်ကာ ပုံစံ', font: 'myanmargantgaw', subFont: 'layaungthit-k44' },
     main: {
       x: 50, y: 46, fontSize: 14, color: '#ffffff',
       strokeWidth: 2.2, strokeColor: '#2b2350',
@@ -90,7 +90,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Swoosh',
     bg: bgConcrete,
     en: { main: 'SWOOSH', sub: 'WORDS CAN BE CHANGED', font: 'moldie', subFont: 'montserrat' },
-    mm: { main: 'လွှင့်', sub: 'စာသားပြောင်းနိုင်သည်', font: 'abrush', subFont: 'pyidaungsu' },
+    mm: { main: 'လွှင့်', sub: 'စာသားပြောင်းနိုင်သည်', font: 'abrush', subFont: 'layaungthit-k48' },
     main: {
       x: 50, y: 45, fontSize: 13, color: '#fdf3ef',
       strokeWidth: 1.4, strokeColor: '#0d1b34',
@@ -104,7 +104,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Stylish Script',
     bg: bgBlueRays,
     en: { main: 'Stylish', sub: 'IN GRAPHIC STYLE PANEL', font: 'gladolia', subFont: 'montserrat' },
-    mm: { main: 'ဆန်းပြား', sub: 'ဒီဇိုင်းစတိုင်အထူး', font: 'myanmar-handwriting', subFont: 'pyidaungsu' },
+    mm: { main: 'ဆန်းပြား', sub: 'ဒီဇိုင်းစတိုင်အထူး', font: 'myanmaryinmar', subFont: 'layaungthit-k54' },
     main: {
       x: 50, y: 45, fontSize: 16, color: '#ffffff',
       strokeWidth: 2, strokeColor: '#111111',
@@ -119,7 +119,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Summer',
     bg: bgBeach,
     en: { main: 'SUMMER', sub: 'GOLDEN HOUR EDITION', font: 'beachday', subFont: 'poppins' },
-    mm: { main: 'နွေရာသီ', sub: 'ရွှေရောင်အချိန်', font: 'layaungthit-k16', subFont: 'pyidaungsu' },
+    mm: { main: 'နွေရာသီ', sub: 'ရွှေရောင်အချိန်', font: 'layaungthit-k16', subFont: 'layaungthit-k57' },
     main: {
       x: 50, y: 44, fontSize: 14, color: '#fff6e0',
       strokeWidth: 1.2, strokeColor: '#7a3b00',
@@ -133,7 +133,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Neon Glow',
     bg: bgNeonCity,
     en: { main: 'MIDNIGHT', sub: 'CITY LIGHTS', font: 'the-last-trunks', subFont: 'oswald' },
-    mm: { main: 'သန်းခေါင်', sub: 'မြို့ပြအလင်းများ', font: 'koz008', subFont: 'myanmar-april' },
+    mm: { main: 'သန်းခေါင်', sub: 'မြို့ပြအလင်းများ', font: 'koz008', subFont: 'layaungthit-k44' },
     main: {
       x: 50, y: 44, fontSize: 11, color: '#ffffff',
       strokeWidth: 0.6, strokeColor: '#ff2bd1',
@@ -147,7 +147,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Champion',
     bg: bgStadium,
     en: { main: 'CHAMPION', sub: 'SEASON 2026', font: 'mochi-boom-extrude', subFont: 'oswald' },
-    mm: { main: 'ချန်ပီယံ', sub: 'ရာသီ ၂၀၂၆', font: 'myanmarkuttar', subFont: 'myanmar-april' },
+    mm: { main: 'ချန်ပီယံ', sub: 'ရာသီ ၂၀၂၆', font: 'myanmarkuttar', subFont: 'layaungthit-k44' },
     main: {
       x: 50, y: 42, fontSize: 10, color: '#ffe57a',
       strokeWidth: 1.3, strokeColor: '#2b1a00',
@@ -161,7 +161,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Golden Party',
     bg: bgGoldBokeh,
     en: { main: 'CELEBRATE', sub: 'A NIGHT TO REMEMBER', font: 'talina', subFont: 'playfair' },
-    mm: { main: 'ဂုဏ်ပြုပွဲ', sub: 'မမေ့နိုင်သောညတစ်ည', font: 'myanmaryinmar', subFont: 'myanmar-taunggyi' },
+    mm: { main: 'ဂုဏ်ပြုပွဲ', sub: 'မမေ့နိုင်သောညတစ်ည', font: 'myanmaryinmar', subFont: 'layaungthit-k39' },
     main: {
       x: 50, y: 45, fontSize: 12, color: '#ffd98a',
       strokeWidth: 0.8, strokeColor: '#3a1f00',
@@ -175,7 +175,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Candy Kids',
     bg: bgPastelSky,
     en: { main: 'HELLO!', sub: 'SWEET & PLAYFUL', font: 'child-hood', subFont: 'poppins' },
-    mm: { main: 'မင်္ဂလာပါ', sub: 'ချိုမြိန်ပျော်ရွှင်', font: 'myanmarsabae', subFont: 'pyidaungsu' },
+    mm: { main: 'မင်္ဂလာပါ', sub: 'ချိုမြိန်ပျော်ရွှင်', font: 'myanmargantgaw', subFont: 'layaungthit-k6' },
     main: {
       x: 50, y: 45, fontSize: 13, color: '#ff7fae',
       strokeWidth: 2, strokeColor: '#ffffff',
@@ -189,7 +189,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Street Bold',
     bg: bgConcrete,
     en: { main: 'STREET', sub: 'URBAN TYPE SERIES', font: 'molen-friend', subFont: 'oswald' },
-    mm: { main: 'လမ်းမ', sub: 'မြို့ပြစာလုံးစီးရီး', font: 'tgi', subFont: 'myanmar-april' },
+    mm: { main: 'လမ်းမ', sub: 'မြို့ပြစာလုံးစီးရီး', font: 'koz052', subFont: 'layaungthit-k44' },
     main: {
       x: 50, y: 44, fontSize: 13, color: '#f5f5f5',
       strokeWidth: 1.5, strokeColor: '#000000',
@@ -201,14 +201,23 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
   },
 ]
 
+/** Global headline/caption upscale so template type reads big on the canvas. */
+const MAIN_SCALE = 3
+const SUB_SCALE = 3
+const MAIN_MAX = 34
+const SUB_MAX = 12
+
 function build(d: PremiumDesign, mm: boolean): TextLayer[] {
   const copy = mm ? d.mm : d.en
   const head = createTextLayer(copy.main)
   const cap = createTextLayer(copy.sub)
+  const mainSize = Math.min((d.main.fontSize ?? 12) * MAIN_SCALE, MAIN_MAX)
+  const subSize = Math.min((d.sub.fontSize ?? 3) * SUB_SCALE, SUB_MAX)
   return [
     {
       ...head,
       ...d.main,
+      fontSize: mainSize,
       text: copy.main,
       fontKey: copy.font,
       lineHeight: mm ? 1.5 : 1.05,
@@ -216,6 +225,7 @@ function build(d: PremiumDesign, mm: boolean): TextLayer[] {
     {
       ...cap,
       ...d.sub,
+      fontSize: subSize,
       text: copy.sub,
       fontKey: copy.subFont,
       lineHeight: mm ? 1.5 : 1.2,
