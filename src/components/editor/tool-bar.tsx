@@ -382,7 +382,7 @@ export function ToolBar({
                 align="center"
                 sideOffset={10}
                 collisionPadding={12}
-                className="glass-panel w-[min(92vw,340px)] rounded-3xl border-0 bg-transparent p-4 shadow-none transition-[background-color,backdrop-filter] duration-200 has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-dragging=true]]:![backdrop-filter:none]"
+                className="glass-panel w-[min(92vw,340px)] rounded-3xl border-0 bg-transparent p-4 shadow-none transition-[background-color,backdrop-filter,opacity] duration-300 has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-dragging=true]]:![backdrop-filter:none] has-[[data-peek=true]]:!bg-transparent has-[[data-peek=true]]:!shadow-none has-[[data-peek=true]]:![backdrop-filter:none]"
               >
                 <ToolContent
                   tool={tool.key}
@@ -710,6 +710,14 @@ function FormatPanel({
   onChange: (patch: Partial<TextLayer>) => void
 }) {
   const [dragging, setDragging] = useState<FormatSlider | null>(null)
+  const [peek, setPeek] = useState(false)
+  const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (peekTimer.current) clearTimeout(peekTimer.current) }, [])
+  const quickPeek = () => {
+    setPeek(true)
+    if (peekTimer.current) clearTimeout(peekTimer.current)
+    peekTimer.current = setTimeout(() => setPeek(false), 800)
+  }
   const width = layer.widthScale ?? 100
   const zoomPct = Math.round((layer.fontSize / 12) * 100)
   const toggle =
@@ -730,11 +738,13 @@ function FormatPanel({
 
   return (
     <div
-      className="space-y-4"
+      className={cn('space-y-4 transition-opacity duration-300', peek && 'opacity-20')}
       data-dragging={dragging ? 'true' : 'false'}
+      data-peek={peek ? 'true' : 'false'}
       onPointerUp={() => setDragging(null)}
       onPointerCancel={() => setDragging(null)}
     >
+
       <div className={cn(fade, others)}>
         <ToolHeading>Format</ToolHeading>
       </div>
@@ -789,28 +799,28 @@ function FormatPanel({
       <div className={cn(fade, others, 'flex items-center gap-2')}>
         <button
           type="button"
-          onClick={() => onChange({ fontWeight: layer.fontWeight >= 700 ? 400 : 700 })}
+          onClick={() => { quickPeek(); onChange({ fontWeight: layer.fontWeight >= 700 ? 400 : 700 }) }}
           className={cn(toggle, layer.fontWeight >= 700 ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
         >
           <Bold className="size-4" />
         </button>
         <button
           type="button"
-          onClick={() => onChange({ italic: !layer.italic })}
+          onClick={() => { quickPeek(); onChange({ italic: !layer.italic }) }}
           className={cn(toggle, layer.italic ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
         >
           <Italic className="size-4" />
         </button>
         <button
           type="button"
-          onClick={() => onChange({ underline: !layer.underline })}
+          onClick={() => { quickPeek(); onChange({ underline: !layer.underline }) }}
           className={cn(toggle, layer.underline ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
         >
           <Underline className="size-4" />
         </button>
         <button
           type="button"
-          onClick={() => onChange({ strike: !layer.strike })}
+          onClick={() => { quickPeek(); onChange({ strike: !layer.strike }) }}
           className={cn(toggle, layer.strike ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}
         >
           <Strikethrough className="size-4" />
@@ -833,9 +843,10 @@ function FormatPanel({
         <ToggleGroup
           type="single"
           value={layer.align}
-          onValueChange={(v) => v && onChange({ align: v as TextAlign })}
+          onValueChange={(v) => { if (v) { quickPeek(); onChange({ align: v as TextAlign }) } }}
           className="w-full"
         >
+
           <ToggleGroupItem value="left" aria-label="Align left" className="flex-1">
             <AlignLeft className="size-4" />
           </ToggleGroupItem>
