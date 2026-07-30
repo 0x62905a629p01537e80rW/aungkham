@@ -21,6 +21,8 @@ import { GoogleFontsPanel } from './google-fonts-panel'
 import {
   ensureGoogleFontsLoaded,
   listInstalledGoogleFonts,
+  removeGoogleFont,
+  googleFamilyFromKey,
   subscribeGoogleFonts,
 } from '@/lib/google-fonts'
 import {
@@ -517,6 +519,7 @@ type FontGroup =
   | 'mm-premium'
   | 'en-premium'
   | 'google'
+  | 'downloaded'
   | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
@@ -525,9 +528,10 @@ const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'en-premium', label: 'Premium (Eng)' },
   { key: 'mm-premium', label: 'Premium (MM)' },
   { key: 'google', label: 'Google Fonts' },
+  { key: 'downloaded', label: 'Downloaded' },
   { key: 'favorites', label: 'Favorites' },
   { key: 'recent', label: 'Recent' },
-  { key: 'custom', label: 'My Fonts' },
+  { key: 'custom', label: 'Upload' },
 ]
 
 
@@ -685,12 +689,14 @@ function FontPicker({
         ? all.filter((f) => favs.includes(f.key))
         : group === 'custom'
           ? all.filter((f) => f.customId)
-          : all.filter(
-              (f) =>
-                !f.customId &&
-                !f.key.startsWith('gf:') &&
-                groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
-            )
+          : group === 'downloaded'
+            ? all.filter((f) => f.key.startsWith('gf:'))
+            : all.filter(
+                (f) =>
+                  !f.customId &&
+                  !f.key.startsWith('gf:') &&
+                  groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
+              )
 
   const q = query.trim().toLowerCase()
   const items = q ? base.filter((f) => f.label.toLowerCase().includes(q)) : base
@@ -858,7 +864,12 @@ function FontPicker({
                     removeCustomFont(f.customId!)
                     if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
                   }
-                : undefined
+                : f.key.startsWith('gf:')
+                  ? () => {
+                      void removeGoogleFont(googleFamilyFromKey(f.key) ?? f.label)
+                      if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
+                    }
+                  : undefined
             }
           />
         ))}
@@ -870,7 +881,9 @@ function FontPicker({
                 ? 'No recent fonts yet — pick a font and it shows up here.'
                 : group === 'favorites'
                   ? 'No favorite fonts yet — tap the star on any font.'
-                  : 'No custom fonts yet — upload one above.'}
+                  : group === 'downloaded'
+                    ? 'No downloaded fonts yet — install some from Google Fonts.'
+                    : 'No uploaded fonts yet — upload one above.'}
           </p>
         )}
       </div>
