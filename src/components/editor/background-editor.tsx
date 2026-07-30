@@ -476,7 +476,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             </div>
 
             {/* 2. Size */}
-            <SliderField
+            <SliderField {...dragProps}
               label="Size"
               value={fitScale}
               min={0.3}
@@ -626,7 +626,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               {fitAdvanced && (
                 <div className="mt-3 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <SliderField
+                    <SliderField {...dragProps}
                       label="Move X"
                       value={fitX}
                       min={-100}
@@ -634,7 +634,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                       step={1}
                       onChange={setFitX}
                     />
-                    <SliderField
+                    <SliderField {...dragProps}
                       label="Move Y"
                       value={fitY}
                       min={-100}
@@ -644,7 +644,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                     />
                   </div>
                   {(fitBlur > 0 || fitBackdrop) && (
-                    <SliderField
+                    <SliderField {...dragProps}
                       label="Background blur"
                       value={fitBackdrop ? fitBackdropBlur : fitBlur}
                       min={0}
@@ -653,7 +653,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                       onChange={fitBackdrop ? setFitBackdropBlur : setFitBlur}
                     />
                   )}
-                  <SliderField
+                  <SliderField {...dragProps}
                     label="Background opacity"
                     value={fitBgOpacity}
                     min={0}
@@ -661,7 +661,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                     step={0.01}
                     onChange={setFitBgOpacity}
                   />
-                  <SliderField
+                  <SliderField {...dragProps}
                     label="Shadow"
                     value={fitShadowBlur}
                     min={0}
@@ -671,7 +671,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                   />
                   {fitShadowBlur > 0 && (
                     <div className="grid grid-cols-2 gap-3">
-                      <SliderField
+                      <SliderField {...dragProps}
                         label="Shadow opacity"
                         value={fitShadowOpacity}
                         min={0}
@@ -679,7 +679,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                         step={0.01}
                         onChange={setFitShadowOpacity}
                       />
-                      <SliderField
+                      <SliderField {...dragProps}
                         label="Shadow offset"
                         value={fitShadowOffset}
                         min={-100}
@@ -716,7 +716,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                 </button>
               ))}
             </div>
-            <SliderField
+            <SliderField {...dragProps}
               label="Blur amount"
               value={blurAmount}
               min={1}
@@ -725,7 +725,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               onChange={setBlurAmount}
             />
             {blurMode === 'focus' && (
-              <SliderField
+              <SliderField {...dragProps}
                 label="Focus size"
                 value={focus.r}
                 min={0.1}
