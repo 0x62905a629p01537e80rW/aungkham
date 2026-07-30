@@ -62,6 +62,12 @@ const DICT = {
       'Your current edits are not saved. Leaving now will clear everything on the canvas.',
     'discard.cancel': 'Keep editing',
     'discard.confirm': 'Discard & exit',
+
+    'template.apply.title': 'Apply template',
+    'template.apply.desc': 'Do you want to replace the background with this template, or keep the current background and apply only the text styles?',
+    'template.apply.replace': 'Replace background',
+    'template.apply.styles': 'Styles only',
+    'template.apply.cancel': 'Cancel',
   },
   my: {
     'brand.tagline': 'ဓာတ်ပုံပေါ် စာရေးရန်',
