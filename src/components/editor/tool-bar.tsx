@@ -866,10 +866,10 @@ function FontPicker({
             {q
               ? `No fonts match “${query}”.`
               : group === 'recent'
-              ? 'No recent fonts yet — pick a font and it shows up here.'
-              : group === 'favorites'
-                ? 'No favorite fonts yet — tap the star on any font.'
-                : 'No custom fonts yet — upload one above.'}
+                ? 'No recent fonts yet — pick a font and it shows up here.'
+                : group === 'favorites'
+                  ? 'No favorite fonts yet — tap the star on any font.'
+                  : 'No custom fonts yet — upload one above.'}
           </p>
         )}
       </div>
