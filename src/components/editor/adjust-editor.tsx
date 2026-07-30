@@ -289,25 +289,23 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
               </button>
             )}
           </div>
-          <Slider
-            value={[adj[active]]}
+          <LiveSlider
+            key={active}
+            value={adj[active]}
             min={range.min}
             max={range.max}
             step={range.step}
-            onPointerDown={() => {
+            onDragStart={() => {
               draggingRef.current = true
             }}
-            onPointerUp={() => {
+            onLive={livePreview}
+            onCommit={(v) => {
               draggingRef.current = false
-              schedulePreview()
+              setValue(v)
             }}
-            onValueCommit={() => {
-              draggingRef.current = false
-              schedulePreview()
-            }}
-            onValueChange={(v) => setValue(v[0])}
           />
         </div>
+
 
 
         {/* items rail */}
