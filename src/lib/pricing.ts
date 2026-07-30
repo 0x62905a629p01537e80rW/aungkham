@@ -69,10 +69,37 @@ function emit(p: Pricing) {
   listeners.forEach((fn) => fn(p))
 }
 
+/** Fast REST read — works even when the Firestore realtime channel is blocked/slow. */
+async function fetchOnce() {
+  try {
+    const { FIREBASE_CONFIG } = await import('@/lib/firebase')
+    const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/payment_settings?key=${FIREBASE_CONFIG.apiKey}`
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const json = (await res.json()) as {
+      documents?: { fields?: Record<string, Record<string, unknown>> }[]
+    }
+    const fields = json.documents?.[0]?.fields
+    if (!fields) {
+      emit({ ...current, loaded: true })
+      return
+    }
+    const flat: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(fields)) {
+      flat[k] = Object.values(v ?? {})[0]
+    }
+    emit(pricingFromDoc(flat))
+  } catch (err) {
+    console.log('[pricing rest failed]', err)
+    emit({ ...current, loaded: true })
+  }
+}
+
 /** Subscribe live to Firestore `payment_settings` so admin edits appear instantly. */
 async function start() {
   if (started) return
   started = true
+  void fetchOnce()
   try {
     const { getDb } = await import('@/lib/firebase')
     const { collection, onSnapshot } = await import('firebase/firestore')
@@ -91,11 +118,11 @@ async function start() {
       },
     )
   } catch (err) {
-    started = false
     console.log('[pricing init failed]', err)
     emit({ ...current, loaded: true })
   }
 }
+
 
 
 export async function fetchPricing(): Promise<Pricing> {
