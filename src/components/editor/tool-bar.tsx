@@ -1744,14 +1744,16 @@ function ToolContent({
               </button>
             ))}
           </div>
-          <SliderField
-            label="Depth of field"
-            value={layer.perspective ?? 600}
-            min={200}
-            max={2000}
-            step={20}
-            onChange={(v) => onChange({ perspective: v })}
-          />
+          {(!!layer.rotateX || !!layer.rotateY) && (
+            <SliderField
+              label="Depth of field"
+              value={layer.perspective ?? 600}
+              min={200}
+              max={2000}
+              step={20}
+              onChange={(v) => onChange({ perspective: v })}
+            />
+          )}
         </div>
       )
     case 'bend':

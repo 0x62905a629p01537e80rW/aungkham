@@ -72,19 +72,20 @@ export function SliderField({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <div
         className={cn(
           'flex items-center justify-between transition-opacity duration-200',
           hideLabel && 'pointer-events-none opacity-0',
         )}
       >
-        <Label className="text-sm font-medium text-foreground">{label}</Label>
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+        <Label className="text-[13px] font-medium text-foreground">{label}</Label>
+        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
           {value}
           {suffix}
         </span>
       </div>
+
       <Slider
         value={[value]}
         min={min}

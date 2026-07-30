@@ -487,6 +487,8 @@ html.screen-masked body {
    --------------------------------------------------------------- */
 
 html {
+  /* Slightly compact global type scale (rem-based utilities shrink with it). */
+  font-size: 15px;
   /* Let the browser drive high refresh-rate scrolling and avoid
      text-size adjust reflows on rotation. */
   -webkit-text-size-adjust: 100%;
