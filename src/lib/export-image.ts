@@ -31,19 +31,23 @@ export async function encodeImage(
   pngDataUrl: string,
   format: ExportFormat,
   quality: number,
+  scale = 1,
 ): Promise<string> {
-  if (format === 'png') return pngDataUrl
+  if (format === 'png' && scale === 1) return pngDataUrl
   const img = await loadImage(pngDataUrl)
   const canvas = document.createElement('canvas')
-  canvas.width = img.naturalWidth
-  canvas.height = img.naturalHeight
+  canvas.width = Math.round(img.naturalWidth * scale)
+  canvas.height = Math.round(img.naturalHeight * scale)
   const ctx = canvas.getContext('2d')
   if (!ctx) return pngDataUrl
   if (format === 'jpeg') {
     ctx.fillStyle = '#ffffff'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
   }
-  ctx.drawImage(img, 0, 0)
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+  if (format === 'png') return canvas.toDataURL('image/png')
   return canvas.toDataURL(`image/${format}`, Math.min(1, Math.max(0.01, quality / 100)))
 }
 
