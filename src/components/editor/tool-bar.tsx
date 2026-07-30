@@ -17,6 +17,12 @@ import {
   toggleFavorite,
 } from '@/lib/custom-fonts'
 import { listRecentFonts, recordRecentFont, subscribeRecents } from '@/lib/recents'
+import { GoogleFontsPanel } from './google-fonts-panel'
+import {
+  ensureGoogleFontsLoaded,
+  listInstalledGoogleFonts,
+  subscribeGoogleFonts,
+} from '@/lib/google-fonts'
 import {
   AlignCenter,
   Circle,
@@ -620,11 +626,14 @@ function FontPicker({
 
   useEffect(() => {
     ensureCustomFontsLoaded()
+    void ensureGoogleFontsLoaded()
     const offFonts = subscribeFonts(() => force((n) => n + 1))
     const offRecents = subscribeRecents(() => force((n) => n + 1))
+    const offGoogle = subscribeGoogleFonts(() => force((n) => n + 1))
     return () => {
       offFonts()
       offRecents()
+      offGoogle()
     }
   }, [])
 
@@ -644,6 +653,11 @@ function FontPicker({
       myanmar: true,
       customId: c.id,
     })),
+    ...listInstalledGoogleFonts().map((family) => ({
+      key: `gf:${family}`,
+      label: family,
+      myanmar: false,
+    })),
   ]
 
   const items =
@@ -653,7 +667,12 @@ function FontPicker({
         ? all.filter((f) => favs.includes(f.key))
         : group === 'custom'
           ? all.filter((f) => f.customId)
-          : all.filter((f) => !f.customId && groupOf(FONTS.find((x) => x.key === f.key)!.category) === group)
+          : all.filter(
+              (f) =>
+                !f.customId &&
+                !f.key.startsWith('gf:') &&
+                groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
+            )
 
 
   return (
@@ -758,7 +777,7 @@ function FontPicker({
       {group === 'google' && (
         <GoogleFontsPanel
           activeKey={layer.fontKey}
-          onPick={(key) => {
+          onPick={(key: string) => {
             recordRecentFont(key)
             onChange({ fontKey: key })
           }}
