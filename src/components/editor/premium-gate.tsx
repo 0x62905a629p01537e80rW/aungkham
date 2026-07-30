@@ -71,7 +71,7 @@ export function PremiumGate({
   useEffect(() => {
     if (!requested) return
     onClear()
-    if (isPro || !usesPremiumFont(layers)) {
+    if (isPro || !usesPremiumFeature(layers)) {
       onProceed()
       return
     }
