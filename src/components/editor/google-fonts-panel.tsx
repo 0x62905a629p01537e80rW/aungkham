@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Download, Loader2, Search, Trash2, WifiOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ColorPickerPopover } from './color-picker'
 import {
   GOOGLE_FONTS,
   googleCssFamily,
@@ -8,21 +9,13 @@ import {
   installGoogleFont,
   isGoogleFontInstalled,
   listInstalledGoogleFonts,
+  nearestWeight,
+  preloadGoogleFontPreview,
   removeGoogleFont,
   subscribeGoogleFonts,
 } from '@/lib/google-fonts'
 
-const CATEGORIES = ['all', 'sans-serif', 'serif', 'display', 'handwriting', 'monospace'] as const
-type Cat = (typeof CATEGORIES)[number]
-
-const CAT_LABEL: Record<Cat, string> = {
-  all: 'All',
-  'sans-serif': 'Sans',
-  serif: 'Serif',
-  display: 'Display',
-  handwriting: 'Script',
-  monospace: 'Mono',
-}
+const WEIGHTS = [300, 400, 500, 600, 700, 800, 900]
 
 export function GoogleFontsPanel({
   activeKey,
@@ -32,7 +25,6 @@ export function GoogleFontsPanel({
   onPick: (fontKey: string) => void
 }) {
   const [query, setQuery] = useState('')
-  const [cat, setCat] = useState<Cat>('all')
   const [onlyInstalled, setOnlyInstalled] = useState(false)
   const [limit, setLimit] = useState(60)
   const [busy, setBusy] = useState<string | null>(null)
@@ -40,23 +32,44 @@ export function GoogleFontsPanel({
   const [, force] = useState(0)
   const scrollRef = useRef<HTMLDivElement>(null)
 
+  // live preview settings
+  const [sample, setSample] = useState('')
+  const [size, setSize] = useState(20)
+  const [weight, setWeight] = useState(400)
+  const [color, setColor] = useState('#ffffff')
+
   useEffect(() => subscribeGoogleFonts(() => force((n) => n + 1)), [])
-  useEffect(() => setLimit(60), [query, cat, onlyInstalled])
+  useEffect(() => setLimit(60), [query, onlyInstalled])
 
   const installed = listInstalledGoogleFonts()
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
     return GOOGLE_FONTS.filter((f) => {
-      if (cat !== 'all' && f.c !== cat) return false
       if (onlyInstalled && !installed.includes(f.f)) return false
       if (q && !f.f.toLowerCase().includes(q)) return false
       return true
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, cat, onlyInstalled, installed.join('|')])
+  }, [query, onlyInstalled, installed.join('|')])
 
   const shown = results.slice(0, limit)
+
+  // fetch preview CSS for what's on screen so samples render before download
+  useEffect(() => {
+    const byWeight = new Map<number, string[]>()
+    for (const f of shown) {
+      const w = nearestWeight(f.w, weight)
+      const arr = byWeight.get(w) || []
+      arr.push(f.f)
+      byWeight.set(w, arr)
+    }
+    const id = window.setTimeout(() => {
+      byWeight.forEach((families, w) => preloadGoogleFontPreview(families, w))
+    }, 120)
+    return () => window.clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shown.map((f) => f.f).join('|'), weight])
 
   async function use(family: string) {
     setError(null)
@@ -92,39 +105,79 @@ export function GoogleFontsPanel({
         />
       </div>
 
-      <div className="-mx-1 flex gap-1.5 overflow-x-auto perf-scroll px-1 pb-1 [scrollbar-width:none]">
-        {CATEGORIES.map((c) => (
+      {/* live preview controls */}
+      <div className="space-y-2 rounded-2xl border border-border/60 bg-foreground/5 p-2.5">
+        <div className="flex items-center gap-2">
+          <input
+            value={sample}
+            onChange={(e) => setSample(e.target.value)}
+            placeholder="Type sample text…"
+            className="min-w-0 flex-1 rounded-xl border border-border/60 bg-background/40 px-2.5 py-1.5 text-xs outline-none placeholder:text-muted-foreground"
+          />
+          <ColorPickerPopover value={color} onChange={setColor}>
+            <button
+              type="button"
+              aria-label="Preview color"
+              className="relative size-8 shrink-0 overflow-hidden rounded-xl border border-border shadow-sm"
+            >
+              <span className="absolute inset-0" style={{ backgroundColor: color }} />
+            </button>
+          </ColorPickerPopover>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Size
+          </span>
+          <input
+            type="range"
+            min={12}
+            max={48}
+            step={1}
+            value={size}
+            onChange={(e) => setSize(Number(e.target.value))}
+            className="h-1 min-w-0 flex-1 accent-primary"
+          />
+          <span className="w-7 shrink-0 text-right font-mono text-[10px] tabular-nums text-muted-foreground">
+            {size}
+          </span>
+        </div>
+
+        <div className="-mx-0.5 flex gap-1 overflow-x-auto perf-scroll px-0.5 [scrollbar-width:none]">
+          {WEIGHTS.map((w) => (
+            <button
+              key={w}
+              type="button"
+              onClick={() => setWeight(w)}
+              className={cn(
+                'shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold transition active:scale-95',
+                weight === w
+                  ? 'bg-primary text-primary-foreground'
+                  : 'border border-border/60 bg-background/40 text-foreground/70',
+              )}
+            >
+              {w}
+            </button>
+          ))}
           <button
-            key={c}
             type="button"
-            onClick={() => setCat(c)}
+            onClick={() => setOnlyInstalled((v) => !v)}
             className={cn(
-              'shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold transition active:scale-95',
-              cat === c
+              'ml-auto shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold transition active:scale-95',
+              onlyInstalled
                 ? 'bg-primary text-primary-foreground'
-                : 'border border-border/60 bg-foreground/5 text-foreground/70',
+                : 'border border-border/60 bg-background/40 text-foreground/70',
             )}
           >
-            {CAT_LABEL[c]}
+            Downloaded ({installed.length})
           </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => setOnlyInstalled((v) => !v)}
-          className={cn(
-            'shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold transition active:scale-95',
-            onlyInstalled
-              ? 'bg-primary text-primary-foreground'
-              : 'border border-border/60 bg-foreground/5 text-foreground/70',
-          )}
-        >
-          Downloaded ({installed.length})
-        </button>
+        </div>
       </div>
 
       <p className="flex items-center gap-1.5 text-[10px] leading-snug text-muted-foreground">
         <WifiOff className="size-3 shrink-0" />
-        Tap a font to download it once — it is saved in the app and works offline after that.
+        Preview any font live, then tap to download it once — it is saved in the app and works
+        offline after that.
       </p>
 
       {error && (
@@ -147,6 +200,7 @@ export function GoogleFontsPanel({
           const key = googleFontKey(f.f)
           const has = installed.includes(f.f)
           const active = activeKey === key
+          const w = nearestWeight(f.w, weight)
           return (
             <div
               key={f.f}
@@ -155,19 +209,20 @@ export function GoogleFontsPanel({
                 active ? 'border-primary bg-primary/10' : 'border-border/60 bg-foreground/5',
               )}
             >
-              <button
-                type="button"
-                onClick={() => use(f.f)}
-                className="min-w-0 flex-1 text-left"
-              >
+              <button type="button" onClick={() => use(f.f)} className="min-w-0 flex-1 text-left">
                 <span
-                  className="block truncate text-[15px] leading-tight text-foreground"
-                  style={has ? { fontFamily: `'${googleCssFamily(f.f)}', sans-serif` } : undefined}
+                  className="block truncate leading-tight"
+                  style={{
+                    fontFamily: `'${googleCssFamily(f.f)}', '${f.f}', sans-serif`,
+                    fontSize: size,
+                    fontWeight: w,
+                    color,
+                  }}
                 >
-                  {f.f}
+                  {sample.trim() || f.f}
                 </span>
                 <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
-                  {CAT_LABEL[(f.c as Cat) in CAT_LABEL ? (f.c as Cat) : 'all']}
+                  {f.f}
                   {f.s.includes('myanmar') ? ' • မြန်မာ' : ''}
                 </span>
               </button>
