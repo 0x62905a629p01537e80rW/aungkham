@@ -295,6 +295,41 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
 
   const stageBg = bgMode === 'checker' ? 'checker-grid' : bgMode === 'white' ? 'bg-white' : 'bg-black'
 
+  /** Magic wand dwell: erase only after the finger rests ~0.5s on a spot. */
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const holdAt = useRef<{ x: number; y: number } | null>(null)
+
+  const cancelMagicHold = () => {
+    if (holdTimer.current) clearTimeout(holdTimer.current)
+    holdTimer.current = null
+    holdAt.current = null
+  }
+
+  const scheduleMagic = (clientX: number, clientY: number) => {
+    cancelMagicHold()
+    holdAt.current = { x: clientX, y: clientY }
+    holdTimer.current = setTimeout(() => {
+      holdTimer.current = null
+      const p = toImageCoords(clientX, clientY)
+      const ctx = ctxOf()
+      const canvas = canvasRef.current
+      if (!p || !ctx || !canvas || !drawing.current) return
+      const base = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      baseRef.current = new ImageData(new Uint8ClampedArray(base.data), base.width, base.height)
+      undoStack.current.push(base)
+      if (undoStack.current.length > HISTORY_LIMIT) undoStack.current.shift()
+      redoStack.current = []
+      sync()
+      const data = new ImageData(new Uint8ClampedArray(base.data), base.width, base.height)
+      magicErase(data, p.x, p.y, tolerance)
+      ctx.putImageData(data, 0, 0)
+      setPending({ kind: 'magic', x: p.x, y: p.y })
+      lastPoint.current = p
+    }, 500)
+  }
+
+  useEffect(() => cancelMagicHold, [])
+
   const onDown = (e: React.PointerEvent) => {
     if (phase === 'smooth') return
     ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
@@ -330,10 +365,10 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     }
     if (tool === 'magic') {
       setCursor({ x: e.clientX, y: e.clientY })
-      startOp({ kind: 'magic', x: p.x, y: p.y })
-      // keep erasing live while the finger stays down and moves
+      // erase only after the finger dwells on the spot for ~0.5s
       drawing.current = true
       lastPoint.current = p
+      scheduleMagic(e.clientX, e.clientY)
       return
     }
     if (tool === 'auto') return
@@ -379,22 +414,12 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     }
     if (!drawing.current) return
 
-    // Magic wand: keep flooding new areas live as the tip travels.
+    // Magic wand: restart the 0.5s dwell whenever the finger moves off the spot.
     if (tool === 'magic') {
-      const p = toImageCoords(e.clientX, e.clientY)
-      const ctx = ctxOf()
-      const canvas = canvasRef.current
-      if (!p || !ctx || !canvas) return
-      const last = lastPoint.current
-      const minStep = Math.max(2, Math.max(canvas.width, canvas.height) * 0.006)
-      if (last && Math.hypot(p.x - last.x, p.y - last.y) < minStep) return
-      const base = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      baseRef.current = new ImageData(new Uint8ClampedArray(base.data), base.width, base.height)
-      const data = new ImageData(new Uint8ClampedArray(base.data), base.width, base.height)
-      magicErase(data, p.x, p.y, tolerance)
-      ctx.putImageData(data, 0, 0)
-      setPending({ kind: 'magic', x: p.x, y: p.y })
-      lastPoint.current = p
+      const anchor = holdAt.current
+      if (!anchor || Math.hypot(e.clientX - anchor.x, e.clientY - anchor.y) > 8) {
+        scheduleMagic(e.clientX, e.clientY)
+      }
       return
     }
 
@@ -414,6 +439,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
   const onUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId)
     if (pointers.current.size < 2) pinch.current = null
+    cancelMagicHold()
     drawing.current = false
     lastPoint.current = null
     if (tool !== 'magic') setCursor(null)
@@ -752,7 +778,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
             <p className="text-sm font-semibold">How to use</p>
             <p><b>AI-Auto</b> — removes the outer background in one tap.</p>
             <p><b>Auto-Color</b> — tap a color to erase it everywhere; drag the threshold to fine-tune.</p>
-            <p><b>Magic</b> — tap an area to erase connected pixels of a similar color.</p>
+            <p><b>Magic</b> — hold on an area for about half a second to erase connected pixels of a similar color; keep holding elsewhere to continue.</p>
             <p><b>Manual / Repair</b> — brush to erase or bring pixels back.</p>
             <p><b>Zoom</b> — drag to pan, pinch or use +/− to zoom.</p>
             <p><b>Done</b> — go to Smooth Edge, pick 0–5, then Save.</p>
