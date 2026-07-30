@@ -385,9 +385,10 @@ export function Editor() {
   }
 
 
-  function applyTemplate(tpl: TextLayer[]) {
-    const bg = makeSolidDataUrl('#ffffff')
+  function applyTemplate(tpl: TextLayer[], bgSrc?: string) {
+    const bg = bgSrc ?? makeSolidDataUrl('#ffffff')
     const img = new Image()
+    img.crossOrigin = 'anonymous'
     img.onload = () => {
       setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
       setImage(bg)

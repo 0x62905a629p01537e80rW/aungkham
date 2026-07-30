@@ -9,7 +9,7 @@ import type { TextLayer } from '@/lib/text-layer'
 interface TemplatePickerProps {
   open: boolean
   onClose: () => void
-  onApply: (layers: TextLayer[]) => void
+  onApply: (layers: TextLayer[], bg?: string) => void
 }
 
 const THUMB_BG = [
@@ -35,7 +35,11 @@ function TemplateThumb({ template, bg }: { template: TemplateDef; bg: string }) 
   return (
     <div
       className="relative h-full w-full overflow-hidden rounded-xl"
-      style={{ containerType: 'size', lineHeight: 0, background: bg }}
+      style={{
+        containerType: 'size',
+        lineHeight: 0,
+        background: template.bg ? `center / cover no-repeat url(${template.bg})` : bg,
+      }}
     >
       {layers.map((layer) => (
         <div
@@ -60,7 +64,7 @@ export function TemplateGallery({
   onApply,
   className,
 }: {
-  onApply: (layers: TextLayer[]) => void
+  onApply: (layers: TextLayer[], bg?: string) => void
   className?: string
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
@@ -106,7 +110,7 @@ export function TemplateGallery({
                 key={t.id}
                 type="button"
                 aria-label={t.name}
-                onClick={() => onApply(t.build())}
+                onClick={() => onApply(t.build(), t.bg)}
                 className="glass-tile w-full overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
               >
                 <div className="aspect-[16/9] w-full">
@@ -140,8 +144,8 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
 
       <TemplateGallery
         className="px-3 pt-2"
-        onApply={(layers) => {
-          onApply(layers)
+        onApply={(layers, bg) => {
+          onApply(layers, bg)
           onClose()
         }}
       />
