@@ -63,6 +63,13 @@ const DICT = {
     'discard.cancel': 'Keep editing',
     'discard.confirm': 'Discard & exit',
 
+    'resize.title': 'Resize',
+    'resize.keepAspect': 'Keep Aspect Ratio',
+    'resize.width': 'Width',
+    'resize.height': 'Height',
+    'resize.cancel': 'Cancel',
+    'resize.ok': 'OK',
+
     'template.apply.title': 'Apply template',
     'template.apply.desc': 'Do you want to replace the background with this template, or keep the current background and apply only the text styles?',
     'template.apply.replace': 'Replace background',
