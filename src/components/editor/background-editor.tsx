@@ -462,7 +462,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             </div>
 
             {/* 3. Background — one row of choices */}
-            <div>
+            <div className={dimWhenDragging}>
               <p className="mb-2 text-[11px] font-semibold text-muted-foreground">Background</p>
               <div className="flex gap-2 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <button
