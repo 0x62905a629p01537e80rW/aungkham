@@ -672,7 +672,10 @@ function FontPicker({
             active={layer.fontKey === f.key}
             fav={favs.includes(f.key)}
             locked={false}
-            onSelect={() => onChange({ fontKey: f.key })}
+            onSelect={() => {
+              onChange({ fontKey: f.key })
+              onClose?.()
+            }}
             onFav={() => toggleFavorite(f.key)}
             onDelete={
               f.customId
