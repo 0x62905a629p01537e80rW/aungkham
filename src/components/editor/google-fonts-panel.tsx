@@ -147,7 +147,6 @@ export function GoogleFontsPanel({
                     fontFamily: `'${googleCssFamily(f.f)}', '${f.f}', sans-serif`,
                     fontSize: size,
                     fontWeight: w,
-                    color,
                   }}
                 >
                   {f.f}
