@@ -217,9 +217,14 @@ export function ColorPickerPanel({
 
 
   const pills = useMemo(() => {
+    const isGrad = (c: string) => c.includes('gradient')
+    const base =
+      mode === 'gradient'
+        ? [...recents.filter(isGrad), ...QUICK_GRADIENTS]
+        : [...recents.filter((c) => !isGrad(c)), ...QUICK_SWATCHES]
     const seen = new Set<string>()
     const out: string[] = []
-    for (const c of [...recents, ...QUICK_SWATCHES]) {
+    for (const c of base) {
       const k = c.toLowerCase()
       if (seen.has(k)) continue
       seen.add(k)
@@ -227,7 +232,7 @@ export function ColorPickerPanel({
       if (out.length === 20) break
     }
     return out
-  }, [recents])
+  }, [recents, mode])
 
 
   const rgb = useMemo(() => hsvToRgb(h, s, v), [h, s, v])
