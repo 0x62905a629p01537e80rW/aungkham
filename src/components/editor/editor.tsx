@@ -349,7 +349,7 @@ export function Editor() {
 
       <EditorHeader
         hasImage={!!image}
-        onNewImage={resetAll}
+        onNewImage={requestExit}
         onNext={() => setNextRequested(true)}
         showGrid={showGrid}
         onToggleGrid={() => setShowGrid((v) => !v)}
