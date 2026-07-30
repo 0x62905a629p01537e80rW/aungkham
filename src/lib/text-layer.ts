@@ -116,7 +116,7 @@ export interface FontOption {
   key: string
   label: string
   cssVar: string
-  category: 'Sans' | 'Serif' | 'Display' | 'Script' | 'Myanmar' | 'Myanmar Pro'
+  category: 'Sans' | 'Serif' | 'Display' | 'Script' | 'Myanmar' | 'Myanmar Pro' | 'English Pro'
 }
 
 export const FONTS: FontOption[] = [
