@@ -1110,7 +1110,9 @@ function ToolContent({
           <ColorPickerPanel
             value={currentValue}
             allowGradient
+            collapsibleArea
             initialMode={layer.fillType === 'gradient' ? 'gradient' : 'solid'}
+
             onChange={(v) => {
               const parsed = parseGradient(v)
               if (parsed) {
