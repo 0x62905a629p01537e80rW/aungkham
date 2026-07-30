@@ -218,7 +218,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto perf-scroll bg-background text-foreground animate-fade-in">
       <div
-        className="glass-panel sticky top-0 z-10 flex items-center gap-2.5 rounded-none border-0 px-3 pb-2.5 pt-4"
+        className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-border/60 bg-background px-3 pb-3 pt-4"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
       >
         <button
@@ -247,7 +247,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
 
       </div>
 
-      <div className="px-4 pb-14">
+      <div className="px-4 pb-14 pt-4">
         <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-primary/5 p-4 text-center">
           {pricing.promoLabel && (
             <span className="absolute left-0 top-0 rounded-br-2xl bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[10px] font-extrabold text-white">
