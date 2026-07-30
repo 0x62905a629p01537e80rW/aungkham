@@ -928,8 +928,6 @@ function TexturePanel({
   layer: TextLayer
   onChange: (patch: Partial<TextLayer>) => void
 }) {
-  const { isPro } = useAuth()
-  const [pay, setPay] = useState(false)
   const [dragging, setDragging] = useState<TextureSlider | null>(null)
   const [peek, setPeek] = useState(false)
   const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
