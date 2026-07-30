@@ -78,6 +78,9 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
   const [view, setView] = useState({ scale: 1, tx: 0, ty: 0 })
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null)
   const lastPoint = useRef<{ x: number; y: number } | null>(null)
+  /** Magic wand dwell: erase only after the finger rests ~0.5s on a spot. */
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const holdAt = useRef<{ x: number; y: number } | null>(null)
 
   const changeOffset = (v: number) => {
     setOffsetY(v)
@@ -282,6 +285,16 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     onClose()
   }
 
+  // Cleanup must be registered before any early return so hook order stays stable.
+  useEffect(
+    () => () => {
+      if (holdTimer.current) clearTimeout(holdTimer.current)
+      holdTimer.current = null
+      holdAt.current = null
+    },
+    [],
+  )
+
   if (!open || typeof document === 'undefined') return null
 
   const tools: { key: Tool; label: string; icon: typeof Wand2 }[] = [
@@ -295,9 +308,6 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
 
   const stageBg = bgMode === 'checker' ? 'checker-grid' : bgMode === 'white' ? 'bg-white' : 'bg-black'
 
-  /** Magic wand dwell: erase only after the finger rests ~0.5s on a spot. */
-  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const holdAt = useRef<{ x: number; y: number } | null>(null)
 
   const cancelMagicHold = () => {
     if (holdTimer.current) clearTimeout(holdTimer.current)
@@ -328,7 +338,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     }, 500)
   }
 
-  useEffect(() => cancelMagicHold, [])
+  
 
   const onDown = (e: React.PointerEvent) => {
     if (phase === 'smooth') return
