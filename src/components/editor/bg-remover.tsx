@@ -175,69 +175,44 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     }
   }
 
-  /** Paint one dab, or a continuous segment when a previous point exists. */
-  const brush = (x: number, y: number, from?: { x: number; y: number } | null) => {
+  /** Paint one dab at image coords. */
+  const dab = (x: number, y: number) => {
     const ctx = ctxOf()
-    const canvas = canvasRef.current
-    if (!ctx || !canvas) return
+    if (!ctx) return
     const radius = radiusPx()
-    const path = new Path2D()
-    if (from) {
-      path.moveTo(from.x, from.y)
-      path.lineTo(x, y)
-    }
-    path.moveTo(x + radius, y)
-    path.arc(x, y, radius, 0, Math.PI * 2)
-
     if (tool === 'repair') {
       const orig = originalRef.current
       if (!orig) return
       ctx.save()
-      if (from) {
-        ctx.lineWidth = radius * 2
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round'
-      }
       ctx.beginPath()
-      ctx.clip(path)
-      if (from) {
-        // Clip covers the dab; widen with a stroked band for the segment.
-        ctx.restore()
-        ctx.save()
-        ctx.beginPath()
-        ctx.moveTo(from.x, from.y)
-        ctx.lineTo(x, y)
-        ctx.lineWidth = radius * 2
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round'
-        ctx.strokeStyle = '#000'
-        ctx.save()
-        ctx.clip(path)
-        ctx.drawImage(orig, 0, 0)
-        ctx.restore()
-        ctx.restore()
-        return
-      }
+      ctx.arc(x, y, radius, 0, Math.PI * 2)
+      ctx.clip()
       ctx.drawImage(orig, 0, 0)
       ctx.restore()
       return
     }
-
     ctx.save()
     ctx.globalCompositeOperation = 'destination-out'
-    if (from) {
-      ctx.lineWidth = radius * 2
-      ctx.lineCap = 'round'
-      ctx.lineJoin = 'round'
-      ctx.beginPath()
-      ctx.moveTo(from.x, from.y)
-      ctx.lineTo(x, y)
-      ctx.stroke()
-    }
     ctx.beginPath()
     ctx.arc(x, y, radius, 0, Math.PI * 2)
     ctx.fill()
     ctx.restore()
+  }
+
+  /** Paint a continuous stroke by interpolating dabs between two points. */
+  const brush = (x: number, y: number, from?: { x: number; y: number } | null) => {
+    if (!from) {
+      dab(x, y)
+      return
+    }
+    const step = Math.max(1, radiusPx() * 0.3)
+    const dist = Math.hypot(x - from.x, y - from.y)
+    const steps = Math.min(400, Math.ceil(dist / step))
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps
+      dab(from.x + (x - from.x) * t, from.y + (y - from.y) * t)
+    }
+    if (steps === 0) dab(x, y)
   }
 
   const undo = () => {
