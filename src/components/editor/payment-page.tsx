@@ -423,13 +423,6 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                     </p>
                   </div>
                 )
-
-                    <p className="text-[11px] text-muted-foreground">
-                      Send only USDT on the selected network. Wrong-network transfers cannot be
-                      recovered.
-                    </p>
-                  </div>
-                )
               ) : null}
             </div>
 
