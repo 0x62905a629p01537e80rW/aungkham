@@ -747,25 +747,6 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               outlineOffset: `${5 * inv}px`,
             }
 
-            const mirror = (v: number | string) => (v === 0 ? '100%' : v === '100%' ? 0 : v)
-            const wS = (layer.widthScale ?? 100) / 100
-            const hS = (layer.heightScale ?? 100) / 100
-            const negW = wS < 0
-            const negH = hS < 0
-            const flipX = layer.flipH !== negW
-            const flipY = layer.flipV !== negH
-            const hx = (v: number | string) => (flipX ? mirror(v) : v)
-            const hy = (v: number | string) => (flipY ? mirror(v) : v)
-            const sx = flipX ? -1 : 1
-            const sy = flipY ? -1 : 1
-            const aw = Math.max(0.1, Math.abs(wS))
-            const ah = Math.max(0.1, Math.abs(hS))
-            const OFF = 22 * inv
-            // Keeps handles outside the selection frame, upright and constant size.
-            const hTr = (ox: number, oy: number) =>
-              `translate(calc(-50% + ${(ox * sx * OFF) / aw}px), calc(-50% + ${(oy * sy * OFF) / ah}px)) scale(${(inv * sx) / aw}, ${(inv * sy) / ah})`
-
-
             const textStyle = layerTextStyle(layer)
             const inner = <LayerText layer={layer} />
 
@@ -774,9 +755,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               <div
                 key={layer.id}
                 style={wrapperStyle}
-                className={cn(
-                  isSelected ? 'outline-solid outline-foreground/60' : 'outline-transparent',
-                )}
+                className="outline-transparent"
+
 
                 onPointerDown={(e) => handlePointerDown(e, layer.id)}
                 onPointerMove={handlePointerMove}
