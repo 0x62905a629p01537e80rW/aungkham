@@ -116,7 +116,10 @@ export function TemplateGallery({
             size="sm"
             value={group}
             onChange={(g) => setGroup(g as typeof group)}
-            items={TEMPLATE_GROUPS.map((g) => ({ key: g, label: g }))}
+            items={TEMPLATE_GROUPS.filter((g) => !(lang === 'EN' && g === 'New')).map((g) => ({
+              key: g,
+              label: g,
+            }))}
           />
         </div>
       </div>
