@@ -49,7 +49,7 @@ export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundPr
           <button
             type="button"
             onClick={() => galleryRef.current?.click()}
-            className="flex h-13 w-full items-center justify-center gap-2.5 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition active:scale-[0.98]"
+            className="glass-cta flex h-13 w-full items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold active:scale-[0.98]"
           >
             <ImageIcon className="size-5" />
             Choose from Library
