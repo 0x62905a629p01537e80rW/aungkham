@@ -474,6 +474,205 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
 
 
+    /**
+     * Selection frame + handles for the active layer. Rendered in an unmasked
+     * container so the erase mask never hides the controls.
+     */
+    function renderChrome(layer: TextLayer) {
+      const inv = 1 / view.scale
+      const mirror = (v: number | string) => (v === 0 ? '100%' : v === '100%' ? 0 : v)
+      const wS = (layer.widthScale ?? 100) / 100
+      const hS = (layer.heightScale ?? 100) / 100
+      const negW = wS < 0
+      const negH = hS < 0
+      const flipX = layer.flipH !== negW
+      const flipY = layer.flipV !== negH
+      const hx = (v: number | string) => (flipX ? mirror(v) : v)
+      const hy = (v: number | string) => (flipY ? mirror(v) : v)
+      const sx = flipX ? -1 : 1
+      const sy = flipY ? -1 : 1
+      const aw = Math.max(0.1, Math.abs(wS))
+      const ah = Math.max(0.1, Math.abs(hS))
+      const OFF = 22 * inv
+      const hTr = (ox: number, oy: number) =>
+        `translate(calc(-50% + ${(ox * sx * OFF) / aw}px), calc(-50% + ${(oy * sy * OFF) / ah}px)) scale(${(inv * sx) / aw}, ${(inv * sy) / ah})`
+
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            left: `${layer.x}%`,
+            top: `${layer.y}%`,
+            transform: layerTransform(layer),
+            whiteSpace: 'nowrap',
+            cursor: 'move',
+            touchAction: 'none',
+            outlineWidth: `${1 * inv}px`,
+            outlineOffset: `${5 * inv}px`,
+          }}
+          className="outline-solid outline-foreground/60"
+          onPointerDown={(e) => handlePointerDown(e, layer.id)}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onDoubleClick={(e) => {
+            e.stopPropagation()
+            if (layer.graphic) return
+            setEditingId(layer.id)
+          }}
+        >
+          <span style={{ visibility: 'hidden' }}>
+            <LayerText layer={layer} />
+          </span>
+                    <button
+                      type="button"
+                      aria-label="Delete text"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDelete(layer.id)
+                      }}
+                      style={{ left: hx(0), top: hy(0), transform: hTr(-1, -1) }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      <X className="size-4" strokeWidth={2.25} />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Edit text"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setEditingId(layer.id)
+                      }}
+                      style={{ left: hx(0), top: hy('100%'), transform: hTr(-1, 1) }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      <Pencil className="size-4" strokeWidth={2.25} />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Resize text"
+                      onPointerDown={(e) => handleResizeDown(e, layer)}
+                      onPointerMove={handleResizeMove}
+                      onPointerUp={handleResizeUp}
+                      onPointerCancel={handleResizeUp}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        cursor: 'nwse-resize',
+                        touchAction: 'none',
+                        left: hx('100%'),
+                        top: hy('100%'),
+                        transform: hTr(1, 1),
+                      }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      <MoveDiagonal2 className="size-4" strokeWidth={2.25} />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Rotate text"
+                      onPointerDown={(e) => handleRotateDown(e, layer)}
+                      onPointerMove={handleRotateMove}
+                      onPointerUp={handleRotateUp}
+                      onPointerCancel={handleRotateUp}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        cursor: 'grab',
+                        touchAction: 'none',
+                        left: hx('100%'),
+                        top: hy(0),
+                        transform: hTr(1, -1),
+                      }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      <RotateCw className="size-4" strokeWidth={2.25} />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Stretch horizontally"
+                      onPointerDown={(e) => handleStretchDown(e, layer, 'x')}
+                      onPointerMove={handleStretchMove}
+                      onPointerUp={handleStretchUp}
+                      onPointerCancel={handleStretchUp}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        cursor: 'ew-resize',
+                        touchAction: 'none',
+                        left: hx(0),
+                        top: hy('50%'),
+                        transform: hTr(-1, 0),
+                      }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      <MoveHorizontal className="size-4" strokeWidth={2.25} />
+                    </button>
+
+
+                    <button
+                      type="button"
+                      aria-label="Duplicate text"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDuplicate?.(layer.id)
+                      }}
+                      style={{ left: hx('50%'), top: hy('100%'), transform: hTr(0, 1) }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      <CopyPlus className="size-4" strokeWidth={2.25} />
+                    </button>
+
+                    <button
+                      type="button"
+                      aria-label="Stretch vertically"
+                      onPointerDown={(e) => handleStretchDown(e, layer, 'y')}
+                      onPointerMove={handleStretchMove}
+                      onPointerUp={handleStretchUp}
+                      onPointerCancel={handleStretchUp}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        cursor: 'ns-resize',
+                        touchAction: 'none',
+                        left: hx('50%'),
+                        top: hy(0),
+                        transform: hTr(0, -1),
+                      }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      <MoveVertical className="size-4" strokeWidth={2.25} />
+                    </button>
+
+                    {stretchHud && stretchHud.id === layer.id && (
+                      <span
+                        className="glass-tile pointer-events-none absolute rounded-full px-2 py-0.5 text-[11px] font-semibold canvas-handle-icon"
+                        style={{
+                          left: '50%',
+                          top: 0,
+                          transform: `translate(-50%, -160%) scale(${inv})`,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {stretchHud.axis === 'x' ? 'X' : 'Y'}: {stretchHud.value}%
+                      </span>
+                    )}
+        </div>
+      )
+    }
+
+
     return (
       <div
         ref={ref}
@@ -622,155 +821,6 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                   />
                 )}
 
-                {isSelected && !isEditing && (
-                  <>
-                    <button
-                      type="button"
-                      aria-label="Delete text"
-                      onPointerDown={(e) => {
-                        e.stopPropagation()
-                        e.preventDefault()
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onDelete(layer.id)
-                      }}
-                      style={{ left: hx(0), top: hy(0), transform: hTr(-1, -1) }}
-                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
-                    >
-                      <X className="size-4" strokeWidth={2.25} />
-                    </button>
-
-                    <button
-                      type="button"
-                      aria-label="Edit text"
-                      onPointerDown={(e) => {
-                        e.stopPropagation()
-                        e.preventDefault()
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setEditingId(layer.id)
-                      }}
-                      style={{ left: hx(0), top: hy('100%'), transform: hTr(-1, 1) }}
-                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
-                    >
-                      <Pencil className="size-4" strokeWidth={2.25} />
-                    </button>
-
-                    <button
-                      type="button"
-                      aria-label="Resize text"
-                      onPointerDown={(e) => handleResizeDown(e, layer)}
-                      onPointerMove={handleResizeMove}
-                      onPointerUp={handleResizeUp}
-                      onPointerCancel={handleResizeUp}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        cursor: 'nwse-resize',
-                        touchAction: 'none',
-                        left: hx('100%'),
-                        top: hy('100%'),
-                        transform: hTr(1, 1),
-                      }}
-                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
-                    >
-                      <MoveDiagonal2 className="size-4" strokeWidth={2.25} />
-                    </button>
-
-                    <button
-                      type="button"
-                      aria-label="Rotate text"
-                      onPointerDown={(e) => handleRotateDown(e, layer)}
-                      onPointerMove={handleRotateMove}
-                      onPointerUp={handleRotateUp}
-                      onPointerCancel={handleRotateUp}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        cursor: 'grab',
-                        touchAction: 'none',
-                        left: hx('100%'),
-                        top: hy(0),
-                        transform: hTr(1, -1),
-                      }}
-                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
-                    >
-                      <RotateCw className="size-4" strokeWidth={2.25} />
-                    </button>
-
-                    <button
-                      type="button"
-                      aria-label="Stretch horizontally"
-                      onPointerDown={(e) => handleStretchDown(e, layer, 'x')}
-                      onPointerMove={handleStretchMove}
-                      onPointerUp={handleStretchUp}
-                      onPointerCancel={handleStretchUp}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        cursor: 'ew-resize',
-                        touchAction: 'none',
-                        left: hx(0),
-                        top: hy('50%'),
-                        transform: hTr(-1, 0),
-                      }}
-                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
-                    >
-                      <MoveHorizontal className="size-4" strokeWidth={2.25} />
-                    </button>
-
-
-                    <button
-                      type="button"
-                      aria-label="Duplicate text"
-                      onPointerDown={(e) => {
-                        e.stopPropagation()
-                        e.preventDefault()
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onDuplicate?.(layer.id)
-                      }}
-                      style={{ left: hx('50%'), top: hy('100%'), transform: hTr(0, 1) }}
-                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
-                    >
-                      <CopyPlus className="size-4" strokeWidth={2.25} />
-                    </button>
-
-                    <button
-                      type="button"
-                      aria-label="Stretch vertically"
-                      onPointerDown={(e) => handleStretchDown(e, layer, 'y')}
-                      onPointerMove={handleStretchMove}
-                      onPointerUp={handleStretchUp}
-                      onPointerCancel={handleStretchUp}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        cursor: 'ns-resize',
-                        touchAction: 'none',
-                        left: hx('50%'),
-                        top: hy(0),
-                        transform: hTr(0, -1),
-                      }}
-                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
-                    >
-                      <MoveVertical className="size-4" strokeWidth={2.25} />
-                    </button>
-
-                    {stretchHud && stretchHud.id === layer.id && (
-                      <span
-                        className="glass-tile pointer-events-none absolute rounded-full px-2 py-0.5 text-[11px] font-semibold canvas-handle-icon"
-                        style={{
-                          left: '50%',
-                          top: 0,
-                          transform: `translate(-50%, -160%) scale(${inv})`,
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {stretchHud.axis === 'x' ? 'X' : 'Y'}: {stretchHud.value}%
-                      </span>
-                    )}
-                  </>
-                )}
 
               </div>
             )
