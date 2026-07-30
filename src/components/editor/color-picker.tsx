@@ -274,8 +274,25 @@ export function ColorPickerPanel({
     }
   }
 
+  function pickPreset(c: string) {
+    const g = parseGradient(c)
+    if (g && allowGradient) {
+      setGradType(g.type)
+      setAngle(g.angle)
+      setStops(g.stops)
+      setActiveStop(0)
+      setMode('gradient')
+      applyColorToEditor(g.stops[0].color)
+    } else {
+      setMode('solid')
+      submitHex(c)
+    }
+    recordRecentColor(c)
+  }
+
   function addSwatch() {
     const entry = mode === 'gradient' ? gradientCss : hex
+    recordRecentColor(entry)
     setCustomSwatches((prev) => {
       const next = prev.includes(entry) ? prev : [entry, ...prev].slice(0, 20)
       try {
@@ -286,6 +303,7 @@ export function ColorPickerPanel({
       return next
     })
   }
+
 
   function selectStop(i: number) {
     setActiveStop(i)
