@@ -746,7 +746,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             />
           )}
 
-          <div className="absolute inset-0 overflow-hidden" style={maskStyle}>
+          <div className={`absolute inset-0 ${exporting ? 'overflow-hidden' : 'overflow-visible'}`} style={maskStyle}>
           {layers.filter((l) => !l.hidden).map((layer) => {
             const isEditing = editingId === layer.id && !exporting
             const inv = 1 / view.scale
