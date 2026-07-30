@@ -758,6 +758,11 @@ function FontPicker({
                   <Crown className="size-3" />
                   {g.label}
                 </span>
+              ) : g.key === 'custom' ? (
+                <span className="flex items-center gap-1">
+                  <Upload className="size-3" />
+                  {g.label}
+                </span>
               ) : (
                 g.label
               )}
