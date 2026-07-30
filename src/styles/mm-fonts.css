@@ -317,3 +317,33 @@
   src: url('/__l5e/assets-v1/d874390c-16bc-4e65-a8c1-e2fd67e0682b/beachday.otf') format('opentype');
   font-weight: 400; font-style: normal; font-display: swap;
 }
+@font-face {
+  font-family: 'EN_moldie';
+  src: url('/__l5e/assets-v1/ad793488-8be7-4561-912f-4c8010eaddee/moldie.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_child_hood';
+  src: url('/__l5e/assets-v1/11b767fc-9d03-43a4-b85b-c5cff582d1b7/child-hood.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_mochi_boom';
+  src: url('/__l5e/assets-v1/fd39145b-bb87-479a-8b1a-195810e11b3e/mochi-boom.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_mochi_boom_extrude';
+  src: url('/__l5e/assets-v1/e0781393-fc04-4609-b70d-b1a0193eadc8/mochi-boom-extrude.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_milkyway';
+  src: url('/__l5e/assets-v1/daa8d4e6-4581-4728-be35-cf8261175939/milkyway.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_talina';
+  src: url('/__l5e/assets-v1/305432b1-b076-4777-96e7-c8d6c931be98/talina.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}

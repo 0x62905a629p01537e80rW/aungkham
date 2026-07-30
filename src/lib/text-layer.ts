@@ -178,6 +178,12 @@ export const FONTS: FontOption[] = [
   { key: 'dream-kudos', label: 'Dream Kudos', cssVar: "'EN_dream_kudos'", category: 'English Pro' },
   { key: 'gladolia', label: 'Gladolia', cssVar: "'EN_gladolia'", category: 'English Pro' },
   { key: 'beachday', label: 'Beachday', cssVar: "'EN_beachday'", category: 'English Pro' },
+  { key: 'moldie', label: 'Moldie', cssVar: "'EN_moldie'", category: 'English Pro' },
+  { key: 'child-hood', label: 'Child Hood', cssVar: "'EN_child_hood'", category: 'English Pro' },
+  { key: 'mochi-boom', label: 'Mochi Boom', cssVar: "'EN_mochi_boom'", category: 'English Pro' },
+  { key: 'mochi-boom-extrude', label: 'Mochi Boom Extrude', cssVar: "'EN_mochi_boom_extrude'", category: 'English Pro' },
+  { key: 'milkyway', label: 'Milkyway', cssVar: "'EN_milkyway'", category: 'English Pro' },
+  { key: 'talina', label: 'Talina', cssVar: "'EN_talina'", category: 'English Pro' },
 ]
 
 export const FONT_CATEGORIES: FontOption['category'][] = [
