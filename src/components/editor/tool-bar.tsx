@@ -1895,7 +1895,12 @@ function LiquidPanel({
       onPointerCancel={() => setDragging(null)}
     >
       <div className={cn(fade, others, 'flex items-center justify-between')}>
-        <ToolHeading>Liquid glass</ToolHeading>
+        <span className="flex items-center gap-1.5">
+          <ToolHeading>Liquid glass</ToolHeading>
+          <span className="flex items-center gap-1 rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#3a2a05]">
+            <Crown className="size-2.5" /> Pro
+          </span>
+        </span>
         <button
           type="button"
           onClick={() => { quickPeek(); onChange({ liquidOn: !on }) }}
