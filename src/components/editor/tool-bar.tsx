@@ -211,6 +211,26 @@ export function ToolBar({
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
   const [cutoutOpen, setCutoutOpen] = useState(false)
   const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(null)
+
+  // Slide the liquid-glass indicator to the currently open tool
+  useEffect(() => {
+    if (!openTool) {
+      setPill(null)
+      return
+    }
+    let raf = 0
+    const measure = () => {
+      const el = toolRefs.current[openTool]
+      if (!el) {
+        raf = requestAnimationFrame(measure)
+        return
+      }
+      setPill({ left: el.offsetLeft, width: el.offsetWidth })
+    }
+    measure()
+    return () => cancelAnimationFrame(raf)
+  }, [openTool])
 
   const autoOpenRef = useRef<string | null>(null)
   const handledCbRef = useRef(onAutoOpenHandled)
@@ -290,7 +310,15 @@ export function ToolBar({
         ))}
       </div>
 
-      <div className="flex items-center gap-1 overflow-x-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="overflow-x-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+       <div className="relative flex w-max items-center gap-1">
+        {pill && (
+          <span
+            aria-hidden
+            className="glass-indicator pointer-events-none absolute inset-y-0 rounded-2xl"
+            style={{ transform: `translateX(${pill.left}px)`, width: pill.width }}
+          />
+        )}
         <button
           type="button"
           onClick={onAdd}
@@ -366,9 +394,9 @@ export function ToolBar({
                   type="button"
                   disabled={disabled}
                   className={cn(
-                    'flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium transition active:scale-95',
+                    'relative z-10 flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium transition-colors duration-300 active:scale-95',
                     isOpen
-                      ? 'bg-primary/12 text-primary'
+                      ? 'text-primary-foreground'
                       : 'text-foreground/75 hover:text-foreground',
                     disabled && 'opacity-35',
                   )}
@@ -406,6 +434,7 @@ export function ToolBar({
             </Popover>
           )
         })}
+       </div>
       </div>
 
       {selected?.graphic && (
