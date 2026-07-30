@@ -383,40 +383,6 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
           </div>
         )}
 
-        {tool === 'resize' && natural && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm">Keep aspect ratio</Label>
-              <Switch checked={keepAspect} onCheckedChange={setKeepAspect} />
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex-1">
-                <Label className="text-[11px] text-muted-foreground">Width</Label>
-                <Input
-                  type="number"
-                  value={rw}
-                  onChange={(e) => {
-                    const v = Number(e.target.value) || 0
-                    setRw(v)
-                    if (keepAspect) setRh(Math.round((v * natural.h) / natural.w))
-                  }}
-                />
-              </div>
-              <div className="flex-1">
-                <Label className="text-[11px] text-muted-foreground">Height</Label>
-                <Input
-                  type="number"
-                  value={rh}
-                  onChange={(e) => {
-                    const v = Number(e.target.value) || 0
-                    setRh(v)
-                    if (keepAspect) setRw(Math.round((v * natural.w) / natural.h))
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
 
         {tool === 'flip' && (
           <div className="grid grid-cols-4 gap-2">
