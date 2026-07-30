@@ -8,16 +8,16 @@ function HomePage() {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Text on Photo — Free Native Photo Text Editor" },
+      { title: "Photo Editor : Add Text On Photo" },
       {
         name: "description",
         content:
-          "Add beautiful, customizable text to your photos. Fonts, colors, stroke, shadow, texture, perspective — free, no signup, on-device.",
+          "Add beautiful, customizable text to your photos. Fonts, colors, stroke, shadow, texture, perspective.\nProfessional tool for editors",
       },
-      { property: "og:title", content: "Text on Photo" },
+      { property: "og:title", content: "Photo Editor : Add Text On Photo" },
       {
         property: "og:description",
-        content: "Add beautiful, customizable text to your photos — free, on-device.",
+        content: "Add beautiful, customizable text to your photos. Fonts, colors, stroke, shadow, texture, perspective.\nProfessional tool for editors",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
