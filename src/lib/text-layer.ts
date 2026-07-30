@@ -116,8 +116,6 @@ export interface GraphicContent {
 }
 
 
-import { uni2zg } from '@/lib/rabbit'
-
 export interface FontOption {
   key: string
   label: string
@@ -201,36 +199,6 @@ export const FONT_CATEGORIES: FontOption['category'][] = [
   'Display',
   'Script',
 ]
-
-/** Fonts whose glyphs are Zawgyi-encoded — Unicode input must be converted first. */
-export const ZAWGYI_FONT_KEYS = new Set<string>([
-  'abrush',
-  'koz008',
-  'koz033',
-  'koz052',
-  'myanmargantgaw',
-  'myanmarkuttar',
-  'myanmarsabae',
-  'myanmarsquare',
-  'myanmaryinmar',
-  ...[16, 19, 25, 26, 36, 39, 44, 48, 49, 54, 56, 57, 58, 6, 60, 61, 65].map(
-    (n) => `layaungthit-k${n}`,
-  ),
-])
-
-export function isZawgyiFont(key: string): boolean {
-  return ZAWGYI_FONT_KEYS.has(key)
-}
-
-/**
- * Text as it must be encoded for the given font.
- * Zawgyi-encoded typefaces need Unicode input converted to Zawgyi code points,
- * otherwise stacked consonants and vowels render in the wrong place.
- */
-export function encodeForFont(text: string, fontKey: string): string {
-  if (!text || !isZawgyiFont(fontKey)) return text
-  return uni2zg(text)
-}
 
 export function fontFamily(key: string): string {
   if (key.startsWith('custom:')) return `'CF_${key.slice(7)}', sans-serif`
