@@ -277,7 +277,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
         </button>
       </header>
 
-      <div className="flex flex-1 items-center justify-center overflow-hidden bg-muted/30 p-4">
+      <div className="flex flex-1 items-center justify-center overflow-hidden bg-muted/30 p-4 pb-44">
         {tool === 'crop' ? (
           <CropStage src={working} rect={rect} ratio={ratio} onChange={setRect} />
         ) : tool === 'blur' ? (
