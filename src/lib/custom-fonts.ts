@@ -2,6 +2,8 @@ export interface CustomFont {
   id: string
   label: string
   dataUrl: string
+  /** woff / woff2 uploads are a Pro feature */
+  pro?: boolean
 }
 
 const FONTS_KEY = 'myan.customFonts'
@@ -84,11 +86,19 @@ export async function addCustomFont(file: File): Promise<CustomFont> {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     label: file.name.replace(/\.[^.]+$/, ''),
     dataUrl,
+    pro: /\.woff2?$/i.test(file.name),
   }
   write(FONTS_KEY, [...listCustomFonts(), font])
   ensureCustomFontsLoaded()
   emit()
   return font
+}
+
+/** fontKey looks like `custom:<id>` — true when that upload is a Pro (woff) font */
+export function isProCustomFontKey(fontKey: string) {
+  if (!fontKey.startsWith('custom:')) return false
+  const id = fontKey.slice(7)
+  return !!listCustomFonts().find((f) => f.id === id)?.pro
 }
 
 export function removeCustomFont(id: string) {

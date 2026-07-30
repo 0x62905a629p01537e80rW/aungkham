@@ -165,6 +165,8 @@ interface ToolDef {
   shapeOnly?: boolean
   /** only for image/sticker graphic layers */
   imageOnly?: boolean
+  /** Pro-only feature — free users can try it, export is gated */
+  pro?: boolean
 }
 
 const TOOLS: ToolDef[] = [
@@ -177,7 +179,7 @@ const TOOLS: ToolDef[] = [
   { key: 'texture', label: 'Texture', icon: Grid2x2, needsLayer: true },
   { key: 'opacity', label: 'Opacity', icon: Droplet, needsLayer: true },
   { key: 'blend', label: 'Blend', icon: Layers, needsLayer: true },
-  { key: 'liquid', label: 'Liquid', icon: Droplets, needsLayer: true },
+  { key: 'liquid', label: 'Liquid', icon: Droplets, needsLayer: true, pro: true },
   { key: 'stroke', label: 'Stroke', icon: PenLine, needsLayer: true },
   { key: 'shadow', label: 'Shadow', icon: Sparkles, needsLayer: true },
   { key: 'highlight', label: 'Highlight', icon: Sun, needsLayer: true },
@@ -402,6 +404,11 @@ export function ToolBar({
                     disabled && 'opacity-35',
                   )}
                 >
+                  {tool.pro && (
+                    <span className="absolute right-0.5 top-0.5 grid size-3.5 place-items-center rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] text-[#3a2a05]">
+                      <Crown className="size-2.5" strokeWidth={2.6} />
+                    </span>
+                  )}
                   <Icon
                     className="size-[18px]"
                     strokeWidth={isOpen ? 2.4 : 2}
@@ -598,6 +605,7 @@ function FontPicker({
   const [, force] = useState(0)
   const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
+  const proFileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     ensureCustomFontsLoaded()
@@ -676,11 +684,24 @@ function FontPicker({
 
 
       {group === 'custom' && (
-        <>
+        <div className="space-y-2">
           <input
             ref={fileRef}
             type="file"
-            accept=".ttf,.otf,.woff,.woff2,font/*"
+            accept=".ttf,.otf,font/ttf,font/otf"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0]
+              e.target.value = ''
+              if (!file) return
+              const f = await addCustomFont(file)
+              onChange({ fontKey: `custom:${f.id}` })
+            }}
+          />
+          <input
+            ref={proFileRef}
+            type="file"
+            accept=".woff,.woff2,font/woff,font/woff2"
             className="hidden"
             onChange={async (e) => {
               const file = e.target.files?.[0]
@@ -695,9 +716,24 @@ function FontPicker({
             onClick={() => fileRef.current?.click()}
             className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/50 bg-primary/10 py-3 text-xs font-semibold text-foreground transition active:scale-[0.99]"
           >
-            <Upload className="size-4" /> Upload font (.ttf, .otf, .woff)
+            <Upload className="size-4" /> Upload font (.ttf, .otf)
           </button>
-        </>
+          <button
+            type="button"
+            onClick={() => proFileRef.current?.click()}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#e0a93c]/60 bg-[#e0a93c]/10 py-3 text-xs font-semibold text-foreground transition active:scale-[0.99]"
+          >
+            <Crown className="size-4 text-[#e0a93c]" /> Upload font (.woff, .woff2)
+            <span className="rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#3a2a05]">
+              Pro
+            </span>
+          </button>
+          {!isPro && (
+            <p className="text-[10px] leading-snug text-muted-foreground">
+              .woff / .woff2 uploads are free to try — Pro is required to export with them.
+            </p>
+          )}
+        </div>
       )}
 
       {group === 'mm-premium' && !isPro && (
@@ -1857,6 +1893,7 @@ function LiquidPanel({
   layer: TextLayer
   onChange: (patch: Partial<TextLayer>) => void
 }) {
+  const { isPro } = useAuth()
   const on = !!layer.liquidOn
   const [dragging, setDragging] = useState<LiquidSlider | null>(null)
   const [peek, setPeek] = useState(false)
@@ -1887,7 +1924,12 @@ function LiquidPanel({
       onPointerCancel={() => setDragging(null)}
     >
       <div className={cn(fade, others, 'flex items-center justify-between')}>
-        <ToolHeading>Liquid glass</ToolHeading>
+        <span className="flex items-center gap-1.5">
+          <ToolHeading>Liquid glass</ToolHeading>
+          <span className="flex items-center gap-1 rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#3a2a05]">
+            <Crown className="size-2.5" /> Pro
+          </span>
+        </span>
         <button
           type="button"
           onClick={() => { quickPeek(); onChange({ liquidOn: !on }) }}
@@ -1899,6 +1941,14 @@ function LiquidPanel({
           {on ? 'On' : 'Off'}
         </button>
       </div>
+
+      {!isPro && (
+        <p className={cn(fade, others, 'flex items-center gap-1.5 rounded-xl border border-[#e0a93c]/40 bg-[#e0a93c]/10 px-3 py-2 text-[11px] font-medium text-foreground')}>
+          <Crown className="size-3.5 shrink-0 text-[#e0a93c]" />
+          Liquid glass is free to try — Pro is required to export with it.
+        </p>
+      )}
+
 
       <div className={cn(fade, others, 'grid grid-cols-3 gap-1.5')}>
         {LIQUID_PRESETS.map((p) => (

@@ -1,17 +1,35 @@
 import { useEffect, useState } from 'react'
-import { Type as TypeIcon, Undo2, X } from 'lucide-react'
+import { Droplets, Type as TypeIcon, Undo2, X } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { FONTS, type TextLayer } from '@/lib/text-layer'
+import { isProCustomFontKey } from '@/lib/custom-fonts'
 import { PaymentPage } from './payment-page'
 
 const PREMIUM_KEYS = new Set(FONTS.filter((f) => f.category === 'Myanmar Pro').map((f) => f.key))
 
+function isPremiumFontKey(key: string) {
+  return PREMIUM_KEYS.has(key) || isProCustomFontKey(key)
+}
+
 export function usesPremiumFont(layers: TextLayer[]) {
-  return layers.some((l) => PREMIUM_KEYS.has(l.fontKey))
+  return layers.some((l) => isPremiumFontKey(l.fontKey))
+}
+
+export function usesPremiumLiquid(layers: TextLayer[]) {
+  return layers.some((l) => !!l.liquidOn)
+}
+
+export function usesPremiumFeature(layers: TextLayer[]) {
+  return usesPremiumFont(layers) || usesPremiumLiquid(layers)
 }
 
 export function stripPremiumFonts(layers: TextLayer[]): TextLayer[] {
-  return layers.map((l) => (PREMIUM_KEYS.has(l.fontKey) ? { ...l, fontKey: 'pyidaungsu' } : l))
+  return layers.map((l) => {
+    const next = { ...l }
+    if (isPremiumFontKey(l.fontKey)) next.fontKey = 'pyidaungsu'
+    if (l.liquidOn) next.liquidOn = false
+    return next
+  })
 }
 
 function ProGem({ className = 'size-4' }: { className?: string }) {
@@ -53,7 +71,7 @@ export function PremiumGate({
   useEffect(() => {
     if (!requested) return
     onClear()
-    if (isPro || !usesPremiumFont(layers)) {
+    if (isPro || !usesPremiumFeature(layers)) {
       onProceed()
       return
     }
@@ -84,16 +102,33 @@ export function PremiumGate({
               You're using premium features
             </h2>
 
-            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
-              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
-                <TypeIcon className="size-5" />
-              </div>
-              <div className="leading-tight">
-                <p className="text-sm font-semibold text-foreground">Premium Fonts</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Purchase Premium to export with these fonts.
-                </p>
-              </div>
+            <div className="mt-4 space-y-2">
+              {usesPremiumFont(layers) && (
+                <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                    <TypeIcon className="size-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-foreground">Premium Fonts</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Purchase Premium to export with these fonts.
+                    </p>
+                  </div>
+                </div>
+              )}
+              {usesPremiumLiquid(layers) && (
+                <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                    <Droplets className="size-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-foreground">Liquid Glass</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Purchase Premium to export with the liquid glass effect.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <button
@@ -122,7 +157,7 @@ export function PremiumGate({
               className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-border bg-foreground/5 text-sm font-bold text-foreground transition active:scale-[0.98]"
             >
               <Undo2 className="size-4" />
-              Undo the premium fonts
+              Undo the premium features
             </button>
           </div>
         </div>
