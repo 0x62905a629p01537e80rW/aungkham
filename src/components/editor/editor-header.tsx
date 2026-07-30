@@ -29,6 +29,8 @@ interface EditorHeaderProps {
   onToggleLayerLock?: (id: string) => void
   onReorderLayers?: (from: number, to: number) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
+  onGroupLayers?: (ids: string[]) => void
+  onUngroupLayer?: (id: string) => void
   onInsert?: () => void
 }
 
@@ -52,6 +54,8 @@ export function EditorHeader({
   onToggleLayerLock,
   onReorderLayers,
   onMoveLayer,
+  onGroupLayers,
+  onUngroupLayer,
   onInsert,
 }: EditorHeaderProps) {
   const { t } = useI18n()
@@ -142,6 +146,8 @@ export function EditorHeader({
                   onToggleLock={onToggleLayerLock}
                   onReorder={onReorderLayers}
                   onMove={onMoveLayer}
+                  onGroup={onGroupLayers}
+                  onUngroup={onUngroupLayer}
                 />
               </PopoverContent>
             </Popover>
