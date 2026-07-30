@@ -74,6 +74,9 @@ import {
   TypeOutline,
   WandSparkles,
   Crown,
+  Check,
+  Search,
+  X,
 
 } from 'lucide-react'
 
@@ -517,15 +520,16 @@ type FontGroup =
   | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
-  { key: 'recent', label: 'Recent' },
-  { key: 'favorites', label: 'Favorites' },
   { key: 'english', label: 'English' },
   { key: 'mm-free', label: 'Myanmar' },
-  { key: 'mm-premium', label: 'Premium (MM)' },
   { key: 'en-premium', label: 'Premium (Eng)' },
+  { key: 'mm-premium', label: 'Premium (MM)' },
   { key: 'google', label: 'Google Fonts' },
+  { key: 'favorites', label: 'Favorites' },
+  { key: 'recent', label: 'Recent' },
   { key: 'custom', label: 'My Fonts' },
 ]
+
 
 function groupOf(cat: FontOption['category']): FontGroup {
   if (cat === 'Myanmar') return 'mm-free'
@@ -540,6 +544,7 @@ function FontCard({
   entry,
   active,
   fav,
+  sample,
   locked = false,
   onSelect,
   onFav,
@@ -548,6 +553,7 @@ function FontCard({
   entry: FontEntry
   active: boolean
   fav: boolean
+  sample: string
   locked?: boolean
   onSelect: () => void
   onFav: () => void
@@ -556,38 +562,44 @@ function FontCard({
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-xl border transition',
+        'group relative flex shrink-0 items-center gap-2 overflow-hidden rounded-2xl border pr-1.5 transition',
         active
           ? 'border-primary bg-primary/15 shadow-[0_0_0_1px_var(--color-primary)]'
           : 'border-border/60 bg-foreground/5 hover:bg-foreground/10',
       )}
     >
-      <button type="button" onClick={onSelect} className="block w-full px-2 pb-1.5 pt-1.5 text-left">
+      <button
+        type="button"
+        onClick={onSelect}
+        className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-left"
+      >
         {locked && (
-          <span className="absolute inset-0 z-10 grid place-items-center rounded-xl bg-background/60 backdrop-blur-[2px]">
+          <span className="absolute inset-0 z-10 grid place-items-center rounded-2xl bg-background/60 backdrop-blur-[2px]">
             <Lock className="size-4 text-[#8b5cf6]" />
           </span>
         )}
-        <span
-          className="block overflow-hidden text-ellipsis whitespace-nowrap py-1 text-[15px] text-foreground"
-          style={{ fontFamily: fontFamily(entry.key), lineHeight: entry.myanmar ? 2 : 1.4 }}
-        >
-          {entry.myanmar ? 'မြန်မာစာ' : 'Aa Bb Cc'}
+        <span className="min-w-0 flex-1">
+          <span
+            className="block overflow-hidden text-ellipsis whitespace-nowrap pb-0.5 text-[19px] text-foreground"
+            style={{ fontFamily: fontFamily(entry.key), lineHeight: entry.myanmar ? 1.9 : 1.3 }}
+          >
+            {sample || (entry.myanmar ? 'မြန်မာစာ' : 'Aa Bb Cc')}
+          </span>
+          <span className="mt-0.5 block truncate text-[9px] uppercase tracking-wider text-muted-foreground">
+            {entry.label}
+          </span>
         </span>
-
-        <span className="mt-0.5 block truncate text-[9px] uppercase tracking-wider text-muted-foreground">
-          {entry.label}
-        </span>
+        {active && <Check className="size-4 shrink-0 text-primary" />}
       </button>
-      <div className="absolute right-1 top-1 flex gap-0.5">
+      <div className="flex shrink-0 items-center gap-0.5">
         {onDelete && (
           <button
             type="button"
             aria-label="Delete font"
             onClick={onDelete}
-            className="flex size-5 items-center justify-center rounded-full text-muted-foreground transition active:scale-90"
+            className="flex size-7 items-center justify-center rounded-full text-muted-foreground transition active:scale-90"
           >
-            <Trash2 className="size-3" />
+            <Trash2 className="size-3.5" />
           </button>
         )}
         <button
@@ -595,16 +607,17 @@ function FontCard({
           aria-label="Favorite"
           onClick={onFav}
           className={cn(
-            'flex size-5 items-center justify-center rounded-full transition active:scale-90',
+            'flex size-7 items-center justify-center rounded-full transition active:scale-90',
             fav ? 'text-primary' : 'text-muted-foreground/60',
           )}
         >
-          <Star className={cn('size-3', fav && 'fill-current')} />
+          <Star className={cn('size-3.5', fav && 'fill-current')} />
         </button>
       </div>
     </div>
   )
 }
+
 
 function FontPicker({
   layer,
@@ -623,6 +636,7 @@ function FontPicker({
         ? 'google'
         : groupOf(current?.category ?? 'Sans'),
   )
+  const [query, setQuery] = useState('')
   const [, force] = useState(0)
   const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -664,7 +678,7 @@ function FontPicker({
     })),
   ]
 
-  const items =
+  const base =
     group === 'recent'
       ? (recents.map((k) => all.find((f) => f.key === k)).filter(Boolean) as FontEntry[])
       : group === 'favorites'
@@ -678,12 +692,42 @@ function FontPicker({
                 groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
             )
 
+  const q = query.trim().toLowerCase()
+  const items = q ? base.filter((f) => f.label.toLowerCase().includes(q)) : base
+
+  const sample = (layer.text || '').split('\n')[0].slice(0, 18).trim()
 
   return (
-    <div className="space-y-3">
-      <ToolHeading>Typeface</ToolHeading>
+    <div className="space-y-2.5">
+      <div className="flex items-center gap-2">
+        <ToolHeading>Typeface</ToolHeading>
+        <span className="mb-3 ml-auto text-[10px] font-medium text-muted-foreground">
+          {items.length}
+        </span>
+      </div>
 
-      <div className="-mx-1 flex gap-1.5 overflow-x-auto perf-scroll px-1 pb-1 [scrollbar-width:none]">
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search fonts"
+          className="h-9 w-full rounded-full border border-border/60 bg-foreground/5 pl-8 pr-8 text-[12px] text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/60"
+        />
+        {query && (
+          <button
+            type="button"
+            aria-label="Clear search"
+            onClick={() => setQuery('')}
+            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground active:scale-90"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
+      </div>
+
+      <div className="-mx-1 flex gap-1.5 overflow-x-auto perf-scroll no-scrollbar px-1 pb-1 [scrollbar-width:none]">
+
         {FONT_GROUPS.map((g) => {
           const premium = g.key === 'mm-premium' || g.key === 'en-premium'
           const on = group === g.key
@@ -790,7 +834,7 @@ function FontPicker({
 
       <div
         className={cn(
-          'grid max-h-[46dvh] grid-cols-2 gap-2 overflow-y-auto perf-scroll pr-1',
+          'flex max-h-[46dvh] flex-col gap-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-0.5',
           group === 'google' && 'hidden',
         )}
       >
@@ -800,6 +844,7 @@ function FontPicker({
             entry={f}
             active={layer.fontKey === f.key}
             fav={favs.includes(f.key)}
+            sample={sample}
             locked={false}
             onSelect={() => {
               recordRecentFont(f.key)
@@ -818,12 +863,14 @@ function FontPicker({
           />
         ))}
         {items.length === 0 && (
-          <p className="col-span-2 py-6 text-center text-xs text-muted-foreground">
-            {group === 'recent'
-              ? 'No recent fonts yet — pick a font and it shows up here.'
-              : group === 'favorites'
-                ? 'No favorite fonts yet — tap the star on any font.'
-                : 'No custom fonts yet — upload one above.'}
+          <p className="py-6 text-center text-xs text-muted-foreground">
+            {q
+              ? `No fonts match “${query}”.`
+              : group === 'recent'
+                ? 'No recent fonts yet — pick a font and it shows up here.'
+                : group === 'favorites'
+                  ? 'No favorite fonts yet — tap the star on any font.'
+                  : 'No custom fonts yet — upload one above.'}
           </p>
         )}
       </div>
