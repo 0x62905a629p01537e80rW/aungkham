@@ -325,7 +325,9 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             className={cn(
               'max-h-full max-w-full overflow-hidden rounded-none',
               tool === 'fit' && fitColor === 'transparent' && !fitGradient && 'checker-grid',
+              tool === 'fit' && 'touch-none select-none',
             )}
+            {...(tool === 'fit' ? fitGestures : {})}
           >
             <img
               src={
@@ -336,6 +338,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                     : working
               }
               alt="Preview"
+              draggable={false}
               className="max-h-[50dvh] max-w-full object-contain"
             />
           </div>
