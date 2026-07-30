@@ -18,7 +18,7 @@ import {
   Waves,
   X,
 } from 'lucide-react'
-import { Slider } from '@/components/ui/slider'
+import { LiveSlider } from './live-slider'
 import { cn } from '@/lib/utils'
 import { loadImage } from '@/lib/image-ops'
 import {
@@ -160,12 +160,56 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
   const activeItem = ITEMS.find((i) => i.key === active)!
   const range = ADJUST_RANGES[active]
 
+  /**
+   * Cheap GPU-composited approximation of the active adjustment. Applied to
+   * the preview canvas element while the finger is down so the live feedback
+   * costs nothing on the main thread; the real pixel pipeline runs on release.
+   */
+  function previewFilter(key: AdjustKey, v: number, base: number) {
+    const d = v - base
+    if (!d) return ''
+    switch (key) {
+      case 'brightness':
+      case 'exposure':
+      case 'lightness':
+        return `brightness(${1 + d / 120})`
+      case 'contrast':
+      case 'clarity':
+        return `contrast(${1 + d / 120})`
+      case 'saturation':
+      case 'vibrance':
+        return `saturate(${1 + d / 100})`
+      case 'hue':
+        return `hue-rotate(${d}deg)`
+      case 'warmth':
+        return `sepia(${Math.min(1, Math.abs(d) / 160)}) hue-rotate(${d < 0 ? 170 : 0}deg)`
+      case 'fade':
+        return `contrast(${1 - Math.min(0.4, Math.abs(d) / 250)}) brightness(${1 + Math.abs(d) / 500})`
+      case 'sharpness':
+      case 'denoise':
+        return `contrast(${1 + d / 300})`
+      default:
+        return ''
+    }
+  }
+
+  function livePreview(v: number) {
+    const view = viewRef.current
+    if (!view) return
+    // relative to whatever is currently painted on the canvas
+    view.style.filter = previewFilter(active, v, adjRef.current[active])
+  }
+
+
   function setValue(v: number) {
+    const view = viewRef.current
+    if (view) view.style.filter = ''
     if (adjRef.current[active] === v) return
     adjRef.current = { ...adjRef.current, [active]: v }
     setAdj(adjRef.current)
     schedulePreview()
   }
+
 
   async function apply() {
     const img = sourceRef.current
@@ -245,25 +289,23 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
               </button>
             )}
           </div>
-          <Slider
-            value={[adj[active]]}
+          <LiveSlider
+            key={active}
+            value={adj[active]}
             min={range.min}
             max={range.max}
             step={range.step}
-            onPointerDown={() => {
+            onDragStart={() => {
               draggingRef.current = true
             }}
-            onPointerUp={() => {
+            onLive={livePreview}
+            onCommit={(v) => {
               draggingRef.current = false
-              schedulePreview()
+              setValue(v)
             }}
-            onValueCommit={() => {
-              draggingRef.current = false
-              schedulePreview()
-            }}
-            onValueChange={(v) => setValue(v[0])}
           />
         </div>
+
 
 
         {/* items rail */}
