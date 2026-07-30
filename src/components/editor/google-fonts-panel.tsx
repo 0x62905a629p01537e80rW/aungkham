@@ -32,10 +32,10 @@ export function GoogleFontsPanel({
   const [, force] = useState(0)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // live preview settings
-  const [size, setSize] = useState(20)
-  const [weight, setWeight] = useState(400)
-  const [color, setColor] = useState('#ffffff')
+  // fixed preview appearance
+  const size = 20
+  const weight = 400
+
 
   useEffect(() => subscribeGoogleFonts(() => force((n) => n + 1)), [])
   useEffect(() => setLimit(60), [query, onlyInstalled])
