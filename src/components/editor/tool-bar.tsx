@@ -74,6 +74,9 @@ import {
   TypeOutline,
   WandSparkles,
   Crown,
+  Check,
+  Search,
+  X,
 
 } from 'lucide-react'
 
@@ -632,6 +635,7 @@ function FontPicker({
         ? 'google'
         : groupOf(current?.category ?? 'Sans'),
   )
+  const [query, setQuery] = useState('')
   const [, force] = useState(0)
   const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -829,7 +833,7 @@ function FontPicker({
 
       <div
         className={cn(
-          'grid max-h-[46dvh] grid-cols-2 gap-2 overflow-y-auto perf-scroll pr-1',
+          'flex max-h-[46dvh] flex-col gap-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-0.5',
           group === 'google' && 'hidden',
         )}
       >
@@ -839,6 +843,7 @@ function FontPicker({
             entry={f}
             active={layer.fontKey === f.key}
             fav={favs.includes(f.key)}
+            sample={sample}
             locked={false}
             onSelect={() => {
               recordRecentFont(f.key)
@@ -857,8 +862,10 @@ function FontPicker({
           />
         ))}
         {items.length === 0 && (
-          <p className="col-span-2 py-6 text-center text-xs text-muted-foreground">
-            {group === 'recent'
+          <p className="py-6 text-center text-xs text-muted-foreground">
+            {q
+              ? `No fonts match “${query}”.`
+              : group === 'recent'
               ? 'No recent fonts yet — pick a font and it shows up here.'
               : group === 'favorites'
                 ? 'No favorite fonts yet — tap the star on any font.'
