@@ -19,8 +19,21 @@ export function usesPremiumLiquid(layers: TextLayer[]) {
   return layers.some((l) => !!l.liquidOn)
 }
 
+export function usesPremiumTexture(layers: TextLayer[]) {
+  return layers.some((l) => l.fillType === 'texture' && !!(l.textureImage || l.textureSrc))
+}
+
+export function usesPremiumCutout(layers: TextLayer[]) {
+  return layers.some((l) => !!l.graphic?.cutout)
+}
+
 export function usesPremiumFeature(layers: TextLayer[]) {
-  return usesPremiumFont(layers) || usesPremiumLiquid(layers)
+  return (
+    usesPremiumFont(layers) ||
+    usesPremiumLiquid(layers) ||
+    usesPremiumTexture(layers) ||
+    usesPremiumCutout(layers)
+  )
 }
 
 export function stripPremiumFonts(layers: TextLayer[]): TextLayer[] {
@@ -28,6 +41,14 @@ export function stripPremiumFonts(layers: TextLayer[]): TextLayer[] {
     const next = { ...l }
     if (isPremiumFontKey(l.fontKey)) next.fontKey = 'pyidaungsu'
     if (l.liquidOn) next.liquidOn = false
+    if (l.fillType === 'texture') next.fillType = 'solid'
+    if (l.graphic?.cutout) {
+      next.graphic = {
+        ...l.graphic,
+        src: l.graphic.originalSrc ?? l.graphic.src,
+        cutout: false,
+      }
+    }
     return next
   })
 }
