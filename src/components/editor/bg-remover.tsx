@@ -338,6 +338,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     snapshot()
     setPending(null)
     drawing.current = true
+    lastPoint.current = p
     brush(p.x, p.y)
     setCursor({ x: e.clientX, y: e.clientY })
   }
