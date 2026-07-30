@@ -6,7 +6,6 @@ import {
   Crop as CropIcon,
   FlipHorizontal,
   FlipVertical,
-  Eye,
   Image as ImageIcon,
 
   Pipette,
@@ -121,13 +120,19 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitAdvanced, setFitAdvanced] = useState(false)
   const [fitPreview, setFitPreview] = useState<string | null>(null)
   const backdropInput = useRef<HTMLInputElement | null>(null)
-  const [panelOpen, setPanelOpen] = useState(true)
-  const [peeking, setPeeking] = useState(false)
   const [sliderDragging, setSliderDragging] = useState(false)
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dragProps = {
-    onDragStart: () => setSliderDragging(true),
-    onDragEnd: () => setSliderDragging(false),
+    onDragStart: () => {
+      if (hideTimer.current) clearTimeout(hideTimer.current)
+      setSliderDragging(true)
+    },
+    onDragEnd: () => {
+      if (hideTimer.current) clearTimeout(hideTimer.current)
+      hideTimer.current = setTimeout(() => setSliderDragging(false), 500)
+    },
   }
+
 
 
   // frame
@@ -333,33 +338,12 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
 
       <div
         className={cn(
-          'absolute inset-x-0 bottom-0 max-h-[62dvh] overflow-y-auto perf-scroll border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-4 transition-[transform,opacity] duration-300 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          !panelOpen && 'translate-y-[calc(100%-2.75rem)]',
-          (peeking || sliderDragging) && 'opacity-25',
+          'absolute inset-x-0 bottom-0 max-h-[62dvh] overflow-y-auto perf-scroll border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-4 pt-3 transition-opacity duration-200 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          sliderDragging && 'pointer-events-none opacity-0',
         )}
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
-        <div className="sticky top-0 z-10 -mx-4 mb-2 flex items-center justify-between gap-2 bg-transparent px-4 pt-2">
-          <button
-            type="button"
-            onClick={() => setPanelOpen((v) => !v)}
-            aria-label={panelOpen ? 'Hide controls' : 'Show controls'}
-            className="flex flex-1 flex-col items-center gap-1 py-1 active:scale-95"
-          >
-            <span className="h-1.5 w-10 rounded-full bg-muted-foreground/40" />
-          </button>
-          <button
-            type="button"
-            aria-label="Peek image"
-            onPointerDown={() => setPeeking(true)}
-            onPointerUp={() => setPeeking(false)}
-            onPointerLeave={() => setPeeking(false)}
-            onPointerCancel={() => setPeeking(false)}
-            className="grid size-8 shrink-0 place-items-center rounded-full text-muted-foreground active:scale-95"
-          >
-            <Eye className="size-4" />
-          </button>
-        </div>
+
         <div className="space-y-4">
 
         {tool === 'crop' && (
