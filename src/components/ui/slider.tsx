@@ -42,7 +42,7 @@ const Slider = React.forwardRef<
         <SliderPrimitive.Thumb
           key={i}
           className={cn(
-            "group grid size-7 place-items-center rounded-full",
+            "group grid h-7 w-10 place-items-center rounded-xl",
             "bg-[color-mix(in_oklab,var(--background)_92%,white)] backdrop-blur-md",
             "shadow-[0_1px_1px_rgba(0,0,0,0.10),0_6px_14px_-4px_rgba(0,0,0,0.28),inset_0_1px_0_var(--glass-rim)]",
             "ring-1 ring-foreground/10",
