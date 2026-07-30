@@ -649,6 +649,7 @@ export function ColorPickerPopover({
           onChange={onChange}
           allowGradient={allowGradient}
           initialMode={initialMode}
+          collapsibleArea
         />
       </PopoverContent>
     </Popover>
@@ -701,6 +702,8 @@ export function ColorPickerFullScreen({
             allowGradient={allowGradient}
             initialMode={initialMode}
             onChange={() => {}}
+            collapsibleArea
+            defaultAreaOpen
             onConfirm={onConfirm}
             confirmLabel={confirmLabel}
           />
