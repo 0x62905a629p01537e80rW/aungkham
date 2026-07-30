@@ -6,6 +6,7 @@
 import { createGraphicLayer, createTextLayer, type TextLayer } from '@/lib/text-layer'
 import { shapeDataUrl } from '@/lib/shapes'
 import { PREMIUM_TEMPLATES } from '@/lib/premium-templates'
+import { PREMIUM_TEMPLATES_2 } from '@/lib/premium-templates-2'
 import { IMPORTED_TEMPLATES } from '@/lib/imported-templates'
 import { fitScale, measurable } from '@/lib/template-fit'
 
