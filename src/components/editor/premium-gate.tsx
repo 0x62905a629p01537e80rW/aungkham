@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Droplets, Type as TypeIcon, Undo2, X } from 'lucide-react'
+import { Droplets, Image as ImageIcon, Scissors, Type as TypeIcon, Undo2, X } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { FONTS, type TextLayer } from '@/lib/text-layer'
 import { isProCustomFontKey } from '@/lib/custom-fonts'
@@ -19,8 +19,21 @@ export function usesPremiumLiquid(layers: TextLayer[]) {
   return layers.some((l) => !!l.liquidOn)
 }
 
+export function usesPremiumTexture(layers: TextLayer[]) {
+  return layers.some((l) => l.fillType === 'texture' && !!(l.textureImage || l.textureSrc))
+}
+
+export function usesPremiumCutout(layers: TextLayer[]) {
+  return layers.some((l) => !!l.graphic?.cutout)
+}
+
 export function usesPremiumFeature(layers: TextLayer[]) {
-  return usesPremiumFont(layers) || usesPremiumLiquid(layers)
+  return (
+    usesPremiumFont(layers) ||
+    usesPremiumLiquid(layers) ||
+    usesPremiumTexture(layers) ||
+    usesPremiumCutout(layers)
+  )
 }
 
 export function stripPremiumFonts(layers: TextLayer[]): TextLayer[] {
@@ -28,6 +41,14 @@ export function stripPremiumFonts(layers: TextLayer[]): TextLayer[] {
     const next = { ...l }
     if (isPremiumFontKey(l.fontKey)) next.fontKey = 'pyidaungsu'
     if (l.liquidOn) next.liquidOn = false
+    if (l.fillType === 'texture') next.fillType = 'solid'
+    if (l.graphic?.cutout) {
+      next.graphic = {
+        ...l.graphic,
+        src: l.graphic.originalSrc ?? l.graphic.src,
+        cutout: false,
+      }
+    }
     return next
   })
 }
@@ -125,6 +146,32 @@ export function PremiumGate({
                     <p className="text-sm font-semibold text-foreground">Liquid Glass</p>
                     <p className="text-[11px] text-muted-foreground">
                       Purchase Premium to export with the liquid glass effect.
+                    </p>
+                  </div>
+                </div>
+              )}
+              {usesPremiumTexture(layers) && (
+                <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                    <ImageIcon className="size-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-foreground">Image Texture</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Purchase Premium to export with image-filled text or shapes.
+                    </p>
+                  </div>
+                </div>
+              )}
+              {usesPremiumCutout(layers) && (
+                <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                    <Scissors className="size-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-foreground">Background Removal</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Purchase Premium to export with the removed background.
                     </p>
                   </div>
                 </div>

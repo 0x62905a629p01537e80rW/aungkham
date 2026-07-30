@@ -109,6 +109,10 @@ export interface GraphicContent {
   strokeWidth?: number
   /** shape only: stroke color, independent from the layer fill */
   strokeColor?: string
+  /** image only: background was removed with the Pro cutout tool */
+  cutout?: boolean
+  /** image only: original src before background removal */
+  originalSrc?: string
 }
 
 
