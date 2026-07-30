@@ -307,6 +307,14 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
               </div>
 
               <Row
+                title={t('settings.support')}
+                desc={t('settings.supportDesc')}
+                icon={<TelegramIcon className="size-5" />}
+                onClick={() => {
+                  window.open('https://t.me/myanpro', '_blank', 'noopener,noreferrer')
+                }}
+              />
+              <Row
                 title={t('settings.feedback')}
                 desc={t('settings.feedbackDesc')}
                 onClick={() => mailto('Myan app — Feedback')}
@@ -322,13 +330,6 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                 onClick={() => {
                   markRated()
                   window.open(PLAY_STORE_URL, '_blank', 'noopener,noreferrer')
-                }}
-              />
-              <Row
-                title={t('settings.support')}
-                desc={t('settings.supportDesc')}
-                onClick={() => {
-                  window.open('https://t.me/myanpro', '_blank', 'noopener,noreferrer')
                 }}
               />
               <Row title={t('settings.about')} desc={t('settings.aboutDesc')} onClick={() => setAbout(true)} />
