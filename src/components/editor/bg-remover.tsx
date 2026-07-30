@@ -295,6 +295,41 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
 
   const stageBg = bgMode === 'checker' ? 'checker-grid' : bgMode === 'white' ? 'bg-white' : 'bg-black'
 
+  /** Magic wand dwell: erase only after the finger rests ~0.5s on a spot. */
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const holdAt = useRef<{ x: number; y: number } | null>(null)
+
+  const cancelMagicHold = () => {
+    if (holdTimer.current) clearTimeout(holdTimer.current)
+    holdTimer.current = null
+    holdAt.current = null
+  }
+
+  const scheduleMagic = (clientX: number, clientY: number) => {
+    cancelMagicHold()
+    holdAt.current = { x: clientX, y: clientY }
+    holdTimer.current = setTimeout(() => {
+      holdTimer.current = null
+      const p = toImageCoords(clientX, clientY)
+      const ctx = ctxOf()
+      const canvas = canvasRef.current
+      if (!p || !ctx || !canvas || !drawing.current) return
+      const base = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      baseRef.current = new ImageData(new Uint8ClampedArray(base.data), base.width, base.height)
+      undoStack.current.push(base)
+      if (undoStack.current.length > HISTORY_LIMIT) undoStack.current.shift()
+      redoStack.current = []
+      sync()
+      const data = new ImageData(new Uint8ClampedArray(base.data), base.width, base.height)
+      magicErase(data, p.x, p.y, tolerance)
+      ctx.putImageData(data, 0, 0)
+      setPending({ kind: 'magic', x: p.x, y: p.y })
+      lastPoint.current = p
+    }, 500)
+  }
+
+  useEffect(() => cancelMagicHold, [])
+
   const onDown = (e: React.PointerEvent) => {
     if (phase === 'smooth') return
     ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
