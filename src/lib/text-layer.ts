@@ -34,6 +34,8 @@ export interface TextLayer {
   skewY: number
   hidden?: boolean
   locked?: boolean
+  /** layers sharing a groupId move / transform together */
+  groupId?: string
   strokeOpacity?: number
   blendMode?: string
 
