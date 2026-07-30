@@ -47,7 +47,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Oops Pop',
     bg: bgYellowPop,
     en: { main: 'OOPS!', sub: 'COMIC TEXT EFFECT', font: 'mochi-boom', subFont: 'montserrat' },
-    mm: { main: 'အိုး!', sub: 'ကာတွန်းစာလုံးအထူး', font: 'myanmarsabae', subFont: 'layaungthit-k26' },
+    mm: { main: 'အိုး!', sub: 'ကာတွန်းစာလုံးအထူး', font: 'myanmarsabae', subFont: 'layaungthit-k39' },
     main: {
       x: 50, y: 45, fontSize: 17, color: '#ffd400',
       strokeWidth: 1.8, strokeColor: '#14203d',
@@ -76,7 +76,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Spoof Sticker',
     bg: bgPastelSky,
     en: { main: 'SPOOF', sub: 'STICKER STYLE', font: 'milkyway', subFont: 'poppins' },
-    mm: { main: 'ဟာသ', sub: 'စတစ်ကာ ပုံစံ', font: 'myanmargantgaw', subFont: 'layaungthit-k26' },
+    mm: { main: 'ဟာသ', sub: 'စတစ်ကာ ပုံစံ', font: 'myanmargantgaw', subFont: 'layaungthit-k44' },
     main: {
       x: 50, y: 46, fontSize: 14, color: '#ffffff',
       strokeWidth: 2.2, strokeColor: '#2b2350',
@@ -90,7 +90,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Swoosh',
     bg: bgConcrete,
     en: { main: 'SWOOSH', sub: 'WORDS CAN BE CHANGED', font: 'moldie', subFont: 'montserrat' },
-    mm: { main: 'လွှင့်', sub: 'စာသားပြောင်းနိုင်သည်', font: 'abrush', subFont: 'layaungthit-k26' },
+    mm: { main: 'လွှင့်', sub: 'စာသားပြောင်းနိုင်သည်', font: 'abrush', subFont: 'layaungthit-k48' },
     main: {
       x: 50, y: 45, fontSize: 13, color: '#fdf3ef',
       strokeWidth: 1.4, strokeColor: '#0d1b34',
@@ -104,7 +104,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Stylish Script',
     bg: bgBlueRays,
     en: { main: 'Stylish', sub: 'IN GRAPHIC STYLE PANEL', font: 'gladolia', subFont: 'montserrat' },
-    mm: { main: 'ဆန်းပြား', sub: 'ဒီဇိုင်းစတိုင်အထူး', font: 'abrush', subFont: 'layaungthit-k26' },
+    mm: { main: 'ဆန်းပြား', sub: 'ဒီဇိုင်းစတိုင်အထူး', font: 'myanmaryinmar', subFont: 'layaungthit-k54' },
     main: {
       x: 50, y: 45, fontSize: 16, color: '#ffffff',
       strokeWidth: 2, strokeColor: '#111111',
@@ -119,7 +119,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Summer',
     bg: bgBeach,
     en: { main: 'SUMMER', sub: 'GOLDEN HOUR EDITION', font: 'beachday', subFont: 'poppins' },
-    mm: { main: 'နွေရာသီ', sub: 'ရွှေရောင်အချိန်', font: 'layaungthit-k16', subFont: 'layaungthit-k26' },
+    mm: { main: 'နွေရာသီ', sub: 'ရွှေရောင်အချိန်', font: 'layaungthit-k16', subFont: 'layaungthit-k57' },
     main: {
       x: 50, y: 44, fontSize: 14, color: '#fff6e0',
       strokeWidth: 1.2, strokeColor: '#7a3b00',
@@ -175,7 +175,7 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
     label: 'Candy Kids',
     bg: bgPastelSky,
     en: { main: 'HELLO!', sub: 'SWEET & PLAYFUL', font: 'child-hood', subFont: 'poppins' },
-    mm: { main: 'မင်္ဂလာပါ', sub: 'ချိုမြိန်ပျော်ရွှင်', font: 'myanmarsabae', subFont: 'layaungthit-k26' },
+    mm: { main: 'မင်္ဂလာပါ', sub: 'ချိုမြိန်ပျော်ရွှင်', font: 'myanmargantgaw', subFont: 'layaungthit-k6' },
     main: {
       x: 50, y: 45, fontSize: 13, color: '#ff7fae',
       strokeWidth: 2, strokeColor: '#ffffff',
