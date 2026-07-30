@@ -16,6 +16,7 @@ import {
   subscribeFonts,
   toggleFavorite,
 } from '@/lib/custom-fonts'
+import { listRecentColors, listRecentFonts, recordRecentColor, recordRecentFont, subscribeRecents } from '@/lib/recents'
 import {
   AlignCenter,
   Circle,
