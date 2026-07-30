@@ -5,7 +5,7 @@ import {
   BadgeCheck,
   Check,
   ClipboardPaste,
-  Coins,
+  
   Copy,
   Loader2,
   LogOut,
@@ -13,6 +13,12 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { GlassTabs } from '@/components/ui/glass-tabs'
+import {
+  BrandLogo,
+  KbzPayMark,
+  NetworkMark,
+  UsdtMark,
+} from '@/components/editor/pay-icons'
 import { pricingFromDoc, usePricing } from '@/lib/pricing'
 
 type CryptoNet = { key: string; label: string; address: string }
@@ -30,15 +36,20 @@ function CopyRow({
   label,
   value,
   valueClassName,
+  icon,
 }: {
   label: string
   value: string
   valueClassName?: string
+  icon?: React.ReactNode
 }) {
   const [copied, setCopied] = useState(false)
   return (
     <div className="glass-tile rounded-2xl px-3.5 py-3">
-      <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+      <div className="flex items-center gap-1.5">
+        {icon}
+        <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+      </div>
       <div className="mt-1 flex items-center gap-2">
         <p className={`min-w-0 flex-1 break-all font-mono leading-snug ${valueClassName || 'text-[12px]'}`}>{value}</p>
         <button
@@ -49,7 +60,9 @@ function CopyRow({
             setCopied(true)
             setTimeout(() => setCopied(false), 1600)
           }}
-          className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition active:scale-95"
+          className={`grid size-9 shrink-0 place-items-center rounded-xl transition active:scale-95 ${
+            copied ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'
+          }`}
         >
           {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
         </button>
@@ -57,6 +70,7 @@ function CopyRow({
     </div>
   )
 }
+
 
 function GoogleMark({ className = 'size-4' }: { className?: string }) {
   return (
@@ -177,28 +191,33 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-background text-foreground animate-fade-in">
       <div
-        className="flex items-center gap-3 px-4 pb-2 pt-4"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
+        className="glass-panel sticky top-0 z-10 flex items-center gap-2.5 rounded-none border-0 px-3 pb-2.5 pt-4"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
       >
         <button
           type="button"
           aria-label="Back"
           onClick={onClose}
-          className="grid size-9 place-items-center rounded-full transition active:scale-95"
+          className="grid size-10 shrink-0 place-items-center rounded-full transition active:scale-95"
         >
           <ArrowLeft className="size-6" />
         </button>
-        <h2 className="text-xl font-semibold">Checkout</h2>
+        <BrandLogo className="size-9 shrink-0" />
+        <div className="min-w-0 leading-tight">
+          <p className="text-[15px] font-bold tracking-tight">Checkout</p>
+          <p className="truncate text-[11px] text-muted-foreground">Myan Pro · Lifetime</p>
+        </div>
         {user && (
           <button
             type="button"
             onClick={() => signOutUser()}
-            className="ml-auto flex items-center gap-1 rounded-full px-2 py-1 text-[11px] text-muted-foreground transition active:scale-95"
+            className="ml-auto flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-[11px] text-muted-foreground transition active:scale-95"
           >
             <LogOut className="size-3.5" />
             Sign out
           </button>
         )}
+
       </div>
 
       <div className="px-4 pb-14">
@@ -271,8 +290,24 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
           <div className="mt-5 space-y-3">
             <GlassTabs
               items={[
-                { key: 'kbzpay', label: 'KBZPay' },
-                { key: 'usdt', label: 'USDT Crypto' },
+                {
+                  key: 'kbzpay',
+                  label: (
+                    <>
+                      <KbzPayMark className="size-4" />
+                      KBZPay
+                    </>
+                  ),
+                },
+                {
+                  key: 'usdt',
+                  label: (
+                    <>
+                      <UsdtMark className="size-4" />
+                      USDT Crypto
+                    </>
+                  ),
+                },
               ]}
               value={method}
               onChange={(k) => setMethod(k as 'kbzpay' | 'usdt')}
@@ -280,7 +315,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
 
             <div className="glass-tile flex items-center gap-3 rounded-2xl p-4">
               <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-                {method === 'usdt' ? <Coins className="size-5" /> : <Smartphone className="size-5" />}
+                {method === 'usdt' ? <UsdtMark className="size-6" /> : <KbzPayMark className="size-6" />}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold">
@@ -292,7 +327,15 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                     : `KBZPay transfer — send ${pricing.priceMmk}, then submit your transaction details.`}
                 </p>
               </div>
+              {method === 'usdt' && (
+                <div className="ml-auto flex shrink-0 -space-x-1.5">
+                  {['trc20', 'bep20', 'erc20', 'sol'].map((k) => (
+                    <NetworkMark key={k} netKey={k} className="size-5 rounded-full ring-2 ring-background" />
+                  ))}
+                </div>
+              )}
             </div>
+
 
             <p className="text-[11px] text-muted-foreground">
               Signed in as <span className="font-medium text-foreground">{user.email}</span>
@@ -316,6 +359,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       label="KBZPay number"
                       value={settings.phone}
                       valueClassName="text-[14px] font-semibold"
+                      icon={<KbzPayMark className="size-3.5" />}
                     />
                   )}
                   {settings.name && (
@@ -325,6 +369,12 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       valueClassName="text-[14px] font-semibold"
                     />
                   )}
+                  <CopyRow
+                    label="Amount to send"
+                    value={pricing.priceMmk}
+                    valueClassName="text-[14px] font-semibold"
+                    icon={<Smartphone className="size-3.5 text-primary" />}
+                  />
                 </div>
               ) : settings ? (
                 settings.nets.length === 0 ? (
@@ -333,19 +383,21 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                   </p>
                 ) : (
                   <div className="mt-2 space-y-2">
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="grid grid-cols-2 gap-1.5">
                       {settings.nets.map((n) => (
                         <button
                           key={n.key}
                           type="button"
                           onClick={() => setNet(n.key)}
-                          className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition active:scale-95 ${
+                          className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 text-[11px] font-semibold transition active:scale-95 ${
                             activeNet?.key === n.key
                               ? 'bg-primary text-primary-foreground'
                               : 'glass-tile text-muted-foreground'
                           }`}
                         >
-                          {n.label.replace('USDT · ', '')}
+                          <NetworkMark netKey={n.key} className="size-5 shrink-0" />
+                          <span className="truncate">{n.label.replace('USDT · ', '')}</span>
+                          {activeNet?.key === n.key && <Check className="ml-auto size-3.5 shrink-0" />}
                         </button>
                       ))}
                     </div>
@@ -354,10 +406,16 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                         label={activeNet.label}
                         value={activeNet.address}
                         valueClassName="text-[12px] font-semibold"
+                        icon={<NetworkMark netKey={activeNet.key} className="size-3.5" />}
                       />
                     )}
                     {settings.usdtPrice && (
-                      <CopyRow label="Amount" value={settings.usdtPrice} valueClassName="text-[14px] font-semibold" />
+                      <CopyRow
+                        label="Amount to send"
+                        value={settings.usdtPrice}
+                        valueClassName="text-[14px] font-semibold"
+                        icon={<UsdtMark className="size-3.5" />}
+                      />
                     )}
                     <p className="text-[11px] text-muted-foreground">
                       Send only USDT on the selected network. Wrong-network transfers cannot be
