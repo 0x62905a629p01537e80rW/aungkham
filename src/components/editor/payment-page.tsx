@@ -111,8 +111,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       setSettings({
         phone: d.kpay_number ?? '',
         name: d.kpay_name ?? '',
-        priceMmk: d.price_mmk ?? '',
-        usdtPrice: d.usdt_price ?? '',
+        priceMmk: d.price_mmk == null ? '' : String(d.price_mmk),
+        usdtPrice: d.usdt_price == null ? '' : String(d.usdt_price),
         nets,
       })
       if (nets.length) setNet((prev) => prev || nets[0].key)
