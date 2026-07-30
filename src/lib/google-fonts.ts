@@ -184,3 +184,35 @@ export async function ensureGoogleFontsLoaded() {
 export function isGoogleFontReady(family: string) {
   return loaded.has(family)
 }
+
+/* ---------------- lightweight preview (no download/install) ---------------- */
+
+const previewLinks = new Set<string>()
+
+/**
+ * Loads families through the Google Fonts CSS API purely so the picker can show
+ * a live sample. Nothing is stored — installing is still an explicit action.
+ */
+export function preloadGoogleFontPreview(families: string[], weight = 400) {
+  if (typeof document === 'undefined' || families.length === 0) return
+  const pending = families.filter((f) => !previewLinks.has(`${f}@${weight}`))
+  if (pending.length === 0) return
+  pending.forEach((f) => previewLinks.add(`${f}@${weight}`))
+
+  for (let i = 0; i < pending.length; i += 12) {
+    const batch = pending.slice(i, i + 12)
+    const q = batch
+      .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, '+')}:wght@${weight}`)
+      .join('&')
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?${q}&display=swap`
+    document.head.appendChild(link)
+  }
+}
+
+/** Nearest supported weight for a family. */
+export function nearestWeight(available: number[], want: number) {
+  if (!available || available.length === 0) return 400
+  return available.reduce((a, b) => (Math.abs(b - want) < Math.abs(a - want) ? b : a))
+}
