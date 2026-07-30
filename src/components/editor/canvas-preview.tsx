@@ -191,6 +191,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }, [emitMove])
 
     function stageDown(e: PointerEvent<HTMLDivElement>) {
+      pulseInteraction(400)
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       measureBase()
       if (pointers.current.size >= 2) {
@@ -210,6 +211,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
     function stageMove(e: PointerEvent<HTMLDivElement>) {
       if (!pointers.current.has(e.pointerId)) return
+      pulseInteraction(400)
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       const pinch = pinchRef.current
       if (pinch && pointers.current.size >= 2) {
@@ -298,8 +300,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const dy = e.clientY - st.startY
       if (!st.moved && Math.hypot(dx, dy) < 4) return
       st.moved = true
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = dragRectRef.current ?? containerRef.current?.getBoundingClientRect() ?? null
       if (!rect || !rect.width || !rect.height) return
+      dragRectRef.current = { width: rect.width, height: rect.height }
 
       // Move by pointer delta from where the layer was grabbed, so the text
       // keeps its offset under the finger instead of snapping its centre.
@@ -314,13 +317,15 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       if (snapH) y = 50
       setGuides((g) => (g.v === snapV && g.h === snapH ? g : { v: snapV, h: snapH }))
 
-      onMove(st.id, Math.max(-200, Math.min(300, x)), Math.max(-200, Math.min(300, y)))
+      emitMove(st.id, Math.max(-200, Math.min(300, x)), Math.max(-200, Math.min(300, y)))
     }
 
 
 
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
       stageUp(e)
+      emitMove.flush()
+      dragRectRef.current = null
       setGuides({ v: false, h: false })
       const st = dragState.current
       dragState.current = null
