@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog'
 import { PaymentPage } from './payment-page'
 import { useAuth } from '@/components/auth-provider'
+import { usePricing } from '@/lib/pricing'
 
 const BENEFITS = [
   { icon: ShieldOff, title: 'No ads', desc: 'Zero interruptions while you edit.' },
@@ -50,6 +51,7 @@ export function PremiumBadge() {
   const [open, setOpen] = useState(false)
   const [pay, setPay] = useState(false)
   const { isPro, proPending, proExpiresAt, proSince } = useAuth()
+  const pricing = usePricing(open)
 
   return (
     <>
@@ -147,15 +149,23 @@ export function PremiumBadge() {
             ) : (
               <>
                 <div className="relative mt-4 overflow-hidden rounded-2xl border border-[#8b5cf6]/40 bg-muted/50 p-4 text-center">
-                  <span className="absolute left-0 top-0 rounded-br-xl bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[10px] font-extrabold text-white">
-                    50% OFF
-                  </span>
-                  <p className="text-[11px] font-medium text-muted-foreground line-through">
-                    60,000 MMK
-                  </p>
+                  {pricing.promoLabel && (
+                    <span className="absolute left-0 top-0 rounded-br-xl bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[10px] font-extrabold text-white">
+                      {pricing.promoLabel}
+                    </span>
+                  )}
+                  {pricing.originalMmk && (
+                    <p className="text-[11px] font-medium text-muted-foreground line-through">
+                      {pricing.originalMmk}
+                    </p>
+                  )}
                   <p className="text-2xl font-extrabold tracking-tight text-foreground">
-                    30,000 MMK
-                    <span className="ml-1 text-[13px] font-bold text-muted-foreground">OR 8.5 USD</span>
+                    {pricing.priceMmk}
+                    {pricing.priceUsd && (
+                      <span className="ml-1 text-[13px] font-bold text-muted-foreground">
+                        OR {pricing.priceUsd}
+                      </span>
+                    )}
                   </p>
                   <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground">
                     <BadgeCheck className="size-3.5 text-[#8b5cf6]" />
