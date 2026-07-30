@@ -6,7 +6,6 @@ import {
   Crop as CropIcon,
   FlipHorizontal,
   FlipVertical,
-  Eye,
   Image as ImageIcon,
 
   Pipette,
@@ -121,7 +120,6 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitAdvanced, setFitAdvanced] = useState(false)
   const [fitPreview, setFitPreview] = useState<string | null>(null)
   const backdropInput = useRef<HTMLInputElement | null>(null)
-  const [panelOpen, setPanelOpen] = useState(true)
   const [sliderDragging, setSliderDragging] = useState(false)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dragProps = {
