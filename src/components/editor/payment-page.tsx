@@ -36,15 +36,20 @@ function CopyRow({
   label,
   value,
   valueClassName,
+  icon,
 }: {
   label: string
   value: string
   valueClassName?: string
+  icon?: React.ReactNode
 }) {
   const [copied, setCopied] = useState(false)
   return (
     <div className="glass-tile rounded-2xl px-3.5 py-3">
-      <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+      <div className="flex items-center gap-1.5">
+        {icon}
+        <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+      </div>
       <div className="mt-1 flex items-center gap-2">
         <p className={`min-w-0 flex-1 break-all font-mono leading-snug ${valueClassName || 'text-[12px]'}`}>{value}</p>
         <button
@@ -55,7 +60,9 @@ function CopyRow({
             setCopied(true)
             setTimeout(() => setCopied(false), 1600)
           }}
-          className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition active:scale-95"
+          className={`grid size-9 shrink-0 place-items-center rounded-xl transition active:scale-95 ${
+            copied ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'
+          }`}
         >
           {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
         </button>
@@ -63,6 +70,7 @@ function CopyRow({
     </div>
   )
 }
+
 
 function GoogleMark({ className = 'size-4' }: { className?: string }) {
   return (
