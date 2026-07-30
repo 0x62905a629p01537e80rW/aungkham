@@ -700,6 +700,185 @@ function FontPicker({
   )
 }
 
+type TextureSlider = 'rotate' | 'sx' | 'sy' | 'ox' | 'oy'
+
+function TexturePanel({
+  layer,
+  onChange,
+}: {
+  layer: TextLayer
+  onChange: (patch: Partial<TextLayer>) => void
+}) {
+  const [dragging, setDragging] = useState<TextureSlider | null>(null)
+  const [peek, setPeek] = useState(false)
+  const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (peekTimer.current) clearTimeout(peekTimer.current) }, [])
+  const quickPeek = () => {
+    setPeek(true)
+    if (peekTimer.current) clearTimeout(peekTimer.current)
+    peekTimer.current = setTimeout(() => setPeek(false), 800)
+  }
+
+  const fade = 'transition-opacity duration-200'
+  const others = dragging ? 'pointer-events-none opacity-0' : 'opacity-100'
+  const hidden = (key: TextureSlider) =>
+    dragging !== null && dragging !== key ? 'pointer-events-none opacity-0' : 'opacity-100'
+  const drag = (key: TextureSlider) => ({
+    onDragStart: () => setDragging(key),
+    onDragEnd: () => setDragging(null),
+    hideLabel: dragging === key,
+  })
+
+  const src = layer.textureSrc ?? layer.textureImage
+  const applyRotate = (deg: number) => {
+    onChange({ textureRotate: deg })
+    if (!src) return
+    rotateImage(src, deg)
+      .then((url) => onChange({ textureImage: url, fillType: 'texture' }))
+      .catch(() => undefined)
+  }
+
+  return (
+    <div
+      className={cn('space-y-4 transition-opacity duration-300', peek && 'opacity-20')}
+      data-dragging={dragging ? 'true' : 'false'}
+      data-peek={peek ? 'true' : 'false'}
+      onPointerUp={() => setDragging(null)}
+      onPointerCancel={() => setDragging(null)}
+    >
+      <div className={cn(fade, others)}>
+        <ToolHeading>Texture from image</ToolHeading>
+      </div>
+
+      <label
+        className={cn(
+          fade,
+          others,
+          'flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-border text-xs font-semibold transition active:scale-95',
+        )}
+      >
+        <ImagePlus className="size-4" />
+        {layer.textureImage ? 'Change image' : 'Select image'}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            e.target.value = ''
+            if (!file) return
+            const reader = new FileReader()
+            reader.onload = () => {
+              const url = String(reader.result)
+              quickPeek()
+              onChange({
+                textureSrc: url,
+                textureImage: url,
+                fillType: 'texture',
+                textureRotate: 0,
+                textureScaleX: 100,
+                textureScaleY: 100,
+                textureOffsetX: 50,
+                textureOffsetY: 50,
+              })
+            }
+            reader.readAsDataURL(file)
+          }}
+        />
+      </label>
+
+      {layer.textureImage && (
+        <>
+          <div className={cn(fade, hidden('rotate'))}>
+            <SliderField
+              label="Rotate"
+              value={layer.textureRotate ?? 0}
+              min={0}
+              max={360}
+              suffix="°"
+              onChange={applyRotate}
+              {...drag('rotate')}
+            />
+          </div>
+          <div className={cn(fade, hidden('sx'))}>
+            <SliderField
+              label="Horizontal"
+              value={layer.textureScaleX ?? 100}
+              min={20}
+              max={400}
+              suffix="%"
+              onChange={(v) => onChange({ textureScaleX: v })}
+              {...drag('sx')}
+            />
+          </div>
+          <div className={cn(fade, hidden('sy'))}>
+            <SliderField
+              label="Vertical"
+              value={layer.textureScaleY ?? 100}
+              min={20}
+              max={400}
+              suffix="%"
+              onChange={(v) => onChange({ textureScaleY: v })}
+              {...drag('sy')}
+            />
+          </div>
+          <div className={cn(fade, hidden('ox'))}>
+            <SliderField
+              label="Move X"
+              value={layer.textureOffsetX ?? 50}
+              min={-100}
+              max={200}
+              suffix="%"
+              onChange={(v) => onChange({ textureOffsetX: v })}
+              {...drag('ox')}
+            />
+          </div>
+          <div className={cn(fade, hidden('oy'))}>
+            <SliderField
+              label="Move Y"
+              value={layer.textureOffsetY ?? 50}
+              min={-100}
+              max={200}
+              suffix="%"
+              onChange={(v) => onChange({ textureOffsetY: v })}
+              {...drag('oy')}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              quickPeek()
+              onChange({
+                textureImage: undefined,
+                textureSrc: undefined,
+                fillType: 'solid',
+              })
+            }}
+            className={cn(
+              fade,
+              others,
+              'h-9 w-full rounded-xl border border-border text-xs font-semibold transition active:scale-95',
+            )}
+          >
+            Remove texture image
+          </button>
+        </>
+      )}
+
+      <div className={cn(fade, others)}>
+        <ColorField
+          label="Base color"
+          value={layer.color}
+          onChange={(v) => {
+            quickPeek()
+            onChange({ color: v })
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
 type FormatSlider = 'size' | 'width' | 'weight'
 
 function FormatPanel({
