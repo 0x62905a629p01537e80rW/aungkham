@@ -540,6 +540,7 @@ function FontCard({
   entry,
   active,
   fav,
+  sample,
   locked = false,
   onSelect,
   onFav,
@@ -548,6 +549,7 @@ function FontCard({
   entry: FontEntry
   active: boolean
   fav: boolean
+  sample: string
   locked?: boolean
   onSelect: () => void
   onFav: () => void
@@ -556,38 +558,44 @@ function FontCard({
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-xl border transition',
+        'group relative flex items-center gap-2 overflow-hidden rounded-2xl border pr-1.5 transition',
         active
           ? 'border-primary bg-primary/15 shadow-[0_0_0_1px_var(--color-primary)]'
           : 'border-border/60 bg-foreground/5 hover:bg-foreground/10',
       )}
     >
-      <button type="button" onClick={onSelect} className="block w-full px-2 pb-1.5 pt-1.5 text-left">
+      <button
+        type="button"
+        onClick={onSelect}
+        className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left"
+      >
         {locked && (
-          <span className="absolute inset-0 z-10 grid place-items-center rounded-xl bg-background/60 backdrop-blur-[2px]">
+          <span className="absolute inset-0 z-10 grid place-items-center rounded-2xl bg-background/60 backdrop-blur-[2px]">
             <Lock className="size-4 text-[#8b5cf6]" />
           </span>
         )}
-        <span
-          className="block overflow-hidden text-ellipsis whitespace-nowrap py-1 text-[15px] text-foreground"
-          style={{ fontFamily: fontFamily(entry.key), lineHeight: entry.myanmar ? 2 : 1.4 }}
-        >
-          {entry.myanmar ? 'မြန်မာစာ' : 'Aa Bb Cc'}
+        <span className="min-w-0 flex-1">
+          <span
+            className="block overflow-hidden text-ellipsis whitespace-nowrap text-[19px] text-foreground"
+            style={{ fontFamily: fontFamily(entry.key), lineHeight: entry.myanmar ? 1.9 : 1.3 }}
+          >
+            {sample || (entry.myanmar ? 'မြန်မာစာ' : 'Aa Bb Cc')}
+          </span>
+          <span className="mt-0.5 block truncate text-[9px] uppercase tracking-wider text-muted-foreground">
+            {entry.label}
+          </span>
         </span>
-
-        <span className="mt-0.5 block truncate text-[9px] uppercase tracking-wider text-muted-foreground">
-          {entry.label}
-        </span>
+        {active && <Check className="size-4 shrink-0 text-primary" />}
       </button>
-      <div className="absolute right-1 top-1 flex gap-0.5">
+      <div className="flex shrink-0 items-center gap-0.5">
         {onDelete && (
           <button
             type="button"
             aria-label="Delete font"
             onClick={onDelete}
-            className="flex size-5 items-center justify-center rounded-full text-muted-foreground transition active:scale-90"
+            className="flex size-7 items-center justify-center rounded-full text-muted-foreground transition active:scale-90"
           >
-            <Trash2 className="size-3" />
+            <Trash2 className="size-3.5" />
           </button>
         )}
         <button
@@ -595,16 +603,17 @@ function FontCard({
           aria-label="Favorite"
           onClick={onFav}
           className={cn(
-            'flex size-5 items-center justify-center rounded-full transition active:scale-90',
+            'flex size-7 items-center justify-center rounded-full transition active:scale-90',
             fav ? 'text-primary' : 'text-muted-foreground/60',
           )}
         >
-          <Star className={cn('size-3', fav && 'fill-current')} />
+          <Star className={cn('size-3.5', fav && 'fill-current')} />
         </button>
       </div>
     </div>
   )
 }
+
 
 function FontPicker({
   layer,
