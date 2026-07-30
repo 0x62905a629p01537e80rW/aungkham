@@ -12,7 +12,8 @@ import {
 import { useAuth } from '@/components/auth-provider'
 
 const PRICE_MMK = '30,000 MMK'
-const PRICE_USD = '$12 USD'
+const PRICE_OLD_MMK = '60,000 MMK'
+const PRICE_USD = '8.5 USD'
 
 type PaySettings = { phone: string; name: string }
 
