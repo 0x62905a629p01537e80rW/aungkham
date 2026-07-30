@@ -48,19 +48,29 @@ export function pulseInteraction(ms = 220) {
 
 /**
  * Returns a function that runs `fn` at most once per animation frame with the
- * latest arguments — the standard way to keep pointer handlers at 120fps.
+ * latest arguments. Pass `minIntervalMs` (e.g. 16) to additionally cap the
+ * rate — on 120Hz phones an uncapped rAF loop can double the amount of state
+ * updates the WebView has to service while a slider is being dragged.
  */
-export function rafThrottle<A extends unknown[]>(fn: (...args: A) => void) {
+export function rafThrottle<A extends unknown[]>(fn: (...args: A) => void, minIntervalMs = 0) {
   let frame: number | null = null
   let latest: A | null = null
+  let lastRun = 0
 
   const run = () => {
     frame = null
-    if (latest) {
-      const args = latest
-      latest = null
-      fn(...args)
+    if (!latest) return
+    if (minIntervalMs > 0) {
+      const now = performance.now()
+      if (now - lastRun < minIntervalMs) {
+        frame = requestAnimationFrame(run)
+        return
+      }
+      lastRun = now
     }
+    const args = latest
+    latest = null
+    fn(...args)
   }
 
   const throttled = (...args: A) => {
@@ -77,8 +87,14 @@ export function rafThrottle<A extends unknown[]>(fn: (...args: A) => void) {
 
   throttled.flush = () => {
     if (frame != null) cancelAnimationFrame(frame)
-    run()
+    frame = null
+    if (!latest) return
+    const args = latest
+    latest = null
+    lastRun = performance.now()
+    fn(...args)
   }
 
   return throttled
 }
+
