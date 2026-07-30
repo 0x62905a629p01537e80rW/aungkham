@@ -909,7 +909,9 @@ function FontPicker({
           </p>
         )}
       </div>
+      </div>
     </div>
+
   )
 }
 
