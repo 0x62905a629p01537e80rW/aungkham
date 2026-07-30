@@ -415,6 +415,7 @@ export function Editor() {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
+      clearErase()
       setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
       setImage(bg)
       setLayers(tpl)
