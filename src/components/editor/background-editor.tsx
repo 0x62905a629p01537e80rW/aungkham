@@ -119,6 +119,13 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitAdvanced, setFitAdvanced] = useState(false)
   const [fitPreview, setFitPreview] = useState<string | null>(null)
   const backdropInput = useRef<HTMLInputElement | null>(null)
+  const [panelOpen, setPanelOpen] = useState(true)
+  const [peeking, setPeeking] = useState(false)
+  const [sliderDragging, setSliderDragging] = useState(false)
+  const dragProps = {
+    onDragStart: () => setSliderDragging(true),
+    onDragEnd: () => setSliderDragging(false),
+  }
 
 
   // frame
