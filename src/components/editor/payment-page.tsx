@@ -13,6 +13,12 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { GlassTabs } from '@/components/ui/glass-tabs'
+import {
+  BrandLogo,
+  KbzPayMark,
+  NetworkMark,
+  UsdtMark,
+} from '@/components/editor/pay-icons'
 import { pricingFromDoc, usePricing } from '@/lib/pricing'
 
 type CryptoNet = { key: string; label: string; address: string }
