@@ -9,8 +9,8 @@ import { cn } from '@/lib/utils'
 
 export function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="space-y-4 border-b border-border px-5 py-5 last:border-b-0">
-      <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+    <div className="space-y-3 border-b border-border px-4 py-3.5 last:border-b-0">
+      <h3 className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {title}
       </h3>
       {children}
@@ -72,15 +72,15 @@ export function SliderField({
   }
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       <div
         className={cn(
           'flex items-center justify-between transition-opacity duration-200',
           hideLabel && 'pointer-events-none opacity-0',
         )}
       >
-        <Label className="text-[13px] font-medium text-foreground">{label}</Label>
-        <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+        <Label className="text-[11px] font-medium text-foreground">{label}</Label>
+        <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
           {value}
           {suffix}
         </span>
