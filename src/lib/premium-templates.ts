@@ -201,9 +201,8 @@ export const PREMIUM_DESIGNS: PremiumDesign[] = [
   },
 ]
 
-/** Global headline/caption upscale so template type reads big on the canvas. */
+/** Global headline/caption upscale, capped so type stays inside the canvas. */
 const MAIN_SCALE = 3
-const SUB_SCALE = 3
 const MAIN_MAX = 34
 const SUB_MAX = 12
 
@@ -211,8 +210,18 @@ function build(d: PremiumDesign, mm: boolean): TextLayer[] {
   const copy = mm ? d.mm : d.en
   const head = createTextLayer(copy.main)
   const cap = createTextLayer(copy.sub)
-  const mainSize = Math.min((d.main.fontSize ?? 12) * MAIN_SCALE, MAIN_MAX)
-  const subSize = Math.min((d.sub.fontSize ?? 3) * SUB_SCALE, SUB_MAX)
+  const headLh = mm ? 1.5 : 1.05
+  const capLh = mm ? 1.5 : 1.2
+  const scale = fitScale(
+    [
+      measurable({ ...d.main, text: copy.main, lineHeight: headLh }),
+      measurable({ ...d.sub, text: copy.sub, lineHeight: capLh }),
+    ],
+    MAIN_SCALE,
+    MAIN_MAX,
+  )
+  const mainSize = Math.min((d.main.fontSize ?? 12) * scale, MAIN_MAX)
+  const subSize = Math.min((d.sub.fontSize ?? 3) * scale, SUB_MAX)
   return [
     {
       ...head,
@@ -220,7 +229,7 @@ function build(d: PremiumDesign, mm: boolean): TextLayer[] {
       fontSize: mainSize,
       text: copy.main,
       fontKey: copy.font,
-      lineHeight: mm ? 1.5 : 1.05,
+      lineHeight: headLh,
     },
     {
       ...cap,
@@ -228,10 +237,11 @@ function build(d: PremiumDesign, mm: boolean): TextLayer[] {
       fontSize: subSize,
       text: copy.sub,
       fontKey: copy.subFont,
-      lineHeight: mm ? 1.5 : 1.2,
+      lineHeight: capLh,
     },
   ]
 }
+
 
 export const PREMIUM_TEMPLATES = PREMIUM_DESIGNS.flatMap((d) => [
   {
