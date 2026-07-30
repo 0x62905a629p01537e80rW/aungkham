@@ -128,11 +128,25 @@ async function fetchFontFile(family: string): Promise<ArrayBuffer> {
     if (!r.ok) throw new Error('css failed')
     return r.text()
   })
-  const match =
-    css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/) ||
-    css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/)
-  if (!match) throw new Error('no font file found')
-  const res = await fetch(match[1])
+
+  // css2 returns one @font-face per unicode subset (cyrillic, greek, latin…).
+  // Pick the block that actually covers the glyphs we render, otherwise the
+  // installed file has no letters and the text silently falls back.
+  const blocks = css.split('@font-face').slice(1)
+  let best: { url: string; score: number } | null = null
+  for (const block of blocks) {
+    const m =
+      block.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/) ||
+      block.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/)
+    if (!m) continue
+    const range = block.match(/unicode-range:([^;]+);/)?.[1] ?? ''
+    let score = 1
+    if (/U\+1000/i.test(range)) score = 3 // Myanmar
+    else if (/U\+0000|U\+0-00FF|U\+0041|U\+0100/i.test(range)) score = 2 // latin
+    if (!best || score > best.score) best = { url: m[1], score }
+  }
+  if (!best) throw new Error('no font file found')
+  const res = await fetch(best.url)
   if (!res.ok) throw new Error('download failed')
   return res.arrayBuffer()
 }
