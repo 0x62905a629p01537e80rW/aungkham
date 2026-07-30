@@ -434,6 +434,7 @@ export function ToolBar({
             </Popover>
           )
         })}
+       </div>
       </div>
 
       {selected?.graphic && (
