@@ -137,6 +137,9 @@ export function ProSplash() {
 
       <div className="mt-auto space-y-3 px-5 pb-6">
         <div className="relative rounded-2xl border-2 border-[#7c5cff] bg-white/[0.06] p-4">
+          <span className="absolute -top-2.5 left-3 rounded-md bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[10px] font-extrabold">
+            50% OFF
+          </span>
           <span className="absolute -top-2.5 right-3 rounded-md bg-[#7c5cff] px-2 py-0.5 text-[10px] font-bold">
             Best value
           </span>
@@ -145,7 +148,11 @@ export function ProSplash() {
               <Check className="size-3.5" />
             </span>
             <div>
-              <p className="text-base font-bold">MMK 30,000 / Lifetime</p>
+              <p className="text-[11px] text-white/60 line-through">MMK 60,000</p>
+              <p className="text-base font-bold">
+                MMK 30,000{' '}
+                <span className="text-[12px] font-semibold text-white/70">OR 8.5 USD</span>
+              </p>
               <p className="text-[11px] text-white/70">One-time payment · Pay once, keep forever</p>
             </div>
           </div>
