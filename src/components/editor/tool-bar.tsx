@@ -550,9 +550,11 @@ function FontCard({
 function FontPicker({
   layer,
   onChange,
+  onClose,
 }: {
   layer: TextLayer
   onChange: (patch: Partial<TextLayer>) => void
+  onClose?: () => void
 }) {
   const current = FONTS.find((f) => f.key === layer.fontKey)
   const [group, setGroup] = useState<FontGroup>(
