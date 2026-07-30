@@ -847,6 +847,6 @@ function buildAll(): TemplateDef[] {
   return out
 }
 
-export const TEMPLATES: TemplateDef[] = buildAll()
+export const TEMPLATES: TemplateDef[] = [...PREMIUM_TEMPLATES, ...buildAll()]
 
-export const TEMPLATE_GROUPS: string[] = ['All', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
+export const TEMPLATE_GROUPS: string[] = ['All', 'Premium', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
