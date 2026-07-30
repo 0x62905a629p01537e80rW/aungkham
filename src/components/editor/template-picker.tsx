@@ -6,11 +6,23 @@ import { GlassTabs } from '@/components/ui/glass-tabs'
 import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import type { TextLayer } from '@/lib/text-layer'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { useI18n } from '@/components/i18n'
 
 interface TemplatePickerProps {
   open: boolean
   onClose: () => void
   onApply: (layers: TextLayer[], bg?: string) => void
+  hasBackground?: boolean
 }
 
 const THUMB_BG = [
@@ -65,11 +77,14 @@ export function TemplateGallery({
   onApply,
   className,
   scroll = true,
+  onRequestChoice,
 }: {
   onApply: (layers: TextLayer[], bg?: string) => void
   className?: string
   /** When false the gallery grows with its content and relies on a parent scroller. */
   scroll?: boolean
+  /** If provided, the gallery asks before applying instead of calling onApply directly. */
+  onRequestChoice?: (layers: TextLayer[], bg?: string) => void
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
@@ -117,7 +132,13 @@ export function TemplateGallery({
                 key={t.id}
                 type="button"
                 aria-label={t.name}
-                onClick={() => onApply(t.build(), t.bg)}
+                onClick={() => {
+                  if (onRequestChoice) {
+                    onRequestChoice(t.build(), t.bg)
+                  } else {
+                    onApply(t.build(), t.bg)
+                  }
+                }}
                 className="glass-tile w-full touch-pan-y overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
               >
                 <div className="pointer-events-none relative aspect-[16/9] w-full">
@@ -139,8 +160,38 @@ export function TemplateGallery({
   )
 }
 
-export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) {
+export function TemplatePicker({ open, onClose, onApply, hasBackground = false }: TemplatePickerProps) {
+  const { t } = useI18n()
+  const [pending, setPending] = useState<{ layers: TextLayer[]; bg?: string } | null>(null)
+
   if (!open) return null
+
+  const handleRequestChoice = (layers: TextLayer[], bg?: string) => {
+    if (hasBackground) {
+      setPending({ layers, bg })
+    } else {
+      onApply(layers, bg)
+      onClose()
+    }
+  }
+
+  const handleReplace = () => {
+    if (!pending) return
+    onApply(pending.layers, pending.bg)
+    setPending(null)
+    onClose()
+  }
+
+  const handleStylesOnly = () => {
+    if (!pending) return
+    onApply(pending.layers, undefined)
+    setPending(null)
+    onClose()
+  }
+
+  const handleCancel = () => {
+    setPending(null)
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background/85 backdrop-blur-xl">
@@ -158,11 +209,37 @@ export function TemplatePicker({ open, onClose, onApply }: TemplatePickerProps) 
 
       <TemplateGallery
         className="px-3 pt-2"
-        onApply={(layers, bg) => {
-          onApply(layers, bg)
-          onClose()
-        }}
+        onRequestChoice={handleRequestChoice}
       />
+
+      <AlertDialog open={pending !== null} onOpenChange={(open) => !open && handleCancel()}>
+        <AlertDialogContent className="glass-panel max-w-[min(92vw,320px)] rounded-3xl border-0">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('template.apply.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('template.apply.desc')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <AlertDialogAction
+              onClick={handleReplace}
+              className="w-full rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground"
+            >
+              {t('template.apply.replace')}
+            </AlertDialogAction>
+            <AlertDialogAction
+              onClick={handleStylesOnly}
+              className="w-full rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            >
+              {t('template.apply.styles')}
+            </AlertDialogAction>
+            <AlertDialogCancel
+              onClick={handleCancel}
+              className="mt-0 w-full rounded-full border border-border/50 bg-transparent hover:bg-accent"
+            >
+              {t('template.apply.cancel')}
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
