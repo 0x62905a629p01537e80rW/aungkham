@@ -363,20 +363,17 @@ export function ColorPickerPanel({
       {showFull && (
       <div className="mt-2 flex items-center gap-1.5">
         {allowGradient ? (
-          <div className="flex flex-1 items-center rounded-lg bg-muted p-0.5">
-            {(['solid', 'gradient'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMode(m)}
-                className={`flex-1 rounded-[6px] px-2 py-1 text-[11px] font-semibold capitalize transition ${
-                  mode === m ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'
-                }`}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
+          <GlassTabs
+            size="sm"
+            className="flex-1"
+            value={mode}
+            onChange={(m) => setMode(m as typeof mode)}
+            items={[
+              { key: 'solid', label: 'Solid' },
+              { key: 'gradient', label: 'Gradient' },
+            ]}
+          />
+
         ) : (
           <div className="flex-1" />
         )}
