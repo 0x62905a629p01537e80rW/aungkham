@@ -254,6 +254,27 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               ? 'Frame'
               : 'Fit'
 
+  if (tool === 'resize') {
+    return (
+      <ResizeDialog
+        natural={natural}
+        rw={rw}
+        rh={rh}
+        keepAspect={keepAspect}
+        onChange={({ w, h, keepAspect: ka }) => {
+          setRw(w)
+          setRh(h)
+          setKeepAspect(ka)
+        }}
+        onCancel={onCancel}
+        onApply={() => {
+          if (!natural) return
+          resize(natural.w, natural.h, rw, rh)
+        }}
+      />
+    )
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <header
