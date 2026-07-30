@@ -9,12 +9,12 @@ import type { TextLayer } from '@/lib/text-layer'
  */
 
 const CANVAS_W = 177.8 // cqh
-const SAFE_W = 0.9
-const SAFE_H = 0.86
+const SAFE_W = 0.82
+const SAFE_H = 0.7
 
 /** Rough per-character advance as a fraction of the font size. */
 function advance(text: string) {
-  return /[\u1000-\u109f]/.test(text) ? 0.95 : 0.62
+  return /[\u1000-\u109f]/.test(text) ? 1.05 : 0.82
 }
 
 function lines(text: string) {
