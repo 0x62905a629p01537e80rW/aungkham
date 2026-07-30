@@ -263,14 +263,27 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
           </div>
         ) : (
           <div className="mt-5 space-y-3">
+            <GlassTabs
+              items={[
+                { key: 'kbzpay', label: 'KBZPay' },
+                { key: 'usdt', label: 'USDT Crypto' },
+              ]}
+              value={method}
+              onChange={(k) => setMethod(k as 'kbzpay' | 'usdt')}
+            />
+
             <div className="glass-tile flex items-center gap-3 rounded-2xl p-4">
               <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-                <Smartphone className="size-5" />
+                {method === 'usdt' ? <Coins className="size-5" /> : <Smartphone className="size-5" />}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold">Myanmar manual payment</p>
+                <p className="text-sm font-bold">
+                  {method === 'usdt' ? 'USDT stablecoin payment' : 'Myanmar manual payment'}
+                </p>
                 <p className="text-[11px] text-muted-foreground">
-                  KBZPay transfer — send {PRICE_MMK}, then submit your transaction details.
+                  {method === 'usdt'
+                    ? `Send ${settings?.usdtPrice || PRICE_USD} in USDT, then submit your transaction hash.`
+                    : `KBZPay transfer — send ${settings?.priceMmk || PRICE_MMK}, then submit your transaction details.`}
                 </p>
               </div>
             </div>
@@ -290,7 +303,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                   <Loader2 className="size-4 animate-spin" />
                   Loading payment details…
                 </div>
-              ) : settings ? (
+              ) : settings && method === 'kbzpay' ? (
                 <div className="mt-2 space-y-2">
                   {settings.phone && (
                     <CopyRow
@@ -307,37 +320,82 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                     />
                   )}
                 </div>
+              ) : settings ? (
+                settings.nets.length === 0 ? (
+                  <p className="mt-1 text-[12px] text-destructive">
+                    Crypto payment is not configured yet.
+                  </p>
+                ) : (
+                  <div className="mt-2 space-y-2">
+                    <div className="flex flex-wrap gap-1.5">
+                      {settings.nets.map((n) => (
+                        <button
+                          key={n.key}
+                          type="button"
+                          onClick={() => setNet(n.key)}
+                          className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition active:scale-95 ${
+                            activeNet?.key === n.key
+                              ? 'bg-primary text-primary-foreground'
+                              : 'glass-tile text-muted-foreground'
+                          }`}
+                        >
+                          {n.label.replace('USDT · ', '')}
+                        </button>
+                      ))}
+                    </div>
+                    {activeNet && (
+                      <CopyRow
+                        label={activeNet.label}
+                        value={activeNet.address}
+                        valueClassName="text-[12px] font-semibold"
+                      />
+                    )}
+                    {settings.usdtPrice && (
+                      <CopyRow label="Amount" value={settings.usdtPrice} valueClassName="text-[14px] font-semibold" />
+                    )}
+                    <p className="text-[11px] text-muted-foreground">
+                      Send only USDT on the selected network. Wrong-network transfers cannot be
+                      recovered.
+                    </p>
+                  </div>
+                )
               ) : null}
             </div>
 
             {/* Transaction input fields — only shown after payment details are available */}
-            {settings && !settingsError && (
+            {settings && !settingsError && (method === 'kbzpay' || settings.nets.length > 0) && (
               <div className="space-y-2 pt-1">
                 <label className="block">
                   <span className="text-[11px] font-medium text-muted-foreground">
-                    KBZPay Transaction ID (Last 6 digits) *
+                    {method === 'usdt'
+                      ? 'Transaction hash (TxID) *'
+                      : 'KBZPay Transaction ID (Last 6 digits) *'}
                   </span>
                   <input
                     value={txId}
                     onChange={(e) => setTxId(e.target.value)}
-                    inputMode="numeric"
-                    maxLength={12}
+                    inputMode={method === 'usdt' ? 'text' : 'numeric'}
+                    maxLength={method === 'usdt' ? 120 : 12}
                     required
-                    placeholder="e.g. 482913"
+                    placeholder={method === 'usdt' ? 'e.g. 0x9f3c…' : 'e.g. 482913'}
                     className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
                   />
                 </label>
 
                 <label className="block">
                   <span className="text-[11px] font-medium text-muted-foreground">
-                    Sender Name or Phone Number *
+                    {method === 'usdt'
+                      ? 'Your sending wallet address *'
+                      : 'Sender Name or Phone Number *'}
                   </span>
                   <input
                     value={senderInfo}
                     onChange={(e) => setSenderInfo(e.target.value)}
-                    maxLength={80}
+                    maxLength={120}
                     required
-                    placeholder="e.g. Aung Aung / 09-XXX-XXX-XXX"
+                    placeholder={
+                      method === 'usdt' ? 'e.g. TQ5x…' : 'e.g. Aung Aung / 09-XXX-XXX-XXX'
+                    }
                     className="glass-tile mt-1 h-11 w-full rounded-2xl px-3.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
                   />
                 </label>
@@ -359,6 +417,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
               </div>
             )}
           </div>
+
         )}
       </div>
     </div>,
