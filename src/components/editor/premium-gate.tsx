@@ -1,17 +1,35 @@
 import { useEffect, useState } from 'react'
-import { Type as TypeIcon, Undo2, X } from 'lucide-react'
+import { Droplets, Type as TypeIcon, Undo2, X } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { FONTS, type TextLayer } from '@/lib/text-layer'
+import { isProCustomFontKey } from '@/lib/custom-fonts'
 import { PaymentPage } from './payment-page'
 
 const PREMIUM_KEYS = new Set(FONTS.filter((f) => f.category === 'Myanmar Pro').map((f) => f.key))
 
+function isPremiumFontKey(key: string) {
+  return PREMIUM_KEYS.has(key) || isProCustomFontKey(key)
+}
+
 export function usesPremiumFont(layers: TextLayer[]) {
-  return layers.some((l) => PREMIUM_KEYS.has(l.fontKey))
+  return layers.some((l) => isPremiumFontKey(l.fontKey))
+}
+
+export function usesPremiumLiquid(layers: TextLayer[]) {
+  return layers.some((l) => !!l.liquidOn)
+}
+
+export function usesPremiumFeature(layers: TextLayer[]) {
+  return usesPremiumFont(layers) || usesPremiumLiquid(layers)
 }
 
 export function stripPremiumFonts(layers: TextLayer[]): TextLayer[] {
-  return layers.map((l) => (PREMIUM_KEYS.has(l.fontKey) ? { ...l, fontKey: 'pyidaungsu' } : l))
+  return layers.map((l) => {
+    const next = { ...l }
+    if (isPremiumFontKey(l.fontKey)) next.fontKey = 'pyidaungsu'
+    if (l.liquidOn) next.liquidOn = false
+    return next
+  })
 }
 
 function ProGem({ className = 'size-4' }: { className?: string }) {
