@@ -111,6 +111,7 @@ export function TemplateGallery({
         <div className="flex flex-col gap-2">
           {list.map((t) => {
             const bg = THUMB_BG[hashOf(t.id) % THUMB_BG.length]
+            const isPremium = t.group === 'Premium'
             return (
               <button
                 key={t.id}
@@ -119,13 +120,20 @@ export function TemplateGallery({
                 onClick={() => onApply(t.build(), t.bg)}
                 className="glass-tile w-full touch-pan-y overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
               >
-                <div className="pointer-events-none aspect-[16/9] w-full">
+                <div className="pointer-events-none relative aspect-[16/9] w-full">
                   <TemplateThumb template={t} bg={bg} />
+                  {isPremium && (
+                    <div className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 backdrop-blur-sm">
+                      <Crown className="size-3 text-yellow-400" />
+                      <span className="text-[10px] font-bold text-white">Pro</span>
+                    </div>
+                  )}
                 </div>
               </button>
             )
           })}
         </div>
+
       </div>
     </div>
   )
