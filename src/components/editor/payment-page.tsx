@@ -247,7 +247,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
 
       </div>
 
-      <div className="px-4 pb-14">
+      <div className="px-4 pb-14 pt-4">
         <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-primary/5 p-4 text-center">
           {pricing.promoLabel && (
             <span className="absolute left-0 top-0 rounded-br-2xl bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[10px] font-extrabold text-white">
