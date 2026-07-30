@@ -40,16 +40,10 @@ function resolveBg(bg?: string) {
   return bg
 }
 
-const ORDINALS = [
-  'One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
-  'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty',
-]
-
 export const IMPORTED_TEMPLATES: TemplateDef[] = (data.templates as unknown as RawTemplate[]).map(
   (t, i) => ({
     id: `MM-new-${t.id}`,
-    // Sequentially numbered so the New group always reads One, Two, Three, ...
-    name: ORDINALS[i] ?? `${i + 1}`,
+    name: t.name || `New ${i + 1}`,
     lang: 'MM' as const,
     group: 'New',
     bg: resolveBg(t.bg),
