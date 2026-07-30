@@ -423,6 +423,8 @@ export function Editor() {
         onToggleLayerLock={toggleLock}
         onReorderLayers={reorderLayers}
         onMoveLayer={moveLayer}
+        onGroupLayers={groupLayers}
+        onUngroupLayer={ungroupLayer}
         onInsert={() => setInserting(true)}
       />
 
