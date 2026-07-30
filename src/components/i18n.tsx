@@ -130,6 +130,13 @@ const DICT = {
     'discard.cancel': 'ဆက်တည်းဖြတ်မည်',
     'discard.confirm': 'ဖျက်ပြီး ထွက်မည်',
 
+    'resize.title': 'အရွယ်အစား ပြောင်းရန်',
+    'resize.keepAspect': 'Aspect Ratio ထားရှိရန်',
+    'resize.width': 'အကျယ်',
+    'resize.height': 'အမြင့်',
+    'resize.cancel': 'ပယ်မည်',
+    'resize.ok': 'OK',
+
     'template.apply.title': 'တမ်းပလိတ် ထည့်သွင်းမည်',
     'template.apply.desc': 'ဒီတမ်းပလိတ်၏ နောက်ခံအရောင်ကို အစားထိုးလိုပါသလား၊ သို့မဟုတ် လက်ရှိနောက်ခံကို ထားပြီး စာသားစတိုင်သာ အသုံးပြုလိုပါသလား?',
     'template.apply.replace': 'နောက်ခံ အစားထိုး',
