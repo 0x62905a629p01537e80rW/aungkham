@@ -245,21 +245,25 @@ function build(d: PremiumDesign, mm: boolean): TextLayer[] {
 }
 
 
-export const PREMIUM_TEMPLATES = PREMIUM_DESIGNS.flatMap((d) => [
-  {
-    id: `EN-premium-${d.key}`,
-    name: d.label,
-    lang: 'EN' as const,
-    group: 'Premium',
-    bg: d.bg,
-    build: () => build(d, false),
-  },
-  {
-    id: `MM-premium-${d.key}`,
-    name: d.label,
-    lang: 'MM' as const,
-    group: 'Premium',
-    bg: d.bg,
-    build: () => build(d, true),
-  },
-])
+export function premiumTemplatePair(d: PremiumDesign) {
+  return [
+    {
+      id: `EN-premium-${d.key}`,
+      name: d.label,
+      lang: 'EN' as const,
+      group: 'Premium',
+      bg: d.bg,
+      build: () => build(d, false),
+    },
+    {
+      id: `MM-premium-${d.key}`,
+      name: d.label,
+      lang: 'MM' as const,
+      group: 'Premium',
+      bg: d.bg,
+      build: () => build(d, true),
+    },
+  ]
+}
+
+export const PREMIUM_TEMPLATES = PREMIUM_DESIGNS.flatMap(premiumTemplatePair)

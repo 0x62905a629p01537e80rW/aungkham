@@ -40,10 +40,28 @@ function resolveBg(bg?: string) {
   return bg
 }
 
+const ORDINALS = [
+  'One',
+  'Two',
+  'Three',
+  'Four',
+  'Five',
+  'Six',
+  'Seven',
+  'Eight',
+  'Nine',
+  'Ten',
+  'Eleven',
+  'Twelve',
+  'Thirteen',
+  'Fourteen',
+  'Fifteen',
+]
+
 export const IMPORTED_TEMPLATES: TemplateDef[] = (data.templates as unknown as RawTemplate[]).map(
   (t, i) => ({
     id: `MM-new-${t.id}`,
-    name: t.name || `New ${i + 1}`,
+    name: ORDINALS[i] ?? `New ${i + 1}`,
     lang: 'MM' as const,
     group: 'New',
     bg: resolveBg(t.bg),

@@ -88,10 +88,11 @@ export function TemplateGallery({
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
+  const activeGroup = lang === 'EN' && group === 'New' ? 'All' : group
 
   const list = useMemo(
-    () => TEMPLATES.filter((t) => t.lang === lang && (group === 'All' || t.group === group)),
-    [lang, group],
+    () => TEMPLATES.filter((t) => t.lang === lang && (activeGroup === 'All' || t.group === activeGroup)),
+    [lang, activeGroup],
   )
 
   return (
@@ -114,9 +115,12 @@ export function TemplateGallery({
           <GlassTabs
             variant="chips"
             size="sm"
-            value={group}
+            value={activeGroup}
             onChange={(g) => setGroup(g as typeof group)}
-            items={TEMPLATE_GROUPS.map((g) => ({ key: g, label: g }))}
+            items={TEMPLATE_GROUPS.filter((g) => !(lang === 'EN' && g === 'New')).map((g) => ({
+              key: g,
+              label: g,
+            }))}
           />
         </div>
       </div>
