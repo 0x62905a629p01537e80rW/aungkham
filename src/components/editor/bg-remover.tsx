@@ -481,19 +481,41 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
         {/* Brush cursor preview with offset crosshair */}
         {cursor && phase === 'edit' && (tool === 'manual' || tool === 'repair') ? (
           <div className="pointer-events-none fixed inset-0">
+            {offsetCursor ? (
+              <div
+                className="absolute w-px bg-red-500/40"
+                style={{ left: cursor.x, top: cursor.y - offsetY, height: offsetY }}
+              />
+            ) : null}
             <div
               className="absolute rounded-full border-2 border-red-500/80"
               style={{
                 left: cursor.x,
-                top: offsetCursor ? cursor.y - 56 : cursor.y,
+                top: offsetCursor ? cursor.y - offsetY : cursor.y,
                 width: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current),
                 height: radiusPx() * 2 * canvasDisplayRatio(canvasRef.current),
                 transform: 'translate(-50%, -50%)',
               }}
             />
+            {/* Exact tip crosshair for pixel-precise work */}
+            <div
+              className="absolute"
+              style={{
+                left: cursor.x,
+                top: offsetCursor ? cursor.y - offsetY : cursor.y,
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <div className="relative size-6">
+                <span className="absolute left-1/2 top-0 h-2 w-px -translate-x-1/2 bg-red-500" />
+                <span className="absolute bottom-0 left-1/2 h-2 w-px -translate-x-1/2 bg-red-500" />
+                <span className="absolute left-0 top-1/2 h-px w-2 -translate-y-1/2 bg-red-500" />
+                <span className="absolute right-0 top-1/2 h-px w-2 -translate-y-1/2 bg-red-500" />
+              </div>
+            </div>
             {offsetCursor ? (
               <div
-                className="absolute size-3 rounded-full bg-red-500/70"
+                className="absolute size-3 rounded-full border border-white/70 bg-red-500/60"
                 style={{ left: cursor.x, top: cursor.y, transform: 'translate(-50%, -50%)' }}
               />
             ) : null}
@@ -503,11 +525,17 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
         {/* Magic wand target cursor */}
         {cursor && phase === 'edit' && tool === 'magic' ? (
           <div className="pointer-events-none fixed inset-0">
+            {offsetCursor ? (
+              <div
+                className="absolute w-px bg-sky-400/40"
+                style={{ left: cursor.x, top: cursor.y - offsetY, height: offsetY }}
+              />
+            ) : null}
             <div
               className="absolute"
               style={{
                 left: cursor.x,
-                top: offsetCursor ? cursor.y - 56 : cursor.y,
+                top: offsetCursor ? cursor.y - offsetY : cursor.y,
                 transform: 'translate(-50%, -50%)',
               }}
             >
@@ -521,7 +549,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
             </div>
             {offsetCursor ? (
               <div
-                className="absolute size-3 rounded-full bg-sky-400/70"
+                className="absolute size-3 rounded-full border border-white/70 bg-sky-400/60"
                 style={{ left: cursor.x, top: cursor.y, transform: 'translate(-50%, -50%)' }}
               />
             ) : null}
