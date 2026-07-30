@@ -186,12 +186,21 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                 </div>
               ) : (
                 <div className="relative mt-2 overflow-hidden rounded-3xl border border-border/50 bg-muted/40 p-5">
-                  <p className="flex items-center gap-2 text-xl font-semibold">
-                    Myan
-                    <span className="rounded-md bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[11px] font-bold text-white">
-                      Pro
-                    </span>
-                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="flex items-center gap-2 text-xl font-semibold">
+                      Myan
+                      <span className="premium-glass rounded-md px-2 py-0.5 text-[11px] font-bold">
+                        Pro
+                      </span>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setRestore(true)}
+                      className="rounded-full border border-border/60 px-3 py-1.5 text-xs font-semibold transition active:scale-95"
+                    >
+                      Restore
+                    </button>
+                  </div>
                   <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
                     <li>• Remove ads</li>
                     <li>• Unlock all features</li>
@@ -203,20 +212,10 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                       if (onBuyPro) onBuyPro()
                       else setPay(true)
                     }}
-                    className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-base font-bold text-white transition active:scale-[0.98]"
+                    className="premium-glass mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-base font-bold transition active:scale-[0.98]"
                   >
                     <Crown className="size-5" />
-                    {t('settings.getPremium')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (user) return
-                      void signIn().catch(() => {})
-                    }}
-                    className="mt-2 w-full text-center text-sm font-medium text-muted-foreground underline underline-offset-4 transition active:opacity-70"
-                  >
-                    {user ? 'Signed in — restore automatic' : t('settings.login')}
+                    Get Pro Features
                   </button>
                   {user && (
                     <button
@@ -232,6 +231,49 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                   )}
                 </div>
               )}
+
+              {restore &&
+                createPortal(
+                  <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
+                    <button
+                      type="button"
+                      aria-label="Close"
+                      onClick={() => setRestore(false)}
+                      className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                    />
+                    <div className="glass-panel relative w-full max-w-sm rounded-3xl p-6 text-center">
+                      <p className="text-lg font-bold">Restore Pro</p>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        To restore your Pro purchase, you need to log in with the account you
+                        used to buy it.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (user) {
+                            setRestore(false)
+                            return
+                          }
+                          void signIn()
+                            .then(() => setRestore(false))
+                            .catch(() => {})
+                        }}
+                        className="premium-glass mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-base font-bold transition active:scale-[0.98]"
+                      >
+                        {user ? 'Signed in — checking' : 'Login'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRestore(false)}
+                        className="mt-2 w-full py-2 text-sm font-medium text-muted-foreground transition active:opacity-70"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>,
+                  document.body,
+                )}
+
 
               <p className="mt-7 mb-1 text-base font-semibold">General</p>
 
