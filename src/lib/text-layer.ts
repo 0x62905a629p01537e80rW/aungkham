@@ -61,6 +61,15 @@ export interface TextLayer {
   rotateY: number
   perspective: number
 
+  /* Liquid glass */
+  liquidOn?: boolean
+  liquidTint?: number
+  liquidBlur?: number
+  liquidBorder?: number
+  liquidGlow?: number
+  liquidPlate?: boolean
+  liquidDark?: boolean
+
   /* Bend (arc) */
   bend: number
 
@@ -228,6 +237,13 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     rotateY: 0,
     perspective: 600,
     bend: 0,
+    liquidOn: false,
+    liquidTint: 22,
+    liquidBlur: 8,
+    liquidBorder: 45,
+    liquidGlow: 35,
+    liquidPlate: false,
+    liquidDark: false,
     flipH: false,
     flipV: false,
     underline: false,
