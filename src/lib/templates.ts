@@ -6,6 +6,7 @@
 import { createGraphicLayer, createTextLayer, type TextLayer } from '@/lib/text-layer'
 import { shapeDataUrl } from '@/lib/shapes'
 import { PREMIUM_TEMPLATES } from '@/lib/premium-templates'
+import { IMPORTED_TEMPLATES } from '@/lib/imported-templates'
 import { fitScale, measurable } from '@/lib/template-fit'
 
 
@@ -861,6 +862,6 @@ function buildAll(): TemplateDef[] {
   return out
 }
 
-export const TEMPLATES: TemplateDef[] = [...PREMIUM_TEMPLATES, ...buildAll()]
+export const TEMPLATES: TemplateDef[] = [...IMPORTED_TEMPLATES, ...PREMIUM_TEMPLATES, ...buildAll()]
 
-export const TEMPLATE_GROUPS: string[] = ['All', 'Premium', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
+export const TEMPLATE_GROUPS: string[] = ['All', 'New', 'Premium', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
