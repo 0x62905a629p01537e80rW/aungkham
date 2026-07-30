@@ -68,8 +68,11 @@ export function PremiumBadge() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="glass-panel max-w-[22rem] overflow-hidden rounded-3xl border border-border bg-background p-0 text-foreground shadow-none">
           <div className="px-5 pb-6 pt-6 text-center">
-            <div className="mx-auto mb-3 grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-[#ec4899] to-[#8b5cf6]">
-              <ProGem className="premium-float size-8" />
+            <div className="relative mx-auto mb-3 size-14">
+              <span aria-hidden className="pro-orb-ring" />
+              <div className="pro-orb size-14">
+                <ProGem className="premium-float relative z-10 size-8" />
+              </div>
             </div>
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-center text-xl font-extrabold text-foreground">
