@@ -70,8 +70,19 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
   const [counts, setCounts] = useState({ undo: 0, redo: 0 })
   const [bgMode, setBgMode] = useState<(typeof BG_MODES)[number]>('checker')
   const [offsetCursor, setOffsetCursor] = useState(true)
+  const [offsetY, setOffsetY] = useState(() => {
+    if (typeof window === 'undefined') return 120
+    const saved = Number(window.localStorage.getItem('bgr-cursor-offset'))
+    return Number.isFinite(saved) && saved >= 40 && saved <= 260 ? saved : 120
+  })
   const [view, setView] = useState({ scale: 1, tx: 0, ty: 0 })
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null)
+  const lastPoint = useRef<{ x: number; y: number } | null>(null)
+
+  const changeOffset = (v: number) => {
+    setOffsetY(v)
+    if (typeof window !== 'undefined') window.localStorage.setItem('bgr-cursor-offset', String(v))
+  }
 
   const ctxOf = () => canvasRef.current?.getContext('2d', { willReadFrequently: true }) ?? null
 
