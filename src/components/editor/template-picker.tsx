@@ -114,9 +114,9 @@ export function TemplateGallery({
                 type="button"
                 aria-label={t.name}
                 onClick={() => onApply(t.build(), t.bg)}
-                className="glass-tile w-full overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
+                className="glass-tile w-full touch-pan-y overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
               >
-                <div className="aspect-[16/9] w-full">
+                <div className="pointer-events-none aspect-[16/9] w-full">
                   <TemplateThumb template={t} bg={bg} />
                 </div>
               </button>

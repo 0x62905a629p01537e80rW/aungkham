@@ -406,7 +406,7 @@ export function Editor() {
 
   return (
     <AuthProvider>
-    <div className="flex min-h-[100dvh] flex-col bg-background">
+    <div className="flex h-[100dvh] min-h-[100dvh] flex-col overflow-hidden bg-background">
       <ScreenGuard layers={layers} />
       <ProSplash />
 
