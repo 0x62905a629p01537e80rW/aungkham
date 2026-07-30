@@ -500,7 +500,15 @@ function ToolHeading({ children }: { children: React.ReactNode }) {
   )
 }
 
-type FontGroup = 'recent' | 'favorites' | 'english' | 'mm-free' | 'mm-premium' | 'en-premium' | 'custom'
+type FontGroup =
+  | 'recent'
+  | 'favorites'
+  | 'english'
+  | 'mm-free'
+  | 'mm-premium'
+  | 'en-premium'
+  | 'google'
+  | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'recent', label: 'Recent' },
@@ -509,6 +517,7 @@ const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'mm-free', label: 'Myanmar' },
   { key: 'mm-premium', label: 'Premium (MM)' },
   { key: 'en-premium', label: 'Premium (Eng)' },
+  { key: 'google', label: 'Google Fonts' },
   { key: 'custom', label: 'My Fonts' },
 ]
 
