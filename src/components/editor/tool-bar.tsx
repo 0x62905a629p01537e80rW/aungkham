@@ -1740,7 +1740,7 @@ function PositionPanel({
 
       {tab === 'Zoom' && (
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
+          <div className={cn(fade, others, 'flex items-center gap-2')}>
             <button type="button" className={cn(iconBtn, 'flex-1 gap-2 text-xs font-semibold')} onClick={() => { quickPeek(); onChange({ flipH: !layer.flipH }) }}>
               <FlipHorizontal className="size-4" /> Flip H
             </button>
@@ -1748,7 +1748,7 @@ function PositionPanel({
               <FlipVertical className="size-4" /> Flip V
             </button>
           </div>
-          <div className="flex items-center justify-between">
+          <div className={cn(fade, others, 'flex items-center justify-between')}>
             <Label className="text-sm font-medium">Zoom</Label>
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs tabular-nums text-muted-foreground">
@@ -1772,14 +1772,17 @@ function PositionPanel({
               </button>
             </div>
           </div>
-          <SliderField
-            label="Size"
-            value={layer.fontSize}
-            min={2}
-            max={40}
-            step={0.5}
-            onChange={(v) => onChange({ fontSize: v })}
-          />
+          <div className={cn(fade, hidden('size'))}>
+            <SliderField
+              label="Size"
+              value={layer.fontSize}
+              min={2}
+              max={40}
+              step={0.5}
+              onChange={(v) => onChange({ fontSize: v })}
+              {...drag('size')}
+            />
+          </div>
         </div>
       )}
 
@@ -1788,21 +1791,25 @@ function PositionPanel({
           <button
             type="button"
             aria-label="Reset rotation"
-            className={cn(iconBtn, 'mx-auto w-12')}
+            className={cn(fade, others, iconBtn, 'mx-auto w-12')}
             onClick={() => { quickPeek(); onChange({ rotation: 0 }) }}
           >
             <RotateCcw className="size-4" />
           </button>
-          <SliderField
-            label="Rotation"
-            value={layer.rotation}
-            min={-180}
-            max={180}
-            suffix="°"
-            onChange={(v) => onChange({ rotation: v })}
-          />
+          <div className={cn(fade, hidden('rotation'))}>
+            <SliderField
+              label="Rotation"
+              value={layer.rotation}
+              min={-180}
+              max={180}
+              suffix="°"
+              onChange={(v) => onChange({ rotation: v })}
+              {...drag('rotation')}
+            />
+          </div>
         </div>
       )}
+
 
       {tab === 'Layer Order' && (
         <div className="grid grid-cols-2 gap-2">
