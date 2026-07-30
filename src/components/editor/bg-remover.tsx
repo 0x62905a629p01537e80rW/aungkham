@@ -298,9 +298,6 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
 
   const stageBg = bgMode === 'checker' ? 'checker-grid' : bgMode === 'white' ? 'bg-white' : 'bg-black'
 
-  /** Magic wand dwell: erase only after the finger rests ~0.5s on a spot. */
-  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const holdAt = useRef<{ x: number; y: number } | null>(null)
 
   const cancelMagicHold = () => {
     if (holdTimer.current) clearTimeout(holdTimer.current)
