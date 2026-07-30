@@ -285,6 +285,16 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     onClose()
   }
 
+  // Cleanup must be registered before any early return so hook order stays stable.
+  useEffect(
+    () => () => {
+      if (holdTimer.current) clearTimeout(holdTimer.current)
+      holdTimer.current = null
+      holdAt.current = null
+    },
+    [],
+  )
+
   if (!open || typeof document === 'undefined') return null
 
   const tools: { key: Tool; label: string; icon: typeof Wand2 }[] = [
