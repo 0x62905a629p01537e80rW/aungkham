@@ -1,6 +1,5 @@
-import { useEffect, useRef, type ReactNode } from 'react'
-import { beginInteraction, endInteraction, rafThrottle } from '@/lib/perf'
-import { Slider } from '@/components/ui/slider'
+import { memo, useCallback, useRef, useState, type ReactNode } from 'react'
+import { LiveSlider } from './live-slider'
 import { Label } from '@/components/ui/label'
 import { ColorPickerPopover } from './color-picker'
 import { cn } from '@/lib/utils'
@@ -18,7 +17,7 @@ export function Section({ title, children }: { title: string; children: ReactNod
   )
 }
 
-export function SliderField({
+export const SliderField = memo(function SliderField({
   label,
   value,
   min,
@@ -41,35 +40,23 @@ export function SliderField({
   onDragEnd?: () => void
   hideLabel?: boolean
 }) {
-  // Slider scrubbing fires far faster than the display refresh; coalescing to
-  // one update per frame keeps heavy re-renders (canvas filters, text layout)
-  // inside the 8.3ms budget of a 120Hz screen.
+  // The read-out is local state so the number can update every frame without
+  // re-rendering the surrounding tool panel.
+  const [live, setLive] = useState<number | null>(null)
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
-  const emit = useRef(rafThrottle((v: number) => onChangeRef.current(v))).current
-  const activeRef = useRef(false)
 
-  useEffect(() => () => {
-    emit.cancel()
-    if (activeRef.current) endInteraction()
-  }, [emit])
+  const handleLive = useCallback((v: number) => {
+    setLive(v)
+    onChangeRef.current(v)
+  }, [])
 
-  const start = () => {
-    if (!activeRef.current) {
-      activeRef.current = true
-      beginInteraction()
-    }
-    onDragStart?.()
-  }
+  const handleCommit = useCallback((v: number) => {
+    setLive(null)
+    onChangeRef.current(v)
+  }, [])
 
-  const end = () => {
-    emit.flush()
-    if (activeRef.current) {
-      activeRef.current = false
-      endInteraction()
-    }
-    onDragEnd?.()
-  }
+  const shown = live ?? value
 
   return (
     <div className="space-y-1">
@@ -81,24 +68,25 @@ export function SliderField({
       >
         <Label className="text-[11px] font-medium text-foreground">{label}</Label>
         <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
-          {value}
+          {shown}
           {suffix}
         </span>
       </div>
 
-      <Slider
-        value={[value]}
+      <LiveSlider
+        value={value}
         min={min}
         max={max}
         step={step}
-        onPointerDown={start}
-        onPointerUp={end}
-        onValueCommit={end}
-        onValueChange={(v) => emit(v[0])}
+        onLive={handleLive}
+        onCommit={handleCommit}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
       />
     </div>
   )
-}
+})
+
 
 
 export function ColorField({
