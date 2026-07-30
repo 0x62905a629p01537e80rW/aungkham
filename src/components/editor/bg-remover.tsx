@@ -78,6 +78,9 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
   const [view, setView] = useState({ scale: 1, tx: 0, ty: 0 })
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null)
   const lastPoint = useRef<{ x: number; y: number } | null>(null)
+  /** Magic wand dwell: erase only after the finger rests ~0.5s on a spot. */
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const holdAt = useRef<{ x: number; y: number } | null>(null)
 
   const changeOffset = (v: number) => {
     setOffsetY(v)
