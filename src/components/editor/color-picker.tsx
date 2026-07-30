@@ -322,20 +322,41 @@ export function ColorPickerPanel({
         'glass-panel w-full rounded-2xl p-2.5 text-foreground'
       }
     >
+      {collapsibleArea && (
+        <button
+          type="button"
+          onClick={() => setAreaOpen((o) => !o)}
+          aria-expanded={areaOpen}
+          className="mb-1.5 flex w-full items-center justify-between rounded-lg bg-muted px-2 py-1.5 text-[11px] font-semibold text-foreground"
+        >
+          <span className="flex items-center gap-1.5">
+            <span
+              className="size-4 rounded-[4px] border border-black/10"
+              style={{ background: preview }}
+            />
+            {areaOpen ? 'Hide color area' : 'Show color area'}
+          </span>
+          <ChevronDown className={`size-3.5 transition-transform ${areaOpen ? 'rotate-180' : ''}`} />
+        </button>
+      )}
+
       {/* Saturation/Value area */}
-      <div
-        ref={areaRef}
-        className="relative aspect-[1.35/1] w-full cursor-crosshair touch-none overflow-hidden rounded-xl border border-black/10"
-        style={{ background: hueColor }}
-        onPointerDown={pointerDragging(areaRef, (x, y) => { setS(x); setV(1 - y) })}
-      >
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, #fff, transparent)' }} />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #000, transparent)' }} />
+      {areaOpen && (
         <div
-          className="pointer-events-none absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.4)]"
-          style={{ left: `${s * 100}%`, top: `${(1 - v) * 100}%` }}
-        />
-      </div>
+          ref={areaRef}
+          className="relative aspect-[1.35/1] w-full cursor-crosshair touch-none overflow-hidden rounded-xl border border-black/10"
+          style={{ background: hueColor }}
+          onPointerDown={pointerDragging(areaRef, (x, y) => { setS(x); setV(1 - y) })}
+        >
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, #fff, transparent)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #000, transparent)' }} />
+          <div
+            className="pointer-events-none absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.4)]"
+            style={{ left: `${s * 100}%`, top: `${(1 - v) * 100}%` }}
+          />
+        </div>
+      )}
+
 
       {/* Solid / Gradient + tools */}
       <div className="mt-2 flex items-center gap-1.5">
