@@ -374,14 +374,24 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
       setCursor({ x: e.clientX, y: e.clientY })
     }
     if (!drawing.current) return
-    const p = toImageCoords(e.clientX, e.clientY)
-    if (p) brush(p.x, p.y)
+    // Use coalesced samples so fast strokes stay pixel-accurate.
+    const events =
+      typeof e.nativeEvent.getCoalescedEvents === 'function'
+        ? e.nativeEvent.getCoalescedEvents()
+        : [e.nativeEvent]
+    for (const ev of events.length ? events : [e.nativeEvent]) {
+      const p = toImageCoords(ev.clientX, ev.clientY)
+      if (!p) continue
+      brush(p.x, p.y, lastPoint.current)
+      lastPoint.current = p
+    }
   }
 
   const onUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId)
     if (pointers.current.size < 2) pinch.current = null
     drawing.current = false
+    lastPoint.current = null
     if (tool !== 'magic') setCursor(null)
   }
 
