@@ -397,6 +397,7 @@ export function ToolBar({
                   onDuplicate={onDuplicate}
                   onDelete={onDelete}
                   onMoveLayer={onMoveLayer}
+                  onCloseTool={() => setOpenTool(null)}
                 />
               </PopoverContent>
             </Popover>
@@ -429,6 +430,7 @@ interface ToolContentProps {
   onDuplicate: (id: string) => void
   onDelete: (id: string) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
+  onCloseTool?: () => void
 }
 
 const BLEND_MODES = [
@@ -549,9 +551,11 @@ function FontCard({
 function FontPicker({
   layer,
   onChange,
+  onClose,
 }: {
   layer: TextLayer
   onChange: (patch: Partial<TextLayer>) => void
+  onClose?: () => void
 }) {
   const current = FONTS.find((f) => f.key === layer.fontKey)
   const [group, setGroup] = useState<FontGroup>(
@@ -669,7 +673,10 @@ function FontPicker({
             active={layer.fontKey === f.key}
             fav={favs.includes(f.key)}
             locked={false}
-            onSelect={() => onChange({ fontKey: f.key })}
+            onSelect={() => {
+              onChange({ fontKey: f.key })
+              onClose?.()
+            }}
             onFav={() => toggleFavorite(f.key)}
             onDelete={
               f.customId
@@ -705,6 +712,7 @@ function ToolContent({
   onDuplicate,
   onDelete,
   onMoveLayer,
+  onCloseTool,
 }: ToolContentProps) {
   if (!layer) return null
 
@@ -724,7 +732,7 @@ function ToolContent({
         </div>
       )
     case 'font':
-      return <FontPicker layer={layer} onChange={onChange} />
+      return <FontPicker layer={layer} onChange={onChange} onClose={onCloseTool} />
 
 
     case 'format': {
