@@ -959,29 +959,6 @@ function TexturePanel({
       .catch(() => undefined)
   }
 
-  if (!isPro) {
-    return (
-      <div className="space-y-3">
-        <span className="flex items-center gap-2 leading-none [&_*]:mb-0">
-          <ToolHeading>Texture from image</ToolHeading>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] px-1.5 py-[3px] text-[9px] font-bold uppercase leading-none text-[#3a2a05]">
-            <Crown className="size-2.5" strokeWidth={2.6} /> Pro
-          </span>
-        </span>
-        <p className="rounded-xl border border-[#e0a93c]/40 bg-[#e0a93c]/10 px-3 py-2 text-[11px] font-medium text-foreground">
-          Fill your text or shapes with any image. Available with Premium.
-        </p>
-        <button
-          type="button"
-          onClick={() => setPay(true)}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-xs font-bold text-white transition active:scale-[0.98]"
-        >
-          <Crown className="size-4" /> Unlock Texture with Premium
-        </button>
-        <PaymentPage open={pay} onClose={() => setPay(false)} />
-      </div>
-    )
-  }
 
   return (
     <div
