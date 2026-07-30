@@ -864,7 +864,12 @@ function FontPicker({
                     removeCustomFont(f.customId!)
                     if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
                   }
-                : undefined
+                : f.key.startsWith('gf:')
+                  ? () => {
+                      void removeGoogleFont(googleFamilyFromKey(f.key))
+                      if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
+                    }
+                  : undefined
             }
           />
         ))}
@@ -876,7 +881,9 @@ function FontPicker({
                 ? 'No recent fonts yet — pick a font and it shows up here.'
                 : group === 'favorites'
                   ? 'No favorite fonts yet — tap the star on any font.'
-                  : 'No custom fonts yet — upload one above.'}
+                  : group === 'downloaded'
+                    ? 'No downloaded fonts yet — install some from Google Fonts.'
+                    : 'No uploaded fonts yet — upload one above.'}
           </p>
         )}
       </div>
