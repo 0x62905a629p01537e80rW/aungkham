@@ -1,3 +1,5 @@
+import kbzPayLogo from '@/assets/kbzpay-logo.png.asset.json'
+
 /** Brand-ish payment marks drawn inline so checkout stays offline-safe. */
 
 type IconProps = { className?: string }
