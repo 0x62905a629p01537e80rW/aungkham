@@ -136,7 +136,7 @@ export function TemplateGallery({
                   if (onRequestChoice) {
                     onRequestChoice(t.build(), t.bg)
                   } else {
-                    onApply(t.build(), t.bg)
+                    onApply?.(t.build(), t.bg)
                   }
                 }}
                 className="glass-tile w-full touch-pan-y overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
