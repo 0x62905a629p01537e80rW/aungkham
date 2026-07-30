@@ -6,7 +6,9 @@ import {
   Crop as CropIcon,
   FlipHorizontal,
   FlipVertical,
+  Eye,
   Image as ImageIcon,
+
   Pipette,
   RotateCcw,
   RotateCw,
