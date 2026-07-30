@@ -408,285 +408,261 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
 
         {tool === 'fit' && (
           <div className="space-y-4">
-            {/* panel content */}
-            <div className="min-h-[86px]">
-              {fitPanel === 'ratio' && (
-                <div className="space-y-3">
-                  <div className="flex gap-3 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    {FIT_RATIOS.map((r) => {
-                      const active = Math.abs(fitRatio - r.value) < 0.001
-                      const w = r.value >= 1 ? 26 : 26 * r.value
-                      const h = r.value >= 1 ? 26 / r.value : 26
-                      return (
-                        <button
-                          key={r.label}
-                          type="button"
-                          onClick={() => setFitRatio(r.value)}
-                          className="flex w-14 shrink-0 flex-col items-center gap-1"
-                        >
-                          <span className="grid size-8 place-items-center">
-                            <span
-                              className={cn(
-                                'rounded-[3px] border-2 transition',
-                                active ? 'border-primary bg-primary/25' : 'border-muted-foreground/60',
-                              )}
-                              style={{ width: w, height: h }}
-                            />
-                          </span>
-                          <span
-                            className={cn(
-                              'truncate text-[10px]',
-                              active ? 'font-bold text-primary' : 'text-muted-foreground',
-                            )}
-                          >
-                            {r.label}
-                          </span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <SliderField
-                    label="Scale"
-                    value={fitScale}
-                    min={0.3}
-                    max={1.5}
-                    step={0.01}
-                    onChange={setFitScale}
-                  />
-                </div>
-              )}
-
-              {fitPanel === 'color' && (
-                <div className="space-y-3">
-                  <div className="flex gap-2 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    <label
-                      className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border-2 border-border"
-                      style={{ background: fitColor }}
-                      aria-label="Pick custom color"
-                    >
-                      <Pipette className="size-4 mix-blend-difference text-white" />
-                      <input
-                        type="color"
-                        className="sr-only"
-                        value={fitColor}
-                        onChange={(e) => {
-                          setFitGradient(null)
-                          setFitColor(e.target.value)
-                        }}
-                      />
-                    </label>
-                    {FIT_COLORS.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => {
-                          setFitGradient(null)
-                          setFitColor(c)
-                        }}
-                        aria-label={c}
+            {/* 1. Shape */}
+            <div className="flex gap-3 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {FIT_RATIOS.map((r) => {
+                const active = Math.abs(fitRatio - r.value) < 0.001
+                const w = r.value >= 1 ? 26 : 26 * r.value
+                const h = r.value >= 1 ? 26 / r.value : 26
+                return (
+                  <button
+                    key={r.label}
+                    type="button"
+                    onClick={() => setFitRatio(r.value)}
+                    className="flex w-14 shrink-0 flex-col items-center gap-1"
+                  >
+                    <span className="grid size-8 place-items-center">
+                      <span
                         className={cn(
-                          'size-9 shrink-0 rounded-full border-2 transition active:scale-95',
-                          !fitGradient && fitColor === c ? 'border-primary' : 'border-border',
+                          'rounded-[3px] border-2 transition',
+                          active ? 'border-primary bg-primary/25' : 'border-muted-foreground/60',
                         )}
-                        style={{ background: c }}
+                        style={{ width: w, height: h }}
                       />
-                    ))}
-                  </div>
-                  <div className="flex gap-2 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    {FIT_GRADIENTS.map((g) => (
-                      <button
-                        key={g.from + g.to}
-                        type="button"
-                        onClick={() => setFitGradient(g)}
-                        aria-label="Gradient"
-                        className={cn(
-                          'size-9 shrink-0 rounded-full border-2 transition active:scale-95',
-                          fitGradient?.from === g.from && fitGradient?.to === g.to
-                            ? 'border-primary'
-                            : 'border-border',
-                        )}
-                        style={{ background: `linear-gradient(135deg, ${g.from}, ${g.to})` }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {fitPanel === 'background' && (
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFitGradient(null)
-                        setFitColor('transparent')
-                        setFitBackdrop(null)
-                      }}
+                    </span>
+                    <span
                       className={cn(
-                        'checker-swatch size-10 rounded-full border-2 transition active:scale-95',
-                        fitColor === 'transparent' && !fitGradient
-                          ? 'border-primary'
-                          : 'border-border',
+                        'truncate text-[10px]',
+                        active ? 'font-bold text-primary' : 'text-muted-foreground',
                       )}
-                      aria-label="Transparent background"
+                    >
+                      {r.label}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* 2. Size */}
+            <SliderField
+              label="Size"
+              value={fitScale}
+              min={0.3}
+              max={1.5}
+              step={0.01}
+              onChange={setFitScale}
+            />
+
+            {/* 3. Background — one row of choices */}
+            <div>
+              <p className="mb-2 text-[11px] font-semibold text-muted-foreground">Background</p>
+              <div className="flex gap-2 overflow-x-auto perf-scroll pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFitGradient(null)
+                    setFitBackdrop(null)
+                    setFitColor('#ffffff')
+                    setFitBlur(28)
+                  }}
+                  className={cn(
+                    'grid size-10 shrink-0 place-items-center rounded-full border-2 bg-muted transition active:scale-95',
+                    fitBlur > 0 && !fitBackdrop ? 'border-primary text-primary' : 'border-border text-muted-foreground',
+                  )}
+                  aria-label="Blurred photo background"
+                >
+                  <Aperture className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFitGradient(null)
+                    setFitBackdrop(null)
+                    setFitBlur(0)
+                    setFitColor('transparent')
+                  }}
+                  className={cn(
+                    'checker-swatch size-10 shrink-0 rounded-full border-2 transition active:scale-95',
+                    fitColor === 'transparent' && !fitGradient ? 'border-primary' : 'border-border',
+                  )}
+                  aria-label="Transparent background"
+                />
+                <button
+                  type="button"
+                  onClick={() => backdropInput.current?.click()}
+                  className={cn(
+                    'grid size-10 shrink-0 place-items-center rounded-full border-2 bg-muted transition active:scale-95',
+                    fitBackdrop ? 'border-primary text-primary' : 'border-border text-muted-foreground',
+                  )}
+                  aria-label="Image background"
+                >
+                  <ImageIcon className="size-4" />
+                </button>
+                <label
+                  className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full border-2 border-border"
+                  style={{ background: fitColor === 'transparent' ? undefined : fitColor }}
+                  aria-label="Pick custom color"
+                >
+                  <Pipette className="size-4 mix-blend-difference text-white" />
+                  <input
+                    type="color"
+                    className="sr-only"
+                    value={fitColor === 'transparent' ? '#ffffff' : fitColor}
+                    onChange={(e) => {
+                      setFitGradient(null)
+                      setFitBackdrop(null)
+                      setFitBlur(0)
+                      setFitColor(e.target.value)
+                    }}
+                  />
+                </label>
+                {FIT_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => {
+                      setFitGradient(null)
+                      setFitBackdrop(null)
+                      setFitBlur(0)
+                      setFitColor(c)
+                    }}
+                    aria-label={c}
+                    className={cn(
+                      'size-10 shrink-0 rounded-full border-2 transition active:scale-95',
+                      !fitGradient && !fitBackdrop && fitBlur === 0 && fitColor === c
+                        ? 'border-primary'
+                        : 'border-border',
+                    )}
+                    style={{ background: c }}
+                  />
+                ))}
+                {FIT_GRADIENTS.map((g) => (
+                  <button
+                    key={g.from + g.to}
+                    type="button"
+                    onClick={() => {
+                      setFitBackdrop(null)
+                      setFitBlur(0)
+                      setFitGradient(g)
+                    }}
+                    aria-label="Gradient"
+                    className={cn(
+                      'size-10 shrink-0 rounded-full border-2 transition active:scale-95',
+                      fitGradient?.from === g.from && fitGradient?.to === g.to
+                        ? 'border-primary'
+                        : 'border-border',
+                    )}
+                    style={{ background: `linear-gradient(135deg, ${g.from}, ${g.to})` }}
+                  />
+                ))}
+              </div>
+              <input
+                ref={backdropInput}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  const reader = new FileReader()
+                  reader.onload = () => {
+                    setFitGradient(null)
+                    setFitBlur(0)
+                    setFitBackdrop(String(reader.result))
+                  }
+                  reader.readAsDataURL(file)
+                  e.target.value = ''
+                }}
+              />
+            </div>
+
+            {/* 4. Advanced (collapsed by default) */}
+            <div className="border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={() => setFitAdvanced((v) => !v)}
+                className="flex w-full items-center justify-between text-xs font-semibold active:scale-[0.99]"
+              >
+                <span className="flex items-center gap-2">
+                  <SlidersHorizontal className="size-4 text-primary" /> Adjust
+                </span>
+                <ChevronDown
+                  className={cn('size-4 text-muted-foreground transition', fitAdvanced && 'rotate-180')}
+                />
+              </button>
+
+              {fitAdvanced && (
+                <div className="mt-3 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <SliderField
+                      label="Move X"
+                      value={fitX}
+                      min={-100}
+                      max={100}
+                      step={1}
+                      onChange={setFitX}
                     />
-                    <div className="flex-1">
-                      <SliderField
-                        label="Photo blur backdrop"
-                        value={fitBlur}
-                        min={0}
-                        max={60}
-                        step={1}
-                        onChange={(v) => {
-                          setFitBackdrop(null)
-                          setFitBlur(v)
-                        }}
-                      />
-                    </div>
+                    <SliderField
+                      label="Move Y"
+                      value={fitY}
+                      min={-100}
+                      max={100}
+                      step={1}
+                      onChange={setFitY}
+                    />
                   </div>
+                  {(fitBlur > 0 || fitBackdrop) && (
+                    <SliderField
+                      label="Background blur"
+                      value={fitBackdrop ? fitBackdropBlur : fitBlur}
+                      min={0}
+                      max={60}
+                      step={1}
+                      onChange={fitBackdrop ? setFitBackdropBlur : setFitBlur}
+                    />
+                  )}
                   <SliderField
-                    label="Backdrop opacity"
+                    label="Background opacity"
                     value={fitBgOpacity}
                     min={0}
                     max={1}
                     step={0.01}
                     onChange={setFitBgOpacity}
                   />
-                </div>
-              )}
-
-              {fitPanel === 'image' && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => backdropInput.current?.click()}
-                      className="flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-semibold active:scale-95"
-                    >
-                      <ImageIcon className="size-4" /> Choose image
-                    </button>
-                    {fitBackdrop && (
-                      <button
-                        type="button"
-                        onClick={() => setFitBackdrop(null)}
-                        className="rounded-full border border-border px-3 py-2 text-xs text-muted-foreground active:scale-95"
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                  <input
-                    ref={backdropInput}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (!file) return
-                      const reader = new FileReader()
-                      reader.onload = () => setFitBackdrop(String(reader.result))
-                      reader.readAsDataURL(file)
-                      e.target.value = ''
-                    }}
-                  />
                   <SliderField
-                    label="Blur"
-                    value={fitBackdropBlur}
-                    min={0}
-                    max={60}
-                    step={1}
-                    onChange={setFitBackdropBlur}
-                  />
-                </div>
-              )}
-
-              {fitPanel === 'shadow' && (
-                <div className="space-y-3">
-                  <SliderField
-                    label="Blur"
+                    label="Shadow"
                     value={fitShadowBlur}
                     min={0}
                     max={100}
                     step={1}
                     onChange={setFitShadowBlur}
                   />
-                  <SliderField
-                    label="Opacity"
-                    value={fitShadowOpacity}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onChange={setFitShadowOpacity}
-                  />
-                  <SliderField
-                    label="Offset"
-                    value={fitShadowOffset}
-                    min={-100}
-                    max={100}
-                    step={1}
-                    onChange={setFitShadowOffset}
-                  />
+                  {fitShadowBlur > 0 && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <SliderField
+                        label="Shadow opacity"
+                        value={fitShadowOpacity}
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        onChange={setFitShadowOpacity}
+                      />
+                      <SliderField
+                        label="Shadow offset"
+                        value={fitShadowOffset}
+                        min={-100}
+                        max={100}
+                        step={1}
+                        onChange={setFitShadowOffset}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-
-            {/* bottom tool rail */}
-            <div className="flex items-end justify-between gap-1 border-t border-border pt-3">
-              {(
-                [
-                  { id: 'ratio', label: 'Ratio', Icon: RectangleHorizontal },
-                  { id: 'color', label: 'Color', Icon: CircleIcon },
-                  { id: 'background', label: 'Background', Icon: Grid2x2 },
-                  { id: 'image', label: 'Image', Icon: ImageIcon },
-                  { id: 'shadow', label: 'Shadow', Icon: Droplet },
-                ] as const
-              ).map(({ id, label, Icon }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setFitPanel(id)}
-                  className="flex flex-1 flex-col items-center gap-1"
-                >
-                  <span
-                    className={cn(
-                      'grid size-9 place-items-center rounded-lg transition',
-                      fitPanel === id ? 'bg-primary/20 text-primary' : 'text-muted-foreground',
-                    )}
-                  >
-                    <Icon className="size-5" />
-                  </span>
-                  <span
-                    className={cn(
-                      'text-[10px]',
-                      fitPanel === id ? 'font-bold text-primary' : 'text-muted-foreground',
-                    )}
-                  >
-                    {label}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <SliderField
-                label="Move X"
-                value={fitX}
-                min={-100}
-                max={100}
-                step={1}
-                onChange={setFitX}
-              />
-              <SliderField
-                label="Move Y"
-                value={fitY}
-                min={-100}
-                max={100}
-                step={1}
-                onChange={setFitY}
-              />
-            </div>
           </div>
         )}
+
 
 
         {tool === 'blur' && (
