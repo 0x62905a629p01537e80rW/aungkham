@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Droplets, Type as TypeIcon, Undo2, X } from 'lucide-react'
+import { Droplets, Image as ImageIcon, Scissors, Type as TypeIcon, Undo2, X } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { FONTS, type TextLayer } from '@/lib/text-layer'
 import { isProCustomFontKey } from '@/lib/custom-fonts'
