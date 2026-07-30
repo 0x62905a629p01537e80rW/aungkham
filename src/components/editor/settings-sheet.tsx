@@ -170,8 +170,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     </p>
                     <p className="mt-0.5 text-sm font-semibold">Pending verification</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      We're checking your KBZPay transaction. Pro unlocks automatically once
-                      approved.
+                      We're checking your payment. Pro unlocks automatically once approved.
                     </p>
                   </div>
                   <button
