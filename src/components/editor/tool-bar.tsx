@@ -1864,6 +1864,7 @@ function LiquidPanel({
   layer: TextLayer
   onChange: (patch: Partial<TextLayer>) => void
 }) {
+  const { isPro } = useAuth()
   const on = !!layer.liquidOn
   const [dragging, setDragging] = useState<LiquidSlider | null>(null)
   const [peek, setPeek] = useState(false)
