@@ -733,6 +733,8 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   )
 }
 
+type CropHandle = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'w' | 'e'
+
 function CropStage({
   src,
   rect,
@@ -745,71 +747,171 @@ function CropStage({
   onChange: (r: { x: number; y: number; w: number; h: number }) => void
 }) {
   const wrapRef = useRef<HTMLDivElement>(null)
-  const drag = useRef<{ mode: 'move' | 'se'; sx: number; sy: number; start: typeof rect } | null>(
-    null,
-  )
+  const imgRef = useRef<HTMLImageElement>(null)
+  const rectRef = useRef(rect)
+  rectRef.current = rect
+  const MIN = 0.06
 
-  function onPointerDown(mode: 'move' | 'se') {
+  /** Box aspect (w/h in px) so ratio locking works in real pixels. */
+  const boxAspect = () => {
+    const b = wrapRef.current?.getBoundingClientRect()
+    return b && b.height ? b.width / b.height : 1
+  }
+
+  // Re-fit the crop box whenever a fixed ratio is picked.
+  useEffect(() => {
+    if (!ratio) return
+    const a = boxAspect()
+    let w = 0.9
+    let h = (w * a) / ratio
+    if (h > 0.9) {
+      h = 0.9
+      w = (h * ratio) / a
+    }
+    onChange({ x: (1 - w) / 2, y: (1 - h) / 2, w, h })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ratio, src])
+
+  function startDrag(mode: 'move' | CropHandle) {
     return (e: React.PointerEvent) => {
       e.preventDefault()
-      ;(e.target as Element).setPointerCapture?.(e.pointerId)
-      drag.current = { mode, sx: e.clientX, sy: e.clientY, start: rect }
+      e.stopPropagation()
+      const box = wrapRef.current?.getBoundingClientRect()
+      if (!box) return
+      const sx = e.clientX
+      const sy = e.clientY
+      const start = rectRef.current
+      const a = boxAspect()
+
+      const move = (ev: PointerEvent) => {
+        const dx = (ev.clientX - sx) / box.width
+        const dy = (ev.clientY - sy) / box.height
+
+        if (mode === 'move') {
+          onChange({
+            ...start,
+            x: Math.min(Math.max(0, start.x + dx), 1 - start.w),
+            y: Math.min(Math.max(0, start.y + dy), 1 - start.h),
+          })
+          return
+        }
+
+        let { x, y, w, h } = start
+        const right = start.x + start.w
+        const bottom = start.y + start.h
+
+        if (mode.includes('w')) {
+          x = Math.min(Math.max(0, start.x + dx), right - MIN)
+          w = right - x
+        }
+        if (mode.includes('e')) {
+          w = Math.min(Math.max(MIN, start.w + dx), 1 - start.x)
+        }
+        if (mode.includes('n')) {
+          y = Math.min(Math.max(0, start.y + dy), bottom - MIN)
+          h = bottom - y
+        }
+        if (mode.includes('s')) {
+          h = Math.min(Math.max(MIN, start.h + dy), 1 - start.y)
+        }
+
+        if (ratio) {
+          // Keep the locked aspect, driven by whichever axis moved most.
+          const horizontal = mode === 'w' || mode === 'e' || Math.abs(dx) >= Math.abs(dy)
+          if (horizontal) {
+            h = (w * a) / ratio
+            if (mode.includes('n')) y = bottom - h
+            if (y + h > 1) {
+              h = 1 - y
+              w = (h * ratio) / a
+              if (mode.includes('w')) x = right - w
+            }
+          } else {
+            w = (h * ratio) / a
+            if (mode.includes('w')) x = right - w
+            if (x + w > 1) {
+              w = 1 - x
+              h = (w * a) / ratio
+              if (mode.includes('n')) y = bottom - h
+            }
+          }
+        }
+
+        x = Math.max(0, Math.min(x, 1 - MIN))
+        y = Math.max(0, Math.min(y, 1 - MIN))
+        w = Math.max(MIN, Math.min(w, 1 - x))
+        h = Math.max(MIN, Math.min(h, 1 - y))
+        onChange({ x, y, w, h })
+      }
+
+      const end = () => {
+        window.removeEventListener('pointermove', move)
+        window.removeEventListener('pointerup', end)
+        window.removeEventListener('pointercancel', end)
+      }
+      window.addEventListener('pointermove', move, { passive: false })
+      window.addEventListener('pointerup', end)
+      window.addEventListener('pointercancel', end)
     }
   }
 
-  function onPointerMove(e: React.PointerEvent) {
-    const d = drag.current
-    const box = wrapRef.current?.getBoundingClientRect()
-    if (!d || !box) return
-    const dx = (e.clientX - d.sx) / box.width
-    const dy = (e.clientY - d.sy) / box.height
-    if (d.mode === 'move') {
-      onChange({
-        ...d.start,
-        x: Math.min(Math.max(0, d.start.x + dx), 1 - d.start.w),
-        y: Math.min(Math.max(0, d.start.y + dy), 1 - d.start.h),
-      })
-    } else {
-      let w = Math.min(Math.max(0.1, d.start.w + dx), 1 - d.start.x)
-      let h = ratio ? w / ratio : Math.min(Math.max(0.1, d.start.h + dy), 1 - d.start.y)
-      if (h > 1 - d.start.y) {
-        h = 1 - d.start.y
-        if (ratio) w = h * ratio
-      }
-      onChange({ ...d.start, w, h })
-    }
-  }
+  const handle =
+    'absolute size-7 rounded-full border-2 border-white bg-primary shadow-md touch-none'
+  const edge = 'absolute rounded-full border-2 border-white/90 bg-primary/80 touch-none'
 
   return (
-    <div ref={wrapRef} className="relative max-h-full max-w-full">
-      <img src={src} alt="Crop preview" className="max-h-[50dvh] max-w-full select-none" />
+    <div ref={wrapRef} className="relative max-h-full max-w-full touch-none select-none">
+      <img
+        ref={imgRef}
+        src={src}
+        alt="Crop preview"
+        className="max-h-[50dvh] max-w-full select-none"
+        draggable={false}
+      />
       <div
-        className="absolute cursor-move border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"
+        className="absolute touch-none border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"
         style={{
           left: `${rect.x * 100}%`,
           top: `${rect.y * 100}%`,
           width: `${rect.w * 100}%`,
           height: `${rect.h * 100}%`,
         }}
-        onPointerDown={onPointerDown('move')}
-        onPointerMove={onPointerMove}
-        onPointerUp={() => (drag.current = null)}
+        onPointerDown={startDrag('move')}
       >
         <div className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-3">
           {Array.from({ length: 9 }).map((_, i) => (
             <div key={i} className="border border-white/30" />
           ))}
         </div>
+
+        {/* corners */}
+        <div className={cn(handle, '-left-3.5 -top-3.5')} onPointerDown={startDrag('nw')} />
+        <div className={cn(handle, '-right-3.5 -top-3.5')} onPointerDown={startDrag('ne')} />
+        <div className={cn(handle, '-bottom-3.5 -left-3.5')} onPointerDown={startDrag('sw')} />
+        <div className={cn(handle, '-bottom-3.5 -right-3.5')} onPointerDown={startDrag('se')} />
+
+        {/* edges */}
         <div
-          className="absolute -bottom-3 -right-3 size-6 rounded-full border-2 border-white bg-primary"
-          onPointerDown={onPointerDown('se')}
-          onPointerMove={onPointerMove}
-          onPointerUp={() => (drag.current = null)}
+          className={cn(edge, 'left-1/2 -top-2.5 h-5 w-10 -translate-x-1/2')}
+          onPointerDown={startDrag('n')}
+        />
+        <div
+          className={cn(edge, 'left-1/2 -bottom-2.5 h-5 w-10 -translate-x-1/2')}
+          onPointerDown={startDrag('s')}
+        />
+        <div
+          className={cn(edge, 'top-1/2 -left-2.5 h-10 w-5 -translate-y-1/2')}
+          onPointerDown={startDrag('w')}
+        />
+        <div
+          className={cn(edge, 'top-1/2 -right-2.5 h-10 w-5 -translate-y-1/2')}
+          onPointerDown={startDrag('e')}
         />
       </div>
     </div>
   )
 }
+
 
 function BlurStage({
   src,
