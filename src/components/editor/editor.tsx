@@ -566,19 +566,17 @@ export function Editor() {
           />
 
           <TemplatePicker
-
             open={templating}
-
+            hasBackground={!!image}
             onClose={() => setTemplating(false)}
-
-            onApply={(tpl) => {
-
-              setLayers((prev) => [...prev, ...tpl])
-
-              setSelectedId(tpl[tpl.length - 1]?.id ?? null)
-
+            onApply={(tpl, bg) => {
+              if (bg) {
+                applyTemplate(tpl, bg)
+              } else {
+                setLayers((prev) => [...prev, ...tpl])
+                setSelectedId(tpl[tpl.length - 1]?.id ?? null)
+              }
             }}
-
           />
 
 
