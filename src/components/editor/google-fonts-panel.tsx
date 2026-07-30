@@ -107,13 +107,7 @@ export function GoogleFontsPanel({
 
       {/* live preview controls */}
       <div className="shrink-0 space-y-2 rounded-2xl border border-border/60 bg-foreground/5 p-2.5">
-        <div className="flex items-center gap-2">
-          <input
-            value={sample}
-            onChange={(e) => setSample(e.target.value)}
-            placeholder="Type sample text…"
-            className="min-w-0 flex-1 rounded-xl border border-border/60 bg-background/40 px-2.5 py-1.5 text-xs outline-none placeholder:text-muted-foreground"
-          />
+        <div className="flex items-center justify-end gap-2">
           <ColorPickerPopover value={color} onChange={setColor}>
             <button
               type="button"
@@ -124,6 +118,7 @@ export function GoogleFontsPanel({
             </button>
           </ColorPickerPopover>
         </div>
+
 
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
