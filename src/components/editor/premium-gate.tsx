@@ -5,7 +5,7 @@ import { FONTS, type TextLayer } from '@/lib/text-layer'
 import { isProCustomFontKey } from '@/lib/custom-fonts'
 import { PaymentPage } from './payment-page'
 
-const PREMIUM_KEYS = new Set(FONTS.filter((f) => f.category === 'Myanmar Pro').map((f) => f.key))
+const PREMIUM_KEYS = new Set(FONTS.filter((f) => f.category === 'Myanmar Pro' || f.category === 'English Pro').map((f) => f.key))
 
 function isPremiumFontKey(key: string) {
   return PREMIUM_KEYS.has(key) || isProCustomFontKey(key)

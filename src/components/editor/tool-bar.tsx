@@ -500,20 +500,22 @@ function ToolHeading({ children }: { children: React.ReactNode }) {
   )
 }
 
-type FontGroup = 'recent' | 'favorites' | 'english' | 'mm-free' | 'mm-premium' | 'custom'
+type FontGroup = 'recent' | 'favorites' | 'english' | 'mm-free' | 'mm-premium' | 'en-premium' | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'recent', label: 'Recent' },
   { key: 'favorites', label: 'Favorites' },
   { key: 'english', label: 'English' },
   { key: 'mm-free', label: 'Myanmar' },
-  { key: 'mm-premium', label: 'Premium' },
+  { key: 'mm-premium', label: 'Premium (MM)' },
+  { key: 'en-premium', label: 'Premium (Eng)' },
   { key: 'custom', label: 'My Fonts' },
 ]
 
 function groupOf(cat: FontOption['category']): FontGroup {
   if (cat === 'Myanmar') return 'mm-free'
   if (cat === 'Myanmar Pro') return 'mm-premium'
+  if (cat === 'English Pro') return 'en-premium'
   return 'english'
 }
 
@@ -651,7 +653,7 @@ function FontPicker({
 
       <div className="-mx-1 flex gap-1.5 overflow-x-auto perf-scroll px-1 pb-1 [scrollbar-width:none]">
         {FONT_GROUPS.map((g) => {
-          const premium = g.key === 'mm-premium'
+          const premium = g.key === 'mm-premium' || g.key === 'en-premium'
           const on = group === g.key
           return (
             <button
@@ -736,7 +738,7 @@ function FontPicker({
         </div>
       )}
 
-      {group === 'mm-premium' && !isPro && (
+      {(group === 'mm-premium' || group === 'en-premium') && !isPro && (
         <p className="flex items-center gap-1.5 rounded-xl border border-[#e0a93c]/40 bg-[#e0a93c]/10 px-3 py-2 text-[11px] font-medium text-foreground">
           <Crown className="size-3.5 shrink-0 text-[#e0a93c]" />
           Premium fonts are free to try — Pro is required to export with them.
