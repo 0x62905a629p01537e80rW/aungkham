@@ -1,21 +1,32 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   ArrowLeft,
   BadgeCheck,
   Check,
+  Coins,
   Copy,
   Loader2,
   LogOut,
   Smartphone,
 } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
+import { GlassTabs } from '@/components/ui/glass-tabs'
 
 const PRICE_MMK = '30,000 MMK'
 const PRICE_OLD_MMK = '60,000 MMK'
 const PRICE_USD = '8.5 USD'
 
-type PaySettings = { phone: string; name: string }
+type CryptoNet = { key: string; label: string; address: string }
+
+type PaySettings = {
+  phone: string
+  name: string
+  priceMmk: string
+  usdtPrice: string
+  nets: CryptoNet[]
+}
+
 
 function CopyRow({
   label,
