@@ -56,6 +56,27 @@ export function liquidStyle(layer: TextLayer): CSSProperties {
   }
 }
 
+/** Frosted "liquid glass" look for masked graphics (shapes / stickers). */
+export function liquidGraphicStyle(layer: TextLayer): CSSProperties {
+  const tint = (layer.liquidTint ?? 22) / 100
+  const border = (layer.liquidBorder ?? 45) / 100
+  const glow = (layer.liquidGlow ?? 35) / 100
+  const dark = layer.liquidDark
+  const glass = dark ? '18, 22, 30' : '255, 255, 255'
+  const rim = '255, 255, 255'
+
+  const shadows = [
+    `inset 0 0.02em 0 rgba(${rim}, ${0.7 * border})`,
+    `inset 0 -0.02em 0 rgba(${dark ? '255, 255, 255' : '0, 0, 0'}, ${0.3 * border})`,
+  ]
+  if (glow > 0) shadows.push(`0 0 ${(0.5 * glow).toFixed(3)}em rgba(${rim}, ${glow})`)
+
+  return {
+    background: `linear-gradient(160deg, rgba(${rim}, ${0.55 * border}) 0%, rgba(${glass}, ${Math.max(0.08, tint)}) 45%, rgba(${rim}, ${0.25 * border}) 100%)`,
+    boxShadow: shadows.join(', '),
+  }
+}
+
 export function layerTextStyle(layer: TextLayer): CSSProperties {
   const texture = TEXTURES[layer.texture] ?? TEXTURES.none
   const fillType = layer.fillType ?? (texture.gradient ? 'texture' : 'solid')
