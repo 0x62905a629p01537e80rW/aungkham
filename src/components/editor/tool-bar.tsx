@@ -211,6 +211,26 @@ export function ToolBar({
   const [openTool, setOpenTool] = useState<ToolKey | null>(null)
   const [cutoutOpen, setCutoutOpen] = useState(false)
   const toolRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(null)
+
+  // Slide the liquid-glass indicator to the currently open tool
+  useEffect(() => {
+    if (!openTool) {
+      setPill(null)
+      return
+    }
+    let raf = 0
+    const measure = () => {
+      const el = toolRefs.current[openTool]
+      if (!el) {
+        raf = requestAnimationFrame(measure)
+        return
+      }
+      setPill({ left: el.offsetLeft, width: el.offsetWidth })
+    }
+    measure()
+    return () => cancelAnimationFrame(raf)
+  }, [openTool])
 
   const autoOpenRef = useRef<string | null>(null)
   const handledCbRef = useRef(onAutoOpenHandled)
