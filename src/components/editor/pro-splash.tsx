@@ -99,78 +99,75 @@ export function ProSplash() {
 
   return (
     <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto perf-scroll bg-[#07070c] text-white animate-fade-in">
-      {/* Hero */}
-      <div className="relative shrink-0 overflow-hidden px-5 pb-8 pt-4">
+      <div className="relative shrink-0 overflow-hidden px-5 pb-4 pt-3">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_-10%,#22d3ee_0%,#0e7490_35%,#0b1120_70%,transparent_100%)] opacity-80" />
         <div className="relative flex items-center justify-between">
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close"
-            className="grid size-9 place-items-center rounded-full bg-white/10 backdrop-blur transition active:scale-95"
+            className="grid size-8 place-items-center rounded-full bg-white/10 backdrop-blur transition active:scale-95"
           >
-            <X className="size-5" />
+            <X className="size-4" />
           </button>
           <button
             type="button"
             onClick={() => void handleRestore()}
             disabled={restoring}
-            className="flex items-center gap-1.5 text-sm font-semibold tracking-wide text-white/90 transition active:scale-95 disabled:opacity-60"
+            className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-white/90 transition active:scale-95 disabled:opacity-60"
           >
-            {restoring && <Loader2 className="size-4 animate-spin" />}
+            {restoring && <Loader2 className="size-3.5 animate-spin" />}
             RESTORE
           </button>
         </div>
 
-        <div className="relative mt-10 text-center">
+        <div className="relative mt-5 text-center">
           <div className="flex items-center justify-center gap-2">
-            <h2 className="text-2xl font-extrabold tracking-tight">Myan</h2>
-            <span className="flex items-center gap-1 rounded-md bg-[#e11d74] px-2 py-0.5 text-[11px] font-bold">
+            <h2 className="text-xl font-extrabold tracking-tight">Myan</h2>
+            <span className="flex items-center gap-1 rounded-md bg-[#e11d74] px-2 py-0.5 text-[10px] font-bold">
               <ProGem className="size-3" />
               Pro
             </span>
           </div>
-          <p className="mt-1 text-sm text-white/80">Unlock All Features</p>
+          <p className="mt-0.5 text-xs text-white/80">Unlock All Features</p>
         </div>
       </div>
 
-      {/* Feature cards rail — auto looping */}
-      <div className="-mt-2 overflow-hidden pb-6 [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
-        <div className="marquee-track gap-2.5">
+      {/* Feature cards rail */}
+      <div className="-mt-1 overflow-hidden pb-3 [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+        <div className="marquee-track gap-2">
           {[...CARDS, ...CARDS].map(({ icon: Icon, label, tint }, i) => (
             <div
               key={`${label}-${i}`}
-              className={`relative flex h-24 w-24 shrink-0 flex-col justify-end rounded-xl bg-gradient-to-br ${tint} p-2.5`}
+              className={`relative flex h-16 w-16 shrink-0 flex-col justify-end rounded-lg bg-gradient-to-br ${tint} p-2`}
             >
-              <Icon className="absolute left-2.5 top-2.5 size-5 text-white/90" />
-              <p className="text-[10px] font-semibold leading-tight">{label}</p>
+              <Icon className="absolute left-2 top-2 size-4 text-white/90" />
+              <p className="text-[9px] font-semibold leading-tight">{label}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Benefits */}
-      <div className="space-y-2.5 px-6">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 px-5">
         {BENEFITS.map((line) => (
-          <div key={line} className="flex items-start gap-3">
-            <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-[#7c5cff]">
-              <Check className="size-3.5" />
+          <div key={line} className="flex items-start gap-2">
+            <span className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full bg-[#7c5cff]">
+              <Check className="size-3" />
             </span>
-            <p className="text-sm font-medium leading-snug text-white/90">{line}</p>
+            <p className="text-[11px] font-medium leading-tight text-white/90">{line}</p>
           </div>
         ))}
       </div>
 
-
-
-      <div className="mt-auto space-y-3 px-5 pb-6">
-        <div className="relative rounded-2xl border-2 border-[#7c5cff] bg-white/[0.06] p-4">
+      <div className="mt-auto space-y-2 px-5 pb-5 pt-3">
+        <div className="relative rounded-2xl border-2 border-[#7c5cff] bg-white/[0.06] p-3">
           {pricing.promoLabel && (
-            <span className="absolute -top-2.5 left-3 rounded-md bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[10px] font-extrabold">
+            <span className="absolute -top-2 left-3 rounded-md bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[9px] font-extrabold">
               {pricing.promoLabel}
             </span>
           )}
-          <span className="absolute -top-2.5 right-3 rounded-md bg-[#7c5cff] px-2 py-0.5 text-[10px] font-bold">
+          <span className="absolute -top-2 right-3 rounded-md bg-[#7c5cff] px-2 py-0.5 text-[9px] font-bold">
             Best value
           </span>
           <div className="flex items-center gap-3">
@@ -184,10 +181,10 @@ export function ProSplash() {
               <p className="text-base font-bold">
                 {pricing.priceMmk}
                 {pricing.priceUsd && (
-                  <span className="text-[12px] font-semibold text-white/70"> OR {pricing.priceUsd}</span>
+                  <span className="text-[11px] font-semibold text-white/70"> OR {pricing.priceUsd}</span>
                 )}
               </p>
-              <p className="text-[11px] text-white/70">One-time payment · Pay once, keep forever</p>
+              <p className="text-[10px] text-white/70">One-time payment · Lifetime access</p>
             </div>
           </div>
         </div>
@@ -198,17 +195,17 @@ export function ProSplash() {
             setOpen(false)
             setPay(true)
           }}
-          className="flex h-13 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] py-4 text-base font-bold shadow-lg transition active:scale-[0.98]"
+          className="flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] py-3 text-sm font-bold shadow-lg transition active:scale-[0.98]"
         >
           Continue
         </button>
 
-        <p className="text-center text-[10px] leading-relaxed text-white/55">
-          The lifetime option is a one-time payment and does not auto-renew. You can manage your
-          purchase in Google Play.
+        <p className="text-center text-[9px] leading-relaxed text-white/55">
+          The lifetime option is a one-time payment and does not auto-renew. Manage your purchase in Google Play.
         </p>
       </div>
       <PaymentPage open={pay} onClose={() => setPay(false)} />
     </div>
   )
+
 }
