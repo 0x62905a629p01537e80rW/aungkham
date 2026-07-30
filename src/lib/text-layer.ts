@@ -116,7 +116,7 @@ export interface FontOption {
   key: string
   label: string
   cssVar: string
-  category: 'Sans' | 'Serif' | 'Display' | 'Script' | 'Myanmar' | 'Myanmar Pro'
+  category: 'Sans' | 'Serif' | 'Display' | 'Script' | 'Myanmar' | 'Myanmar Pro' | 'English Pro'
 }
 
 export const FONTS: FontOption[] = [
@@ -168,11 +168,22 @@ export const FONTS: FontOption[] = [
   { key: 'koz008', label: 'Koz 008', cssVar: "'MM_koz008'", category: 'Myanmar Pro' },
   { key: 'koz033', label: 'Koz 033', cssVar: "'MM_koz033'", category: 'Myanmar Pro' },
   { key: 'koz052', label: 'Koz 052', cssVar: "'MM_koz052'", category: 'Myanmar Pro' },
+  { key: 'puffberry', label: 'Puffberry', cssVar: "'EN_puffberry'", category: 'English Pro' },
+  { key: 'saphifen', label: 'Saphifen', cssVar: "'EN_saphifen'", category: 'English Pro' },
+  { key: 'mocka', label: 'Mocka', cssVar: "'EN_mocka'", category: 'English Pro' },
+  { key: 'outline-bubble', label: 'Outline Bubble', cssVar: "'EN_outline_bubble'", category: 'English Pro' },
+  { key: 'molen-friend', label: 'Molen Friend', cssVar: "'EN_molen_friend'", category: 'English Pro' },
+  { key: 'baby-gemoy', label: 'Baby Gemoy', cssVar: "'EN_baby_gemoy'", category: 'English Pro' },
+  { key: 'the-last-trunks', label: 'The Last Trunks', cssVar: "'EN_the_last_trunks'", category: 'English Pro' },
+  { key: 'dream-kudos', label: 'Dream Kudos', cssVar: "'EN_dream_kudos'", category: 'English Pro' },
+  { key: 'gladolia', label: 'Gladolia', cssVar: "'EN_gladolia'", category: 'English Pro' },
+  { key: 'beachday', label: 'Beachday', cssVar: "'EN_beachday'", category: 'English Pro' },
 ]
 
 export const FONT_CATEGORIES: FontOption['category'][] = [
   'Myanmar',
   'Myanmar Pro',
+  'English Pro',
   'Sans',
   'Serif',
   'Display',

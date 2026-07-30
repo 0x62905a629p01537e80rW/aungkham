@@ -265,3 +265,55 @@
   font-style: normal;
   font-display: swap;
 }
+
+/* English premium font faces (CDN assets) */
+@font-face {
+  font-family: 'EN_puffberry';
+  src: url('/__l5e/assets-v1/4acb0b9e-66a5-4865-a20b-806b3cedaada/puffberry.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_saphifen';
+  src: url('/__l5e/assets-v1/2e3c33be-ccb9-47d7-9d86-0dbaae3de92f/saphifen.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_mocka';
+  src: url('/__l5e/assets-v1/38af6581-28e5-45b8-9742-6a09153c69ee/mocka.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_outline_bubble';
+  src: url('/__l5e/assets-v1/c603aa57-2492-4dca-895c-e4b59039219c/outline-bubble.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_molen_friend';
+  src: url('/__l5e/assets-v1/65ac220c-0c54-4c62-955e-c86e41e5550d/molen-friend.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_baby_gemoy';
+  src: url('/__l5e/assets-v1/25199ac5-171a-447a-a56b-db9383b4e35b/baby-gemoy.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_the_last_trunks';
+  src: url('/__l5e/assets-v1/fbcca810-6fc0-4a8a-821e-b393b5005a48/the-last-trunks.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_dream_kudos';
+  src: url('/__l5e/assets-v1/3079b026-39b6-4bc5-ad5e-d406942f0b43/dream-kudos.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_gladolia';
+  src: url('/__l5e/assets-v1/6a880dca-2a07-4b45-b586-b0e50dadda9a/gladolia.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'EN_beachday';
+  src: url('/__l5e/assets-v1/d874390c-16bc-4e65-a8c1-e2fd67e0682b/beachday.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
