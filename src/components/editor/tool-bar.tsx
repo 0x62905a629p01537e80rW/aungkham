@@ -617,7 +617,11 @@ function FontPicker({
 }) {
   const current = FONTS.find((f) => f.key === layer.fontKey)
   const [group, setGroup] = useState<FontGroup>(
-    layer.fontKey.startsWith('custom:') ? 'custom' : groupOf(current?.category ?? 'Sans'),
+    layer.fontKey.startsWith('custom:')
+      ? 'custom'
+      : layer.fontKey.startsWith('gf:')
+        ? 'google'
+        : groupOf(current?.category ?? 'Sans'),
   )
   const [, force] = useState(0)
   const { isPro } = useAuth()
