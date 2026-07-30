@@ -54,6 +54,8 @@ export function EditorHeader({
   onToggleLayerLock,
   onReorderLayers,
   onMoveLayer,
+  onGroupLayers,
+  onUngroupLayer,
   onInsert,
 }: EditorHeaderProps) {
   const { t } = useI18n()
