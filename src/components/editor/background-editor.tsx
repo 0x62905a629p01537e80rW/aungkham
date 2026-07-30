@@ -727,7 +727,9 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             )}
           </div>
         )}
+        </div>
       </div>
+
     </div>
   )
 }
