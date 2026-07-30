@@ -32,23 +32,40 @@ function mailto(subject: string) {
   window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`
 }
 
+function TelegramIcon({ className = 'size-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="12" fill="#229ED9" />
+      <path
+        d="M5.5 11.9 17 7.4c.6-.2 1.1.1.9.9l-2 9.2c-.1.6-.5.8-1 .5l-2.8-2-1.4 1.3c-.2.2-.3.3-.6.3l.2-3 5.3-4.8c.2-.2 0-.3-.3-.1L8.6 13l-2.8-.9c-.6-.2-.6-.6.1-.9Z"
+        fill="#fff"
+      />
+    </svg>
+  )
+}
+
 function Row({
   title,
   desc,
+  icon,
   onClick,
 }: {
   title: string
   desc: string
+  icon?: React.ReactNode
   onClick: () => void
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full border-b border-border/50 px-1 py-4 text-left transition active:opacity-70"
+      className="flex w-full items-center gap-3 border-b border-border/50 px-1 py-4 text-left transition active:opacity-70"
     >
-      <p className="text-base font-semibold">{title}</p>
-      <p className="mt-0.5 text-sm text-muted-foreground">{desc}</p>
+      {icon && <span className="shrink-0">{icon}</span>}
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-semibold">{title}</span>
+        <span className="mt-0.5 block text-sm text-muted-foreground">{desc}</span>
+      </span>
     </button>
   )
 }
