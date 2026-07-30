@@ -520,15 +520,16 @@ type FontGroup =
   | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
-  { key: 'recent', label: 'Recent' },
-  { key: 'favorites', label: 'Favorites' },
   { key: 'english', label: 'English' },
   { key: 'mm-free', label: 'Myanmar' },
-  { key: 'mm-premium', label: 'Premium (MM)' },
   { key: 'en-premium', label: 'Premium (Eng)' },
+  { key: 'mm-premium', label: 'Premium (MM)' },
   { key: 'google', label: 'Google Fonts' },
+  { key: 'favorites', label: 'Favorites' },
+  { key: 'recent', label: 'Recent' },
   { key: 'custom', label: 'My Fonts' },
 ]
+
 
 function groupOf(cat: FontOption['category']): FontGroup {
   if (cat === 'Myanmar') return 'mm-free'
