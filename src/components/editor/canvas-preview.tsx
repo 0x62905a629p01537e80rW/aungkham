@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { LayerText, layerTextStyle, layerTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
+import { pulseInteraction, rafThrottle } from '@/lib/perf'
 
 interface CanvasPreviewProps {
   image: string
