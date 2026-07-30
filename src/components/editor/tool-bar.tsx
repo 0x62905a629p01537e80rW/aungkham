@@ -492,9 +492,10 @@ function ToolHeading({ children }: { children: React.ReactNode }) {
   )
 }
 
-type FontGroup = 'favorites' | 'english' | 'mm-free' | 'mm-premium' | 'custom'
+type FontGroup = 'recent' | 'favorites' | 'english' | 'mm-free' | 'mm-premium' | 'custom'
 
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
+  { key: 'recent', label: 'Recent' },
   { key: 'favorites', label: 'Favorites' },
   { key: 'english', label: 'English' },
   { key: 'mm-free', label: 'Myanmar' },
