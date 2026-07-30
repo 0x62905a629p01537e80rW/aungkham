@@ -73,6 +73,11 @@ export function Editor() {
   const stageRef = useRef<HTMLElement>(null)
   const [stageSize, setStageSize] = useState({ w: 0, h: 0 })
 
+  // Re-register downloaded Google fonts so saved projects render offline.
+  useEffect(() => {
+    void ensureGoogleFontsLoaded()
+  }, [])
+
   // Fit the whole image inside the visible stage — never require scrolling.
   useEffect(() => {
     const el = stageRef.current
