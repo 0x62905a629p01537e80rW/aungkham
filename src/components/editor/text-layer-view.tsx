@@ -191,11 +191,13 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
         : (layer.fillType ?? 'solid') === 'gradient'
           ? `linear-gradient(${layer.gradientAngle ?? 90}deg, ${layer.gradientFrom}, ${layer.gradientTo})`
           : layer.color
-    return (
+    const liquid = layer.liquidOn ? liquidGraphicStyle(layer) : null
+    const node = (
       <div
         style={{
           ...box,
           background: fill,
+          ...(liquid ?? {}),
           WebkitMaskImage: `url("${g.src}")`,
           maskImage: `url("${g.src}")`,
           WebkitMaskSize: '100% 100%',
@@ -205,7 +207,10 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
         }}
       />
     )
+    if (layer.liquidOn && layer.liquidPlate) return <LiquidPlate layer={layer}>{node}</LiquidPlate>
+    return node
   }
+
 
   return <img src={g.src} alt="" crossOrigin="anonymous" draggable={false} style={box} />
 }
