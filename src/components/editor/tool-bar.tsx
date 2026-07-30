@@ -404,6 +404,11 @@ export function ToolBar({
                     disabled && 'opacity-35',
                   )}
                 >
+                  {tool.pro && (
+                    <span className="absolute right-0.5 top-0.5 grid size-3.5 place-items-center rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] text-[#3a2a05]">
+                      <Crown className="size-2.5" strokeWidth={2.6} />
+                    </span>
+                  )}
                   <Icon
                     className="size-[18px]"
                     strokeWidth={isOpen ? 2.4 : 2}
