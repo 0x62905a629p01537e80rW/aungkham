@@ -6,7 +6,9 @@ import {
   Crop as CropIcon,
   FlipHorizontal,
   FlipVertical,
+  Eye,
   Image as ImageIcon,
+
   Pipette,
   RotateCcw,
   RotateCw,
@@ -117,6 +119,13 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitAdvanced, setFitAdvanced] = useState(false)
   const [fitPreview, setFitPreview] = useState<string | null>(null)
   const backdropInput = useRef<HTMLInputElement | null>(null)
+  const [panelOpen, setPanelOpen] = useState(true)
+  const [peeking, setPeeking] = useState(false)
+  const [sliderDragging, setSliderDragging] = useState(false)
+  const dragProps = {
+    onDragStart: () => setSliderDragging(true),
+    onDragEnd: () => setSliderDragging(false),
+  }
 
 
   // frame
@@ -268,7 +277,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
         </button>
       </header>
 
-      <div className="flex flex-1 items-center justify-center overflow-hidden bg-muted/30 p-4">
+      <div className="flex flex-1 items-center justify-center overflow-hidden bg-muted/30 p-4 pb-44">
         {tool === 'crop' ? (
           <CropStage src={working} rect={rect} ratio={ratio} onChange={setRect} />
         ) : tool === 'blur' ? (
@@ -303,9 +312,36 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
 
 
       <div
-        className="shrink-0 space-y-4 border-t border-border bg-background px-4 py-4"
+        className={cn(
+          'absolute inset-x-0 bottom-0 max-h-[62dvh] overflow-y-auto perf-scroll border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-4 transition-[transform,opacity] duration-300 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          !panelOpen && 'translate-y-[calc(100%-2.75rem)]',
+          (peeking || sliderDragging) && 'opacity-25',
+        )}
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
+        <div className="sticky top-0 z-10 -mx-4 mb-2 flex items-center justify-between gap-2 bg-transparent px-4 pt-2">
+          <button
+            type="button"
+            onClick={() => setPanelOpen((v) => !v)}
+            aria-label={panelOpen ? 'Hide controls' : 'Show controls'}
+            className="flex flex-1 flex-col items-center gap-1 py-1 active:scale-95"
+          >
+            <span className="h-1.5 w-10 rounded-full bg-muted-foreground/40" />
+          </button>
+          <button
+            type="button"
+            aria-label="Peek image"
+            onPointerDown={() => setPeeking(true)}
+            onPointerUp={() => setPeeking(false)}
+            onPointerLeave={() => setPeeking(false)}
+            onPointerCancel={() => setPeeking(false)}
+            className="grid size-8 shrink-0 place-items-center rounded-full text-muted-foreground active:scale-95"
+          >
+            <Eye className="size-4" />
+          </button>
+        </div>
+        <div className="space-y-4">
+
         {tool === 'crop' && (
           <div className="flex gap-2 overflow-x-auto perf-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {RATIOS.map((r) => (
@@ -440,7 +476,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             </div>
 
             {/* 2. Size */}
-            <SliderField
+            <SliderField {...dragProps}
               label="Size"
               value={fitScale}
               min={0.3}
@@ -590,7 +626,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               {fitAdvanced && (
                 <div className="mt-3 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <SliderField
+                    <SliderField {...dragProps}
                       label="Move X"
                       value={fitX}
                       min={-100}
@@ -598,7 +634,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                       step={1}
                       onChange={setFitX}
                     />
-                    <SliderField
+                    <SliderField {...dragProps}
                       label="Move Y"
                       value={fitY}
                       min={-100}
@@ -608,7 +644,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                     />
                   </div>
                   {(fitBlur > 0 || fitBackdrop) && (
-                    <SliderField
+                    <SliderField {...dragProps}
                       label="Background blur"
                       value={fitBackdrop ? fitBackdropBlur : fitBlur}
                       min={0}
@@ -617,7 +653,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                       onChange={fitBackdrop ? setFitBackdropBlur : setFitBlur}
                     />
                   )}
-                  <SliderField
+                  <SliderField {...dragProps}
                     label="Background opacity"
                     value={fitBgOpacity}
                     min={0}
@@ -625,7 +661,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                     step={0.01}
                     onChange={setFitBgOpacity}
                   />
-                  <SliderField
+                  <SliderField {...dragProps}
                     label="Shadow"
                     value={fitShadowBlur}
                     min={0}
@@ -635,7 +671,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                   />
                   {fitShadowBlur > 0 && (
                     <div className="grid grid-cols-2 gap-3">
-                      <SliderField
+                      <SliderField {...dragProps}
                         label="Shadow opacity"
                         value={fitShadowOpacity}
                         min={0}
@@ -643,7 +679,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                         step={0.01}
                         onChange={setFitShadowOpacity}
                       />
-                      <SliderField
+                      <SliderField {...dragProps}
                         label="Shadow offset"
                         value={fitShadowOffset}
                         min={-100}
@@ -680,7 +716,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                 </button>
               ))}
             </div>
-            <SliderField
+            <SliderField {...dragProps}
               label="Blur amount"
               value={blurAmount}
               min={1}
@@ -689,7 +725,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               onChange={setBlurAmount}
             />
             {blurMode === 'focus' && (
-              <SliderField
+              <SliderField {...dragProps}
                 label="Focus size"
                 value={focus.r}
                 min={0.1}
@@ -700,7 +736,9 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             )}
           </div>
         )}
+        </div>
       </div>
+
     </div>
   )
 }
