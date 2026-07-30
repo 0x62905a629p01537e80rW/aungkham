@@ -120,18 +120,25 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitAdvanced, setFitAdvanced] = useState(false)
   const [fitPreview, setFitPreview] = useState<string | null>(null)
   const backdropInput = useRef<HTMLInputElement | null>(null)
-  const [sliderDragging, setSliderDragging] = useState(false)
+  const [draggingSlider, setDraggingSlider] = useState<string | null>(null)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const dragProps = {
+  const sliderDrag = (label: string) => ({
     onDragStart: () => {
       if (hideTimer.current) clearTimeout(hideTimer.current)
-      setSliderDragging(true)
+      setDraggingSlider(label)
     },
     onDragEnd: () => {
       if (hideTimer.current) clearTimeout(hideTimer.current)
-      hideTimer.current = setTimeout(() => setSliderDragging(false), 500)
+      hideTimer.current = setTimeout(() => setDraggingSlider(null), 500)
     },
-  }
+  })
+  const dimWhenDragging = draggingSlider
+    ? 'opacity-0 pointer-events-none transition-opacity duration-200'
+    : ''
+  const dimUnlessActive = (label: string) =>
+    draggingSlider && draggingSlider !== label
+      ? 'opacity-0 pointer-events-none transition-opacity duration-200'
+      : ''
 
 
 
