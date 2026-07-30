@@ -122,12 +122,19 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   const [fitPreview, setFitPreview] = useState<string | null>(null)
   const backdropInput = useRef<HTMLInputElement | null>(null)
   const [panelOpen, setPanelOpen] = useState(true)
-  const [peeking, setPeeking] = useState(false)
   const [sliderDragging, setSliderDragging] = useState(false)
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dragProps = {
-    onDragStart: () => setSliderDragging(true),
-    onDragEnd: () => setSliderDragging(false),
+    onDragStart: () => {
+      if (hideTimer.current) clearTimeout(hideTimer.current)
+      setSliderDragging(true)
+    },
+    onDragEnd: () => {
+      if (hideTimer.current) clearTimeout(hideTimer.current)
+      hideTimer.current = setTimeout(() => setSliderDragging(false), 500)
+    },
   }
+
 
 
   // frame
