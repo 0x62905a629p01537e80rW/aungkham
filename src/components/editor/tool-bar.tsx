@@ -1924,10 +1924,10 @@ function LiquidPanel({
       onPointerCancel={() => setDragging(null)}
     >
       <div className={cn(fade, others, 'flex items-center justify-between')}>
-        <span className="flex items-center gap-1.5">
+        <span className="flex min-w-0 items-center gap-2 leading-none [&_*]:mb-0">
           <ToolHeading>Liquid glass</ToolHeading>
-          <span className="flex items-center gap-1 rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#3a2a05]">
-            <Crown className="size-2.5" /> Pro
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] px-1.5 py-[3px] text-[9px] font-bold uppercase leading-none text-[#3a2a05]">
+            <Crown className="size-2.5" strokeWidth={2.6} /> Pro
           </span>
         </span>
         <button
