@@ -414,22 +414,12 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     }
     if (!drawing.current) return
 
-    // Magic wand: keep flooding new areas live as the tip travels.
+    // Magic wand: restart the 0.5s dwell whenever the finger moves off the spot.
     if (tool === 'magic') {
-      const p = toImageCoords(e.clientX, e.clientY)
-      const ctx = ctxOf()
-      const canvas = canvasRef.current
-      if (!p || !ctx || !canvas) return
-      const last = lastPoint.current
-      const minStep = Math.max(2, Math.max(canvas.width, canvas.height) * 0.006)
-      if (last && Math.hypot(p.x - last.x, p.y - last.y) < minStep) return
-      const base = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      baseRef.current = new ImageData(new Uint8ClampedArray(base.data), base.width, base.height)
-      const data = new ImageData(new Uint8ClampedArray(base.data), base.width, base.height)
-      magicErase(data, p.x, p.y, tolerance)
-      ctx.putImageData(data, 0, 0)
-      setPending({ kind: 'magic', x: p.x, y: p.y })
-      lastPoint.current = p
+      const anchor = holdAt.current
+      if (!anchor || Math.hypot(e.clientX - anchor.x, e.clientY - anchor.y) > 8) {
+        scheduleMagic(e.clientX, e.clientY)
+      }
       return
     }
 
