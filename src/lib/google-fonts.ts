@@ -1,0 +1,186 @@
+import catalog from './google-fonts-catalog.json'
+
+export interface GoogleFontMeta {
+  /** family name */
+  f: string
+  /** category */
+  c: string
+  /** popularity rank */
+  p: number
+  /** available weights */
+  w: number[]
+  /** notable subsets */
+  s: string[]
+}
+
+export const GOOGLE_FONTS = catalog as GoogleFontMeta[]
+
+export function googleFontKey(family: string) {
+  return `gf:${family}`
+}
+
+export function googleFamilyFromKey(key: string) {
+  return key.startsWith('gf:') ? key.slice(3) : null
+}
+
+export function googleCssFamily(family: string) {
+  return `GF_${family.replace(/[^A-Za-z0-9]+/g, '_')}`
+}
+
+/* ---------------- offline storage (IndexedDB) ---------------- */
+
+const DB_NAME = 'myan-gfonts'
+const STORE = 'files'
+
+function openDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1)
+    req.onupgradeneeded = () => {
+      if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE)
+    }
+    req.onsuccess = () => resolve(req.result)
+    req.onerror = () => reject(req.error)
+  })
+}
+
+async function idbGet(key: string): Promise<ArrayBuffer | undefined> {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(STORE, 'readonly').objectStore(STORE).get(key)
+    req.onsuccess = () => resolve(req.result as ArrayBuffer | undefined)
+    req.onerror = () => reject(req.error)
+  })
+}
+
+async function idbSet(key: string, value: ArrayBuffer) {
+  const db = await openDb()
+  return new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite')
+    tx.objectStore(STORE).put(value, key)
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+}
+
+async function idbDel(key: string) {
+  const db = await openDb()
+  return new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite')
+    tx.objectStore(STORE).delete(key)
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+}
+
+/* ---------------- installed index (localStorage) ---------------- */
+
+const KEY = 'myan.googleFonts'
+
+const listeners = new Set<() => void>()
+export function subscribeGoogleFonts(cb: () => void) {
+  listeners.add(cb)
+  return () => {
+    listeners.delete(cb)
+  }
+}
+function emit() {
+  listeners.forEach((l) => l())
+}
+
+export function listInstalledGoogleFonts(): string[] {
+  if (typeof window === 'undefined') return []
+  try {
+    return JSON.parse(window.localStorage.getItem(KEY) || '[]') as string[]
+  } catch {
+    return []
+  }
+}
+
+function writeInstalled(list: string[]) {
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(list))
+  } catch {
+    /* quota */
+  }
+  emit()
+}
+
+export function isGoogleFontInstalled(family: string) {
+  return listInstalledGoogleFonts().includes(family)
+}
+
+/* ---------------- download + register ---------------- */
+
+const loaded = new Set<string>()
+const inflight = new Map<string, Promise<void>>()
+
+async function registerBuffer(family: string, buf: ArrayBuffer) {
+  const face = new FontFace(googleCssFamily(family), buf)
+  const f = await face.load()
+  document.fonts.add(f)
+  loaded.add(family)
+  emit()
+}
+
+async function fetchFontFile(family: string): Promise<ArrayBuffer> {
+  const url = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g, '+')}:wght@400&display=swap`
+  const css = await fetch(url).then((r) => {
+    if (!r.ok) throw new Error('css failed')
+    return r.text()
+  })
+  const match =
+    css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/) ||
+    css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/)
+  if (!match) throw new Error('no font file found')
+  const res = await fetch(match[1])
+  if (!res.ok) throw new Error('download failed')
+  return res.arrayBuffer()
+}
+
+/** Download a Google font and keep it in the app for offline use. */
+export async function installGoogleFont(family: string): Promise<void> {
+  if (loaded.has(family)) return
+  const existing = inflight.get(family)
+  if (existing) return existing
+  const task = (async () => {
+    let buf = await idbGet(family).catch(() => undefined)
+    if (!buf) {
+      buf = await fetchFontFile(family)
+      await idbSet(family, buf).catch(() => {})
+    }
+    await registerBuffer(family, buf)
+    const list = listInstalledGoogleFonts()
+    if (!list.includes(family)) writeInstalled([...list, family])
+  })()
+  inflight.set(family, task)
+  try {
+    await task
+  } finally {
+    inflight.delete(family)
+  }
+}
+
+export async function removeGoogleFont(family: string) {
+  await idbDel(family).catch(() => {})
+  loaded.delete(family)
+  writeInstalled(listInstalledGoogleFonts().filter((f) => f !== family))
+}
+
+/** Re-register every previously downloaded font at app start (works offline). */
+export async function ensureGoogleFontsLoaded() {
+  if (typeof window === 'undefined' || !('FontFace' in window)) return
+  for (const family of listInstalledGoogleFonts()) {
+    if (loaded.has(family)) continue
+    try {
+      const buf = await idbGet(family)
+      if (buf) await registerBuffer(family, buf)
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/** true once the family is usable for rendering/export */
+export function isGoogleFontReady(family: string) {
+  return loaded.has(family)
+}
