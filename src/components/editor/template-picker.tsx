@@ -115,7 +115,7 @@ export function TemplateGallery({
           <GlassTabs
             variant="chips"
             size="sm"
-            value={group}
+            value={activeGroup}
             onChange={(g) => setGroup(g as typeof group)}
             items={TEMPLATE_GROUPS.filter((g) => !(lang === 'EN' && g === 'New')).map((g) => ({
               key: g,
