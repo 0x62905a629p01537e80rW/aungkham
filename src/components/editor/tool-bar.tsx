@@ -600,11 +600,17 @@ function FontPicker({
 
   useEffect(() => {
     ensureCustomFontsLoaded()
-    return subscribeFonts(() => force((n) => n + 1))
+    const offFonts = subscribeFonts(() => force((n) => n + 1))
+    const offRecents = subscribeRecents(() => force((n) => n + 1))
+    return () => {
+      offFonts()
+      offRecents()
+    }
   }, [])
 
   const customs = listCustomFonts()
   const favs = listFavorites()
+  const recents = listRecentFonts()
 
   const all: FontEntry[] = [
     ...FONTS.map((f) => ({
@@ -621,11 +627,14 @@ function FontPicker({
   ]
 
   const items =
-    group === 'favorites'
-      ? all.filter((f) => favs.includes(f.key))
-      : group === 'custom'
-        ? all.filter((f) => f.customId)
-        : all.filter((f) => !f.customId && groupOf(FONTS.find((x) => x.key === f.key)!.category) === group)
+    group === 'recent'
+      ? (recents.map((k) => all.find((f) => f.key === k)).filter(Boolean) as FontEntry[])
+      : group === 'favorites'
+        ? all.filter((f) => favs.includes(f.key))
+        : group === 'custom'
+          ? all.filter((f) => f.customId)
+          : all.filter((f) => !f.customId && groupOf(FONTS.find((x) => x.key === f.key)!.category) === group)
+
 
   return (
     <div className="space-y-3">
