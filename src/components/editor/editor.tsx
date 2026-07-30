@@ -356,11 +356,13 @@ export function Editor() {
   }, [])
 
   function toggleVisibility(id: string) {
-    setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, hidden: !l.hidden } : l)))
+    const cur = layers.find((l) => l.id === id)
+    if (cur) updateLayer(id, { hidden: !cur.hidden })
   }
 
   function toggleLock(id: string) {
-    setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, locked: !l.locked } : l)))
+    const cur = layers.find((l) => l.id === id)
+    if (cur) updateLayer(id, { locked: !cur.locked })
   }
 
   function reorderLayers(from: number, to: number) {
