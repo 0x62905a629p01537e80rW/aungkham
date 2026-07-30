@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { ColorPickerPopover } from './color-picker'
+import { cn } from '@/lib/utils'
+
 
 
 export function Section({ title, children }: { title: string; children: ReactNode }) {
