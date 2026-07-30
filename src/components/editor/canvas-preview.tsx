@@ -11,7 +11,6 @@ import {
   ZoomOut,
   Minimize,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { LayerText, layerTextStyle, layerTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
 
@@ -474,156 +473,55 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
 
 
-    return (
-      <div
-        ref={ref}
-        className="checker-grid relative h-full w-full select-none overflow-hidden"
-        style={{ lineHeight: 0, touchAction: 'none' }}
-        onPointerDown={(e) => {
-          onSelect(null)
-          stageDown(e)
-        }}
-        onPointerMove={stageMove}
-        onPointerUp={stageUp}
-        onPointerCancel={stageUp}
-      >
+    /**
+     * Selection frame + handles for the active layer. Rendered in an unmasked
+     * container so the erase mask never hides the controls.
+     */
+    function renderChrome(layer: TextLayer) {
+      const inv = 1 / view.scale
+      const mirror = (v: number | string) => (v === 0 ? '100%' : v === '100%' ? 0 : v)
+      const wS = (layer.widthScale ?? 100) / 100
+      const hS = (layer.heightScale ?? 100) / 100
+      const negW = wS < 0
+      const negH = hS < 0
+      const flipX = layer.flipH !== negW
+      const flipY = layer.flipV !== negH
+      const hx = (v: number | string) => (flipX ? mirror(v) : v)
+      const hy = (v: number | string) => (flipY ? mirror(v) : v)
+      const sx = flipX ? -1 : 1
+      const sy = flipY ? -1 : 1
+      const aw = Math.max(0.1, Math.abs(wS))
+      const ah = Math.max(0.1, Math.abs(hS))
+      const OFF = 22 * inv
+      const hTr = (ox: number, oy: number) =>
+        `translate(calc(-50% + ${(ox * sx * OFF) / aw}px), calc(-50% + ${(oy * sy * OFF) / ah}px)) scale(${(inv * sx) / aw}, ${(inv * sy) / ah})`
 
+      return (
         <div
-          ref={containerRef}
-          className="absolute inset-0 flex items-center justify-center"
           style={{
-            transform: `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.scale})`,
-            transformOrigin: 'center center',
-            willChange: 'transform',
-            backfaceVisibility: 'hidden',
+            position: 'absolute',
+            left: `${layer.x}%`,
+            top: `${layer.y}%`,
+            transform: layerTransform(layer),
+            whiteSpace: 'nowrap',
+            cursor: 'move',
+            touchAction: 'none',
+            outlineWidth: `${1 * inv}px`,
+            outlineOffset: `${5 * inv}px`,
+          }}
+          className="outline-solid outline-foreground/60"
+          onPointerDown={(e) => handlePointerDown(e, layer.id)}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onDoubleClick={(e) => {
+            e.stopPropagation()
+            if (layer.graphic) return
+            setEditingId(layer.id)
           }}
         >
-
-        <div
-          className="relative"
-          style={{
-            width: boxSize.w ? `${boxSize.w}px` : '100%',
-            height: boxSize.h ? `${boxSize.h}px` : '100%',
-            containerType: 'size',
-          }}
-        >
-
-          <img
-            src={image || '/placeholder.svg'}
-            alt="Editing canvas"
-            crossOrigin="anonymous"
-            className="block h-full w-full object-fill"
-            draggable={false}
-          />
-
-
-          {showGrid && !exporting && (
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{
-                backgroundImage:
-                  'linear-gradient(to right, rgba(255,255,255,0.45) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.45) 1px, transparent 1px)',
-                backgroundSize: '33.333% 33.333%',
-                mixBlendMode: 'difference',
-              }}
-            />
-          )}
-
-          <div className="absolute inset-0" style={maskStyle}>
-          {layers.filter((l) => !l.hidden).map((layer) => {
-            const isSelected = layer.id === selectedId && !exporting
-            const isEditing = editingId === layer.id && !exporting
-            const inv = 1 / view.scale
-            const wrapperStyle: CSSProperties = {
-              position: 'absolute',
-              left: `${layer.x}%`,
-              top: `${layer.y}%`,
-              transform: layerTransform(layer),
-              opacity: layer.opacity,
-              mixBlendMode: (layer.blendMode ?? 'normal') as CSSProperties['mixBlendMode'],
-              whiteSpace: 'nowrap',
-              cursor: isEditing ? 'text' : 'move',
-              touchAction: 'none',
-              outlineWidth: `${1 * inv}px`,
-              outlineOffset: `${5 * inv}px`,
-            }
-
-            const mirror = (v: number | string) => (v === 0 ? '100%' : v === '100%' ? 0 : v)
-            const wS = (layer.widthScale ?? 100) / 100
-            const hS = (layer.heightScale ?? 100) / 100
-            const negW = wS < 0
-            const negH = hS < 0
-            const flipX = layer.flipH !== negW
-            const flipY = layer.flipV !== negH
-            const hx = (v: number | string) => (flipX ? mirror(v) : v)
-            const hy = (v: number | string) => (flipY ? mirror(v) : v)
-            const sx = flipX ? -1 : 1
-            const sy = flipY ? -1 : 1
-            const aw = Math.max(0.1, Math.abs(wS))
-            const ah = Math.max(0.1, Math.abs(hS))
-            const OFF = 22 * inv
-            // Keeps handles outside the selection frame, upright and constant size.
-            const hTr = (ox: number, oy: number) =>
-              `translate(calc(-50% + ${(ox * sx * OFF) / aw}px), calc(-50% + ${(oy * sy * OFF) / ah}px)) scale(${(inv * sx) / aw}, ${(inv * sy) / ah})`
-
-
-            const textStyle = layerTextStyle(layer)
-            const inner = <LayerText layer={layer} />
-
-
-            return (
-              <div
-                key={layer.id}
-                style={wrapperStyle}
-                className={cn(
-                  isSelected ? 'outline-solid outline-foreground/60' : 'outline-transparent',
-                )}
-
-                onPointerDown={(e) => handlePointerDown(e, layer.id)}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onDoubleClick={(e) => {
-                  e.stopPropagation()
-                  if (layer.graphic) return
-                  setEditingId(layer.id)
-                }}
-              >
-                <span style={{ visibility: isEditing ? 'hidden' : 'visible' }}>{inner}</span>
-
-                {isEditing && (
-                  <textarea
-                    ref={editorRef}
-                    value={layer.text}
-                    onChange={(e) => onEditText(layer.id, e.target.value)}
-                    onBlur={() => setEditingId(null)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Escape') {
-                        e.preventDefault()
-                        setEditingId(null)
-                      }
-                    }}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onDoubleClick={(e) => e.stopPropagation()}
-                    rows={Math.max(1, layer.text.split('\n').length)}
-                    style={{
-                      ...textStyle,
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      height: '100%',
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      padding: 0,
-                      overflow: 'hidden',
-                      caretColor: 'currentColor',
-                    }}
-                  />
-                )}
-
-                {isSelected && !isEditing && (
-                  <>
+          <span style={{ visibility: 'hidden' }}>
+            <LayerText layer={layer} />
+          </span>
                     <button
                       type="button"
                       aria-label="Delete text"
@@ -769,15 +667,154 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         {stretchHud.axis === 'x' ? 'X' : 'Y'}: {stretchHud.value}%
                       </span>
                     )}
-                  </>
+        </div>
+      )
+    }
+
+
+    return (
+      <div
+        ref={ref}
+        className="checker-grid relative h-full w-full select-none overflow-hidden"
+        style={{ lineHeight: 0, touchAction: 'none' }}
+        onPointerDown={(e) => {
+          onSelect(null)
+          stageDown(e)
+        }}
+        onPointerMove={stageMove}
+        onPointerUp={stageUp}
+        onPointerCancel={stageUp}
+      >
+
+        <div
+          ref={containerRef}
+          className="absolute inset-0 flex items-center justify-center"
+          style={{
+            transform: `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.scale})`,
+            transformOrigin: 'center center',
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
+          }}
+        >
+
+        <div
+          className="relative"
+          style={{
+            width: boxSize.w ? `${boxSize.w}px` : '100%',
+            height: boxSize.h ? `${boxSize.h}px` : '100%',
+            containerType: 'size',
+          }}
+        >
+
+          <img
+            src={image || '/placeholder.svg'}
+            alt="Editing canvas"
+            crossOrigin="anonymous"
+            className="block h-full w-full object-fill"
+            draggable={false}
+          />
+
+
+          {showGrid && !exporting && (
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage:
+                  'linear-gradient(to right, rgba(255,255,255,0.45) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.45) 1px, transparent 1px)',
+                backgroundSize: '33.333% 33.333%',
+                mixBlendMode: 'difference',
+              }}
+            />
+          )}
+
+          <div className="absolute inset-0 overflow-hidden" style={maskStyle}>
+          {layers.filter((l) => !l.hidden).map((layer) => {
+            const isEditing = editingId === layer.id && !exporting
+            const inv = 1 / view.scale
+            const wrapperStyle: CSSProperties = {
+              position: 'absolute',
+              left: `${layer.x}%`,
+              top: `${layer.y}%`,
+              transform: layerTransform(layer),
+              opacity: layer.opacity,
+              mixBlendMode: (layer.blendMode ?? 'normal') as CSSProperties['mixBlendMode'],
+              whiteSpace: 'nowrap',
+              cursor: isEditing ? 'text' : 'move',
+              touchAction: 'none',
+              outlineWidth: `${1 * inv}px`,
+              outlineOffset: `${5 * inv}px`,
+            }
+
+            const textStyle = layerTextStyle(layer)
+            const inner = <LayerText layer={layer} />
+
+
+            return (
+              <div
+                key={layer.id}
+                style={wrapperStyle}
+                className="outline-transparent"
+
+
+                onPointerDown={(e) => handlePointerDown(e, layer.id)}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onDoubleClick={(e) => {
+                  e.stopPropagation()
+                  if (layer.graphic) return
+                  setEditingId(layer.id)
+                }}
+              >
+                <span style={{ visibility: isEditing ? 'hidden' : 'visible' }}>{inner}</span>
+
+                {isEditing && (
+                  <textarea
+                    ref={editorRef}
+                    value={layer.text}
+                    onChange={(e) => onEditText(layer.id, e.target.value)}
+                    onBlur={() => setEditingId(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        e.preventDefault()
+                        setEditingId(null)
+                      }
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onDoubleClick={(e) => e.stopPropagation()}
+                    rows={Math.max(1, layer.text.split('\n').length)}
+                    style={{
+                      ...textStyle,
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      padding: 0,
+                      overflow: 'hidden',
+                      caretColor: 'currentColor',
+                    }}
+                  />
                 )}
+
 
               </div>
             )
           })}
           </div>
 
+          {!exporting &&
+            selectedId &&
+            editingId !== selectedId &&
+            (() => {
+              const sel = layers.find((l) => l.id === selectedId && !l.hidden)
+              return sel ? <div className="absolute inset-0">{renderChrome(sel)}</div> : null
+            })()}
+
           {overlay}
+
 
         </div>
         </div>
