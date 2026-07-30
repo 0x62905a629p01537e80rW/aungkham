@@ -352,7 +352,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
                 className={cn(
                   'shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition active:scale-95',
                   ratio === r.value
-                    ? 'border-primary bg-primary text-primary-foreground'
+                    ? 'border-primary/40 bg-primary/15 text-primary backdrop-blur-xl [box-shadow:inset_0_1px_0_color-mix(in_oklab,white_35%,transparent),0_8px_18px_-10px_color-mix(in_oklab,var(--primary)_50%,transparent)]'
                     : 'border-border text-foreground/80',
                 )}
               >
