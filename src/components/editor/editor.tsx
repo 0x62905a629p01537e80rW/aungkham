@@ -24,14 +24,27 @@ import { shouldAskForRating } from '@/lib/rate-us'
 import { AuthProvider } from '@/components/auth-provider'
 import { ScreenGuard } from './screen-guard'
 import { EraseBar, EraseOverlay, DEFAULT_BRUSH, type EraseBrush, type EraseControls } from './erase-overlay'
+import { useI18n } from '@/components/i18n'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 
 
 export function Editor() {
+  const { t } = useI18n()
   const [image, setImage] = useState<string | null>(null)
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null)
   const [layers, setLayers] = useState<TextLayer[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [discardOpen, setDiscardOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const [adjusting, setAdjusting] = useState(false)
@@ -162,6 +175,20 @@ export function Editor() {
     setLayers([])
     setSelectedId(null)
     setNaturalSize(null)
+    setShowSave(false)
+    past.current = []
+    future.current = []
+    lastSnap.current = { image: null, layers: [], naturalSize: null }
+    skipHistory.current = true
+    setHistoryTick((t) => t + 1)
+  }
+
+  function requestExit() {
+    if (layers.length === 0) {
+      resetAll()
+      return
+    }
+    setDiscardOpen(true)
   }
 
 
@@ -323,7 +350,7 @@ export function Editor() {
 
       <EditorHeader
         hasImage={!!image}
-        onNewImage={resetAll}
+        onNewImage={requestExit}
         onNext={() => setNextRequested(true)}
         showGrid={showGrid}
         onToggleGrid={() => setShowGrid((v) => !v)}
@@ -572,6 +599,29 @@ export function Editor() {
           )}
         </>
       )}
+
+      <AlertDialog open={discardOpen} onOpenChange={setDiscardOpen}>
+        <AlertDialogContent className="glass-panel max-w-[min(92vw,340px)] rounded-3xl border-0">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('discard.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('discard.desc')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <AlertDialogAction
+              onClick={() => {
+                setDiscardOpen(false)
+                resetAll()
+              }}
+              className="w-full rounded-full"
+            >
+              {t('discard.confirm')}
+            </AlertDialogAction>
+            <AlertDialogCancel className="mt-0 w-full rounded-full">
+              {t('discard.cancel')}
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>
     </AuthProvider>

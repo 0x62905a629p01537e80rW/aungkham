@@ -56,6 +56,12 @@ const DICT = {
     'lang.english': 'English',
     'lang.myanmar': 'မြန်မာ',
     'lang.choose': 'Choose language',
+
+    'discard.title': 'Discard your edits?',
+    'discard.desc':
+      'Your current edits are not saved. Leaving now will clear everything on the canvas.',
+    'discard.cancel': 'Keep editing',
+    'discard.confirm': 'Discard & exit',
   },
   my: {
     'brand.tagline': 'ဓာတ်ပုံပေါ် စာရေးရန်',
@@ -104,6 +110,12 @@ const DICT = {
     'lang.english': 'English',
     'lang.myanmar': 'မြန်မာ',
     'lang.choose': 'ဘာသာစကား ရွေးပါ',
+
+    'discard.title': 'တည်းဖြတ်မှုကို ဖျက်မလား။',
+    'discard.desc':
+      'သင်ပြုလုပ်ထားသည်များ သိမ်းထားခြင်း မရှိပါ။ ထွက်လိုက်ပါက အားလုံး ပျောက်ဆုံးသွားပါမည်။',
+    'discard.cancel': 'ဆက်တည်းဖြတ်မည်',
+    'discard.confirm': 'ဖျက်ပြီး ထွက်မည်',
   },
 } as const
 
