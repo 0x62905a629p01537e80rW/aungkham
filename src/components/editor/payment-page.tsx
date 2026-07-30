@@ -488,6 +488,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                 </p>
               </div>
             )}
+            </>
+            )}
           </div>
         )}
       </div>
