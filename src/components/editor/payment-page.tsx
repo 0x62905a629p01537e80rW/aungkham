@@ -312,6 +312,90 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
           </div>
         ) : (
           <div className="mt-5 space-y-3">
+            <div className="glass-tile flex gap-1 rounded-2xl p-1">
+              {([
+                { id: 'kbzpay' as Method, label: 'KBZPay', icon: Smartphone },
+                { id: 'crypto' as Method, label: 'Crypto', icon: Bitcoin },
+              ]).map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setMethod(id)}
+                  className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl text-[13px] font-bold transition active:scale-[0.98] ${
+                    method === id ? 'bg-primary/15 text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  <Icon className="size-4" />
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-[11px] text-muted-foreground">
+              Signed in as <span className="font-medium text-foreground">{user.email}</span>
+            </p>
+
+            {method === 'crypto' ? (
+              <div className="space-y-3">
+                <div className="glass-tile flex items-center gap-3 rounded-2xl p-4">
+                  <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+                    <Bitcoin className="size-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold">Pay with crypto</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Secure Shieldz checkout — pay {PRICE_USD} in USDT, USDC, BTC and more.
+                    </p>
+                  </div>
+                </div>
+
+                {cryptoRef && (
+                  <CopyRow
+                    label="Your payment reference (include it if asked)"
+                    value={cryptoRef}
+                    valueClassName="text-[13px] font-semibold"
+                  />
+                )}
+
+                {error && <p className="text-[11px] text-destructive">{error}</p>}
+
+                <button
+                  type="button"
+                  disabled={openingCheckout}
+                  onClick={startCryptoCheckout}
+                  className="premium-shine flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98] disabled:opacity-50"
+                >
+                  {openingCheckout ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <ExternalLink className="size-4" />
+                  )}
+                  {cryptoRef ? 'Reopen crypto checkout' : `Pay ${PRICE_USD} with crypto`}
+                </button>
+
+                {returned && cryptoDocId && (
+                  <button
+                    type="button"
+                    disabled={submitting}
+                    onClick={confirmCryptoPaid}
+                    className="glass-tile flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold transition active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {submitting ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Check className="size-4" />
+                    )}
+                    I've completed the payment
+                  </button>
+                )}
+
+                <p className="text-center text-[11px] text-muted-foreground">
+                  Payment opens in your browser. Come back here after paying and tap “I've completed
+                  the payment” — Pro unlocks automatically once confirmed.
+                </p>
+              </div>
+            ) : (
+            <>
             <div className="glass-tile flex items-center gap-3 rounded-2xl p-4">
               <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
                 <Smartphone className="size-5" />
@@ -324,9 +408,6 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
               </div>
             </div>
 
-            <p className="text-[11px] text-muted-foreground">
-              Signed in as <span className="font-medium text-foreground">{user.email}</span>
-            </p>
 
             {/* Payment details — shown before asking for transaction info */}
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
