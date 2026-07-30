@@ -2,7 +2,7 @@ import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
 import { getAuth, type Auth } from 'firebase/auth'
 import { getFirestore, type Firestore } from 'firebase/firestore'
 
-const firebaseConfig = {
+export const FIREBASE_CONFIG = {
   apiKey: 'AIzaSyBHkt7MX6ZI-6zBoEA6WHEFUtBMB36Npl0',
   authDomain: 'myan-photo-editor.firebaseapp.com',
   projectId: 'myan-photo-editor',
@@ -16,7 +16,7 @@ let app: FirebaseApp | null = null
 
 /** Browser-only Firebase accessors — never call during SSR. */
 export function getFirebaseApp(): FirebaseApp {
-  if (!app) app = getApps()[0] ?? initializeApp(firebaseConfig)
+  if (!app) app = getApps()[0] ?? initializeApp(FIREBASE_CONFIG)
   return app
 }
 
