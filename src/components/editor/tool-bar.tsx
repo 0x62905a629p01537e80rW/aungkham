@@ -717,6 +717,7 @@ function FontPicker({
             fav={favs.includes(f.key)}
             locked={false}
             onSelect={() => {
+              recordRecentFont(f.key)
               onChange({ fontKey: f.key })
               onClose?.()
             }}
@@ -733,9 +734,11 @@ function FontPicker({
         ))}
         {items.length === 0 && (
           <p className="col-span-2 py-6 text-center text-xs text-muted-foreground">
-            {group === 'favorites'
-              ? 'No favorite fonts yet — tap the star on any font.'
-              : 'No custom fonts yet — upload one above.'}
+            {group === 'recent'
+              ? 'No recent fonts yet — pick a font and it shows up here.'
+              : group === 'favorites'
+                ? 'No favorite fonts yet — tap the star on any font.'
+                : 'No custom fonts yet — upload one above.'}
           </p>
         )}
       </div>
