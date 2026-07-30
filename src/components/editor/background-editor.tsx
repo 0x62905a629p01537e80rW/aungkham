@@ -261,16 +261,13 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
         rw={rw}
         rh={rh}
         keepAspect={keepAspect}
-        onChange={({ w, h, keepAspect: ka }) => {
+        onChange={({ w, h, keepAspect: ka }: { w: number; h: number; keepAspect: boolean }) => {
           setRw(w)
           setRh(h)
           setKeepAspect(ka)
         }}
         onCancel={onCancel}
-        onApply={() => {
-          if (!natural) return
-          resize(natural.w, natural.h, rw, rh)
-        }}
+        onApply={apply}
       />
     )
   }
