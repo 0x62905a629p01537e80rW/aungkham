@@ -331,7 +331,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
     }, 500)
   }
 
-  useEffect(() => cancelMagicHold, [])
+  
 
   const onDown = (e: React.PointerEvent) => {
     if (phase === 'smooth') return
