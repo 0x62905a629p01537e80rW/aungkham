@@ -28,6 +28,9 @@ export function FilterEditor({ image, onCancel, onApply }: Props) {
 
   const sourceRef = useRef<HTMLImageElement | null>(null)
   const rafRef = useRef<number | null>(null)
+  const readoutRef = useRef<HTMLSpanElement | null>(null)
+  const imgRef = useRef<HTMLImageElement | null>(null)
+
 
   useEffect(() => {
     let alive = true
