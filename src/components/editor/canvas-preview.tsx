@@ -827,7 +827,16 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           })}
           </div>
 
+          {!exporting &&
+            selectedId &&
+            editingId !== selectedId &&
+            (() => {
+              const sel = layers.find((l) => l.id === selectedId && !l.hidden)
+              return sel ? <div className="absolute inset-0">{renderChrome(sel)}</div> : null
+            })()}
+
           {overlay}
+
 
         </div>
         </div>
