@@ -1,6 +1,6 @@
+import { useEffect, useRef, useState } from 'react'
 import {
-  Keyboard, useEffect, useRef, useState } from 'react'
-import {
+  Keyboard,
   Layers,
   Lock,
   Star,
