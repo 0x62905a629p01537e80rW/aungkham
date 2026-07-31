@@ -461,13 +461,47 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       value: number
     } | null>(null)
 
+    const wrapState = useRef<{ id: string; start: number; startValue: number } | null>(null)
+
+    /** Drag the right-edge handle to set the text box width so the text wraps. */
+    function handleWrapDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
+      e.stopPropagation()
+      e.preventDefault()
+      e.currentTarget.setPointerCapture(e.pointerId)
+      const rect = containerRef.current?.getBoundingClientRect()
+      let startValue = layer.wrapWidth ?? 0
+      if (!startValue) {
+        const box = e.currentTarget.parentElement?.getBoundingClientRect()
+        startValue = box && rect?.width ? (box.width / rect.width) * 100 : 50
+      }
+      wrapState.current = { id: layer.id, start: e.clientX, startValue }
+    }
+
+    function handleWrapMove(e: PointerEvent<HTMLButtonElement>) {
+      const st = wrapState.current
+      if (!st) return
+      const rect = containerRef.current?.getBoundingClientRect()
+      const span = rect?.width || 300
+      const delta = ((e.clientX - st.start) / span) * 100
+      const next = Math.max(5, Math.min(200, st.startValue + delta))
+      onChange?.(st.id, { wrapWidth: Math.round(next * 10) / 10 })
+    }
+
+    function handleWrapUp(e: PointerEvent<HTMLButtonElement>) {
+      wrapState.current = null
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      } catch {
+        /* ignore */
+      }
+    }
+
     function handleStretchDown(
       e: PointerEvent<HTMLButtonElement>,
       layer: TextLayer,
       axis: 'x' | 'y',
     ) {
       e.stopPropagation()
-      e.preventDefault()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
       const startValue = axis === 'x' ? (layer.widthScale ?? 100) : (layer.heightScale ?? 100)
