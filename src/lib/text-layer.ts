@@ -38,6 +38,8 @@ export interface TextLayer {
   groupId?: string
   strokeOpacity?: number
   blendMode?: string
+  /** width of the text box in cqw; when set the text wraps to multiple lines */
+  wrapWidth?: number
 
   /* Fill */
   fillType: FillType
