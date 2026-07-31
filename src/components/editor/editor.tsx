@@ -473,11 +473,6 @@ export function Editor() {
             onOpenProject={openProject}
             onStartTemplates={() => setTemplating(true)}
             onApplyTemplate={applyTemplate}
-            onInsertElement={(tabId) => {
-              setInsertTab(tabId)
-              handleImage(makeSolidDataUrl('#ffffff'))
-              setInserting(true)
-            }}
           />
           <TemplatePicker
             open={templating}
@@ -571,6 +566,10 @@ export function Editor() {
             onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
             onOpenTemplates={() => setTemplating(true)}
+            onInsertElement={(tabId) => {
+              setInsertTab(tabId)
+              setInserting(true)
+            }}
             autoOpenTool={autoOpenTool}
             onAutoOpenHandled={() => setAutoOpenTool(null)}
             onImageTool={(t) =>
