@@ -46,7 +46,7 @@ function hashOf(s: string) {
   return h
 }
 
-function TemplateThumb({ template, bg }: { template: TemplateDef; bg: string }) {
+export function TemplateThumb({ template, bg = '#ffffff' }: { template: TemplateDef; bg?: string }) {
   const layers = useMemo(() => template.build(), [template])
   return (
     <div
