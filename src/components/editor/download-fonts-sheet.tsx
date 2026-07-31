@@ -205,7 +205,12 @@ export function DownloadFontsSheet({
                     type="button"
                     aria-label={locked ? `Unlock ${f.name} with Pro` : `Download ${f.name}`}
                     onClick={() => void download(f)}
-                    className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary active:scale-90"
+                    className={cn(
+                      'flex size-7 shrink-0 items-center justify-center rounded-full active:scale-90',
+                      locked
+                        ? 'bg-amber-500/15 text-amber-500'
+                        : 'bg-emerald-500/15 text-emerald-500',
+                    )}
                   >
                     {locked ? <Crown className="size-3.5" /> : <Download className="size-3.5" />}
                   </button>
