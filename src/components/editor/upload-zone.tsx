@@ -210,34 +210,6 @@ const FEATURED = TEMPLATES.filter(
             </div>
 
 
-            {onInsertElement && (
-              <div className="glass-tile rounded-[1.75rem] p-3">
-                <span className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  <Shapes className="size-3.5 text-primary" />
-                  {t('home.elements')}
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  {([
-                    { id: 'stickers', label: t('home.stickers'), Icon: Smile },
-                    { id: 'shapes', label: t('home.shapes'), Icon: Shapes },
-                    { id: 'overlay', label: t('home.overlays'), Icon: Layers },
-                  ] as const).map(({ id, label, Icon }) => (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => onInsertElement(id)}
-                      className="flex flex-col items-center gap-1.5 rounded-2xl bg-background/40 py-3 text-[11px] font-semibold transition active:scale-95"
-                    >
-                      <span className="grid size-9 place-items-center rounded-xl bg-primary/15 text-primary">
-                        <Icon className="size-[18px]" />
-                      </span>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div className="glass-tile rounded-[1.75rem] p-3">
               <span className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <Palette className="size-3.5 text-primary" />
