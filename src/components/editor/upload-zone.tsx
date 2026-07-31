@@ -8,12 +8,14 @@ import {
   Palette,
   Blend,
   Trash2,
+  TypeOutline,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
 import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
 import { TemplateGallery, TemplateThumb } from './template-picker'
+import { DownloadFontsSheet } from './download-fonts-sheet'
 import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
 import type { TextLayer } from '@/lib/text-layer'
 
@@ -39,6 +41,7 @@ const FEATURED = UPLOADED_TEMPLATES
   const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('create')
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
+  const [fontsOpen, setFontsOpen] = useState(false)
   const [projects, setProjects] = useState<SavedProject[]>([])
 
   useEffect(() => {
@@ -254,6 +257,22 @@ const FEATURED = UPLOADED_TEMPLATES
                 ))}
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setFontsOpen(true)}
+              className="glass-tile flex items-center gap-3 rounded-[1.75rem] px-4 py-3.5 text-left transition active:scale-[0.99]"
+            >
+              <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary">
+                <TypeOutline className="size-5" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-foreground">Download Fonts</span>
+                <span className="block text-[11px] text-muted-foreground">
+                  Preview and save fonts for offline use
+                </span>
+              </span>
+            </button>
 
           </div>
         )}
