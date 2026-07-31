@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Crown, X } from 'lucide-react'
+import { Check, Crown, Download, X } from 'lucide-react'
+
 
 import { cn } from '@/lib/utils'
 import { GlassTabs } from '@/components/ui/glass-tabs'
