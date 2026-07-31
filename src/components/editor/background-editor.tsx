@@ -84,11 +84,13 @@ const FIT_GRADIENTS: { from: string; to: string }[] = [
 interface Props {
   tool: BgTool
   image: string
+  /** Render as the bottom control panel over the main editor instead of a full page. */
+  panel?: boolean
   onCancel: () => void
   onApply: (dataUrl: string) => void
 }
 
-export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
+export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply }: Props) {
   const [busy, setBusy] = useState(false)
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null)
 
