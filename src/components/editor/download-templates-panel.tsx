@@ -66,7 +66,13 @@ export function DownloadTemplatesPanel({
   )
 
   async function download(pack: RemoteTemplatePack) {
-    if (templateTier(pack, tiers) === 'premium' && !isPro) {
+    // make sure tiers are known before deciding (anything not listed = free)
+    let map = tiers
+    if (!map) {
+      map = await fetchTemplateTiers().catch(() => ({}) as Record<string, TemplateTier>)
+      setTiers(map)
+    }
+    if (templateTier(pack, map) === 'premium' && !isPro) {
       setPay(true)
       return
     }
