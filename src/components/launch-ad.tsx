@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 
 const BASE = 'https://myandev.github.io'
-const SESSION_KEY = 'launch-ad-shown'
 export const AD_EVENT = 'app:show-ad'
+
+/** In-memory (per app run). Resets when the app is closed or fully reloaded. */
+let adShown = false
 
 type AdConfig = { showAd?: boolean; skip?: boolean; second?: string | number }
 type Ad = { url: string; skip: boolean; seconds: number }
@@ -69,8 +71,8 @@ export function LaunchAd() {
     function onShow() {
       const a = adRef.current
       if (!a) return
-      if (sessionStorage.getItem(SESSION_KEY)) return
-      sessionStorage.setItem(SESSION_KEY, '1')
+      if (adShown) return
+      adShown = true
       setLeft(Math.ceil(a.seconds))
       setCanSkip(a.skip || a.seconds <= 0)
       setOpen(true)
