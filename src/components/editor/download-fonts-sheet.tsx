@@ -245,6 +245,7 @@ export function DownloadFontsSheet({
             <p className="py-8 text-center text-xs text-muted-foreground">No fonts found.</p>
           )}
         </div>
+        )}
       </div>
 
       <PaymentPage open={pay} onClose={() => setPay(false)} />
