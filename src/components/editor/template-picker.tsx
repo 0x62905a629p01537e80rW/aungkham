@@ -103,13 +103,21 @@ export function TemplateGallery({
   const toggleSelect = (id: string) =>
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
 
-  const handleExport = () => {
+  const [exporting, setExporting] = useState(false)
+
+  const handleExport = async () => {
     const picked = TEMPLATES.filter((t) => selected.includes(t.id))
-    if (!picked.length) return
-    exportTemplatesJson(picked)
-    setSelectMode(false)
-    setSelected([])
+    if (!picked.length || exporting) return
+    setExporting(true)
+    try {
+      await exportTemplatesJson(picked)
+      setSelectMode(false)
+      setSelected([])
+    } finally {
+      setExporting(false)
+    }
   }
+
 
   return (
     <div className={cn('flex flex-col', scroll && 'min-h-0 flex-1', className)}>
@@ -137,11 +145,12 @@ export function TemplateGallery({
               <button
                 type="button"
                 onClick={handleExport}
-                disabled={!selected.length}
+                disabled={!selected.length || exporting}
                 className="glass-cta flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold disabled:opacity-40"
               >
-                <Download className="size-3" /> Export ({selected.length})
+                <Download className="size-3" /> {exporting ? 'Exporting…' : `Export (${selected.length})`}
               </button>
+
             </>
           )}
           <div className="ml-auto" />
