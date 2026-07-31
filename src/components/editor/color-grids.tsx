@@ -8,9 +8,9 @@ function CustomTile({ label, onClick }: { label: string; onClick: () => void }) 
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="glass-tile grid aspect-square place-items-center rounded-xl text-primary transition active:scale-95"
+      className="glass-tile grid aspect-square place-items-center rounded-lg text-primary transition active:scale-95"
     >
-      <Pipette className="size-4" />
+      <Pipette className="size-3" />
     </button>
   )
 }
@@ -23,14 +23,14 @@ export function SolidGrid({
   onCustom: () => void
 }) {
   return (
-    <div className="grid grid-cols-6 gap-2">
+    <div className="grid grid-cols-9 gap-1.5">
       <CustomTile label="Custom solid color" onClick={onCustom} />
       <button
         type="button"
         aria-label="Transparent background"
         title="Transparent"
         onClick={() => onPick('transparent')}
-        className="checker-grid checker-swatch aspect-square rounded-xl border border-border shadow-sm transition active:scale-95"
+        className="checker-grid checker-swatch aspect-square rounded-lg border border-border shadow-sm transition active:scale-95"
       />
 
       {SOLID_COLORS.map((c) => (
@@ -39,7 +39,7 @@ export function SolidGrid({
           type="button"
           aria-label={`Use ${c}`}
           onClick={() => onPick(c)}
-          className="aspect-square rounded-xl border border-border shadow-sm transition active:scale-95"
+          className="aspect-square rounded-lg border border-border shadow-sm transition active:scale-95"
           style={{ background: c }}
         />
       ))}
@@ -59,7 +59,7 @@ export function GradientGrid({
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-6 gap-1.5">
         <CustomTile label="Custom gradient" onClick={onCustom} />
         {list.map((g) => (
           <button
@@ -67,7 +67,7 @@ export function GradientGrid({
             type="button"
             aria-label={g.name}
             onClick={() => onPick(g.stops)}
-            className="aspect-square rounded-xl border border-border shadow-sm transition active:scale-95"
+            className="aspect-square rounded-lg border border-border shadow-sm transition active:scale-95"
             style={{ background: g.css }}
           />
         ))}
