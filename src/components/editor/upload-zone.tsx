@@ -239,7 +239,7 @@ const FEATURED = UPLOADED_TEMPLATES
                   {t('home.seeAllTemplates')}
                 </button>
               </div>
-              <div className="grid grid-flow-col grid-rows-2 gap-2 overflow-x-auto no-scrollbar pb-1">
+              <div className="grid grid-flow-col grid-rows-3 gap-2 overflow-x-auto no-scrollbar pb-1">
                 {FEATURED.map((tpl) => (
                   <button
                     key={tpl.id}
