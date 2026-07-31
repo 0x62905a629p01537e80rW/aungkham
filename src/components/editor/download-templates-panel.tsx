@@ -80,7 +80,7 @@ export function DownloadTemplatesPanel({
     setBusy(null)
   }
 
-  if (pay) return <PaymentPage onClose={() => setPay(false)} />
+  if (pay) return <PaymentPage open onClose={() => setPay(false)} />
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
