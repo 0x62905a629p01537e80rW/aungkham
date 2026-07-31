@@ -13,7 +13,7 @@ import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
 import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
-import { TemplateGallery } from './template-picker'
+import { TemplateGallery, TemplateThumb } from './template-picker'
 import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
 import type { TextLayer } from '@/lib/text-layer'
 
@@ -247,15 +247,9 @@ const FEATURED = UPLOADED_TEMPLATES
                     onClick={() => onApplyTemplate?.(tpl.build(), tpl.bg)}
                     className="relative w-28 shrink-0 overflow-hidden rounded-xl border border-border/40 transition active:scale-95"
                   >
-                    <img
-                      src={tpl.bg}
-                      alt={tpl.name}
-                      loading="lazy"
-                      className="aspect-[16/9] w-full object-cover"
-                    />
-                    <span className="absolute inset-x-0 bottom-0 truncate bg-black/45 px-1.5 py-0.5 text-[9px] font-semibold text-white">
-                      {tpl.name}
-                    </span>
+                    <div className="pointer-events-none relative aspect-[16/9] w-full">
+                      <TemplateThumb template={tpl} />
+                    </div>
                   </button>
                 ))}
               </div>
