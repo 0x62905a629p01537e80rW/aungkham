@@ -280,6 +280,30 @@ export async function removeTemplatePack(file: string) {
   writeInstalled(listInstalledTemplatePacks().filter((p) => p.file !== file))
 }
 
+/** Install a template pack from a local JSON file picked by the user. */
+export async function importTemplateFile(file: File): Promise<RemoteTemplatePack> {
+  const text = await file.text()
+  const json = JSON.parse(text) as { templates?: RawTemplate[] } | RawTemplate[]
+  const list = Array.isArray(json) ? json : (json.templates ?? [])
+  if (!Array.isArray(list) || !list.length) throw new Error('No templates in this file')
+
+  let name = file.name.replace(FILE_RE, '')
+  let key = file.name
+  const taken = new Set(listInstalledTemplatePacks().map((p) => p.file))
+  let n = 2
+  while (taken.has(key)) {
+    key = `${name} (${n}).json`
+    n++
+  }
+  name = prettyName(key)
+
+  const pack: RemoteTemplatePack = { name, file: key, url: '', size: file.size }
+  await idbSet(key, list).catch(() => {})
+  registry.set(key, toDefs(key, list))
+  writeInstalled([...listInstalledTemplatePacks(), pack])
+  return pack
+}
+
 /** Re-register every downloaded pack (works offline). */
 export async function ensureTemplatePacksLoaded() {
   if (typeof window === 'undefined') return
