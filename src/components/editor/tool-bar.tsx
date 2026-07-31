@@ -1292,6 +1292,29 @@ function FormatPanel({
 }
 
 
+/** Text content editor that focuses with the caret at the end, never selecting all. */
+function TextContentField({ value, onChange }: { value: string; onChange: (text: string) => void }) {
+  const ref = useRef<HTMLTextAreaElement | null>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.focus()
+    const end = el.value.length
+    el.setSelectionRange(end, end)
+    el.scrollTop = el.scrollHeight
+  }, [])
+  return (
+    <Textarea
+      ref={ref}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="Type your text..."
+      rows={3}
+      className="resize-none text-base"
+    />
+  )
+}
+
 function ToolContent({
   tool,
   layer,
