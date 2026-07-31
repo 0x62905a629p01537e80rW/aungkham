@@ -12,6 +12,7 @@ import {
   Smartphone,
 } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
+import { useI18n } from '@/components/i18n'
 import { GlassTabs } from '@/components/ui/glass-tabs'
 import {
   BrandLogo,
@@ -85,6 +86,7 @@ function GoogleMark({ className = 'size-4' }: { className?: string }) {
 
 export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { user, loading, isPro, signIn, signOutUser } = useAuth()
+  const { t } = useI18n()
   const [signingIn, setSigningIn] = useState(false)
   const [settings, setSettings] = useState<PaySettings | null>(null)
   const [settingsError, setSettingsError] = useState<string | null>(null)
@@ -107,7 +109,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       const snap = await getDocs(collection(getDb(), 'payment_settings'))
       if (cancelled) return
       if (snap.empty) {
-        setSettingsError('Payment details are not configured yet.')
+        setSettingsError(t('pay.notConfigured'))
         return
       }
       const d = (snap.docs[0].data() ?? {}) as Record<string, string>
@@ -132,12 +134,12 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       if (nets.length) setNet((prev) => prev || nets[0].key)
     })().catch((err) => {
       console.log('[payment settings failed]', err)
-      if (!cancelled) setSettingsError('Could not load payment details. Please try again.')
+      if (!cancelled) setSettingsError(t('pay.loadFailed'))
     })
     return () => {
       cancelled = true
     }
-  }, [open])
+  }, [open, t])
 
   const activeNet = useMemo(
     () => settings?.nets.find((n) => n.key === net) ?? settings?.nets[0] ?? null,
@@ -151,7 +153,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       await signIn()
     } catch (err) {
       console.log('[sign in failed]', err)
-      setError('Google sign-in failed. Please try again.')
+      setError(t('pay.signInFailed'))
     } finally {
       setSigningIn(false)
     }
@@ -174,10 +176,10 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
     if (method === 'kbzpay') {
       return /^\d{6}$/.test(txId.trim())
         ? null
-        : 'Enter exactly the last 6 digits of your KBZPay transaction ID.'
+        : t('pay.errKbz')
     }
     if (cleanedTx.length <= 62) {
-      return 'Transaction hash looks incomplete — paste the full hash (more than 62 characters) or the explorer link.'
+      return t('pay.errHash')
     }
     return null
   })()
@@ -203,7 +205,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
       setSubmitted(true)
     } catch (err) {
       console.log('[transaction submit failed]', err)
-      setError('Could not submit. Check your connection and try again.')
+      setError(t('pay.submitError'))
     } finally {
       setSubmitting(false)
     }
@@ -231,8 +233,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
         </button>
         <BrandLogo className="size-9 shrink-0" />
         <div className="min-w-0 leading-tight">
-          <p className="text-[15px] font-bold tracking-tight">Checkout</p>
-          <p className="truncate text-[11px] text-muted-foreground">Myan Pro · Lifetime</p>
+          <p className="text-[15px] font-bold tracking-tight">{t('pay.title')}</p>
+          <p className="truncate text-[11px] text-muted-foreground">{t('pay.plan')}</p>
         </div>
         {user && (
           <button
@@ -241,7 +243,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
             className="ml-auto flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-[11px] text-muted-foreground transition active:scale-95"
           >
             <LogOut className="size-3.5" />
-            Sign out
+            {t('pay.signout')}
           </button>
         )}
 
@@ -254,7 +256,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
               {pricing.promoLabel}
             </span>
           )}
-          <p className="text-sm font-semibold">Myan Pro · Lifetime</p>
+          <p className="text-sm font-semibold">{t('pay.plan')}</p>
           {pricing.originalMmk && (
             <p className="text-[11px] text-muted-foreground line-through">{pricing.originalMmk}</p>
           )}
@@ -268,16 +270,16 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
           </p>
           <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
             <BadgeCheck className="size-3.5 text-primary" />
-            One-time payment · limited-time offer
+            {t('pay.oneTime')}
           </p>
         </div>
 
         {isPro && (
           <div className="mt-5 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-center">
             <BadgeCheck className="mx-auto size-6 text-primary" />
-            <p className="mt-1 text-sm font-bold">Pro is active on this account</p>
+            <p className="mt-1 text-sm font-bold">{t('pay.proActive')}</p>
             <p className="text-[11px] text-muted-foreground">
-              All premium features are unlocked. Thank you!
+              {t('pay.proActiveDesc')}
             </p>
           </div>
         )}
@@ -285,13 +287,13 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
         {loading ? (
           <div className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
-            Loading…
+            {t('pay.loading')}
           </div>
         ) : !user ? (
           <div className="mt-6 space-y-3">
-            <p className="text-sm font-semibold">Sign in to continue</p>
+            <p className="text-sm font-semibold">{t('pay.signInTitle')}</p>
             <p className="text-[12px] text-muted-foreground">
-              We need your account so we can unlock Pro for you after verifying your payment.
+              {t('pay.signInDesc')}
             </p>
             <button
               type="button"
@@ -300,17 +302,16 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
               className="glass-tile flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold transition active:scale-[0.98] disabled:opacity-60"
             >
               {signingIn ? <Loader2 className="size-4 animate-spin" /> : <GoogleMark className="size-4" />}
-              Sign in with Google
+              {t('pay.signInGoogle')}
             </button>
             {error && <p className="text-center text-[11px] text-destructive">{error}</p>}
           </div>
         ) : submitted ? (
           <div className="mt-6 space-y-2 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center">
             <Check className="mx-auto size-7 text-primary" />
-            <p className="text-sm font-bold">Payment submitted</p>
+            <p className="text-sm font-bold">{t('pay.submitted')}</p>
             <p className="text-[11px] text-muted-foreground">
-              We verify manually and unlock Pro within 24 hours. Pro turns on automatically here —
-              no need to reinstall.
+              {t('pay.submittedDesc')}
             </p>
           </div>
         ) : (
@@ -346,12 +347,12 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold">
-                  {method === 'usdt' ? 'USDT stablecoin payment' : 'Myanmar manual payment'}
+                  {method === 'usdt' ? t('pay.usdtTitle') : t('pay.mmTitle')}
                 </p>
                 <p className="text-[11px] text-muted-foreground">
                   {method === 'usdt'
-                    ? `Send ${pricing.priceUsd || settings?.usdtPrice || ''} in USDT, then submit your transaction hash.`
-                    : `KBZPay transfer — send ${pricing.priceMmk}, then submit your transaction details.`}
+                    ? `${t('pay.usdtDescA')} ${pricing.priceUsd || settings?.usdtPrice || ''} ${t('pay.usdtDescB')}`
+                    : `${t('pay.mmDescA')} ${pricing.priceMmk} ${t('pay.mmDescB')}`}
                 </p>
               </div>
               {method === 'usdt' && (
@@ -365,25 +366,26 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
 
 
             <p className="text-[11px] text-muted-foreground">
-              Signed in as <span className="font-medium text-foreground">{user.email}</span>
+              {t('pay.signedInAs')}{' '}
+              <span className="font-medium text-foreground">{user.email}</span>
             </p>
 
             {/* Payment details — shown before asking for transaction info */}
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
-              <p className="text-sm font-bold text-primary">Please transfer to:</p>
+              <p className="text-sm font-bold text-primary">{t('pay.transferTo')}</p>
               {settingsError && (
                 <p className="mt-1 text-[12px] text-destructive">{settingsError}</p>
               )}
               {!settings && !settingsError ? (
                 <div className="mt-2 flex items-center gap-2 text-[12px] text-muted-foreground">
                   <Loader2 className="size-4 animate-spin" />
-                  Loading payment details…
+                  {t('pay.loadingDetails')}
                 </div>
               ) : settings && method === 'kbzpay' ? (
                 <div className="mt-2 space-y-2">
                   {settings.phone && (
                     <CopyRow
-                      label="KBZPay number"
+                      label={t('pay.kbzNumber')}
                       value={settings.phone}
                       valueClassName="text-[14px] font-semibold"
                       icon={<KbzPayMark className="size-3.5" />}
@@ -391,13 +393,13 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                   )}
                   {settings.name && (
                     <CopyRow
-                      label="Account name"
+                      label={t('pay.accountName')}
                       value={settings.name}
                       valueClassName="text-[14px] font-semibold"
                     />
                   )}
                   <CopyRow
-                    label="Amount to send"
+                    label={t('pay.amount')}
                     value={pricing.priceMmk}
                     valueClassName="text-[14px] font-semibold"
                     icon={<Smartphone className="size-3.5 text-primary" />}
@@ -406,7 +408,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
               ) : settings ? (
                 settings.nets.length === 0 ? (
                   <p className="mt-1 text-[12px] text-destructive">
-                    Crypto payment is not configured yet.
+                    {t('pay.cryptoNotConfigured')}
                   </p>
                 ) : (
                   <div className="mt-2 space-y-2">
@@ -438,15 +440,14 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                     )}
                     {settings.usdtPrice && (
                       <CopyRow
-                        label="Amount to send"
+                        label={t('pay.amount')}
                         value={settings.usdtPrice}
                         valueClassName="text-[14px] font-semibold"
                         icon={<UsdtMark className="size-3.5" />}
                       />
                     )}
                     <p className="text-[11px] text-muted-foreground">
-                      Send only USDT on the selected network. Wrong-network transfers cannot be
-                      recovered.
+                      {t('pay.networkWarn')}
                     </p>
                   </div>
                 )
@@ -459,8 +460,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                 <label className="block">
                   <span className="text-[11px] font-medium text-muted-foreground">
                     {method === 'usdt'
-                      ? 'Transaction hash (TxID) *'
-                      : 'KBZPay Transaction ID (Last 6 digits) *'}
+                      ? t('pay.txHash')
+                      : t('pay.txKbz')}
                   </span>
                   <div className="relative mt-1">
                     <input
@@ -476,7 +477,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                       maxLength={method === 'usdt' ? 200 : 6}
                       required
                       placeholder={
-                        method === 'usdt' ? 'Paste full hash or explorer link' : 'e.g. 482913'
+                        method === 'usdt' ? t('pay.placeholderHash') : t('pay.placeholderKbz')
                       }
                       className={`glass-tile h-11 w-full rounded-2xl px-3.5 pr-11 text-sm outline-none focus:ring-2 ${
                         txError ? 'ring-2 ring-destructive/50' : 'focus:ring-primary/40'
@@ -508,8 +509,8 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                   ) : (
                     <p className="mt-1 text-[11px] text-muted-foreground">
                       {method === 'usdt'
-                        ? 'Full transaction hash (63+ characters). Explorer links (https://…) are accepted.'
-                        : `Exactly 6 digits — ${txId.trim().length}/6 entered.`}
+                        ? t('pay.hintHash')
+                        : `${t('pay.hintKbz')} ${txId.trim().length}/6 ${t('pay.entered')}`}
                     </p>
                   )}
                 </label>
@@ -524,10 +525,10 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
                   className="premium-shine mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98] disabled:opacity-50"
                 >
                   {submitting ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
-                  I've sent the payment
+                  {t('pay.submit')}
                 </button>
                 <p className="text-center text-[11px] text-muted-foreground">
-                  We verify manually and unlock Pro within 24 hours.
+                  {t('pay.verifyNote')}
                 </p>
               </div>
             )}
