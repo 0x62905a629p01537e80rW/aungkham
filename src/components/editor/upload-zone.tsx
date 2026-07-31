@@ -21,7 +21,7 @@ import type { TextLayer } from '@/lib/text-layer'
 
 import { makeBackgroundDataUrl, makeGradientDataUrl, makeSolidDataUrl } from '@/lib/background'
 
-type Tab = 'create' | 'templates' | 'projects'
+type Tab = 'create' | 'fonts' | 'templates' | 'projects'
 
 export function UploadZone({
   onImage,
@@ -86,6 +86,7 @@ const FEATURED = UPLOADED_TEMPLATES
         {(() => {
           const tabs: { id: Tab; label: string; icon: typeof BackgroundIcon }[] = [
             { id: 'create', label: t('home.tab.create'), icon: BackgroundIcon },
+            { id: 'fonts', label: 'Fonts', icon: TypeOutline },
             { id: 'templates', label: t('home.tab.templates'), icon: LayoutTemplate },
             { id: 'projects', label: t('home.tab.projects'), icon: FolderOpen },
           ]
