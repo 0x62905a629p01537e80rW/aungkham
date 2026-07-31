@@ -152,20 +152,21 @@ export function EditorHeader({
                   onGroup={onGroupLayers}
                   onUngroup={onUngroupLayer}
                 />
-                {onExportTemplate && (
-                  <div className="border-t border-border/40 p-2">
-                    <button
-                      type="button"
-                      onClick={onExportTemplate}
-                      className="glass-tile flex w-full items-center justify-center gap-2 rounded-2xl py-2 text-xs font-semibold"
-                    >
-                      <FileJson className="size-4" /> Export as template JSON
-                    </button>
-                  </div>
-                )}
               </PopoverContent>
             </Popover>
           </div>
+
+          {onExportTemplate && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Export as template JSON"
+              onClick={onExportTemplate}
+              className={cn(iconBtn, 'glass-tile')}
+            >
+              <FileJson className="size-5" />
+            </Button>
+          )}
 
           <Button
             size="icon"
