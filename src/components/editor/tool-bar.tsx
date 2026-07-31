@@ -1307,6 +1307,7 @@ function ToolContent({
 }: ToolContentProps) {
   if (!layer) return null
 
+
   switch (tool) {
     case 'text':
       return (
