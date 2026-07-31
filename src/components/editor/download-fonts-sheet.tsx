@@ -80,7 +80,8 @@ export function DownloadFontsSheet({
     e.target.value = ''
     if (!files.length) return
     setError(null)
-    if (!isPro) {
+    // .woff / .woff2 uploads are Pro-only; .ttf / .otf stay free
+    if (!isPro && files.some((f) => /\.woff2?$/i.test(f.name))) {
       setPay(true)
       return
     }
@@ -172,11 +173,10 @@ export function DownloadFontsSheet({
         <button
           type="button"
           aria-label="Upload font"
-          onClick={() => (isPro ? fileRef.current?.click() : setPay(true))}
+          onClick={() => fileRef.current?.click()}
           className="ml-auto flex items-center gap-1 rounded-full bg-foreground/10 px-2.5 py-1.5 text-[11px] font-semibold text-foreground active:scale-95"
         >
           <Upload className="size-3.5" /> Upload
-          {!isPro && <Crown className="size-3 text-amber-400" />}
         </button>
         <button
           type="button"
