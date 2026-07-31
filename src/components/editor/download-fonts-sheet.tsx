@@ -171,11 +171,11 @@ export function DownloadFontsSheet({
                   </span>
                   <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-muted-foreground">
                     {premium ? (
-                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-[1px] text-[8px] font-bold text-primary">
+                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-amber-500/15 px-1.5 py-[1px] text-[8px] font-bold text-amber-500">
                         <Crown className="size-2.5" /> Pro
                       </span>
                     ) : (
-                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-foreground/10 px-1.5 py-[1px] text-[8px] font-bold text-muted-foreground">
+                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-emerald-500/15 px-1.5 py-[1px] text-[8px] font-bold text-emerald-500">
                         Free
                       </span>
                     )}
@@ -205,7 +205,12 @@ export function DownloadFontsSheet({
                     type="button"
                     aria-label={locked ? `Unlock ${f.name} with Pro` : `Download ${f.name}`}
                     onClick={() => void download(f)}
-                    className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary active:scale-90"
+                    className={cn(
+                      'flex size-7 shrink-0 items-center justify-center rounded-full active:scale-90',
+                      locked
+                        ? 'bg-amber-500/15 text-amber-500'
+                        : 'bg-emerald-500/15 text-emerald-500',
+                    )}
                   >
                     {locked ? <Crown className="size-3.5" /> : <Download className="size-3.5" />}
                   </button>
