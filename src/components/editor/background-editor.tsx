@@ -950,8 +950,9 @@ function CropStage({
   }
 
   const handle =
-    'absolute size-7 rounded-full border-2 border-white bg-primary shadow-md touch-none'
-  const edge = 'absolute rounded-full border-2 border-white/90 bg-primary/80 touch-none'
+    'absolute size-7 rounded-full border-2 border-white bg-white/15 backdrop-blur-[2px] shadow-md touch-none'
+  const edge =
+    'absolute rounded-full border-2 border-white/90 bg-white/10 backdrop-blur-[2px] touch-none'
 
   return (
     <div ref={wrapRef} className="relative max-h-full max-w-full touch-none select-none">
