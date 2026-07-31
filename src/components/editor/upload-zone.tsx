@@ -349,7 +349,6 @@ const FEATURED = UPLOADED_TEMPLATES
 
       <ColorPickerFullScreen
         key={picker ?? 'closed'}
-        key={picker ?? 'closed'}
         open={picker !== null}
         allowGradient
         initialMode={picker ?? 'solid'}
@@ -360,6 +359,8 @@ const FEATURED = UPLOADED_TEMPLATES
           onImage(makeBackgroundDataUrl(css))
         }}
       />
+
+      <DownloadFontsSheet open={fontsOpen} onClose={() => setFontsOpen(false)} />
     </div>
   )
 }
