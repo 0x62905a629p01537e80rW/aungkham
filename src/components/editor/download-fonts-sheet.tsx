@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Check, Crown, Download, Loader2, RefreshCw, Search, Trash2, X } from 'lucide-react'
+import { Check, Crown, Download, Loader2, RefreshCw, Trash2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/components/auth-provider'
 import { PaymentPage } from './payment-page'
+import { GoogleFontsPanel } from './google-fonts-panel'
 import {
   ensureRemoteFontsLoaded,
   fetchFontTiers,
@@ -31,7 +32,7 @@ export function DownloadFontsSheet({
   const [fonts, setFonts] = useState<RemoteFont[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [query, setQuery] = useState('')
+  const [tab, setTab] = useState<'mm' | 'en' | 'free' | 'premium'>('mm')
   const [busy, setBusy] = useState<string | null>(null)
   const [, force] = useState(0)
   const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
@@ -62,9 +63,10 @@ export function DownloadFontsSheet({
   }, [open])
 
   const results = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return q ? fonts.filter((f) => f.name.toLowerCase().includes(q)) : fonts
-  }, [fonts, query])
+    if (tab === 'free') return fonts.filter((f) => fontTier(f, tiers) === 'free')
+    if (tab === 'premium') return fonts.filter((f) => fontTier(f, tiers) === 'premium')
+    return fonts
+  }, [fonts, tab, tiers])
 
   async function download(font: RemoteFont) {
     if (fontTier(font, tiers) === 'premium' && !isPro) {
