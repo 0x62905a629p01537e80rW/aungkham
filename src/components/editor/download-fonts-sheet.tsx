@@ -376,7 +376,10 @@ export function DownloadFontsSheet({
             )
           })}
 
-          {!loading && results.length === 0 && !error && (
+          {!loading &&
+            results.length === 0 &&
+            !error &&
+            !(tab === 'downloaded' && (googleInstalled.length || uploaded.length)) && (
             <p className="py-8 text-center text-xs text-muted-foreground">
               {tab === 'downloaded' ? 'No downloaded fonts yet.' : 'No fonts found.'}
             </p>
