@@ -103,13 +103,21 @@ export function TemplateGallery({
   const toggleSelect = (id: string) =>
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
 
-  const handleExport = () => {
+  const [exporting, setExporting] = useState(false)
+
+  const handleExport = async () => {
     const picked = TEMPLATES.filter((t) => selected.includes(t.id))
-    if (!picked.length) return
-    exportTemplatesJson(picked)
-    setSelectMode(false)
-    setSelected([])
+    if (!picked.length || exporting) return
+    setExporting(true)
+    try {
+      await exportTemplatesJson(picked)
+      setSelectMode(false)
+      setSelected([])
+    } finally {
+      setExporting(false)
+    }
   }
+
 
   return (
     <div className={cn('flex flex-col', scroll && 'min-h-0 flex-1', className)}>
