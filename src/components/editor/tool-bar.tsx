@@ -1312,14 +1312,7 @@ function ToolContent({
       return (
         <div>
           <ToolHeading>Content</ToolHeading>
-          <Textarea
-            autoFocus
-            value={layer.text}
-            onChange={(e) => onChange({ text: e.target.value })}
-            placeholder="Type your text..."
-            rows={3}
-            className="resize-none text-base"
-          />
+          <TextContentField value={layer.text} onChange={(text) => onChange({ text })} />
         </div>
       )
     case 'font':
