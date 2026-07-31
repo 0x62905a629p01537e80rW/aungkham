@@ -7,9 +7,6 @@ import {
   Image as BackgroundIcon,
   Palette,
   Blend,
-  Shapes,
-  Smile,
-  Layers,
   Trash2,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
@@ -29,13 +26,11 @@ export function UploadZone({
   onOpenProject,
   onStartTemplates,
   onApplyTemplate,
-  onInsertElement,
 }: {
   onImage: (dataUrl: string) => void
   onOpenProject?: (project: SavedProject) => void
   onStartTemplates?: () => void
   onApplyTemplate?: (layers: TextLayer[], bg?: string) => void
-  onInsertElement?: (tab: 'stickers' | 'shapes' | 'overlay') => void
 }) {
 const FEATURED = TEMPLATES.filter(
   (x, i, arr) => x.bg && arr.findIndex((y) => y.name === x.name) === i,
