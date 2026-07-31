@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "daa8d4e6-4581-4728-be35-cf8261175939",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/daa8d4e6-4581-4728-be35-cf8261175939/milkyway.ttf",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/daa8d4e6-4581-4728-be35-cf8261175939/milkyway.ttf",
-  "original_filename": "milkyway.ttf",
-  "size": 25524,
   "content_type": "font/ttf",
-  "created_at": "2026-07-30T08:36:01Z"
+  "created_at": "2026-07-30T08:36:01Z",
+  "original_filename": "milkyway.ttf",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/daa8d4e6-4581-4728-be35-cf8261175939/milkyway.ttf",
+  "size": 25524,
+  "url": "/__l5e/assets-v1/daa8d4e6-4581-4728-be35-cf8261175939/milkyway.ttf",
+  "version": 1
 }

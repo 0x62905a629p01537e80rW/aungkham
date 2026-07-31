@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "72b06039-32b7-4131-9430-da3a821c4b0a",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/72b06039-32b7-4131-9430-da3a821c4b0a/layaungthit-k56.woff2",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/72b06039-32b7-4131-9430-da3a821c4b0a/layaungthit-k56.woff2",
-  "original_filename": "layaungthit-k56.woff2",
-  "size": 85564,
   "content_type": "font/woff2",
-  "created_at": "2026-07-28T12:03:12Z"
+  "created_at": "2026-07-28T12:03:12Z",
+  "original_filename": "layaungthit-k56.woff2",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/72b06039-32b7-4131-9430-da3a821c4b0a/layaungthit-k56.woff2",
+  "size": 85564,
+  "url": "/__l5e/assets-v1/72b06039-32b7-4131-9430-da3a821c4b0a/layaungthit-k56.woff2",
+  "version": 1
 }

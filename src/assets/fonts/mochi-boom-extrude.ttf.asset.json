@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "e0781393-fc04-4609-b70d-b1a0193eadc8",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/e0781393-fc04-4609-b70d-b1a0193eadc8/mochi-boom-extrude.ttf",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/e0781393-fc04-4609-b70d-b1a0193eadc8/mochi-boom-extrude.ttf",
-  "original_filename": "mochi-boom-extrude.ttf",
-  "size": 360268,
   "content_type": "font/ttf",
-  "created_at": "2026-07-30T08:35:59Z"
+  "created_at": "2026-07-30T08:35:59Z",
+  "original_filename": "mochi-boom-extrude.ttf",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/e0781393-fc04-4609-b70d-b1a0193eadc8/mochi-boom-extrude.ttf",
+  "size": 360268,
+  "url": "/__l5e/assets-v1/e0781393-fc04-4609-b70d-b1a0193eadc8/mochi-boom-extrude.ttf",
+  "version": 1
 }

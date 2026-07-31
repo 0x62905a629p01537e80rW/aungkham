@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "859c3537-7850-418b-af24-00e2d82b93fd",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/859c3537-7850-418b-af24-00e2d82b93fd/myanmar-april.otf",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/859c3537-7850-418b-af24-00e2d82b93fd/myanmar-april.otf",
-  "original_filename": "myanmar-april.otf",
-  "size": 474996,
   "content_type": "font/ttf",
-  "created_at": "2026-07-28T12:06:55Z"
+  "created_at": "2026-07-28T12:06:55Z",
+  "original_filename": "myanmar-april.otf",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/859c3537-7850-418b-af24-00e2d82b93fd/myanmar-april.otf",
+  "size": 474996,
+  "url": "/__l5e/assets-v1/859c3537-7850-418b-af24-00e2d82b93fd/myanmar-april.otf",
+  "version": 1
 }

@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "14fa0774-832b-4fe8-b3db-6a5a3e9beaed",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/14fa0774-832b-4fe8-b3db-6a5a3e9beaed/tgi.otf",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/14fa0774-832b-4fe8-b3db-6a5a3e9beaed/tgi.otf",
-  "original_filename": "tgi.otf",
-  "size": 205940,
   "content_type": "font/ttf",
-  "created_at": "2026-07-28T12:08:54Z"
+  "created_at": "2026-07-28T12:08:54Z",
+  "original_filename": "tgi.otf",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/14fa0774-832b-4fe8-b3db-6a5a3e9beaed/tgi.otf",
+  "size": 205940,
+  "url": "/__l5e/assets-v1/14fa0774-832b-4fe8-b3db-6a5a3e9beaed/tgi.otf",
+  "version": 1
 }

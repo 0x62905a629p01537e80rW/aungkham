@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "fbcca810-6fc0-4a8a-821e-b393b5005a48",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/fbcca810-6fc0-4a8a-821e-b393b5005a48/the-last-trunks.ttf",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/fbcca810-6fc0-4a8a-821e-b393b5005a48/the-last-trunks.ttf",
-  "original_filename": "the-last-trunks.ttf",
-  "size": 25952,
   "content_type": "font/ttf",
-  "created_at": "2026-07-30T08:34:04Z"
+  "created_at": "2026-07-30T08:34:04Z",
+  "original_filename": "the-last-trunks.ttf",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/fbcca810-6fc0-4a8a-821e-b393b5005a48/the-last-trunks.ttf",
+  "size": 25952,
+  "url": "/__l5e/assets-v1/fbcca810-6fc0-4a8a-821e-b393b5005a48/the-last-trunks.ttf",
+  "version": 1
 }

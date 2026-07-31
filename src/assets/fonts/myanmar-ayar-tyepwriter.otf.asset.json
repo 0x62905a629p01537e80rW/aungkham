@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "82ebc49d-b459-4aa5-8dd3-0bb306acbe23",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/82ebc49d-b459-4aa5-8dd3-0bb306acbe23/myanmar-ayar-tyepwriter.otf",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/82ebc49d-b459-4aa5-8dd3-0bb306acbe23/myanmar-ayar-tyepwriter.otf",
-  "original_filename": "myanmar-ayar-tyepwriter.otf",
-  "size": 200908,
   "content_type": "font/ttf",
-  "created_at": "2026-07-28T12:07:11Z"
+  "created_at": "2026-07-28T12:07:11Z",
+  "original_filename": "myanmar-ayar-tyepwriter.otf",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/82ebc49d-b459-4aa5-8dd3-0bb306acbe23/myanmar-ayar-tyepwriter.otf",
+  "size": 200908,
+  "url": "/__l5e/assets-v1/82ebc49d-b459-4aa5-8dd3-0bb306acbe23/myanmar-ayar-tyepwriter.otf",
+  "version": 1
 }

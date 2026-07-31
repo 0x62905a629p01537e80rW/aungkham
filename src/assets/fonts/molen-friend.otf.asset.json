@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "65ac220c-0c54-4c62-955e-c86e41e5550d",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/65ac220c-0c54-4c62-955e-c86e41e5550d/molen-friend.otf",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/65ac220c-0c54-4c62-955e-c86e41e5550d/molen-friend.otf",
-  "original_filename": "molen-friend.otf",
-  "size": 21428,
   "content_type": "font/otf",
-  "created_at": "2026-07-30T08:34:00Z"
+  "created_at": "2026-07-30T08:34:00Z",
+  "original_filename": "molen-friend.otf",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/65ac220c-0c54-4c62-955e-c86e41e5550d/molen-friend.otf",
+  "size": 21428,
+  "url": "/__l5e/assets-v1/65ac220c-0c54-4c62-955e-c86e41e5550d/molen-friend.otf",
+  "version": 1
 }

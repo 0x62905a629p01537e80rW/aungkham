@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "6abf6913-d2df-450d-b3c3-cd7b5c49d8e2",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/6abf6913-d2df-450d-b3c3-cd7b5c49d8e2/choco-cooky.otf",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/6abf6913-d2df-450d-b3c3-cd7b5c49d8e2/choco-cooky.otf",
-  "original_filename": "choco-cooky.otf",
-  "size": 2064152,
   "content_type": "font/ttf",
-  "created_at": "2026-07-28T12:06:30Z"
+  "created_at": "2026-07-28T12:06:30Z",
+  "original_filename": "choco-cooky.otf",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/6abf6913-d2df-450d-b3c3-cd7b5c49d8e2/choco-cooky.otf",
+  "size": 2064152,
+  "url": "/__l5e/assets-v1/6abf6913-d2df-450d-b3c3-cd7b5c49d8e2/choco-cooky.otf",
+  "version": 1
 }

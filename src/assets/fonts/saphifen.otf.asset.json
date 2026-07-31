@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "2e3c33be-ccb9-47d7-9d86-0dbaae3de92f",
-  "project_id": "21383f3f-bf35-4100-9606-8caabe1786e4",
-  "url": "/__l5e/assets-v1/2e3c33be-ccb9-47d7-9d86-0dbaae3de92f/saphifen.otf",
-  "r2_key": "a/v1/21383f3f-bf35-4100-9606-8caabe1786e4/2e3c33be-ccb9-47d7-9d86-0dbaae3de92f/saphifen.otf",
-  "original_filename": "saphifen.otf",
-  "size": 2766492,
   "content_type": "font/otf",
-  "created_at": "2026-07-30T08:33:52Z"
+  "created_at": "2026-07-30T08:33:52Z",
+  "original_filename": "saphifen.otf",
+  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
+  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/2e3c33be-ccb9-47d7-9d86-0dbaae3de92f/saphifen.otf",
+  "size": 2766492,
+  "url": "/__l5e/assets-v1/2e3c33be-ccb9-47d7-9d86-0dbaae3de92f/saphifen.otf",
+  "version": 1
 }
