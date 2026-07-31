@@ -14,6 +14,7 @@ import { ExportCanvas } from './export-canvas'
 import { createGraphicLayer, createTextLayer, type GraphicContent, type TextLayer } from '@/lib/text-layer'
 import { InsertMenu } from './insert-menu'
 import { TemplatePicker } from './template-picker'
+import { ExportTemplateDialog } from './export-template-dialog'
 import { makeSolidDataUrl } from '@/lib/background'
 import { loadImage } from '@/lib/image-ops'
 import { saveProject, type SavedProject } from '@/lib/projects'
@@ -56,6 +57,7 @@ export function Editor() {
   const [showSave, setShowSave] = useState(false)
   const [inserting, setInserting] = useState(false)
   const [templating, setTemplating] = useState(false)
+  const [exportingTpl, setExportingTpl] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const [savedProject, setSavedProject] = useState(false)
   const [rating, setRating] = useState(false)
@@ -453,6 +455,14 @@ export function Editor() {
         onGroupLayers={groupLayers}
         onUngroupLayer={ungroupLayer}
         onInsert={() => setInserting(true)}
+        onExportTemplate={() => setExportingTpl(true)}
+      />
+
+      <ExportTemplateDialog
+        open={exportingTpl}
+        onClose={() => setExportingTpl(false)}
+        layers={layers}
+        bg={image}
       />
 
       {!image ? (

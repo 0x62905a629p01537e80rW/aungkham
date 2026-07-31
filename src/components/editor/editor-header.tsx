@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Grid3x3, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, FileJson, Grid3x3, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PremiumBadge } from './premium-badge'
@@ -32,6 +32,7 @@ interface EditorHeaderProps {
   onGroupLayers?: (ids: string[]) => void
   onUngroupLayer?: (id: string) => void
   onInsert?: () => void
+  onExportTemplate?: () => void
 }
 
 export function EditorHeader({
@@ -57,6 +58,7 @@ export function EditorHeader({
   onGroupLayers,
   onUngroupLayer,
   onInsert,
+  onExportTemplate,
 }: EditorHeaderProps) {
   const { t } = useI18n()
   const iconBtn =
@@ -149,6 +151,17 @@ export function EditorHeader({
                   onGroup={onGroupLayers}
                   onUngroup={onUngroupLayer}
                 />
+                {onExportTemplate && (
+                  <div className="border-t border-border/40 p-2">
+                    <button
+                      type="button"
+                      onClick={onExportTemplate}
+                      className="glass-tile flex w-full items-center justify-center gap-2 rounded-2xl py-2 text-xs font-semibold"
+                    >
+                      <FileJson className="size-4" /> Export as template JSON
+                    </button>
+                  </div>
+                )}
               </PopoverContent>
             </Popover>
           </div>

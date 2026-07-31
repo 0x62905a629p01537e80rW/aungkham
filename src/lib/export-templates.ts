@@ -79,3 +79,37 @@ export async function exportTemplatesJson(templates: TemplateDef[], filename?: s
   link.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
+
+/** Export the current editor design as a single-template JSON file. */
+export async function exportDesignJson(meta: {
+  id?: string
+  name: string
+  lang?: string
+  group?: string
+  bg?: string
+  layers: unknown[]
+}) {
+  const slug = meta.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'template'
+  const data: ExportedTemplateFile = {
+    version: 1,
+    templates: [
+      {
+        id: meta.id || slug,
+        name: meta.name.trim() || 'Untitled',
+        lang: meta.lang ?? 'MM',
+        group: meta.group ?? 'New',
+        bg: await toDataUrl(meta.bg),
+        layers: await Promise.all(
+          (meta.layers as Record<string, unknown>[]).map(inlineLayer),
+        ),
+      },
+    ],
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.download = `template_${slug}.json`
+  link.href = url
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
