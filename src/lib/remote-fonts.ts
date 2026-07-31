@@ -16,8 +16,57 @@ export interface RemoteFont {
 
 const BASE = 'https://myandev.github.io/Fonts'
 const INDEX_URL = `${BASE}/fonts.json`
+const CHECK_URL = `${BASE}/check.json`
 const API_URL = 'https://api.github.com/repos/myandev/myandev.github.io/contents/Fonts'
 const FONT_RE = /\.(ttf|otf|woff2?)$/i
+
+/* ---------------- free / premium tiers ---------------- */
+
+export type FontTier = 'free' | 'premium'
+
+let tierCache: Record<string, FontTier> | null = null
+
+function tierKey(v: string) {
+  return v.trim().toLowerCase()
+}
+
+/** Reads check.json → { fonts: { premium: [...], free: [...] } } */
+export async function fetchFontTiers(force = false): Promise<Record<string, FontTier>> {
+  if (tierCache && !force) return tierCache
+  const map: Record<string, FontTier> = {}
+  try {
+    const res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    if (res.ok) {
+      const json = (await res.json()) as {
+        fonts?: { premium?: string[]; free?: string[] }
+        premium?: string[]
+        free?: string[]
+      }
+      const premium = json.fonts?.premium ?? json.premium ?? []
+      const free = json.fonts?.free ?? json.free ?? []
+      for (const f of free) map[tierKey(f)] = 'free'
+      for (const f of premium) map[tierKey(f)] = 'premium'
+    }
+  } catch {
+    /* offline — treat everything as free */
+  }
+  tierCache = map
+  return map
+}
+
+/** Tier for a font, matching on file name or display name. */
+export function fontTier(
+  font: { file: string; name: string },
+  tiers: Record<string, FontTier> | null,
+): FontTier {
+  if (!tiers) return 'free'
+  return (
+    tiers[tierKey(font.file)] ??
+    tiers[tierKey(font.name)] ??
+    tiers[tierKey(font.file.replace(FONT_RE, ''))] ??
+    'free'
+  )
+}
 
 export function remoteFontKey(name: string) {
   return `rf:${name}`

@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Check, Download, Loader2, RefreshCw, Search, Trash2, X } from 'lucide-react'
+import { Check, Crown, Download, Loader2, RefreshCw, Search, Trash2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/components/auth-provider'
+import { PaymentPage } from './payment-page'
 import {
   ensureRemoteFontsLoaded,
+  fetchFontTiers,
   fetchRemoteFonts,
+  fontTier,
   installRemoteFont,
   isRemoteFontInstalled,
   isRemoteFontReady,
@@ -11,6 +15,7 @@ import {
   remoteCssFamily,
   removeRemoteFont,
   subscribeRemoteFonts,
+  type FontTier,
   type RemoteFont,
 } from '@/lib/remote-fonts'
 
@@ -29,6 +34,9 @@ export function DownloadFontsSheet({
   const [query, setQuery] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
   const [, force] = useState(0)
+  const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
+  const [pay, setPay] = useState(false)
+  const { isPro } = useAuth()
 
   useEffect(() => subscribeRemoteFonts(() => force((n) => n + 1)), [])
 
@@ -38,6 +46,7 @@ export function DownloadFontsSheet({
     try {
       const list = await fetchRemoteFonts(refresh)
       setFonts(list)
+      void fetchFontTiers(refresh).then(setTiers).catch(() => {})
       void ensureRemoteFontsLoaded()
       // preview the first screenful so samples render in their own typeface
       list.slice(0, 12).forEach((f) => void previewRemoteFont(f).catch(() => {}))
@@ -58,6 +67,10 @@ export function DownloadFontsSheet({
   }, [fonts, query])
 
   async function download(font: RemoteFont) {
+    if (fontTier(font, tiers) === 'premium' && !isPro) {
+      setPay(true)
+      return
+    }
     setBusy(font.name)
     setError(null)
     try {
@@ -138,6 +151,8 @@ export function DownloadFontsSheet({
           {results.map((f) => {
             const has = isRemoteFontInstalled(f.name)
             const ready = isRemoteFontReady(f.name)
+            const premium = fontTier(f, tiers) === 'premium'
+            const locked = premium && !isPro
             return (
               <div
                 key={f.file}
@@ -154,9 +169,20 @@ export function DownloadFontsSheet({
                   >
                     မြန်မာ ဖောင့်စတိုင် Aa
                   </span>
-                  <span className="block truncate text-[9px] uppercase tracking-wider text-muted-foreground">
-                    {f.name}
-                    {f.size ? ` • ${Math.round(f.size / 1024)} KB` : ''}
+                  <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-muted-foreground">
+                    {premium ? (
+                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-[1px] text-[8px] font-bold text-primary">
+                        <Crown className="size-2.5" /> Pro
+                      </span>
+                    ) : (
+                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-foreground/10 px-1.5 py-[1px] text-[8px] font-bold text-muted-foreground">
+                        Free
+                      </span>
+                    )}
+                    <span className="truncate">
+                      {f.name}
+                      {f.size ? ` • ${Math.round(f.size / 1024)} KB` : ''}
+                    </span>
                   </span>
                 </button>
 
@@ -177,11 +203,11 @@ export function DownloadFontsSheet({
                 ) : (
                   <button
                     type="button"
-                    aria-label={`Download ${f.name}`}
+                    aria-label={locked ? `Unlock ${f.name} with Pro` : `Download ${f.name}`}
                     onClick={() => void download(f)}
                     className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary active:scale-90"
                   >
-                    <Download className="size-3.5" />
+                    {locked ? <Crown className="size-3.5" /> : <Download className="size-3.5" />}
                   </button>
                 )}
               </div>
@@ -193,6 +219,8 @@ export function DownloadFontsSheet({
           )}
         </div>
       </div>
+
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
     </div>
   )
 }
