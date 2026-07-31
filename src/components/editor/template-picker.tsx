@@ -145,11 +145,12 @@ export function TemplateGallery({
               <button
                 type="button"
                 onClick={handleExport}
-                disabled={!selected.length}
+                disabled={!selected.length || exporting}
                 className="glass-cta flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold disabled:opacity-40"
               >
-                <Download className="size-3" /> Export ({selected.length})
+                <Download className="size-3" /> {exporting ? 'Exporting…' : `Export (${selected.length})`}
               </button>
+
             </>
           )}
           <div className="ml-auto" />
