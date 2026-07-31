@@ -1,5 +1,8 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   CopyPlus,
   MoveDiagonal2,
   MoveHorizontal,
@@ -155,7 +158,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function clampView(v: { scale: number; tx: number; ty: number }) {
       // Free movement: the image can be zoomed out below fit size and dragged
       // anywhere inside the frame, keeping a bit of it always reachable.
-      const scale = Math.max(0.4, Math.min(8, v.scale))
+      // Practically unlimited zoom: deep zoom stays available for fine nudging.
+      const scale = Math.max(0.2, Math.min(64, v.scale))
       if (!baseSize.current.w) measureBase()
       const { w, h } = baseSize.current
       const maxX = (w * scale) / 2 + w / 2
@@ -172,6 +176,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function commitView(v: { scale: number; tx: number; ty: number }) {
       pendingRef.current = clampView(v)
       viewRef.current = pendingRef.current
+      markInteracting()
       if (rafRef.current != null) return
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = null
