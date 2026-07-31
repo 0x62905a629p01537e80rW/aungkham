@@ -7,6 +7,8 @@ import { GlassTabs } from '@/components/ui/glass-tabs'
 import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import type { TextLayer } from '@/lib/text-layer'
+import { exportTemplatesJson } from '@/lib/export-templates'
+
 import {
   AlertDialog,
   AlertDialogAction,
