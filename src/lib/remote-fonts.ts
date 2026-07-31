@@ -15,18 +15,6 @@ export interface RemoteFont {
 }
 
 const BASE = 'https://myandev.github.io/Fonts'
-import bundledMm from './bundled-mm-fonts.json'
-
-/** Myanmar fonts bundled with the app (CDN hosted) — always free. */
-export const BUNDLED_MM_FONTS: RemoteFont[] = (
-  bundledMm as { name: string; file: string; url: string; size?: number }[]
-).map((f) => ({ name: f.name, file: f.file, url: f.url, size: f.size }))
-
-const bundledNames = new Set(BUNDLED_MM_FONTS.map((f) => f.name.toLowerCase()))
-
-function withBundled(list: RemoteFont[]): RemoteFont[] {
-  return [...BUNDLED_MM_FONTS, ...list.filter((f) => !bundledNames.has(f.name.toLowerCase()))]
-}
 
 const INDEX_URL = `${BASE}/fonts.json`
 const CHECK_URL = `${BASE}/check.json`
@@ -104,10 +92,10 @@ let catalogCache: RemoteFont[] | null = null
 export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
   if (catalogCache && !force) return catalogCache
   try {
-    catalogCache = withBundled(await fetchGithubFonts())
+    catalogCache = await fetchGithubFonts()
   } catch {
-    // GitHub unreachable — the bundled Myanmar fonts still work
-    catalogCache = withBundled([])
+    // GitHub unreachable — no catalog available
+    catalogCache = []
   }
   return catalogCache
 }
