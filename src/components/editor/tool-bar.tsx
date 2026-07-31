@@ -51,6 +51,9 @@ import {
 
   Bold,
   Crop,
+  Smile,
+  Shapes,
+  Layers2,
   Droplet,
   Droplets,
   FlipHorizontal,
