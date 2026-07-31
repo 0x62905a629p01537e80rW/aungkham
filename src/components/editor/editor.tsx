@@ -27,6 +27,7 @@ import { ScreenGuard } from './screen-guard'
 import { EraseBar, EraseOverlay, DEFAULT_BRUSH, type EraseBrush, type EraseControls } from './erase-overlay'
 import { useI18n } from '@/components/i18n'
 import { ensureGoogleFontsLoaded } from '@/lib/google-fonts'
+import { ensureRemoteFontsLoaded } from '@/lib/remote-fonts'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,6 +81,7 @@ export function Editor() {
   // Re-register downloaded Google fonts so saved projects render offline.
   useEffect(() => {
     void ensureGoogleFontsLoaded()
+    void ensureRemoteFontsLoaded()
   }, [])
 
   // Fit the whole image inside the visible stage — never require scrolling.

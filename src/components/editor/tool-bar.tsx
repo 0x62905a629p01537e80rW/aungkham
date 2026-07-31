@@ -20,6 +20,12 @@ import {
 import { listRecentFonts, recordRecentFont, subscribeRecents } from '@/lib/recents'
 import { GoogleFontsPanel } from './google-fonts-panel'
 import {
+  ensureRemoteFontsLoaded,
+  listInstalledRemoteFonts,
+  removeRemoteFont,
+  subscribeRemoteFonts,
+} from '@/lib/remote-fonts'
+import {
   ensureGoogleFontsLoaded,
   listInstalledGoogleFonts,
   removeGoogleFont,
@@ -686,7 +692,9 @@ function FontPicker({
       ? 'custom'
       : layer.fontKey.startsWith('gf:')
         ? 'google'
-        : groupOf(current?.category ?? 'Sans'),
+        : layer.fontKey.startsWith('rf:')
+          ? 'downloaded'
+          : groupOf(current?.category ?? 'Sans'),
   )
   const [query, setQuery] = useState('')
   const [, force] = useState(0)
@@ -697,13 +705,16 @@ function FontPicker({
   useEffect(() => {
     ensureCustomFontsLoaded()
     void ensureGoogleFontsLoaded()
+    void ensureRemoteFontsLoaded()
     const offFonts = subscribeFonts(() => force((n) => n + 1))
     const offRecents = subscribeRecents(() => force((n) => n + 1))
     const offGoogle = subscribeGoogleFonts(() => force((n) => n + 1))
+    const offRemote = subscribeRemoteFonts(() => force((n) => n + 1))
     return () => {
       offFonts()
       offRecents()
       offGoogle()
+      offRemote()
     }
   }, [])
 
@@ -728,6 +739,11 @@ function FontPicker({
       label: family,
       myanmar: false,
     })),
+    ...listInstalledRemoteFonts().map((f) => ({
+      key: `rf:${f.name}`,
+      label: f.name,
+      myanmar: true,
+    })),
   ]
 
   const base =
@@ -738,11 +754,12 @@ function FontPicker({
         : group === 'custom'
           ? all.filter((f) => f.customId)
           : group === 'downloaded'
-            ? all.filter((f) => f.key.startsWith('gf:'))
+            ? all.filter((f) => f.key.startsWith('gf:') || f.key.startsWith('rf:'))
             : all.filter(
                 (f) =>
                   !f.customId &&
                   !f.key.startsWith('gf:') &&
+                  !f.key.startsWith('rf:') &&
                   groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
               )
 
@@ -925,7 +942,12 @@ function FontPicker({
                       void removeGoogleFont(googleFamilyFromKey(f.key) ?? f.label)
                       if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
                     }
-                  : undefined
+                  : f.key.startsWith('rf:')
+                    ? () => {
+                        void removeRemoteFont(f.key.slice(3))
+                        if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
+                      }
+                    : undefined
             }
           />
         ))}
