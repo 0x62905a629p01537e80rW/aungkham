@@ -53,6 +53,7 @@ export function LaunchAd() {
   const [canSkip, setCanSkip] = useState(false)
   const [left, setLeft] = useState(0)
   const adRef = useRef<Ad | null>(null)
+  const pendingRef = useRef(false)
 
   // Preload at launch so the image is fully ready before it's ever displayed.
   useEffect(() => {
@@ -68,14 +69,29 @@ export function LaunchAd() {
   }, [])
 
   useEffect(() => {
-    function onShow() {
-      const a = adRef.current
-      if (!a) return
+    function show(a: Ad) {
       if (adShown) return
       adShown = true
       setLeft(Math.ceil(a.seconds))
       setCanSkip(a.skip || a.seconds <= 0)
       setOpen(true)
+    }
+    function onShow() {
+      const a = adRef.current
+      if (a) {
+        show(a)
+        return
+      }
+      // Not finished preloading yet — show as soon as it is ready.
+      pendingRef.current = true
+      prefetchAd().then((ready) => {
+        if (ready && pendingRef.current) {
+          pendingRef.current = false
+          adRef.current = ready
+          setAd(ready)
+          show(ready)
+        }
+      })
     }
     window.addEventListener(AD_EVENT, onShow)
     return () => window.removeEventListener(AD_EVENT, onShow)

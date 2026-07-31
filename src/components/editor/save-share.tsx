@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowLeft, FileText, FolderPlus, Loader2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth-provider'
+import { requestAd } from '@/components/launch-ad'
 import { SaveImageDialog } from './save-image-dialog'
 import { ShareRow } from './share-row'
 import { defaultFilename, exportPdf } from '@/lib/export-image'
@@ -28,6 +29,11 @@ export function SaveShare({
   const { isPro } = useAuth()
   const [saving, setSaving] = useState(false)
   const [pdfBusy, setPdfBusy] = useState(false)
+
+  // Show the (preloaded) ad once per app run when a free user hits Next.
+  useEffect(() => {
+    if (!isPro) requestAd()
+  }, [isPro])
 
   async function handlePdf() {
     if (!preview || !isPro) return
