@@ -345,10 +345,20 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+    <div
+      className={cn(
+        'fixed z-50 flex flex-col',
+        panel
+          ? 'inset-x-0 bottom-0 max-h-[86dvh] rounded-t-3xl border-t border-border bg-background/95 backdrop-blur-xl'
+          : 'inset-0 bg-background',
+      )}
+    >
       <header
-        className="flex h-14 shrink-0 items-center justify-between border-b border-border px-3"
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        className={cn(
+          'flex shrink-0 items-center justify-between px-3',
+          panel ? 'h-12 border-b border-border/60' : 'h-14 border-b border-border',
+        )}
+        style={panel ? undefined : { paddingTop: 'env(safe-area-inset-top)' }}
       >
         <button
           type="button"
@@ -370,7 +380,12 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
         </button>
       </header>
 
-      <div className="flex flex-1 items-center justify-center overflow-hidden bg-muted/30 p-4 pb-44">
+      <div
+        className={cn(
+          'flex items-center justify-center overflow-hidden',
+          panel ? 'shrink-0 p-2' : 'flex-1 bg-muted/30 p-4 pb-44',
+        )}
+      >
         {tool === 'crop' ? (
           <CropStage src={working} rect={rect} ratio={ratio} onChange={setRect} />
         ) : tool === 'blur' ? (
@@ -400,7 +415,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
               }
               alt="Preview"
               draggable={false}
-              className="max-h-[50dvh] max-w-full object-contain"
+              className={cn('max-w-full object-contain', panel ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
             />
           </div>
         )}
@@ -409,8 +424,13 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
 
       <div
         className={cn(
-          'absolute inset-x-0 bottom-0 max-h-[62dvh] overflow-y-auto perf-scroll border-t px-4 pb-4 pt-3 transition-all duration-200 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          draggingSlider
+          'overflow-y-auto perf-scroll px-4 pb-4 pt-3 transition-all duration-200 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          panel
+            ? 'min-h-0 flex-1'
+            : 'absolute inset-x-0 bottom-0 max-h-[62dvh] border-t',
+          panel
+            ? ''
+            : draggingSlider
             ? 'border-transparent bg-transparent/0 backdrop-blur-none'
             : 'border-border bg-background/95 backdrop-blur-xl',
         )}
