@@ -12,6 +12,7 @@ import {
   installRemoteFont,
   isRemoteFontInstalled,
   isRemoteFontReady,
+  listInstalledRemoteFonts,
   previewRemoteFont,
   remoteCssFamily,
   removeRemoteFont,
@@ -32,9 +33,9 @@ export function DownloadFontsSheet({
   const [fonts, setFonts] = useState<RemoteFont[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<'mm' | 'en' | 'free' | 'premium'>('mm')
+  const [tab, setTab] = useState<'mm' | 'en' | 'free' | 'premium' | 'downloaded'>('mm')
   const [busy, setBusy] = useState<string | null>(null)
-  const [, force] = useState(0)
+  const [tick, force] = useState(0)
   const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
   const [pay, setPay] = useState(false)
   const { isPro } = useAuth()
@@ -63,10 +64,18 @@ export function DownloadFontsSheet({
   }, [open])
 
   const results = useMemo(() => {
+    if (tab === 'downloaded') {
+      const installed = listInstalledRemoteFonts()
+      const names = new Set(installed.map((f) => f.name))
+      const known = fonts.filter((f) => names.has(f.name))
+      const extra = installed.filter((f) => !fonts.some((x) => x.name === f.name))
+      return [...known, ...extra]
+    }
     if (tab === 'free') return fonts.filter((f) => fontTier(f, tiers) === 'free')
     if (tab === 'premium') return fonts.filter((f) => fontTier(f, tiers) === 'premium')
     return fonts
-  }, [fonts, tab, tiers])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fonts, tab, tiers, tick])
 
   async function download(font: RemoteFont) {
     if (fontTier(font, tiers) === 'premium' && !isPro) {
@@ -129,6 +138,7 @@ export function DownloadFontsSheet({
               { id: 'en', label: 'English' },
               { id: 'free', label: 'Free' },
               { id: 'premium', label: 'Premium' },
+              { id: 'downloaded', label: 'Downloaded' },
             ] as const
           ).map((t) => (
             <button
@@ -136,7 +146,7 @@ export function DownloadFontsSheet({
               type="button"
               onClick={() => setTab(t.id)}
               className={cn(
-                'flex-1 rounded-xl px-2 py-1.5 text-[11px] font-semibold transition active:scale-95',
+                'flex-1 whitespace-nowrap rounded-xl px-1.5 py-1.5 text-[10px] font-semibold transition active:scale-95',
                 tab === t.id
                   ? 'bg-foreground/10 text-foreground'
                   : 'text-muted-foreground',
@@ -242,7 +252,9 @@ export function DownloadFontsSheet({
           })}
 
           {!loading && results.length === 0 && !error && (
-            <p className="py-8 text-center text-xs text-muted-foreground">No fonts found.</p>
+            <p className="py-8 text-center text-xs text-muted-foreground">
+              {tab === 'downloaded' ? 'No downloaded fonts yet.' : 'No fonts found.'}
+            </p>
           )}
         </div>
         )}
