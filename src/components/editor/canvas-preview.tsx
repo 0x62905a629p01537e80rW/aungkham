@@ -384,6 +384,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         pointerId: e.pointerId,
         startDist: centerDistance(layer, e.clientX, e.clientY) || 1,
         startSize: layer.fontSize,
+        startWrap: layer.wrapWidth,
       }
     }
 
@@ -396,6 +397,13 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const ratio = dist / st.startDist
       const next = Math.max(2, Math.min(40, st.startSize * ratio))
       onResize(st.id, Math.round(next * 2) / 2)
+      // Keep the wrap box proportional so scaling doesn't re-flow the lines.
+      if (st.startWrap) {
+        const k = next / st.startSize
+        onChange?.(st.id, {
+          wrapWidth: Math.round(Math.max(5, Math.min(400, st.startWrap * k)) * 10) / 10,
+        })
+      }
     }
 
     function handleResizeUp(e: PointerEvent<HTMLButtonElement>) {
