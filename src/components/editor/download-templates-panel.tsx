@@ -6,6 +6,7 @@ import { useAuth } from '@/components/auth-provider'
 import { PaymentPage } from './payment-page'
 import { TemplateThumb } from './template-picker'
 import type { TextLayer } from '@/lib/text-layer'
+import { ensureRemoteFontsForKeys, ensureRemoteFontsLoaded } from '@/lib/remote-fonts'
 import {
   ensureTemplatePacksLoaded,
   fetchRemoteTemplates,
@@ -40,16 +41,39 @@ export function DownloadTemplatesPanel({
 
   useEffect(() => subscribeRemoteTemplates(() => force((n) => n + 1)), [])
 
+  // GitHub fonts used by templates must be available even if the user never
+  // opened the Download Fonts page.
+  async function preloadFontsFor(defs: { build: () => TextLayer[] }[]) {
+    const keys = new Set<string>()
+    for (const def of defs) {
+      try {
+        for (const l of def.build()) if (l.fontKey) keys.add(l.fontKey)
+      } catch {
+        /* ignore malformed template */
+      }
+    }
+    await ensureRemoteFontsForKeys(keys).catch(() => {})
+    force((n) => n + 1)
+  }
+
   async function load(refresh = false) {
     setLoading(true)
     setError(null)
     try {
+      void ensureRemoteFontsLoaded()
       const list = await fetchRemoteTemplates(refresh)
       setPacks(list)
       void fetchTemplateTiers(refresh).then(setTiers).catch(() => {})
-      void ensureTemplatePacksLoaded()
+      void ensureTemplatePacksLoaded().then(() =>
+        preloadFontsFor(listInstalledTemplatePacks().flatMap((p) => getTemplatePackDefs(p.file))),
+      )
       // preview the first screenful so thumbnails render
-      list.slice(0, 8).forEach((p) => void previewTemplatePack(p).catch(() => {}))
+      list.slice(0, 8).forEach(
+        (p) =>
+          void previewTemplatePack(p)
+            .then((defs) => preloadFontsFor(defs))
+            .catch(() => {}),
+      )
     } catch {
       setError("Couldn't load the template list. Check your connection and try again.")
     }
