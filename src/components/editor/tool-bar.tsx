@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import {
+  Keyboard,
   Layers,
   Lock,
   Star,
@@ -186,6 +187,7 @@ interface ToolDef {
 }
 
 const TOOLS: ToolDef[] = [
+  { key: 'text', label: 'Edit text', icon: Keyboard, needsLayer: true },
   { key: 'font', label: 'Font', icon: WandSparkles, needsLayer: true },
   { key: 'format', label: 'Format', icon: TypeIcon, needsLayer: true },
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },

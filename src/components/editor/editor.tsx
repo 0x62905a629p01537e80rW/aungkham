@@ -139,9 +139,8 @@ export function Editor() {
       setEraseHistory({ canUndo: false, canRedo: false })
       setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
       setImage(dataUrl)
-      const first = createTextLayer('Your text')
-      setLayers([first])
-      setSelectedId(first.id)
+      setLayers([])
+      setSelectedId(null)
     }
     img.src = dataUrl
   }, [])
