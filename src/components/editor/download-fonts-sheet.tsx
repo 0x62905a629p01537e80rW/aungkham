@@ -1,9 +1,24 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Check, Crown, Download, Loader2, RefreshCw, Trash2, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Check, Crown, Download, Loader2, RefreshCw, Trash2, Upload, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/components/auth-provider'
 import { PaymentPage } from './payment-page'
 import { GoogleFontsPanel } from './google-fonts-panel'
+import {
+  addCustomFont,
+  customFontFamily,
+  ensureCustomFontsLoaded,
+  listCustomFonts,
+  removeCustomFont,
+  subscribeFonts,
+} from '@/lib/custom-fonts'
+import {
+  googleCssFamily,
+  listInstalledGoogleFonts,
+  preloadGoogleFontPreview,
+  removeGoogleFont,
+  subscribeGoogleFonts,
+} from '@/lib/google-fonts'
 import {
   ensureRemoteFontsLoaded,
   fetchFontTiers,
@@ -39,8 +54,40 @@ export function DownloadFontsSheet({
   const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
   const [pay, setPay] = useState(false)
   const { isPro } = useAuth()
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => subscribeRemoteFonts(() => force((n) => n + 1)), [])
+  useEffect(() => subscribeGoogleFonts(() => force((n) => n + 1)), [])
+  useEffect(() => subscribeFonts(() => force((n) => n + 1)), [])
+
+  const googleInstalled = useMemo(
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => (tab === 'downloaded' ? listInstalledGoogleFonts() : []),
+    [tab, tick],
+  )
+  const uploaded = useMemo(
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => (tab === 'downloaded' ? listCustomFonts() : []),
+    [tab, tick],
+  )
+
+  useEffect(() => {
+    if (tab === 'downloaded' && googleInstalled.length) preloadGoogleFontPreview(googleInstalled)
+  }, [tab, googleInstalled])
+
+  async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    e.target.value = ''
+    if (!files.length) return
+    setError(null)
+    try {
+      for (const file of files) await addCustomFont(file)
+      ensureCustomFontsLoaded()
+      setTab('downloaded')
+    } catch {
+      setError("Couldn't add that font file.")
+    }
+  }
 
   async function load(refresh = false) {
     setLoading(true)
@@ -110,11 +157,27 @@ export function DownloadFontsSheet({
         )}
       >
         <h2 className="text-sm font-semibold text-foreground">Download Fonts</h2>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".ttf,.otf,.woff,.woff2,font/*"
+          multiple
+          hidden
+          onChange={(e) => void onUpload(e)}
+        />
+        <button
+          type="button"
+          aria-label="Upload font"
+          onClick={() => fileRef.current?.click()}
+          className="ml-auto flex items-center gap-1 rounded-full bg-foreground/10 px-2.5 py-1.5 text-[11px] font-semibold text-foreground active:scale-95"
+        >
+          <Upload className="size-3.5" /> Upload
+        </button>
         <button
           type="button"
           aria-label="Refresh list"
           onClick={() => void load(true)}
-          className="ml-auto flex size-8 items-center justify-center rounded-full text-muted-foreground active:scale-90"
+          className="flex size-8 items-center justify-center rounded-full text-muted-foreground active:scale-90"
         >
           <RefreshCw className={cn('size-4', loading && 'animate-spin')} />
         </button>
