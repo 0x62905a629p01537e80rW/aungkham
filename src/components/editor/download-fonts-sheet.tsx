@@ -35,7 +35,7 @@ export function DownloadFontsSheet({
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<'mm' | 'en' | 'free' | 'premium' | 'downloaded'>('mm')
   const [busy, setBusy] = useState<string | null>(null)
-  const [, force] = useState(0)
+  const [tick, force] = useState(0)
   const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
   const [pay, setPay] = useState(false)
   const { isPro } = useAuth()
@@ -75,7 +75,7 @@ export function DownloadFontsSheet({
     if (tab === 'premium') return fonts.filter((f) => fontTier(f, tiers) === 'premium')
     return fonts
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fonts, tab, tiers, force])
+  }, [fonts, tab, tiers, tick])
 
   async function download(font: RemoteFont) {
     if (fontTier(font, tiers) === 'premium' && !isPro) {
