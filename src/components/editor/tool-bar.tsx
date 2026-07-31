@@ -1022,6 +1022,10 @@ function TexturePanel({
         <ToolHeading>Texture from image</ToolHeading>
       </div>
 
+      <p className={cn(fade, others, 'text-[10px] leading-snug text-muted-foreground')}>
+        Texture is free to try — Pro is required to export with it.
+      </p>
+
       <label
         className={cn(
           fade,
