@@ -468,6 +468,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     ) {
       e.stopPropagation()
       e.preventDefault()
+      e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
       const startValue = axis === 'x' ? (layer.widthScale ?? 100) : (layer.heightScale ?? 100)
       stretchState.current = {
