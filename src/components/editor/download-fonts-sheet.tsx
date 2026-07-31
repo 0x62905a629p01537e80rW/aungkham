@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Check, Crown, Download, Loader2, RefreshCw, Search, Trash2, X } from 'lucide-react'
+import { Check, Crown, Download, Loader2, RefreshCw, Trash2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/components/auth-provider'
 import { PaymentPage } from './payment-page'
+import { GoogleFontsPanel } from './google-fonts-panel'
 import {
   ensureRemoteFontsLoaded,
   fetchFontTiers,
@@ -31,7 +32,7 @@ export function DownloadFontsSheet({
   const [fonts, setFonts] = useState<RemoteFont[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [query, setQuery] = useState('')
+  const [tab, setTab] = useState<'mm' | 'en' | 'free' | 'premium'>('mm')
   const [busy, setBusy] = useState<string | null>(null)
   const [, force] = useState(0)
   const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
@@ -62,9 +63,10 @@ export function DownloadFontsSheet({
   }, [open])
 
   const results = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return q ? fonts.filter((f) => f.name.toLowerCase().includes(q)) : fonts
-  }, [fonts, query])
+    if (tab === 'free') return fonts.filter((f) => fontTier(f, tiers) === 'free')
+    if (tab === 'premium') return fonts.filter((f) => fontTier(f, tiers) === 'premium')
+    return fonts
+  }, [fonts, tab, tiers])
 
   async function download(font: RemoteFont) {
     if (fontTier(font, tiers) === 'premium' && !isPro) {
@@ -120,14 +122,29 @@ export function DownloadFontsSheet({
       </div>
 
       <div className={cn('flex min-h-0 flex-1 flex-col gap-2', inline ? 'py-1' : 'px-4 py-3')}>
-        <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-border/60 bg-foreground/5 px-3 py-2">
-          <Search className="size-3.5 shrink-0 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search fonts"
-            className="w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground"
-          />
+        <div className="flex shrink-0 items-center gap-1 rounded-2xl border border-border/60 bg-foreground/5 p-1">
+          {(
+            [
+              { id: 'mm', label: 'Myanmar' },
+              { id: 'en', label: 'English' },
+              { id: 'free', label: 'Free' },
+              { id: 'premium', label: 'Premium' },
+            ] as const
+          ).map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={cn(
+                'flex-1 rounded-xl px-2 py-1.5 text-[11px] font-semibold transition active:scale-95',
+                tab === t.id
+                  ? 'bg-foreground/10 text-foreground'
+                  : 'text-muted-foreground',
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
         <p className="shrink-0 text-[10px] leading-snug text-muted-foreground">
@@ -141,6 +158,11 @@ export function DownloadFontsSheet({
           </p>
         )}
 
+        {tab === 'en' ? (
+          <div className="min-h-0 flex-1">
+            <GoogleFontsPanel activeKey="" onPick={() => {}} />
+          </div>
+        ) : (
         <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-1">
           {loading && fonts.length === 0 && (
             <p className="flex items-center justify-center gap-2 py-8 text-xs text-muted-foreground">
@@ -223,6 +245,7 @@ export function DownloadFontsSheet({
             <p className="py-8 text-center text-xs text-muted-foreground">No fonts found.</p>
           )}
         </div>
+        )}
       </div>
 
       <PaymentPage open={pay} onClose={() => setPay(false)} />
