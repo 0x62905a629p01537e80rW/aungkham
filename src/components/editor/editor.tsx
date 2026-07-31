@@ -56,6 +56,7 @@ export function Editor() {
   const [replacing, setReplacing] = useState(false)
   const [showSave, setShowSave] = useState(false)
   const [inserting, setInserting] = useState(false)
+  const [insertTab, setInsertTab] = useState<'stickers' | 'shapes' | 'overlay'>('shapes')
   const [templating, setTemplating] = useState(false)
   const [exportingTpl, setExportingTpl] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
@@ -472,6 +473,11 @@ export function Editor() {
             onOpenProject={openProject}
             onStartTemplates={() => setTemplating(true)}
             onApplyTemplate={applyTemplate}
+            onInsertElement={(tabId) => {
+              setInsertTab(tabId)
+              handleImage(makeSolidDataUrl('#ffffff'))
+              setInserting(true)
+            }}
           />
           <TemplatePicker
             open={templating}
@@ -612,6 +618,7 @@ export function Editor() {
 
           <InsertMenu
             open={inserting}
+            initialTab={insertTab}
             onClose={() => setInserting(false)}
             onInsert={addGraphic}
           />

@@ -1,4 +1,5 @@
 import kbzPayLogo from '@/assets/kbzpay-logo.png.asset.json'
+import appLogo from '@/assets/logo.png.asset.json'
 
 /** Brand-ish payment marks drawn inline so checkout stays offline-safe. */
 
@@ -6,18 +7,12 @@ type IconProps = { className?: string }
 
 export function BrandLogo({ className = 'size-9' }: IconProps) {
   return (
-    <div
-      className={`flex items-center justify-center rounded-2xl text-primary-foreground ${className}`}
-      style={{
-        background:
-          'linear-gradient(150deg, var(--primary), color-mix(in oklab, var(--primary) 62%, white))',
-        boxShadow:
-          'inset 0 1px 0 var(--glass-rim), 0 10px 22px -14px color-mix(in oklab, var(--primary) 80%, transparent)',
-      }}
+    <img
+      src={appLogo.url}
+      alt="Myan"
+      className={`${className} object-contain`}
       aria-hidden="true"
-    >
-      <span className="font-brand-mm text-[15px] leading-none">မြန်</span>
-    </div>
+    />
   )
 }
 

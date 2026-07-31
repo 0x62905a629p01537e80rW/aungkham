@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { ImageIcon, Shapes, Sticker, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -11,6 +11,7 @@ interface InsertMenuProps {
   open: boolean
   onClose: () => void
   onInsert: (graphic: GraphicContent, name: string) => void
+  initialTab?: 'overlay' | 'shapes' | 'stickers'
 }
 
 type Tab = 'overlay' | 'shapes' | 'stickers'
@@ -21,8 +22,12 @@ const TABS: { key: Tab; label: string; icon: typeof ImageIcon }[] = [
   { key: 'overlay', label: 'Overlays', icon: ImageIcon },
 ]
 
-export function InsertMenu({ open, onClose, onInsert }: InsertMenuProps) {
-  const [tab, setTab] = useState<Tab>('shapes')
+export function InsertMenu({ open, onClose, onInsert, initialTab }: InsertMenuProps) {
+  const [tab, setTab] = useState<Tab>(initialTab ?? 'shapes')
+
+  useEffect(() => {
+    if (open && initialTab) setTab(initialTab)
+  }, [open, initialTab])
   const [shapeGroup, setShapeGroup] = useState<ShapeGroup>('Basic')
   const [stickerGroup, setStickerGroup] = useState<string>(STICKER_GROUPS[0])
   const galleryRef = useRef<HTMLInputElement>(null)

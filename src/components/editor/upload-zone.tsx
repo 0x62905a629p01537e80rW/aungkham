@@ -7,6 +7,9 @@ import {
   Image as BackgroundIcon,
   Palette,
   Blend,
+  Shapes,
+  Smile,
+  Layers,
   Trash2,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
@@ -14,6 +17,7 @@ import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
 import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
 import { TemplateGallery } from './template-picker'
+import { TEMPLATES } from '@/lib/templates'
 import type { TextLayer } from '@/lib/text-layer'
 
 import { makeBackgroundDataUrl, makeGradientDataUrl, makeSolidDataUrl } from '@/lib/background'
@@ -25,12 +29,16 @@ export function UploadZone({
   onOpenProject,
   onStartTemplates,
   onApplyTemplate,
+  onInsertElement,
 }: {
   onImage: (dataUrl: string) => void
   onOpenProject?: (project: SavedProject) => void
   onStartTemplates?: () => void
-  onApplyTemplate?: (layers: TextLayer[]) => void
+  onApplyTemplate?: (layers: TextLayer[], bg?: string) => void
+  onInsertElement?: (tab: 'stickers' | 'shapes' | 'overlay') => void
 }) {
+const FEATURED = TEMPLATES.filter((x) => x.bg).slice(0, 12)
+
   const { t } = useI18n()
   const galleryRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
@@ -200,6 +208,34 @@ export function UploadZone({
             </div>
 
 
+            {onInsertElement && (
+              <div className="glass-tile rounded-[1.75rem] p-3">
+                <span className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <Shapes className="size-3.5 text-primary" />
+                  {t('home.elements')}
+                </span>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { id: 'stickers', label: t('home.stickers'), Icon: Smile },
+                    { id: 'shapes', label: t('home.shapes'), Icon: Shapes },
+                    { id: 'overlay', label: t('home.overlays'), Icon: Layers },
+                  ] as const).map(({ id, label, Icon }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => onInsertElement(id)}
+                      className="flex flex-col items-center gap-1.5 rounded-2xl bg-background/40 py-3 text-[11px] font-semibold transition active:scale-95"
+                    >
+                      <span className="grid size-9 place-items-center rounded-xl bg-primary/15 text-primary">
+                        <Icon className="size-[18px]" />
+                      </span>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="glass-tile rounded-[1.75rem] p-3">
               <span className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <Palette className="size-3.5 text-primary" />
@@ -220,6 +256,42 @@ export function UploadZone({
                 onPick={(stops) => onImage(makeGradientDataUrl(stops))}
                 onCustom={() => setPicker('gradient')}
               />
+            </div>
+
+            <div className="glass-tile rounded-[1.75rem] p-3">
+              <div className="mb-2 flex items-center justify-between gap-2 px-1">
+                <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <LayoutTemplate className="size-3.5 text-primary" />
+                  {t('home.templatesSection')}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setTab('templates')}
+                  className="text-[11px] font-semibold text-primary transition active:opacity-70"
+                >
+                  {t('home.seeAllTemplates')}
+                </button>
+              </div>
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                {FEATURED.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => onApplyTemplate?.(tpl.build(), tpl.bg)}
+                    className="relative w-20 shrink-0 overflow-hidden rounded-2xl border border-border/40 transition active:scale-95"
+                  >
+                    <img
+                      src={tpl.bg}
+                      alt={tpl.name}
+                      loading="lazy"
+                      className="aspect-[3/4] w-full object-cover"
+                    />
+                    <span className="absolute inset-x-0 bottom-0 truncate bg-black/45 px-1.5 py-1 text-[10px] font-semibold text-white">
+                      {tpl.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
 
           </div>

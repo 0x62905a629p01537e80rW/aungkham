@@ -8,6 +8,7 @@ import { useI18n } from '@/components/i18n'
 import { LayersList } from './layers-list'
 import { cn } from '@/lib/utils'
 import type { TextLayer } from '@/lib/text-layer'
+import appLogo from '@/assets/logo.png.asset.json'
 
 interface EditorHeaderProps {
   hasImage: boolean
@@ -184,17 +185,11 @@ export function EditorHeader({
       ) : (
         <>
           <div className="flex items-center gap-2.5 pl-1">
-            <div
-              className="flex size-9 items-center justify-center rounded-2xl text-primary-foreground"
-              style={{
-                background:
-                  'linear-gradient(150deg, var(--primary), color-mix(in oklab, var(--primary) 62%, white))',
-                boxShadow:
-                  'inset 0 1px 0 var(--glass-rim), 0 10px 22px -14px color-mix(in oklab, var(--primary) 80%, transparent)',
-              }}
-            >
-              <span className="font-brand-mm text-[15px] leading-none">မြန်</span>
-            </div>
+            <img
+              src={appLogo.url}
+              alt="Myan app logo"
+              className="size-9 shrink-0 object-contain"
+            />
             <div className="leading-tight">
               <p className="text-sm font-bold tracking-tight">Myan</p>
               <p className="text-[11px] text-muted-foreground">{t('brand.tagline')}</p>
