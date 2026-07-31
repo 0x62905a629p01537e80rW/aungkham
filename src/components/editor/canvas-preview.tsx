@@ -1,9 +1,7 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import {
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
   CopyPlus,
+  WrapText,
   MoveDiagonal2,
   MoveHorizontal,
   MoveVertical,
@@ -463,6 +461,41 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       value: number
     } | null>(null)
 
+    const wrapState = useRef<{ id: string; start: number; startValue: number } | null>(null)
+
+    /** Drag the right-edge handle to set the text box width so the text wraps. */
+    function handleWrapDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
+      e.stopPropagation()
+      e.preventDefault()
+      e.currentTarget.setPointerCapture(e.pointerId)
+      const rect = containerRef.current?.getBoundingClientRect()
+      let startValue = layer.wrapWidth ?? 0
+      if (!startValue) {
+        const box = e.currentTarget.parentElement?.getBoundingClientRect()
+        startValue = box && rect?.width ? (box.width / rect.width) * 100 : 50
+      }
+      wrapState.current = { id: layer.id, start: e.clientX, startValue }
+    }
+
+    function handleWrapMove(e: PointerEvent<HTMLButtonElement>) {
+      const st = wrapState.current
+      if (!st) return
+      const rect = containerRef.current?.getBoundingClientRect()
+      const span = rect?.width || 300
+      const delta = ((e.clientX - st.start) / span) * 100
+      const next = Math.max(5, Math.min(200, st.startValue + delta))
+      onChange?.(st.id, { wrapWidth: Math.round(next * 10) / 10 })
+    }
+
+    function handleWrapUp(e: PointerEvent<HTMLButtonElement>) {
+      wrapState.current = null
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      } catch {
+        /* ignore */
+      }
+    }
+
     function handleStretchDown(
       e: PointerEvent<HTMLButtonElement>,
       layer: TextLayer,
@@ -675,27 +708,26 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                     {!layer.graphic && (
                     <button
                       type="button"
-                      aria-label={`Text align: ${layer.align}`}
-                      onPointerDown={(e) => {
+                      aria-label="Text box width (drag to wrap, double-tap to reset)"
+                      onPointerDown={(e) => handleWrapDown(e, layer)}
+                      onPointerMove={handleWrapMove}
+                      onPointerUp={handleWrapUp}
+                      onPointerCancel={handleWrapUp}
+                      onClick={(e) => e.stopPropagation()}
+                      onDoubleClick={(e) => {
                         e.stopPropagation()
-                        e.preventDefault()
+                        onChange?.(layer.id, { wrapWidth: undefined })
                       }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        const order = ['left', 'center', 'right'] as const
-                        const next = order[(order.indexOf(layer.align as typeof order[number]) + 1) % order.length]
-                        onChange?.(layer.id, { align: next })
+                      style={{
+                        cursor: 'ew-resize',
+                        touchAction: 'none',
+                        left: hx('100%'),
+                        top: hy('50%'),
+                        transform: hTr(1, 0),
                       }}
-                      style={{ left: hx('100%'), top: hy('50%'), transform: hTr(1, 0) }}
                       className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
-                      {layer.align === 'left' ? (
-                        <AlignLeft className="size-4" strokeWidth={2.25} />
-                      ) : layer.align === 'right' ? (
-                        <AlignRight className="size-4" strokeWidth={2.25} />
-                      ) : (
-                        <AlignCenter className="size-4" strokeWidth={2.25} />
-                      )}
+                      <WrapText className="size-4" strokeWidth={2.25} />
                     </button>
                     )}
 
