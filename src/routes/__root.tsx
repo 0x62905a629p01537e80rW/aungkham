@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { themeInitScript, ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/components/i18n";
+import { LaunchAd } from "@/components/launch-ad";
 
 
 
@@ -139,6 +140,7 @@ function RootComponent() {
         <LanguageProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
+          <LaunchAd />
         </LanguageProvider>
       </ThemeProvider>
 
