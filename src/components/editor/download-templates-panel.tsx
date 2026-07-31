@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Check, Crown, Download, Loader2, RefreshCw, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Check, Crown, Download, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/components/auth-provider'
@@ -12,6 +12,7 @@ import {
   fetchTemplateTiers,
   getTemplatePackDefs,
   installTemplatePack,
+  importTemplateFile,
   isTemplatePackInstalled,
   listInstalledTemplatePacks,
   previewTemplatePack,
@@ -35,6 +36,7 @@ export function DownloadTemplatesPanel({
   const [tiers, setTiers] = useState<Record<string, TemplateTier> | null>(null)
   const [pay, setPay] = useState(false)
   const { isPro } = useAuth()
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => subscribeRemoteTemplates(() => force((n) => n + 1)), [])
 
@@ -65,6 +67,27 @@ export function DownloadTemplatesPanel({
     [tick],
   )
 
+  // remote packs first, then locally imported ones
+  const allPacks = useMemo(() => {
+    const remote = new Set(packs.map((p) => p.file))
+    const local = listInstalledTemplatePacks().filter((p) => !remote.has(p.file))
+    return [...packs, ...local]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [packs, tick])
+
+  async function handleImport(files: FileList | null) {
+    if (!files?.length) return
+    setError(null)
+    setBusy('import')
+    try {
+      for (const f of Array.from(files)) await importTemplateFile(f)
+    } catch {
+      setError("Couldn't import that file. Make sure it's a template JSON export.")
+    }
+    setBusy(null)
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
   async function download(pack: RemoteTemplatePack) {
     // make sure tiers are known before deciding (anything not listed = free)
     let map = tiers
@@ -92,25 +115,46 @@ export function DownloadTemplatesPanel({
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center gap-2 pb-2">
         <h2 className="text-sm font-semibold text-foreground">Download Templates</h2>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/json,.json"
+          multiple
+          hidden
+          onChange={(e) => void handleImport(e.target.files)}
+        />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={busy === 'import'}
+          className="glass-tile ml-auto flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold disabled:opacity-50"
+        >
+          {busy === 'import' ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <Upload className="size-3.5" />
+          )}
+          Import
+        </button>
         <button
           type="button"
           aria-label="Refresh list"
           onClick={() => void load(true)}
-          className="ml-auto flex size-8 items-center justify-center rounded-full text-muted-foreground active:scale-90"
+          className="flex size-8 items-center justify-center rounded-full text-muted-foreground active:scale-90"
         >
           <RefreshCw className={cn('size-4', loading && 'animate-spin')} />
         </button>
       </div>
 
       {error && <p className="pb-2 text-xs text-destructive">{error}</p>}
-      {!packs.length && !loading && !error && (
+      {!allPacks.length && !loading && !error && (
         <p className="py-6 text-center text-xs text-muted-foreground">
           No templates published yet.
         </p>
       )}
 
       <div className="flex flex-col gap-3 pb-6">
-        {packs.map((pack) => {
+        {allPacks.map((pack) => {
           const tier = templateTier(pack, tiers)
           const has = installed.has(pack.file) || isTemplatePackInstalled(pack.file)
           const defs = getTemplatePackDefs(pack.file)
