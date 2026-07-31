@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Crown, X } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
+import { requestAd } from '@/components/launch-ad'
 import { PaymentPage } from './payment-page'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
@@ -44,6 +45,11 @@ export function SaveImageDialog({ open, preview, onClose }: SaveImageDialogProps
   useEffect(() => {
     if (open) setName(defaultFilename())
   }, [open])
+
+  // Show the (already preloaded) ad when a free user reaches the save page.
+  useEffect(() => {
+    if (open && !isPro) requestAd()
+  }, [open, isPro])
 
   useEffect(() => {
     if (!isPro) setScale(1)
