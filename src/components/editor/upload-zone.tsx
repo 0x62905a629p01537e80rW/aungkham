@@ -14,7 +14,7 @@ import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
 import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
 import { TemplateGallery } from './template-picker'
-import { TEMPLATES } from '@/lib/templates'
+import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
 import type { TextLayer } from '@/lib/text-layer'
 
 import { makeBackgroundDataUrl, makeGradientDataUrl, makeSolidDataUrl } from '@/lib/background'
@@ -32,9 +32,7 @@ export function UploadZone({
   onStartTemplates?: () => void
   onApplyTemplate?: (layers: TextLayer[], bg?: string) => void
 }) {
-const FEATURED = TEMPLATES.filter(
-  (x, i, arr) => x.bg && arr.findIndex((y) => y.name === x.name) === i,
-).slice(0, 12)
+const FEATURED = UPLOADED_TEMPLATES
 
   const { t } = useI18n()
   const galleryRef = useRef<HTMLInputElement>(null)
@@ -241,21 +239,21 @@ const FEATURED = TEMPLATES.filter(
                   {t('home.seeAllTemplates')}
                 </button>
               </div>
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              <div className="grid grid-flow-col grid-rows-2 gap-2 overflow-x-auto no-scrollbar pb-1">
                 {FEATURED.map((tpl) => (
                   <button
                     key={tpl.id}
                     type="button"
                     onClick={() => onApplyTemplate?.(tpl.build(), tpl.bg)}
-                    className="relative w-20 shrink-0 overflow-hidden rounded-2xl border border-border/40 transition active:scale-95"
+                    className="relative w-28 shrink-0 overflow-hidden rounded-xl border border-border/40 transition active:scale-95"
                   >
                     <img
                       src={tpl.bg}
                       alt={tpl.name}
                       loading="lazy"
-                      className="aspect-[3/4] w-full object-cover"
+                      className="aspect-[16/9] w-full object-cover"
                     />
-                    <span className="absolute inset-x-0 bottom-0 truncate bg-black/45 px-1.5 py-1 text-[10px] font-semibold text-white">
+                    <span className="absolute inset-x-0 bottom-0 truncate bg-black/45 px-1.5 py-0.5 text-[9px] font-semibold text-white">
                       {tpl.name}
                     </span>
                   </button>
