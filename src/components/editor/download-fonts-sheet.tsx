@@ -122,14 +122,29 @@ export function DownloadFontsSheet({
       </div>
 
       <div className={cn('flex min-h-0 flex-1 flex-col gap-2', inline ? 'py-1' : 'px-4 py-3')}>
-        <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-border/60 bg-foreground/5 px-3 py-2">
-          <Search className="size-3.5 shrink-0 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search fonts"
-            className="w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground"
-          />
+        <div className="flex shrink-0 items-center gap-1 rounded-2xl border border-border/60 bg-foreground/5 p-1">
+          {(
+            [
+              { id: 'mm', label: 'Myanmar' },
+              { id: 'en', label: 'English' },
+              { id: 'free', label: 'Free' },
+              { id: 'premium', label: 'Premium' },
+            ] as const
+          ).map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={cn(
+                'flex-1 rounded-xl px-2 py-1.5 text-[11px] font-semibold transition active:scale-95',
+                tab === t.id
+                  ? 'bg-foreground/10 text-foreground'
+                  : 'text-muted-foreground',
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
         <p className="shrink-0 text-[10px] leading-snug text-muted-foreground">
@@ -143,6 +158,11 @@ export function DownloadFontsSheet({
           </p>
         )}
 
+        {tab === 'en' ? (
+          <div className="min-h-0 flex-1">
+            <GoogleFontsPanel activeKey="" onPick={() => {}} />
+          </div>
+        ) : (
         <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pr-1">
           {loading && fonts.length === 0 && (
             <p className="flex items-center justify-center gap-2 py-8 text-xs text-muted-foreground">
