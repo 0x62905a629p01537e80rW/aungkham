@@ -1,9 +1,7 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import {
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
   CopyPlus,
+  WrapText,
   MoveDiagonal2,
   MoveHorizontal,
   MoveVertical,
