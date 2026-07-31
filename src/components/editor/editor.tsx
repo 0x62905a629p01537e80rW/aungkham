@@ -701,10 +701,14 @@ export function Editor() {
       )}
 
       <AlertDialog open={discardOpen} onOpenChange={setDiscardOpen}>
-        <AlertDialogContent className="glass-panel max-w-[min(92vw,340px)] rounded-3xl border-0">
+        <AlertDialogContent className="glass-panel max-w-[min(92vw,340px)] rounded-3xl border-0 shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('discard.title')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('discard.desc')}</AlertDialogDescription>
+            <AlertDialogTitle className="text-center text-base font-normal">
+              {t('discard.title')}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              {t('discard.desc')}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
             <AlertDialogAction
@@ -712,11 +716,11 @@ export function Editor() {
                 setDiscardOpen(false)
                 resetAll()
               }}
-              className="w-full rounded-full"
+              className="glass-indicator w-full rounded-full border-0 font-normal text-primary-foreground hover:opacity-90"
             >
               {t('discard.confirm')}
             </AlertDialogAction>
-            <AlertDialogCancel className="mt-0 w-full rounded-full">
+            <AlertDialogCancel className="glass-tile mt-0 w-full rounded-full border-0 font-normal">
               {t('discard.cancel')}
             </AlertDialogCancel>
           </AlertDialogFooter>
