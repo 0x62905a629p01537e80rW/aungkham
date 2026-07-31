@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react'
-import { Crown, X } from 'lucide-react'
+import { Check, Crown, Download, X } from 'lucide-react'
+
 
 import { cn } from '@/lib/utils'
 import { GlassTabs } from '@/components/ui/glass-tabs'
 import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import type { TextLayer } from '@/lib/text-layer'
+import { exportTemplatesJson } from '@/lib/export-templates'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -88,6 +91,8 @@ export function TemplateGallery({
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
+  const [selectMode, setSelectMode] = useState(false)
+  const [selected, setSelected] = useState<string[]>([])
   const activeGroup = lang === 'EN' && group === 'New' ? 'All' : group
 
   const list = useMemo(
@@ -95,10 +100,51 @@ export function TemplateGallery({
     [lang, activeGroup],
   )
 
+  const toggleSelect = (id: string) =>
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
+
+  const handleExport = () => {
+    const picked = TEMPLATES.filter((t) => selected.includes(t.id))
+    if (!picked.length) return
+    exportTemplatesJson(picked)
+    setSelectMode(false)
+    setSelected([])
+  }
+
   return (
     <div className={cn('flex flex-col', scroll && 'min-h-0 flex-1', className)}>
       <div className="sticky top-0 z-10 -mx-1 bg-background/80 px-1 pt-1 backdrop-blur-xl">
-        <div className="flex shrink-0 items-center justify-end gap-1 pb-2">
+        <div className="flex shrink-0 items-center gap-1 pb-2">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectMode((v) => !v)
+              setSelected([])
+            }}
+            className="glass-tile rounded-full px-2.5 py-1 text-[11px] font-semibold"
+          >
+            {selectMode ? 'Cancel' : 'Select'}
+          </button>
+          {selectMode && (
+            <>
+              <button
+                type="button"
+                onClick={() => setSelected(list.map((t) => t.id))}
+                className="glass-tile rounded-full px-2.5 py-1 text-[11px] font-semibold"
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={handleExport}
+                disabled={!selected.length}
+                className="glass-cta flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold disabled:opacity-40"
+              >
+                <Download className="size-3" /> Export ({selected.length})
+              </button>
+            </>
+          )}
+          <div className="ml-auto" />
           <GlassTabs
             size="sm"
             className="w-auto"
@@ -131,19 +177,26 @@ export function TemplateGallery({
           {list.map((t) => {
             const bg = THUMB_BG[hashOf(t.id) % THUMB_BG.length]
             const isPremium = t.group === 'Premium'
+            const isSel = selected.includes(t.id)
             return (
               <button
                 key={t.id}
                 type="button"
                 aria-label={t.name}
+                aria-pressed={selectMode ? isSel : undefined}
                 onClick={() => {
-                  if (onRequestChoice) {
+                  if (selectMode) {
+                    toggleSelect(t.id)
+                  } else if (onRequestChoice) {
                     onRequestChoice(t.build(), t.bg)
                   } else {
                     onApply?.(t.build(), t.bg)
                   }
                 }}
-                className="glass-tile w-full touch-pan-y overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]"
+                className={cn(
+                  'glass-tile w-full touch-pan-y overflow-hidden rounded-2xl p-1.5 transition active:scale-[0.98]',
+                  selectMode && isSel && 'ring-2 ring-primary',
+                )}
               >
                 <div className="pointer-events-none relative aspect-[16/9] w-full">
                   <TemplateThumb template={t} bg={bg} />
@@ -153,11 +206,22 @@ export function TemplateGallery({
                       <span className="text-[10px] font-bold text-white">Pro</span>
                     </div>
                   )}
+                  {selectMode && (
+                    <div
+                      className={cn(
+                        'absolute left-2 top-2 z-10 flex size-5 items-center justify-center rounded-full border border-white/70',
+                        isSel ? 'bg-primary text-primary-foreground' : 'bg-black/40',
+                      )}
+                    >
+                      {isSel && <Check className="size-3" />}
+                    </div>
+                  )}
                 </div>
               </button>
             )
           })}
         </div>
+
 
       </div>
     </div>
