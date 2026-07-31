@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { Loader2, X, Check, LogIn } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { usePricing } from '@/lib/pricing'
-import { PREMIUM_DESIGNS } from '@/lib/premium-templates'
 import { PaymentPage } from './payment-page'
+import { TemplateThumb } from './template-picker'
+import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
 
 const SEEN_KEY = 'pro-splash-seen'
 
-const TILES = PREMIUM_DESIGNS.slice(0, 8).map((d) => ({ bg: d.bg, label: d.label }))
+const TILES = UPLOADED_TEMPLATES.slice(0, 12)
 
 const BENEFITS = [
   'Premium templates — Burmese & English designs',
@@ -127,17 +128,9 @@ export function ProSplash() {
             {[...TILES, ...TILES].map((t, i) => (
               <div
                 key={`${row}-${i}`}
-                className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-white/10"
+                className="relative h-20 w-[142px] shrink-0 overflow-hidden rounded-xl border border-white/10"
               >
-                <img
-                  src={t.bg}
-                  alt=""
-                  loading="lazy"
-                  className="size-full object-cover"
-                />
-                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-1.5 pb-1 pt-3 text-[8px] font-bold uppercase tracking-wide text-white/85">
-                  {t.label}
-                </span>
+                <TemplateThumb template={t} bg="#0d0d14" />
               </div>
             ))}
           </div>
