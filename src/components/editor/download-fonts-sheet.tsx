@@ -80,6 +80,10 @@ export function DownloadFontsSheet({
     e.target.value = ''
     if (!files.length) return
     setError(null)
+    if (!isPro) {
+      setPay(true)
+      return
+    }
     try {
       for (const file of files) await addCustomFont(file)
       ensureCustomFontsLoaded()
@@ -168,10 +172,11 @@ export function DownloadFontsSheet({
         <button
           type="button"
           aria-label="Upload font"
-          onClick={() => fileRef.current?.click()}
+          onClick={() => (isPro ? fileRef.current?.click() : setPay(true))}
           className="ml-auto flex items-center gap-1 rounded-full bg-foreground/10 px-2.5 py-1.5 text-[11px] font-semibold text-foreground active:scale-95"
         >
           <Upload className="size-3.5" /> Upload
+          {!isPro && <Crown className="size-3 text-amber-400" />}
         </button>
         <button
           type="button"
