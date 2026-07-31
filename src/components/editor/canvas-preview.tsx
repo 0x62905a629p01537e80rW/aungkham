@@ -672,6 +672,33 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       <CopyPlus className="size-4" strokeWidth={2.25} />
                     </button>
 
+                    {!layer.graphic && (
+                    <button
+                      type="button"
+                      aria-label={`Text align: ${layer.align}`}
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        const order = ['left', 'center', 'right'] as const
+                        const next = order[(order.indexOf(layer.align as typeof order[number]) + 1) % order.length]
+                        onChange?.(layer.id, { align: next })
+                      }}
+                      style={{ left: hx('100%'), top: hy('50%'), transform: hTr(1, 0) }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      {layer.align === 'left' ? (
+                        <AlignLeft className="size-4" strokeWidth={2.25} />
+                      ) : layer.align === 'right' ? (
+                        <AlignRight className="size-4" strokeWidth={2.25} />
+                      ) : (
+                        <AlignCenter className="size-4" strokeWidth={2.25} />
+                      )}
+                    </button>
+                    )}
+
                     <button
                       type="button"
                       aria-label="Stretch vertically"
