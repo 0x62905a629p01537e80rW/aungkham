@@ -119,8 +119,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
     useEffect(() => {
       if (editingId && editorRef.current) {
-        editorRef.current.focus()
-        editorRef.current.select()
+        const el = editorRef.current
+        el.focus()
+        // Place the caret at the end instead of selecting the whole text
+        const end = el.value.length
+        el.setSelectionRange(end, end)
       }
     }, [editingId])
 
