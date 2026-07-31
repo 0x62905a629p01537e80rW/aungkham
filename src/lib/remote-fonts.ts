@@ -296,3 +296,39 @@ export async function ensureRemoteFontsLoaded() {
     }
   }
 }
+
+/**
+ * Make sure the remote (GitHub) fonts referenced by `rf:` keys are loaded,
+ * even when the user never opened the Download Fonts page.
+ * Fonts are loaded for rendering only — nothing is marked as installed.
+ */
+export async function ensureRemoteFontsForKeys(keys: Iterable<string>): Promise<void> {
+  if (typeof window === 'undefined' || !('FontFace' in window)) return
+  const names = new Set<string>()
+  for (const key of keys) {
+    const name = remoteFontNameFromKey(key)
+    if (name && !loaded.has(name)) names.add(name)
+  }
+  if (!names.size) return
+
+  // installed entries first (offline friendly), then the remote catalog
+  const known = new Map<string, RemoteFont>()
+  for (const f of listInstalledRemoteFonts()) known.set(f.name, f)
+  if ([...names].some((n) => !known.has(n))) {
+    try {
+      for (const f of await fetchRemoteFonts()) if (!known.has(f.name)) known.set(f.name, f)
+    } catch {
+      /* offline */
+    }
+  }
+
+  await Promise.all(
+    [...names].map(async (name) => {
+      const font =
+        known.get(name) ??
+        [...known.values()].find((f) => f.name.toLowerCase() === name.toLowerCase())
+      if (!font) return
+      await previewRemoteFont(font).catch(() => {})
+    }),
+  )
+}
