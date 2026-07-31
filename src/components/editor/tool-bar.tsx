@@ -19,6 +19,7 @@ import {
 } from '@/lib/custom-fonts'
 import { listRecentFonts, recordRecentFont, subscribeRecents } from '@/lib/recents'
 import { GoogleFontsPanel } from './google-fonts-panel'
+import { preloadAllFontPreviews } from '@/lib/font-preload'
 import {
   ensureRemoteFontsLoaded,
   listInstalledRemoteFonts,
