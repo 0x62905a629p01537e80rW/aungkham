@@ -37,7 +37,9 @@ export function UploadZone({
   onApplyTemplate?: (layers: TextLayer[], bg?: string) => void
   onInsertElement?: (tab: 'stickers' | 'shapes' | 'overlay') => void
 }) {
-const FEATURED = TEMPLATES.filter((x) => x.bg).slice(0, 12)
+const FEATURED = TEMPLATES.filter(
+  (x, i, arr) => x.bg && arr.findIndex((y) => y.name === x.name) === i,
+).slice(0, 12)
 
   const { t } = useI18n()
   const galleryRef = useRef<HTMLInputElement>(null)
