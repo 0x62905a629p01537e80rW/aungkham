@@ -28,6 +28,7 @@ import { EraseBar, EraseOverlay, DEFAULT_BRUSH, type EraseBrush, type EraseContr
 import { useI18n } from '@/components/i18n'
 import { ensureGoogleFontsLoaded } from '@/lib/google-fonts'
 import { ensureRemoteFontsLoaded } from '@/lib/remote-fonts'
+import { preloadAllFontPreviews } from '@/lib/font-preload'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -82,6 +83,8 @@ export function Editor() {
   useEffect(() => {
     void ensureGoogleFontsLoaded()
     void ensureRemoteFontsLoaded()
+    // Warm every typeface preview now, not when the font picker opens.
+    preloadAllFontPreviews()
   }, [])
 
   // Fit the whole image inside the visible stage — never require scrolling.

@@ -19,6 +19,7 @@ import {
 } from '@/lib/custom-fonts'
 import { listRecentFonts, recordRecentFont, subscribeRecents } from '@/lib/recents'
 import { GoogleFontsPanel } from './google-fonts-panel'
+import { preloadAllFontPreviews } from '@/lib/font-preload'
 import {
   ensureRemoteFontsLoaded,
   listInstalledRemoteFonts,
@@ -706,6 +707,8 @@ function FontPicker({
     ensureCustomFontsLoaded()
     void ensureGoogleFontsLoaded()
     void ensureRemoteFontsLoaded()
+    // Previews are warmed at editor start; this is a no-op if already done.
+    preloadAllFontPreviews()
     const offFonts = subscribeFonts(() => force((n) => n + 1))
     const offRecents = subscribeRecents(() => force((n) => n + 1))
     const offGoogle = subscribeGoogleFonts(() => force((n) => n + 1))
