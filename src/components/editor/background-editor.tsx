@@ -1012,6 +1012,7 @@ function BlurStage({
   mode,
   focus,
   onFocus,
+  compact,
 }: {
   src: string
   amount: number
