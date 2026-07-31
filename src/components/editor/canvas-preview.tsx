@@ -730,8 +730,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           style={{
             transform: `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.scale})`,
             transformOrigin: 'center center',
-            willChange: 'transform',
-            backfaceVisibility: 'hidden',
+            willChange: interacting ? 'transform' : 'auto',
+            backfaceVisibility: interacting ? 'hidden' : 'visible',
           }}
         >
 
@@ -752,7 +752,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             decoding="async"
             fetchPriority="high"
             draggable={false}
-            style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
+            style={
+              interacting
+                ? { transform: 'translateZ(0)', backfaceVisibility: 'hidden' }
+                : undefined
+            }
           />
 
 
