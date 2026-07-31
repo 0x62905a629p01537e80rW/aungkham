@@ -204,6 +204,7 @@ export const FONT_CATEGORIES: FontOption['category'][] = [
 
 export function fontFamily(key: string): string {
   if (key.startsWith('custom:')) return `'CF_${key.slice(7)}', sans-serif`
+  if (key.startsWith('rf:')) return `'RF_${key.slice(3).replace(/[^A-Za-z0-9]+/g, '_')}', sans-serif`
   if (key.startsWith('gf:')) {
     const family = key.slice(3)
     return `'GF_${family.replace(/[^A-Za-z0-9]+/g, '_')}', '${family}', sans-serif`
