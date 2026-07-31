@@ -84,11 +84,13 @@ const FIT_GRADIENTS: { from: string; to: string }[] = [
 interface Props {
   tool: BgTool
   image: string
+  /** Render as the bottom control panel over the main editor instead of a full page. */
+  panel?: boolean
   onCancel: () => void
   onApply: (dataUrl: string) => void
 }
 
-export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
+export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply }: Props) {
   const [busy, setBusy] = useState(false)
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null)
 
@@ -343,10 +345,20 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+    <div
+      className={cn(
+        'fixed z-50 flex flex-col',
+        panel
+          ? 'inset-x-0 bottom-0 max-h-[86dvh] rounded-t-3xl border-t border-border bg-background/95 backdrop-blur-xl'
+          : 'inset-0 bg-background',
+      )}
+    >
       <header
-        className="flex h-14 shrink-0 items-center justify-between border-b border-border px-3"
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        className={cn(
+          'flex shrink-0 items-center justify-between px-3',
+          panel ? 'h-12 border-b border-border/60' : 'h-14 border-b border-border',
+        )}
+        style={panel ? undefined : { paddingTop: 'env(safe-area-inset-top)' }}
       >
         <button
           type="button"
@@ -368,7 +380,12 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
         </button>
       </header>
 
-      <div className="flex flex-1 items-center justify-center overflow-hidden bg-muted/30 p-4 pb-44">
+      <div
+        className={cn(
+          'flex items-center justify-center overflow-hidden',
+          panel ? 'shrink-0 p-2' : 'flex-1 bg-muted/30 p-4 pb-44',
+        )}
+      >
         {tool === 'crop' ? (
           <CropStage src={working} rect={rect} ratio={ratio} onChange={setRect} />
         ) : tool === 'blur' ? (
@@ -377,6 +394,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
             amount={blurAmount}
             mode={blurMode}
             focus={focus}
+            compact={panel}
             onFocus={(f) => setFocus((p) => ({ ...p, ...f }))}
           />
         ) : (
@@ -398,7 +416,7 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
               }
               alt="Preview"
               draggable={false}
-              className="max-h-[50dvh] max-w-full object-contain"
+              className={cn('max-w-full object-contain', panel ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
             />
           </div>
         )}
@@ -407,8 +425,13 @@ export function BackgroundEditor({ tool, image, onCancel, onApply }: Props) {
 
       <div
         className={cn(
-          'absolute inset-x-0 bottom-0 max-h-[62dvh] overflow-y-auto perf-scroll border-t px-4 pb-4 pt-3 transition-all duration-200 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          draggingSlider
+          'overflow-y-auto perf-scroll px-4 pb-4 pt-3 transition-all duration-200 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          panel
+            ? 'min-h-0 flex-1'
+            : 'absolute inset-x-0 bottom-0 max-h-[62dvh] border-t',
+          panel
+            ? ''
+            : draggingSlider
             ? 'border-transparent bg-transparent/0 backdrop-blur-none'
             : 'border-border bg-background/95 backdrop-blur-xl',
         )}
@@ -990,12 +1013,14 @@ function BlurStage({
   mode,
   focus,
   onFocus,
+  compact,
 }: {
   src: string
   amount: number
   mode: 'whole' | 'focus'
   focus: { x: number; y: number; r: number }
   onFocus: (f: { x: number; y: number }) => void
+  compact?: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -1019,7 +1044,7 @@ function BlurStage({
       <img
         src={src}
         alt="Blur preview"
-        className="max-h-[50dvh] max-w-full select-none"
+        className={cn('max-w-full select-none', compact ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
         style={{ filter: `blur(${amount / 4}px)` }}
       />
       {mode === 'focus' && (
