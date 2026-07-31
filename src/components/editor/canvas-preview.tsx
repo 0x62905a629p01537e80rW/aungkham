@@ -74,6 +74,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       id: string
       pointerId: number
       startDist: number
+      startWrap?: number
       startSize: number
     } | null>(null)
     const lastTapRef = useRef<{ id: string; time: number } | null>(null)
