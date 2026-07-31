@@ -103,6 +103,16 @@ let catalogCache: RemoteFont[] | null = null
 
 export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
   if (catalogCache && !force) return catalogCache
+  try {
+    catalogCache = withBundled(await fetchGithubFonts())
+  } catch {
+    // GitHub unreachable — the bundled Myanmar fonts still work
+    catalogCache = withBundled([])
+  }
+  return catalogCache
+}
+
+async function fetchGithubFonts(): Promise<RemoteFont[]> {
 
   // 1) optional hand-written index
   try {
@@ -126,10 +136,7 @@ export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
           }
         })
         .filter(Boolean) as RemoteFont[]
-      if (list.length) {
-        catalogCache = list
-        return list
-      }
+      if (list.length) return list
     }
   } catch {
     /* fall through */
@@ -152,7 +159,6 @@ export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
       url: i.download_url ?? `${BASE}/${encodeURIComponent(i.name)}`,
       size: i.size,
     }))
-  catalogCache = list
   return list
 }
 
