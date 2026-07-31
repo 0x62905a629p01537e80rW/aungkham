@@ -1,5 +1,8 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   CopyPlus,
   MoveDiagonal2,
   MoveHorizontal,
@@ -145,6 +148,20 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     const rafRef = useRef<number | null>(null)
     const pendingRef = useRef<{ scale: number; tx: number; ty: number } | null>(null)
 
+    // While the view is actively moving we promote the canvas to its own GPU
+    // layer for smoothness; once it settles we drop the promotion so text and
+    // artwork re-rasterize crisply at the current zoom instead of staying blurry.
+    const [interacting, setInteracting] = useState(false)
+    const interactTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+    function markInteracting() {
+      setInteracting(true)
+      if (interactTimer.current) clearTimeout(interactTimer.current)
+      interactTimer.current = setTimeout(() => setInteracting(false), 220)
+    }
+    useEffect(() => () => {
+      if (interactTimer.current) clearTimeout(interactTimer.current)
+    }, [])
+
     function measureBase() {
       const rect = containerRef.current?.getBoundingClientRect()
       if (!rect) return
@@ -155,7 +172,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function clampView(v: { scale: number; tx: number; ty: number }) {
       // Free movement: the image can be zoomed out below fit size and dragged
       // anywhere inside the frame, keeping a bit of it always reachable.
-      const scale = Math.max(0.4, Math.min(8, v.scale))
+      // Practically unlimited zoom: deep zoom stays available for fine nudging.
+      const scale = Math.max(0.2, Math.min(64, v.scale))
       if (!baseSize.current.w) measureBase()
       const { w, h } = baseSize.current
       const maxX = (w * scale) / 2 + w / 2
@@ -172,6 +190,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function commitView(v: { scale: number; tx: number; ty: number }) {
       pendingRef.current = clampView(v)
       viewRef.current = pendingRef.current
+      markInteracting()
       if (rafRef.current != null) return
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = null
@@ -653,6 +672,33 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       <CopyPlus className="size-4" strokeWidth={2.25} />
                     </button>
 
+                    {!layer.graphic && (
+                    <button
+                      type="button"
+                      aria-label={`Text align: ${layer.align}`}
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        const order = ['left', 'center', 'right'] as const
+                        const next = order[(order.indexOf(layer.align as typeof order[number]) + 1) % order.length]
+                        onChange?.(layer.id, { align: next })
+                      }}
+                      style={{ left: hx('100%'), top: hy('50%'), transform: hTr(1, 0) }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      {layer.align === 'left' ? (
+                        <AlignLeft className="size-4" strokeWidth={2.25} />
+                      ) : layer.align === 'right' ? (
+                        <AlignRight className="size-4" strokeWidth={2.25} />
+                      ) : (
+                        <AlignCenter className="size-4" strokeWidth={2.25} />
+                      )}
+                    </button>
+                    )}
+
                     <button
                       type="button"
                       aria-label="Stretch vertically"
@@ -711,8 +757,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           style={{
             transform: `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.scale})`,
             transformOrigin: 'center center',
-            willChange: 'transform',
-            backfaceVisibility: 'hidden',
+            willChange: interacting ? 'transform' : 'auto',
+            backfaceVisibility: interacting ? 'hidden' : 'visible',
           }}
         >
 
@@ -733,7 +779,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             decoding="async"
             fetchPriority="high"
             draggable={false}
-            style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
+            style={
+              interacting
+                ? { transform: 'translateZ(0)', backfaceVisibility: 'hidden' }
+                : undefined
+            }
           />
 
 
