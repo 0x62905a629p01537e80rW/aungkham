@@ -15,6 +15,19 @@ export interface RemoteFont {
 }
 
 const BASE = 'https://myandev.github.io/Fonts'
+import bundledMm from './bundled-mm-fonts.json'
+
+/** Myanmar fonts bundled with the app (CDN hosted) — always free. */
+export const BUNDLED_MM_FONTS: RemoteFont[] = (
+  bundledMm as { name: string; file: string; url: string; size?: number }[]
+).map((f) => ({ name: f.name, file: f.file, url: f.url, size: f.size }))
+
+const bundledNames = new Set(BUNDLED_MM_FONTS.map((f) => f.name.toLowerCase()))
+
+function withBundled(list: RemoteFont[]): RemoteFont[] {
+  return [...BUNDLED_MM_FONTS, ...list.filter((f) => !bundledNames.has(f.name.toLowerCase()))]
+}
+
 const INDEX_URL = `${BASE}/fonts.json`
 const CHECK_URL = `${BASE}/check.json`
 const API_URL = 'https://api.github.com/repos/myandev/myandev.github.io/contents/Fonts'
@@ -90,6 +103,16 @@ let catalogCache: RemoteFont[] | null = null
 
 export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
   if (catalogCache && !force) return catalogCache
+  try {
+    catalogCache = withBundled(await fetchGithubFonts())
+  } catch {
+    // GitHub unreachable — the bundled Myanmar fonts still work
+    catalogCache = withBundled([])
+  }
+  return catalogCache
+}
+
+async function fetchGithubFonts(): Promise<RemoteFont[]> {
 
   // 1) optional hand-written index
   try {
@@ -113,10 +136,7 @@ export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
           }
         })
         .filter(Boolean) as RemoteFont[]
-      if (list.length) {
-        catalogCache = list
-        return list
-      }
+      if (list.length) return list
     }
   } catch {
     /* fall through */
@@ -139,7 +159,6 @@ export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
       url: i.download_url ?? `${BASE}/${encodeURIComponent(i.name)}`,
       size: i.size,
     }))
-  catalogCache = list
   return list
 }
 
