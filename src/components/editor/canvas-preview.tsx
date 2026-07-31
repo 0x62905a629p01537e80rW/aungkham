@@ -148,6 +148,20 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     const rafRef = useRef<number | null>(null)
     const pendingRef = useRef<{ scale: number; tx: number; ty: number } | null>(null)
 
+    // While the view is actively moving we promote the canvas to its own GPU
+    // layer for smoothness; once it settles we drop the promotion so text and
+    // artwork re-rasterize crisply at the current zoom instead of staying blurry.
+    const [interacting, setInteracting] = useState(false)
+    const interactTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+    function markInteracting() {
+      setInteracting(true)
+      if (interactTimer.current) clearTimeout(interactTimer.current)
+      interactTimer.current = setTimeout(() => setInteracting(false), 220)
+    }
+    useEffect(() => () => {
+      if (interactTimer.current) clearTimeout(interactTimer.current)
+    }, [])
+
     function measureBase() {
       const rect = containerRef.current?.getBoundingClientRect()
       if (!rect) return
