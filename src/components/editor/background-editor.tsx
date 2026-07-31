@@ -1018,6 +1018,7 @@ function BlurStage({
   mode: 'whole' | 'focus'
   focus: { x: number; y: number; r: number }
   onFocus: (f: { x: number; y: number }) => void
+  compact?: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -1041,7 +1042,7 @@ function BlurStage({
       <img
         src={src}
         alt="Blur preview"
-        className="max-h-[50dvh] max-w-full select-none"
+        className={cn('max-w-full select-none', compact ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
         style={{ filter: `blur(${amount / 4}px)` }}
       />
       {mode === 'focus' && (
