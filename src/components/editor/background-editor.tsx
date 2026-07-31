@@ -394,6 +394,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
             amount={blurAmount}
             mode={blurMode}
             focus={focus}
+            compact={panel}
             onFocus={(f) => setFocus((p) => ({ ...p, ...f }))}
           />
         ) : (
