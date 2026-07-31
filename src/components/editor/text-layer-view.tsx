@@ -98,7 +98,11 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
     textAlign: layer.align,
     letterSpacing: `${layer.letterSpacing / 100}em`,
     lineHeight: layer.lineHeight,
-    whiteSpace: 'pre',
+    whiteSpace: layer.wrapWidth ? 'pre-wrap' : 'pre',
+    width: layer.wrapWidth ? `${layer.wrapWidth}cqw` : undefined,
+    maxWidth: layer.wrapWidth ? `${layer.wrapWidth}cqw` : undefined,
+    overflowWrap: layer.wrapWidth ? 'break-word' : undefined,
+    wordBreak: layer.wrapWidth ? 'break-word' : undefined,
     textShadow: shadows.length ? shadows.join(', ') : 'none',
     WebkitTextStrokeWidth: layer.strokeWidth > 0 ? `${layer.strokeWidth / 20}cqh` : undefined,
     WebkitTextStrokeColor:
