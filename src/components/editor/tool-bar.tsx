@@ -121,6 +121,7 @@ interface ToolBarProps {
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
   onReplaceImage?: () => void
   onOpenTemplates?: () => void
+  onInsertElement?: (tab: 'stickers' | 'shapes' | 'overlay') => void
   onImageTool?: (
     tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg',
   ) => void
@@ -218,6 +219,7 @@ export function ToolBar({
   onMoveLayer,
   onReplaceImage,
   onOpenTemplates,
+  onInsertElement,
   onImageTool,
   autoOpenTool,
   onAutoOpenHandled,
@@ -325,6 +327,27 @@ export function ToolBar({
             {label}
           </button>
         ))}
+        {onInsertElement && (
+          <>
+            <span className="mx-1 h-6 w-px shrink-0 bg-border/60" />
+            {([
+              { id: 'stickers', label: 'Stickers', Icon: Smile },
+              { id: 'shapes', label: 'Shapes', Icon: Shapes },
+              { id: 'overlay', label: 'Overlays', Icon: Layers2 },
+            ] as const).map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                type="button"
+                disabled={!!selected}
+                onClick={() => onInsertElement(id)}
+                className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
+              >
+                <Icon className="size-[17px]" />
+                {label}
+              </button>
+            ))}
+          </>
+        )}
       </div>
 
       <div className="overflow-x-auto perf-scroll px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
