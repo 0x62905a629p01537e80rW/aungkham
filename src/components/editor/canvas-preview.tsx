@@ -675,27 +675,26 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                     {!layer.graphic && (
                     <button
                       type="button"
-                      aria-label={`Text align: ${layer.align}`}
-                      onPointerDown={(e) => {
+                      aria-label="Text box width (drag to wrap, double-tap to reset)"
+                      onPointerDown={(e) => handleWrapDown(e, layer)}
+                      onPointerMove={handleWrapMove}
+                      onPointerUp={handleWrapUp}
+                      onPointerCancel={handleWrapUp}
+                      onClick={(e) => e.stopPropagation()}
+                      onDoubleClick={(e) => {
                         e.stopPropagation()
-                        e.preventDefault()
+                        onChange?.(layer.id, { wrapWidth: undefined })
                       }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        const order = ['left', 'center', 'right'] as const
-                        const next = order[(order.indexOf(layer.align as typeof order[number]) + 1) % order.length]
-                        onChange?.(layer.id, { align: next })
+                      style={{
+                        cursor: 'ew-resize',
+                        touchAction: 'none',
+                        left: hx('100%'),
+                        top: hy('50%'),
+                        transform: hTr(1, 0),
                       }}
-                      style={{ left: hx('100%'), top: hy('50%'), transform: hTr(1, 0) }}
                       className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
                     >
-                      {layer.align === 'left' ? (
-                        <AlignLeft className="size-4" strokeWidth={2.25} />
-                      ) : layer.align === 'right' ? (
-                        <AlignRight className="size-4" strokeWidth={2.25} />
-                      ) : (
-                        <AlignCenter className="size-4" strokeWidth={2.25} />
-                      )}
+                      <WrapText className="size-4" strokeWidth={2.25} />
                     </button>
                     )}
 
