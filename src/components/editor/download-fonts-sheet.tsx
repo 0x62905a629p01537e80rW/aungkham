@@ -14,7 +14,15 @@ import {
   type RemoteFont,
 } from '@/lib/remote-fonts'
 
-export function DownloadFontsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function DownloadFontsSheet({
+  open,
+  onClose,
+  inline = false,
+}: {
+  open: boolean
+  onClose?: () => void
+  inline?: boolean
+}) {
   const [fonts, setFonts] = useState<RemoteFont[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -63,8 +71,20 @@ export function DownloadFontsSheet({ open, onClose }: { open: boolean; onClose: 
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-xl">
-      <div className="flex items-center gap-2 border-b border-border/50 px-4 py-3">
+    <div
+      className={cn(
+        'flex flex-col',
+        inline
+          ? 'min-h-0 flex-1'
+          : 'fixed inset-0 z-50 bg-background/95 backdrop-blur-xl',
+      )}
+    >
+      <div
+        className={cn(
+          'flex items-center gap-2',
+          inline ? 'pb-1' : 'border-b border-border/50 px-4 py-3',
+        )}
+      >
         <h2 className="text-sm font-semibold text-foreground">Download Fonts</h2>
         <button
           type="button"
@@ -74,17 +94,19 @@ export function DownloadFontsSheet({ open, onClose }: { open: boolean; onClose: 
         >
           <RefreshCw className={cn('size-4', loading && 'animate-spin')} />
         </button>
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={onClose}
-          className="flex size-8 items-center justify-center rounded-full bg-foreground/10 text-foreground active:scale-90"
-        >
-          <X className="size-4" />
-        </button>
+        {!inline && (
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="flex size-8 items-center justify-center rounded-full bg-foreground/10 text-foreground active:scale-90"
+          >
+            <X className="size-4" />
+          </button>
+        )}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-2 px-4 py-3">
+      <div className={cn('flex min-h-0 flex-1 flex-col gap-2', inline ? 'py-1' : 'px-4 py-3')}>
         <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-border/60 bg-foreground/5 px-3 py-2">
           <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
