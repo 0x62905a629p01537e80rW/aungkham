@@ -41,7 +41,6 @@ const FEATURED = UPLOADED_TEMPLATES
   const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('create')
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
-  const [fontsOpen, setFontsOpen] = useState(false)
   const [projects, setProjects] = useState<SavedProject[]>([])
 
   useEffect(() => {
@@ -259,24 +258,10 @@ const FEATURED = UPLOADED_TEMPLATES
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setFontsOpen(true)}
-              className="glass-tile flex items-center gap-3 rounded-[1.75rem] px-4 py-3.5 text-left transition active:scale-[0.99]"
-            >
-              <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary">
-                <TypeOutline className="size-5" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold text-foreground">Download Fonts</span>
-                <span className="block text-[11px] text-muted-foreground">
-                  Preview and save fonts for offline use
-                </span>
-              </span>
-            </button>
-
           </div>
         )}
+
+        {tab === 'fonts' && <DownloadFontsSheet open inline />}
 
         {tab === 'templates' &&
           (onApplyTemplate ? (
@@ -360,8 +345,6 @@ const FEATURED = UPLOADED_TEMPLATES
           onImage(makeBackgroundDataUrl(css))
         }}
       />
-
-      <DownloadFontsSheet open={fontsOpen} onClose={() => setFontsOpen(false)} />
     </div>
   )
 }
