@@ -58,7 +58,9 @@ export function StoreAssetsGrid({
   }
 
   useEffect(() => {
-    void load()
+    // Always re-fetch listings when the section opens so freshly purged
+    // jsDelivr uploads appear without tapping Refresh.
+    void load(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind])
 
