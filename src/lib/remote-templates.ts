@@ -7,9 +7,9 @@ import type { TextLayer } from '@/lib/text-layer'
 import type { TemplateDef, TemplateLang } from '@/lib/templates'
 
 /** jsDelivr edge CDN — no bandwidth cap, no rate limit */
-const BASE = 'https://cdn.jsdelivr.net/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW@main/Templates'
-const INDEX_URL = `${BASE}/templates.json`
-const CHECK_URL = `${BASE}/check.json`
+import { cdnBase, cdnListUrl } from './cdn-ref'
+
+const base = () => cdnBase('Templates')
 const LIST_URL =
   'https://data.jsdelivr.com/v1/packages/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW@main?structure=flat'
 const FILE_RE = /\.json$/i
