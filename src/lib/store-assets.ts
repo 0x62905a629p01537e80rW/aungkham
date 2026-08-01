@@ -4,7 +4,7 @@
  * Each folder carries its own check.json describing free/premium tiers.
  * Downloaded assets are kept offline in IndexedDB.
  */
-import { cdnBase, cdnFetch, cdnListUrl, ghListUrl, rawBase } from './cdn-ref'
+import { cdnBase, cdnFetch, cdnListUrl, ghListUrl } from './cdn-ref'
 
 export type StoreKind = 'Background' | 'Shapes' | 'Stickers'
 export const STORE_KINDS: StoreKind[] = ['Background', 'Shapes', 'Stickers']

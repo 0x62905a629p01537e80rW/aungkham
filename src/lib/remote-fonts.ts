@@ -14,7 +14,7 @@ export interface RemoteFont {
   size?: number
 }
 
-import { cdnBase, cdnFetch, cdnListUrl, ghListUrl, rawBase } from './cdn-ref'
+import { cdnBase, cdnFetch, cdnListUrl, ghListUrl } from './cdn-ref'
 
 /** jsDelivr edge CDN, pinned to the newest commit so uploads appear at once */
 const base = () => cdnBase('Fonts')
