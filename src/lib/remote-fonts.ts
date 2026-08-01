@@ -94,15 +94,15 @@ let catalogCache: RemoteFont[] | null = null
 export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
   if (catalogCache && !force) return catalogCache
   try {
-    catalogCache = await fetchGithubFonts()
+    catalogCache = await fetchCatalog()
   } catch {
-    // GitHub unreachable — no catalog available
+    // CDN unreachable — no catalog available
     catalogCache = []
   }
   return catalogCache
 }
 
-async function fetchGithubFonts(): Promise<RemoteFont[]> {
+async function fetchCatalog(): Promise<RemoteFont[]> {
 
   // 1) optional hand-written index
   try {
@@ -132,36 +132,12 @@ async function fetchGithubFonts(): Promise<RemoteFont[]> {
     /* fall through */
   }
 
-  // 2) jsDelivr data API (no rate limit)
-  try {
-    const list = await fetchJsdelivrFonts()
-    if (list.length) return list
-  } catch {
-    /* fall through */
-  }
-
-  // 3) GitHub contents API (rate-limited: 60/hr per IP)
-  const res = await fetch(API_URL, { headers: { Accept: 'application/vnd.github+json' } })
-  if (!res.ok) throw new Error('Could not load the font list')
-  const items = (await res.json()) as {
-    name: string
-    type: string
-    size: number
-    download_url: string | null
-  }[]
-  const list = items
-    .filter((i) => i.type === 'file' && FONT_RE.test(i.name))
-    .map((i) => ({
-      name: prettyName(i.name),
-      file: i.name,
-      url: `${BASE}/${encodeURIComponent(i.name)}`,
-      size: i.size,
-    }))
-  return list
+  // 2) jsDelivr file listing (no rate limit)
+  return fetchJsdelivrFonts()
 }
 
 async function fetchJsdelivrFonts(): Promise<RemoteFont[]> {
-  const res = await fetch(JSDELIVR_LIST_URL)
+  const res = await fetch(LIST_URL)
   if (!res.ok) throw new Error('jsdelivr list failed')
   const json = (await res.json()) as { files?: { name: string; size?: number }[] }
   return (json.files ?? [])
