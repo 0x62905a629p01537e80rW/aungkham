@@ -122,26 +122,6 @@ export function TemplateGallery({
 
   return (
     <div className={cn('flex flex-col', scroll && 'min-h-0 flex-1', className)}>
-      <div className="shrink-0 pb-2">
-        <GlassTabs
-          size="sm"
-          value={view}
-          onChange={(v) => setView(v as 'gallery' | 'download')}
-          items={[
-            { key: 'gallery', label: 'Templates' },
-            { key: 'download', label: 'Download' },
-          ]}
-        />
-      </div>
-
-      {view === 'download' ? (
-        <div className={cn(scroll ? 'min-h-0 flex-1 overflow-y-auto perf-scroll no-scrollbar' : '')}>
-          <DownloadTemplatesPanel
-            onApply={(layers, bg) => (onRequestChoice ? onRequestChoice(layers, bg) : onApply?.(layers, bg))}
-          />
-        </div>
-      ) : (
-      <>
       <div className="sticky top-0 z-10 -mx-1 bg-background/80 px-1 pt-1 backdrop-blur-xl">
         <div className="flex shrink-0 items-center gap-1 pb-2">
           <button
@@ -254,8 +234,6 @@ export function TemplateGallery({
 
 
       </div>
-      </>
-      )}
     </div>
   )
 }
