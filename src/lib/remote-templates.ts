@@ -7,7 +7,7 @@ import type { TextLayer } from '@/lib/text-layer'
 import type { TemplateDef, TemplateLang } from '@/lib/templates'
 
 /** jsDelivr edge CDN — no bandwidth cap, no rate limit */
-import { cdnBase, cdnListUrl } from './cdn-ref'
+import { cdnBase, cdnFetch, cdnListUrl, ghListUrl } from './cdn-ref'
 
 const base = () => cdnBase('Templates')
 const FILE_RE = /\.json$/i
@@ -43,7 +43,7 @@ export async function fetchTemplateTiers(force = false): Promise<Record<string, 
   if (tierCache && !force) return tierCache
   const map: Record<string, TemplateTier> = {}
   try {
-    const res = await fetch(`${await base()}/check.json?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await cdnFetch(`${await base()}/check.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const json = (await res.json()) as {
         templates?: { premium?: string[]; free?: string[] }
@@ -87,7 +87,7 @@ export async function fetchRemoteTemplates(force = false): Promise<RemoteTemplat
 
   // 1) optional hand-written index
   try {
-    const res = await fetch(`${BASE}/templates.json?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await cdnFetch(`${BASE}/templates.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { templates?: unknown[] })?.templates ?? [])
@@ -115,10 +115,16 @@ export async function fetchRemoteTemplates(force = false): Promise<RemoteTemplat
   }
 
   // 2) jsDelivr file listing (no rate limit)
-  const res = await fetch(await cdnListUrl())
-  if (!res.ok) throw new Error('Could not load the template list')
-  const json = (await res.json()) as { files?: { name: string; size?: number }[] }
-  const list = (json.files ?? [])
+  let files: { name: string; size?: number }[] = []
+  try {
+    const res = await fetch(await cdnListUrl())
+    if (!res.ok) throw new Error('list failed')
+    const json = (await res.json()) as { files?: { name: string; size?: number }[] }
+    files = json.files ?? []
+  } catch {
+    files = []
+  }
+  const list = files
     .filter(
       (f) =>
         f.name.startsWith('/Templates/') &&
@@ -134,6 +140,25 @@ export async function fetchRemoteTemplates(force = false): Promise<RemoteTemplat
         size: f.size,
       }
     })
+  if (!list.length) {
+    // jsDelivr listing empty or stale — read the folder straight from GitHub
+    const gh = await fetch(ghListUrl('Templates'))
+    if (!gh.ok) throw new Error('Could not load the template list')
+    const json = (await gh.json()) as { name: string; size?: number; type?: string }[]
+    const ghList = (Array.isArray(json) ? json : [])
+      .filter(
+        (f) =>
+          f.type !== 'dir' && FILE_RE.test(f.name) && !/^(check|templates)\.json$/i.test(f.name),
+      )
+      .map((f) => ({
+        name: prettyName(f.name),
+        file: f.name,
+        url: `${BASE}/${encodeURIComponent(f.name)}`,
+        size: f.size,
+      }))
+    catalogCache = ghList
+    return ghList
+  }
   catalogCache = list
   return list
 }
@@ -245,7 +270,7 @@ export function listDownloadedTemplateDefs(): TemplateDef[] {
 }
 
 async function fetchPack(pack: RemoteTemplatePack): Promise<RawTemplate[]> {
-  const res = await fetch(pack.url)
+  const res = await cdnFetch(pack.url)
   if (!res.ok) throw new Error('download failed')
   const json = (await res.json()) as { templates?: RawTemplate[] } | RawTemplate[]
   const list = Array.isArray(json) ? json : (json.templates ?? [])
