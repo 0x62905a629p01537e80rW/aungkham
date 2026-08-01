@@ -23,7 +23,12 @@ export interface StoreAsset {
 }
 
 const IMG_RE = /\.(png|jpe?g|webp|svg|gif|avif)$/i
-const folder = (kind: StoreKind) => `Store/${kind}`
+/** Repo folder holding the store sections (note the space in the name). */
+const ROOT = 'Assets Store'
+/** URL-safe path segment, e.g. `Assets%20Store/Shapes` */
+const folder = (kind: StoreKind) => `${encodeURIComponent(ROOT)}/${kind}`
+/** Decoded path prefix as it appears in listings, e.g. `/Assets Store/Shapes/` */
+const listPrefix = (kind: StoreKind) => `/${ROOT}/${kind}/`
 const base = (kind: StoreKind) => cdnBase(folder(kind))
 
 function prettyName(file: string) {
@@ -87,7 +92,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   const hit = catalog.get(kind)
   if (hit && !force) return hit
   const BASE = await base(kind)
-  const prefix = `/${folder(kind)}/`
+  const prefix = listPrefix(kind)
 
   // 1) optional hand-written index
   try {
