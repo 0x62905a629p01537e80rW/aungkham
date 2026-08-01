@@ -106,7 +106,7 @@ async function fetchCatalog(): Promise<RemoteFont[]> {
 
   // 1) optional hand-written index
   try {
-    const res = await cdnFetch(`${BASE}/fonts.json?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await cdnFetch(`${BASE}/fonts.json`)
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { fonts?: unknown[] })?.fonts ?? [])
