@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Check, Crown, Download, X } from 'lucide-react'
 
 
@@ -8,6 +8,11 @@ import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import type { TextLayer } from '@/lib/text-layer'
 import { exportTemplatesJson } from '@/lib/export-templates'
+import {
+  ensureTemplatePacksLoaded,
+  listDownloadedTemplateDefs,
+  subscribeRemoteTemplates,
+} from '@/lib/remote-templates'
 
 import {
   AlertDialog,
@@ -93,12 +98,41 @@ export function TemplateGallery({
   const [group, setGroup] = useState('All')
   const [selectMode, setSelectMode] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
+  const [tick, force] = useState(0)
   const activeGroup = lang === 'EN' && group === 'New' ? 'All' : group
 
-  const list = useMemo(
-    () => TEMPLATES.filter((t) => t.lang === lang && (activeGroup === 'All' || t.group === activeGroup)),
-    [lang, activeGroup],
+  useEffect(() => {
+    void ensureTemplatePacksLoaded().then(() => force((n) => n + 1))
+    return subscribeRemoteTemplates(() => force((n) => n + 1))
+  }, [])
+
+  const downloaded = useMemo(
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => listDownloadedTemplateDefs(),
+    [tick],
   )
+
+  const groups = useMemo(
+    () => [
+      ...TEMPLATE_GROUPS.filter((g) => !(lang === 'EN' && g === 'New')),
+      'Free',
+      'Downloaded',
+    ],
+    [lang],
+  )
+
+  const list = useMemo(() => {
+    if (activeGroup === 'Downloaded') return downloaded
+    return TEMPLATES.filter(
+      (t) =>
+        t.lang === lang &&
+        (activeGroup === 'All'
+          ? true
+          : activeGroup === 'Free'
+            ? t.group !== 'Premium'
+            : t.group === activeGroup),
+    )
+  }, [lang, activeGroup, downloaded])
 
   const toggleSelect = (id: string) =>
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
@@ -106,7 +140,7 @@ export function TemplateGallery({
   const [exporting, setExporting] = useState(false)
 
   const handleExport = async () => {
-    const picked = TEMPLATES.filter((t) => selected.includes(t.id))
+    const picked = list.filter((t) => selected.includes(t.id))
     if (!picked.length || exporting) return
     setExporting(true)
     try {
@@ -172,7 +206,7 @@ export function TemplateGallery({
             size="sm"
             value={activeGroup}
             onChange={(g) => setGroup(g as typeof group)}
-            items={TEMPLATE_GROUPS.filter((g) => !(lang === 'EN' && g === 'New')).map((g) => ({
+            items={groups.map((g) => ({
               key: g,
               label: g,
             }))}
@@ -181,6 +215,12 @@ export function TemplateGallery({
       </div>
 
       <div className={cn(scroll ? 'min-h-0 flex-1 overflow-y-auto perf-scroll no-scrollbar pb-8' : 'pb-2')}>
+
+        {activeGroup === 'Downloaded' && !list.length && (
+          <p className="py-8 text-center text-xs text-muted-foreground">
+            No downloaded templates yet — get them from the Store.
+          </p>
+        )}
 
         <div className="flex flex-col gap-2">
           {list.map((t) => {
