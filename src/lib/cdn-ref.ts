@@ -3,7 +3,7 @@
  * Caching is handled by jsDelivr; the repo owner purges manually after uploads.
  */
 
-const REPO = '0x62905a629p01537e80rW/0x62905a629p01537e80rW'
+const REPO = '0x62905a629p01537e80rW/0x62905a629p01537e80rW.github.io'
 const REF = 'main'
 
 /** `https://cdn.jsdelivr.net/gh/<repo>@main/<folder>` */
