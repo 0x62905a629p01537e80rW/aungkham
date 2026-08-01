@@ -5,6 +5,12 @@ import { cn } from '@/lib/utils'
 import { GlassTabs } from '@/components/ui/glass-tabs'
 import { DEFAULT_STROKE_WIDTH, SHAPES, SHAPE_GROUPS, shapeDataUrl, type ShapeGroup } from '@/lib/shapes'
 import { STICKERS, STICKER_GROUPS, stickerDataUrl } from '@/lib/stickers'
+import {
+  ensureStoreAssetsLoaded,
+  getStoreAssetSrc,
+  listInstalledStoreAssets,
+  subscribeStoreAssets,
+} from '@/lib/store-assets'
 import type { GraphicContent } from '@/lib/text-layer'
 
 interface InsertMenuProps {
@@ -31,6 +37,16 @@ export function InsertMenu({ open, onClose, onInsert, initialTab }: InsertMenuPr
   const [shapeGroup, setShapeGroup] = useState<ShapeGroup>('Basic')
   const [stickerGroup, setStickerGroup] = useState<string>(STICKER_GROUPS[0])
   const galleryRef = useRef<HTMLInputElement>(null)
+  const [, forceStore] = useState(0)
+
+  useEffect(() => subscribeStoreAssets(() => forceStore((n) => n + 1)), [])
+  useEffect(() => {
+    if (open) void ensureStoreAssetsLoaded()
+  }, [open])
+
+  const downloaded = (tab === 'shapes' ? listInstalledStoreAssets('Shapes') : listInstalledStoreAssets('Stickers'))
+    .map((a) => ({ ...a, src: getStoreAssetSrc(a.kind, a.file) }))
+    .filter((a) => !!a.src)
 
   const shapes = useMemo(() => SHAPES.filter((s) => s.group === shapeGroup), [shapeGroup])
   const stickers = useMemo(
@@ -108,6 +124,30 @@ export function InsertMenu({ open, onClose, onInsert, initialTab }: InsertMenuPr
 
 
       <div className="min-h-0 flex-1 overflow-y-auto perf-scroll px-3 pb-8">
+        {tab !== 'overlay' && downloaded.length > 0 && (
+          <div className="pb-3">
+            <p className="pb-1.5 text-[11px] font-semibold text-muted-foreground">Downloaded</p>
+            <div className={cn('grid gap-2', tab === 'shapes' ? 'grid-cols-5' : 'grid-cols-4')}>
+              {downloaded.map((a) => (
+                <button
+                  key={`${a.kind}-${a.file}`}
+                  type="button"
+                  aria-label={a.name}
+                  onClick={() => {
+                    onInsert(
+                      { kind: tab === 'shapes' ? 'sticker' : 'sticker', src: a.src!, aspect: 1 },
+                      a.name,
+                    )
+                    onClose()
+                  }}
+                  className="glass-tile flex aspect-square items-center justify-center rounded-2xl p-2 transition active:scale-95"
+                >
+                  <img src={a.src} alt="" className="size-full object-contain" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {tab === 'overlay' && (
           <div className="mx-auto w-full max-w-sm space-y-3 pt-4">
             <p className="text-center text-xs text-muted-foreground">
