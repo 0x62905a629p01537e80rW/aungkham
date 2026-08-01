@@ -103,7 +103,9 @@ export function DownloadFontsSheet({
     try {
       const list = await fetchRemoteFonts(refresh)
       setFonts(list)
-      void fetchFontTiers(refresh).then(setTiers).catch(() => {})
+      // Tier metadata can change independently from the font catalog, so
+      // refresh it whenever this page opens.
+      void fetchFontTiers(true).then(setTiers).catch(() => {})
       void ensureRemoteFontsLoaded()
     } catch {
       setError("Couldn't load the font list. Check your connection and try again.")
