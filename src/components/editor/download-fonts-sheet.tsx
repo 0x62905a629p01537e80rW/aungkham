@@ -54,6 +54,7 @@ export function DownloadFontsSheet({
   const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
   const [pay, setPay] = useState(false)
   const [limit, setLimit] = useState(20)
+  const [revealed, setRevealed] = useState(0)
   const [previewing, setPreviewing] = useState(false)
   const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -115,7 +116,10 @@ export function DownloadFontsSheet({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
-  useEffect(() => setLimit(20), [tab])
+  useEffect(() => {
+    setLimit(20)
+    setRevealed(0)
+  }, [tab])
 
   const results = useMemo(() => {
     if (tab === 'downloaded') {
@@ -131,25 +135,25 @@ export function DownloadFontsSheet({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fonts, tab, tiers, tick])
 
-  const shown = useMemo(() => results.slice(0, limit), [results, limit])
+  const targets = useMemo(() => results.slice(0, limit), [results, limit])
 
-  // download previews one by one so slow connections still fill in progressively
+  // download previews one by one and reveal each font only once its preview is ready
   useEffect(() => {
     let cancelled = false
-    const pending = shown.filter((f) => !isRemoteFontReady(f.name))
-    if (!pending.length) {
-      setPreviewing(false)
-      return
-    }
-    setPreviewing(true)
     ;(async () => {
-      for (const f of pending) {
+      for (let i = 0; i < targets.length; i++) {
         if (cancelled) return
-        try {
-          await previewRemoteFont(f)
-        } catch {
-          /* skip */
+        const f = targets[i]
+        if (!isRemoteFontReady(f.name)) {
+          setPreviewing(true)
+          try {
+            await previewRemoteFont(f)
+          } catch {
+            /* skip */
+          }
         }
+        if (cancelled) return
+        setRevealed((n) => Math.max(n, i + 1))
       }
       if (!cancelled) setPreviewing(false)
     })()
@@ -157,7 +161,12 @@ export function DownloadFontsSheet({
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shown.map((f) => f.file).join('|')])
+  }, [targets.map((f) => f.file).join('|')])
+
+  const shown = useMemo(
+    () => results.slice(0, Math.min(revealed, limit)),
+    [results, revealed, limit],
+  )
 
   async function download(font: RemoteFont) {
     if (fontTier(font, tiers) === 'premium' && !isPro) {
@@ -417,7 +426,7 @@ export function DownloadFontsSheet({
             )
           })}
 
-          {results.length > 0 &&
+          {results.length > 0 && !previewing && shown.length >= Math.min(limit, results.length) &&
             (limit < results.length ? (
               <button
                 type="button"
