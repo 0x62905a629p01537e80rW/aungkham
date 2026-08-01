@@ -100,10 +100,11 @@ export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
 }
 
 async function fetchCatalog(): Promise<RemoteFont[]> {
+  const BASE = await base()
 
   // 1) optional hand-written index
   try {
-    const res = await fetch(`${INDEX_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await fetch(`${BASE}/fonts.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { fonts?: unknown[] })?.fonts ?? [])
@@ -130,11 +131,11 @@ async function fetchCatalog(): Promise<RemoteFont[]> {
   }
 
   // 2) jsDelivr file listing (no rate limit)
-  return fetchJsdelivrFonts()
+  return fetchJsdelivrFonts(BASE)
 }
 
-async function fetchJsdelivrFonts(): Promise<RemoteFont[]> {
-  const res = await fetch(LIST_URL)
+async function fetchJsdelivrFonts(BASE: string): Promise<RemoteFont[]> {
+  const res = await fetch(await cdnListUrl())
   if (!res.ok) throw new Error('jsdelivr list failed')
   const json = (await res.json()) as { files?: { name: string; size?: number }[] }
   return (json.files ?? [])
