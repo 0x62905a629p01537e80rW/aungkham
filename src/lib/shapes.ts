@@ -3,6 +3,8 @@
  * Every shape is a path string inside a 0 0 100 100 viewBox.
  */
 
+import { Y2K_SHAPES } from './shapes-y2k'
+
 export interface ShapeDef {
   id: string
   name: string
@@ -25,10 +27,12 @@ export type ShapeGroup =
   | 'Badges'
   | 'Rings'
   | 'Waves'
+  | 'Y2K'
 
 export const SHAPE_GROUPS: ShapeGroup[] = [
   'Basic',
   'Outlined',
+  'Y2K',
   'Stars',
   'Bursts',
   'Scallop',
@@ -326,6 +330,9 @@ function build(): ShapeDef[] {
   for (let w = 3; w <= 16; w += 1) {
     ;[3, 6, 9].forEach((amp, i) => add('Waves', `Wave ${w}-${i + 1}`, wavyCircle(w, amp)))
   }
+
+  // Y2K pack
+  Y2K_SHAPES.forEach((s) => add('Y2K', s.name, s.path))
 
   return out
 }
