@@ -14,7 +14,7 @@ export interface RemoteFont {
   size?: number
 }
 
-import { cdnBase, cdnFetch, cdnListUrl, ghListUrl } from './cdn-ref'
+import { cdnBase, cdnFetch, cdnListUrl, ghListUrl, rawBase } from './cdn-ref'
 
 /** jsDelivr edge CDN, pinned to the newest commit so uploads appear at once */
 const base = () => cdnBase('Fonts')
@@ -35,8 +35,19 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
   if (tierCache && !force) return tierCache
   const map: Record<string, FontTier> = {}
   try {
-    const res = await cdnFetch(`${await base()}/check.json?t=${Date.now()}`, { cache: 'no-store' })
-    if (res.ok) {
+    const cacheBuster = Date.now()
+    const cdnUrl = `${await base()}/check.json?t=${cacheBuster}`
+    const rawUrl = `${rawBase('Fonts')}/check.json?t=${cacheBuster}`
+    const [cdnResult, rawResult] = await Promise.allSettled([
+      cdnFetch(cdnUrl, { cache: 'no-store' }),
+      fetch(rawUrl, { cache: 'no-store' }),
+    ])
+    const rawResponse = rawResult.status === 'fulfilled' ? rawResult.value : null
+    const cdnResponse = cdnResult.status === 'fulfilled' ? cdnResult.value : null
+    // Raw is the freshness fallback for tier metadata when jsDelivr still
+    // returns an older successful response after a purge.
+    const res = rawResponse?.ok ? rawResponse : cdnResponse
+    if (res?.ok) {
       const json = (await res.json()) as {
         fonts?: { premium?: string[]; free?: string[] }
         premium?: string[]
