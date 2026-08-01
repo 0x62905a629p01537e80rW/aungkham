@@ -1,5 +1,5 @@
 /**
- * Templates published at https://cdn.jsdelivr.net/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW/Templates
+ * Templates published at https://cdn.jsdelivr.net/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW.github.io/Templates
  * Each file is an exported "my templates" JSON. Downloaded files are kept
  * offline in IndexedDB and registered as regular templates.
  */

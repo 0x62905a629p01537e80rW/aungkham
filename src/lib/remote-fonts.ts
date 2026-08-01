@@ -1,5 +1,5 @@
 /**
- * Fonts published at https://cdn.jsdelivr.net/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW/Fonts
+ * Fonts published at https://cdn.jsdelivr.net/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW.github.io/Fonts
  * Listed at runtime, downloaded on demand and kept offline in IndexedDB.
  */
 
