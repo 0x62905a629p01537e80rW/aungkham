@@ -1,19 +1,17 @@
 /**
- * Templates published at https://myandev.github.io/Templates
+ * Templates published at https://cdn.jsdelivr.net/gh/myandev/myandev.github.io/Templates
  * Each file is an exported "my templates" JSON. Downloaded files are kept
  * offline in IndexedDB and registered as regular templates.
  */
 import type { TextLayer } from '@/lib/text-layer'
 import type { TemplateDef, TemplateLang } from '@/lib/templates'
 
-const PAGES_BASE = 'https://myandev.github.io/Templates'
 /** jsDelivr edge CDN — no bandwidth cap, no rate limit */
 const BASE = 'https://cdn.jsdelivr.net/gh/myandev/myandev.github.io@main/Templates'
-const INDEX_URL = `${PAGES_BASE}/templates.json`
-const CHECK_URL = `${PAGES_BASE}/check.json`
-const JSDELIVR_LIST_URL =
+const INDEX_URL = `${BASE}/templates.json`
+const CHECK_URL = `${BASE}/check.json`
+const LIST_URL =
   'https://data.jsdelivr.com/v1/packages/gh/myandev/myandev.github.io@main?structure=flat'
-const API_URL = 'https://api.github.com/repos/myandev/myandev.github.io/contents/Templates'
 const FILE_RE = /\.json$/i
 
 export interface RemoteTemplatePack {
@@ -47,10 +45,7 @@ export async function fetchTemplateTiers(force = false): Promise<Record<string, 
   if (tierCache && !force) return tierCache
   const map: Record<string, TemplateTier> = {}
   try {
-    let res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' }).catch(
-      () => null as Response | null,
-    )
-    if (!res?.ok) res = await fetch(`${BASE}/check.json`, { cache: 'no-store' })
+    const res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const json = (await res.json()) as {
         templates?: { premium?: string[]; free?: string[] }

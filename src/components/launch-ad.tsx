@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const BASE = 'https://myandev.github.io'
+const BASE = 'https://cdn.jsdelivr.net/gh/myandev/myandev.github.io@main'
 export const AD_EVENT = 'app:show-ad'
 
 /** In-memory (per app run). Resets when the app is closed or fully reloaded. */
