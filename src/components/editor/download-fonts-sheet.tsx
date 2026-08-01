@@ -53,6 +53,8 @@ export function DownloadFontsSheet({
   const [tick, force] = useState(0)
   const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
   const [pay, setPay] = useState(false)
+  const [limit, setLimit] = useState(20)
+  const [previewing, setPreviewing] = useState(false)
   const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -102,8 +104,6 @@ export function DownloadFontsSheet({
       setFonts(list)
       void fetchFontTiers(refresh).then(setTiers).catch(() => {})
       void ensureRemoteFontsLoaded()
-      // preview the first screenful so samples render in their own typeface
-      list.slice(0, 12).forEach((f) => void previewRemoteFont(f).catch(() => {}))
     } catch {
       setError("Couldn't load the font list. Check your connection and try again.")
     }
@@ -114,6 +114,8 @@ export function DownloadFontsSheet({
     if (open) void load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
+
+  useEffect(() => setLimit(20), [tab])
 
   const results = useMemo(() => {
     if (tab === 'downloaded') {
@@ -128,6 +130,34 @@ export function DownloadFontsSheet({
     return fonts
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fonts, tab, tiers, tick])
+
+  const shown = useMemo(() => results.slice(0, limit), [results, limit])
+
+  // download previews one by one so slow connections still fill in progressively
+  useEffect(() => {
+    let cancelled = false
+    const pending = shown.filter((f) => !isRemoteFontReady(f.name))
+    if (!pending.length) {
+      setPreviewing(false)
+      return
+    }
+    setPreviewing(true)
+    ;(async () => {
+      for (const f of pending) {
+        if (cancelled) return
+        try {
+          await previewRemoteFont(f)
+        } catch {
+          /* skip */
+        }
+      }
+      if (!cancelled) setPreviewing(false)
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shown.map((f) => f.file).join('|')])
 
   async function download(font: RemoteFont) {
     if (fontTier(font, tiers) === 'premium' && !isPro) {
