@@ -65,7 +65,6 @@ export function StoreAssetsGrid({
   const all = useMemo(() => {
     const remote = new Set(assets.map((a) => a.file))
     return [...assets, ...listInstalledStoreAssets(kind).filter((a) => !remote.has(a.file))]
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assets, kind])
 
   async function download(asset: StoreAsset) {
