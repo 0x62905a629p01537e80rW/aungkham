@@ -1,5 +1,5 @@
 /**
- * Fonts published at https://cdn.jsdelivr.net/gh/myandev/myandev.github.io/Fonts
+ * Fonts published at https://cdn.jsdelivr.net/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW/Fonts
  * Listed at runtime, downloaded on demand and kept offline in IndexedDB.
  */
 
@@ -15,12 +15,12 @@ export interface RemoteFont {
 }
 
 /** jsDelivr edge CDN — no bandwidth cap, no rate limit, better SEA coverage */
-const BASE = 'https://cdn.jsdelivr.net/gh/myandev/myandev.github.io@main/Fonts'
+const BASE = 'https://cdn.jsdelivr.net/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW@main/Fonts'
 
 const INDEX_URL = `${BASE}/fonts.json`
 const CHECK_URL = `${BASE}/check.json`
 const LIST_URL =
-  'https://data.jsdelivr.com/v1/packages/gh/myandev/myandev.github.io@main?structure=flat'
+  'https://data.jsdelivr.com/v1/packages/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW@main?structure=flat'
 const FONT_RE = /\.(ttf|otf|woff2?)$/i
 
 /* ---------------- free / premium tiers ---------------- */
