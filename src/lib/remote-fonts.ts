@@ -14,13 +14,10 @@ export interface RemoteFont {
   size?: number
 }
 
-/** jsDelivr edge CDN — no bandwidth cap, no rate limit, better SEA coverage */
-const BASE = 'https://cdn.jsdelivr.net/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW@main/Fonts'
+import { cdnBase, cdnListUrl } from './cdn-ref'
 
-const INDEX_URL = `${BASE}/fonts.json`
-const CHECK_URL = `${BASE}/check.json`
-const LIST_URL =
-  'https://data.jsdelivr.com/v1/packages/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW@main?structure=flat'
+/** jsDelivr edge CDN, pinned to the newest commit so uploads appear at once */
+const base = () => cdnBase('Fonts')
 const FONT_RE = /\.(ttf|otf|woff2?)$/i
 
 /* ---------------- free / premium tiers ---------------- */
@@ -38,7 +35,7 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
   if (tierCache && !force) return tierCache
   const map: Record<string, FontTier> = {}
   try {
-    const res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await fetch(`${await base()}/check.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const json = (await res.json()) as {
         fonts?: { premium?: string[]; free?: string[] }
@@ -103,10 +100,11 @@ export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
 }
 
 async function fetchCatalog(): Promise<RemoteFont[]> {
+  const BASE = await base()
 
   // 1) optional hand-written index
   try {
-    const res = await fetch(`${INDEX_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await fetch(`${BASE}/fonts.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { fonts?: unknown[] })?.fonts ?? [])
@@ -133,11 +131,11 @@ async function fetchCatalog(): Promise<RemoteFont[]> {
   }
 
   // 2) jsDelivr file listing (no rate limit)
-  return fetchJsdelivrFonts()
+  return fetchJsdelivrFonts(BASE)
 }
 
-async function fetchJsdelivrFonts(): Promise<RemoteFont[]> {
-  const res = await fetch(LIST_URL)
+async function fetchJsdelivrFonts(BASE: string): Promise<RemoteFont[]> {
+  const res = await fetch(await cdnListUrl())
   if (!res.ok) throw new Error('jsdelivr list failed')
   const json = (await res.json()) as { files?: { name: string; size?: number }[] }
   return (json.files ?? [])
