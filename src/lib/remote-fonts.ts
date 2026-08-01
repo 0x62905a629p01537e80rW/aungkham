@@ -14,7 +14,7 @@ export interface RemoteFont {
   size?: number
 }
 
-import { cdnBase, cdnFetch, cdnListUrl, ghListUrl } from './cdn-ref'
+import { cdnBase, cdnFetch, cdnListUrl } from './cdn-ref'
 
 /** jsDelivr edge CDN, pinned to the newest commit so uploads appear at once */
 const base = () => cdnBase('Fonts')
@@ -157,23 +157,7 @@ async function fetchJsdelivrFonts(BASE: string): Promise<RemoteFont[]> {
         size: f.size,
       }
     })
-  if (list.length) return list
-  // jsDelivr listing empty or stale — read the folder straight from GitHub
-  return fetchGithubFonts(BASE)
-}
-
-async function fetchGithubFonts(BASE: string): Promise<RemoteFont[]> {
-  const res = await fetch(ghListUrl('Fonts'))
-  if (!res.ok) throw new Error('github list failed')
-  const json = (await res.json()) as { name: string; size?: number; type?: string }[]
-  return (Array.isArray(json) ? json : [])
-    .filter((f) => f.type !== 'dir' && FONT_RE.test(f.name))
-    .map((f) => ({
-      name: prettyName(f.name),
-      file: f.name,
-      url: `${BASE}/${encodeURIComponent(f.name)}`,
-      size: f.size,
-    }))
+  return list
 }
 
 /* ---------------- offline storage ---------------- */

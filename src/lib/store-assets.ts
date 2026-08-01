@@ -4,7 +4,7 @@
  * Each folder carries its own check.json describing free/premium tiers.
  * Downloaded assets are kept offline in IndexedDB.
  */
-import { cdnBase, cdnFetch, cdnListUrl, ghListUrl } from './cdn-ref'
+import { cdnBase, cdnFetch, cdnListUrl } from './cdn-ref'
 
 export type StoreKind = 'Background' | 'Shapes' | 'Stickers'
 export const STORE_KINDS: StoreKind[] = ['Background', 'Shapes', 'Stickers']
@@ -179,28 +179,6 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
       }
     } catch {
       /* fall through to the origin listing */
-    }
-  }
-
-  // 4) The origin listing is also merged on manual refresh. This makes newly
-  // committed files visible while jsDelivr's separate directory index catches up.
-  if (force || !list.length) {
-    try {
-      const gh = await fetch(ghListUrl(folder(kind)), force ? { cache: 'no-store' } : undefined)
-      if (gh.ok) {
-        const json = (await gh.json()) as { name: string; size?: number; type?: string }[]
-        merge((Array.isArray(json) ? json : [])
-          .filter((f) => f.type !== 'dir' && IMG_RE.test(f.name))
-          .map((f) => ({
-            kind,
-            name: prettyName(f.name),
-            file: f.name,
-            url: `${BASE}/${encodeURIComponent(f.name)}`,
-            size: f.size,
-          })))
-      }
-    } catch {
-      /* folder not published yet */
     }
   }
 

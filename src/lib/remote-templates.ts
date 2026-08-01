@@ -7,7 +7,7 @@ import type { TextLayer } from '@/lib/text-layer'
 import type { TemplateDef, TemplateLang } from '@/lib/templates'
 
 /** jsDelivr edge CDN — no bandwidth cap, no rate limit */
-import { cdnBase, cdnFetch, cdnListUrl, ghListUrl } from './cdn-ref'
+import { cdnBase, cdnFetch, cdnListUrl } from './cdn-ref'
 
 const base = () => cdnBase('Templates')
 const FILE_RE = /\.json$/i
@@ -140,25 +140,6 @@ export async function fetchRemoteTemplates(force = false): Promise<RemoteTemplat
         size: f.size,
       }
     })
-  if (!list.length) {
-    // jsDelivr listing empty or stale — read the folder straight from GitHub
-    const gh = await fetch(ghListUrl('Templates'))
-    if (!gh.ok) throw new Error('Could not load the template list')
-    const json = (await gh.json()) as { name: string; size?: number; type?: string }[]
-    const ghList = (Array.isArray(json) ? json : [])
-      .filter(
-        (f) =>
-          f.type !== 'dir' && FILE_RE.test(f.name) && !/^(check|templates)\.json$/i.test(f.name),
-      )
-      .map((f) => ({
-        name: prettyName(f.name),
-        file: f.name,
-        url: `${BASE}/${encodeURIComponent(f.name)}`,
-        size: f.size,
-      }))
-    catalogCache = ghList
-    return ghList
-  }
   catalogCache = list
   return list
 }
