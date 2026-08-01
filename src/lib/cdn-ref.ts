@@ -25,3 +25,15 @@ export function cdnFolderUrl(folder: string): string {
 export async function cdnFetch(url: string, init?: RequestInit): Promise<Response> {
   return fetch(url, init)
 }
+
+/**
+ * Appends a unique query param so metadata requests (listings, check.json)
+ * skip both the browser HTTP cache and any stale intermediary copy.
+ * Use for small JSON/HTML metadata only — never for asset binaries.
+ */
+export function bust(url: string): string {
+  return `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`
+}
+
+/** Request init that defeats the browser cache. */
+export const noStore: RequestInit = { cache: 'no-store' }

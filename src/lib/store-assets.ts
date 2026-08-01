@@ -4,7 +4,7 @@
  * Each folder carries its own check.json describing free/premium tiers.
  * Downloaded assets are kept offline in IndexedDB.
  */
-import { cdnBase, cdnFetch, cdnListUrl } from './cdn-ref'
+import { bust, cdnBase, cdnFetch, cdnListUrl, noStore } from './cdn-ref'
 
 export type StoreKind = 'Background' | 'Shapes' | 'Stickers'
 export const STORE_KINDS: StoreKind[] = ['Background', 'Shapes', 'Stickers']
@@ -53,8 +53,8 @@ export async function fetchStoreTiers(
   if (hit && !force) return hit
   const map: Record<string, StoreTier> = {}
   try {
-    // Cacheable request; the repo owner purges jsDelivr manually.
-    const res = await cdnFetch(`${await base(kind)}/check.json`)
+    // Metadata is always fetched fresh so newly purged tiers show up at once.
+    const res = await cdnFetch(bust(`${await base(kind)}/check.json`), noStore)
     if (res?.ok) {
       const json = (await res.json()) as Record<string, unknown>
       const section = (json[kind.toLowerCase()] ?? json['assets'] ?? json) as {
@@ -103,7 +103,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
 
   // 1) optional hand-written index
   try {
-    const res = await cdnFetch(`${BASE}/index.json`, force ? { cache: 'no-store' } : undefined)
+    const res = await cdnFetch(bust(`${BASE}/index.json`), noStore)
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { files?: unknown[] })?.files ?? [])
@@ -135,7 +135,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   // 2) jsDelivr flat listing
   let files: { name: string; size?: number }[] = []
   try {
-    const res = await fetch(await cdnListUrl(), force ? { cache: 'no-store' } : undefined)
+    const res = await fetch(bust(await cdnListUrl()), noStore)
     if (res.ok) {
       const json = (await res.json()) as { files?: { name: string; size?: number }[] }
       files = json.files ?? []
@@ -153,9 +153,9 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   // 3) jsDelivr's browser-safe folder page. The data API can retain an old
   // flat index even after individual files and directory pages are current.
   // A manual refresh checks and merges it even when an older source was non-empty.
-  if (force || !list.length) {
+  {
     try {
-      const page = await fetch(`${BASE}/`, force ? { cache: 'no-store' } : undefined)
+      const page = await fetch(bust(`${BASE}/`), noStore)
       if (page.ok) {
         const html = await page.text()
         const doc = new DOMParser().parseFromString(html, 'text/html')
