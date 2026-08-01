@@ -8,6 +8,7 @@ import {
   Palette,
   Blend,
   Store,
+  Type,
   Trash2,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
@@ -16,12 +17,13 @@ import { GradientGrid, SolidGrid } from './color-grids'
 import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
 import { TemplateGallery, TemplateThumb } from './template-picker'
 import { StorePanel } from './store-panel'
+import { DownloadFontsSheet } from './download-fonts-sheet'
 import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
 import type { TextLayer } from '@/lib/text-layer'
 
 import { makeBackgroundDataUrl, makeGradientDataUrl, makeSolidDataUrl } from '@/lib/background'
 
-type Tab = 'create' | 'store' | 'templates' | 'projects'
+type Tab = 'create' | 'fonts' | 'templates' | 'store' | 'projects'
 
 export function UploadZone({
   onImage,
@@ -85,8 +87,9 @@ const FEATURED = UPLOADED_TEMPLATES
         {(() => {
           const tabs: { id: Tab; label: string; icon: typeof BackgroundIcon }[] = [
             { id: 'create', label: t('home.tab.create'), icon: BackgroundIcon },
-            { id: 'store', label: 'Store', icon: Store },
+            { id: 'fonts', label: 'Fonts', icon: Type },
             { id: 'templates', label: t('home.tab.templates'), icon: LayoutTemplate },
+            { id: 'store', label: 'Store', icon: Store },
             { id: 'projects', label: t('home.tab.projects'), icon: FolderOpen },
           ]
           const index = tabs.findIndex((x) => x.id === tab)
@@ -112,7 +115,7 @@ const FEATURED = UPLOADED_TEMPLATES
                   key={id}
                   type="button"
                   onClick={() => setTab(id)}
-                  className={`relative z-10 flex flex-1 flex-col items-center justify-center gap-1 rounded-[1.6rem] px-2 py-2 text-[11px] font-semibold transition-all duration-300 active:scale-95 ${
+                  className={`relative z-10 flex flex-1 flex-col items-center justify-center gap-1 rounded-[1.6rem] px-1 py-2 text-[10px] font-semibold transition-all duration-300 active:scale-95 ${
                     tab === id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
@@ -264,6 +267,8 @@ const FEATURED = UPLOADED_TEMPLATES
         {tab === 'store' && (
           <StorePanel onApplyTemplate={onApplyTemplate} onUseBackground={(src) => onImage(src)} />
         )}
+
+        {tab === 'fonts' && <DownloadFontsSheet open inline />}
 
         {tab === 'templates' &&
           (onApplyTemplate ? (
