@@ -10,8 +10,6 @@ import type { TemplateDef, TemplateLang } from '@/lib/templates'
 import { cdnBase, cdnListUrl } from './cdn-ref'
 
 const base = () => cdnBase('Templates')
-const LIST_URL =
-  'https://data.jsdelivr.com/v1/packages/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW@main?structure=flat'
 const FILE_RE = /\.json$/i
 
 export interface RemoteTemplatePack {
@@ -45,7 +43,7 @@ export async function fetchTemplateTiers(force = false): Promise<Record<string, 
   if (tierCache && !force) return tierCache
   const map: Record<string, TemplateTier> = {}
   try {
-    const res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await fetch(`${await base()}/check.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const json = (await res.json()) as {
         templates?: { premium?: string[]; free?: string[] }
@@ -85,10 +83,11 @@ let catalogCache: RemoteTemplatePack[] | null = null
 
 export async function fetchRemoteTemplates(force = false): Promise<RemoteTemplatePack[]> {
   if (catalogCache && !force) return catalogCache
+  const BASE = await base()
 
   // 1) optional hand-written index
   try {
-    const res = await fetch(`${INDEX_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await fetch(`${BASE}/templates.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { templates?: unknown[] })?.templates ?? [])
@@ -116,7 +115,7 @@ export async function fetchRemoteTemplates(force = false): Promise<RemoteTemplat
   }
 
   // 2) jsDelivr file listing (no rate limit)
-  const res = await fetch(LIST_URL)
+  const res = await fetch(await cdnListUrl())
   if (!res.ok) throw new Error('Could not load the template list')
   const json = (await res.json()) as { files?: { name: string; size?: number }[] }
   const list = (json.files ?? [])
