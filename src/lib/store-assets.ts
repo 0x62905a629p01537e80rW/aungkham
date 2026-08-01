@@ -169,6 +169,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
           name: prettyName(file),
           file,
           url: `${BASE}/${encodeURIComponent(file)}`,
+          size: undefined,
         }))
       }
     } catch {
