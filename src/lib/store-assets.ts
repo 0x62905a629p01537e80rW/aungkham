@@ -4,7 +4,7 @@
  * Each folder carries its own check.json describing free/premium tiers.
  * Downloaded assets are kept offline in IndexedDB.
  */
-import { cdnBase, cdnFetch, cdnListUrl, ghListUrl, rawBase } from './cdn-ref'
+import { cdnBase, cdnFetch, cdnListUrl, ghListUrl } from './cdn-ref'
 
 export type StoreKind = 'Background' | 'Shapes' | 'Stickers'
 export const STORE_KINDS: StoreKind[] = ['Background', 'Shapes', 'Stickers']
@@ -48,15 +48,8 @@ export async function fetchStoreTiers(
   if (hit && !force) return hit
   const map: Record<string, StoreTier> = {}
   try {
-    const t = Date.now()
-    const [cdnRes, rawRes] = await Promise.allSettled([
-      cdnFetch(`${await base(kind)}/check.json?t=${t}`, { cache: 'no-store' }),
-      fetch(`${rawBase(folder(kind))}/check.json?t=${t}`, { cache: 'no-store' }),
-    ])
-    const raw = rawRes.status === 'fulfilled' ? rawRes.value : null
-    const cdn = cdnRes.status === 'fulfilled' ? cdnRes.value : null
-    // raw is the freshness fallback when jsDelivr still serves a purged copy
-    const res = raw?.ok ? raw : cdn
+    // Cacheable request; the repo owner purges jsDelivr manually.
+    const res = await cdnFetch(`${await base(kind)}/check.json`)
     if (res?.ok) {
       const json = (await res.json()) as Record<string, unknown>
       const section = (json[kind.toLowerCase()] ?? json['assets'] ?? json) as {
@@ -98,7 +91,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
 
   // 1) optional hand-written index
   try {
-    const res = await cdnFetch(`${BASE}/index.json?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await cdnFetch(`${BASE}/index.json`)
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { files?: unknown[] })?.files ?? [])

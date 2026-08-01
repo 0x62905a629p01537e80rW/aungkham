@@ -43,7 +43,7 @@ export async function fetchTemplateTiers(force = false): Promise<Record<string, 
   if (tierCache && !force) return tierCache
   const map: Record<string, TemplateTier> = {}
   try {
-    const res = await cdnFetch(`${await base()}/check.json?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await cdnFetch(`${await base()}/check.json`)
     if (res.ok) {
       const json = (await res.json()) as {
         templates?: { premium?: string[]; free?: string[] }
@@ -87,7 +87,7 @@ export async function fetchRemoteTemplates(force = false): Promise<RemoteTemplat
 
   // 1) optional hand-written index
   try {
-    const res = await cdnFetch(`${BASE}/templates.json?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await cdnFetch(`${BASE}/templates.json`)
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { templates?: unknown[] })?.templates ?? [])

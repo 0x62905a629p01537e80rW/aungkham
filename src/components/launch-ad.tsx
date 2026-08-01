@@ -17,14 +17,13 @@ export function prefetchAd(): Promise<Ad | null> {
   adPromise = (async () => {
     if (typeof window === 'undefined' || navigator.onLine === false) return null
     try {
-      const bust = `?t=${Date.now()}`
-      const res = await fetch(`${BASE}/ad.json${bust}`, { cache: 'no-store' })
+      const res = await fetch(`${BASE}/ad.json`)
       if (!res.ok) return null
       const cfg = (await res.json()) as AdConfig
       if (cfg.showAd !== true) return null
 
       // Download the full image bytes, then decode it, before declaring it ready.
-      const imgRes = await fetch(`${BASE}/ad.png${bust}`, { cache: 'no-store' })
+      const imgRes = await fetch(`${BASE}/ad.png`)
       if (!imgRes.ok) return null
       const blob = await imgRes.blob()
       const url = URL.createObjectURL(blob)
