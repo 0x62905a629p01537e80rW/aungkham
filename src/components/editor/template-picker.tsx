@@ -8,7 +8,6 @@ import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import type { TextLayer } from '@/lib/text-layer'
 import { exportTemplatesJson } from '@/lib/export-templates'
-import { DownloadTemplatesPanel } from './download-templates-panel'
 
 import {
   AlertDialog,
