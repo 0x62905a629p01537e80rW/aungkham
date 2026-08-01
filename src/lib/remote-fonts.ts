@@ -14,10 +14,14 @@ export interface RemoteFont {
   size?: number
 }
 
-const BASE = 'https://myandev.github.io/Fonts'
+const PAGES_BASE = 'https://myandev.github.io/Fonts'
+/** jsDelivr edge CDN — no bandwidth cap, no rate limit, better SEA coverage */
+const BASE = 'https://cdn.jsdelivr.net/gh/myandev/myandev.github.io@main/Fonts'
 
-const INDEX_URL = `${BASE}/fonts.json`
-const CHECK_URL = `${BASE}/check.json`
+const INDEX_URL = `${PAGES_BASE}/fonts.json`
+const CHECK_URL = `${PAGES_BASE}/check.json`
+const JSDELIVR_LIST_URL =
+  'https://data.jsdelivr.com/v1/packages/gh/myandev/myandev.github.io@main?structure=flat'
 const API_URL = 'https://api.github.com/repos/myandev/myandev.github.io/contents/Fonts'
 const FONT_RE = /\.(ttf|otf|woff2?)$/i
 
@@ -36,7 +40,10 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
   if (tierCache && !force) return tierCache
   const map: Record<string, FontTier> = {}
   try {
-    const res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    let res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' }).catch(
+      () => null as Response | null,
+    )
+    if (!res?.ok) res = await fetch(`${BASE}/check.json`, { cache: 'no-store' })
     if (res.ok) {
       const json = (await res.json()) as {
         fonts?: { premium?: string[]; free?: string[] }
@@ -130,7 +137,15 @@ async function fetchGithubFonts(): Promise<RemoteFont[]> {
     /* fall through */
   }
 
-  // 2) GitHub contents API (works without an index file)
+  // 2) jsDelivr data API (no rate limit)
+  try {
+    const list = await fetchJsdelivrFonts()
+    if (list.length) return list
+  } catch {
+    /* fall through */
+  }
+
+  // 3) GitHub contents API (rate-limited: 60/hr per IP)
   const res = await fetch(API_URL, { headers: { Accept: 'application/vnd.github+json' } })
   if (!res.ok) throw new Error('Could not load the font list')
   const items = (await res.json()) as {
@@ -144,10 +159,27 @@ async function fetchGithubFonts(): Promise<RemoteFont[]> {
     .map((i) => ({
       name: prettyName(i.name),
       file: i.name,
-      url: i.download_url ?? `${BASE}/${encodeURIComponent(i.name)}`,
+      url: `${BASE}/${encodeURIComponent(i.name)}`,
       size: i.size,
     }))
   return list
+}
+
+async function fetchJsdelivrFonts(): Promise<RemoteFont[]> {
+  const res = await fetch(JSDELIVR_LIST_URL)
+  if (!res.ok) throw new Error('jsdelivr list failed')
+  const json = (await res.json()) as { files?: { name: string; size?: number }[] }
+  return (json.files ?? [])
+    .filter((f) => f.name.startsWith('/Fonts/') && FONT_RE.test(f.name))
+    .map((f) => {
+      const file = f.name.slice('/Fonts/'.length)
+      return {
+        name: prettyName(file),
+        file,
+        url: `${BASE}/${encodeURIComponent(file)}`,
+        size: f.size,
+      }
+    })
 }
 
 /* ---------------- offline storage ---------------- */
