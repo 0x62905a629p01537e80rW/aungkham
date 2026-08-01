@@ -120,7 +120,37 @@ export async function fetchRemoteTemplates(force = false): Promise<RemoteTemplat
     /* fall through */
   }
 
-  // 2) GitHub contents API (works without an index file)
+  // 2) jsDelivr data API (no rate limit)
+  try {
+    const res = await fetch(JSDELIVR_LIST_URL)
+    if (res.ok) {
+      const json = (await res.json()) as { files?: { name: string; size?: number }[] }
+      const list = (json.files ?? [])
+        .filter(
+          (f) =>
+            f.name.startsWith('/Templates/') &&
+            FILE_RE.test(f.name) &&
+            !/\/(check|templates)\.json$/i.test(f.name),
+        )
+        .map((f) => {
+          const file = f.name.slice('/Templates/'.length)
+          return {
+            name: prettyName(file),
+            file,
+            url: `${BASE}/${encodeURIComponent(file)}`,
+            size: f.size,
+          }
+        })
+      if (list.length) {
+        catalogCache = list
+        return list
+      }
+    }
+  } catch {
+    /* fall through */
+  }
+
+  // 3) GitHub contents API (rate-limited: 60/hr per IP)
   const res = await fetch(API_URL, { headers: { Accept: 'application/vnd.github+json' } })
   if (!res.ok) throw new Error('Could not load the template list')
   const items = (await res.json()) as {
@@ -137,7 +167,7 @@ export async function fetchRemoteTemplates(force = false): Promise<RemoteTemplat
     .map((i) => ({
       name: prettyName(i.name),
       file: i.name,
-      url: i.download_url ?? `${BASE}/${encodeURIComponent(i.name)}`,
+      url: `${BASE}/${encodeURIComponent(i.name)}`,
       size: i.size,
     }))
   catalogCache = list

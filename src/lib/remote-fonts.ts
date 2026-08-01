@@ -137,7 +137,15 @@ async function fetchGithubFonts(): Promise<RemoteFont[]> {
     /* fall through */
   }
 
-  // 2) GitHub contents API (works without an index file)
+  // 2) jsDelivr data API (no rate limit)
+  try {
+    const list = await fetchJsdelivrFonts()
+    if (list.length) return list
+  } catch {
+    /* fall through */
+  }
+
+  // 3) GitHub contents API (rate-limited: 60/hr per IP)
   const res = await fetch(API_URL, { headers: { Accept: 'application/vnd.github+json' } })
   if (!res.ok) throw new Error('Could not load the font list')
   const items = (await res.json()) as {
@@ -151,10 +159,27 @@ async function fetchGithubFonts(): Promise<RemoteFont[]> {
     .map((i) => ({
       name: prettyName(i.name),
       file: i.name,
-      url: i.download_url ?? `${BASE}/${encodeURIComponent(i.name)}`,
+      url: `${BASE}/${encodeURIComponent(i.name)}`,
       size: i.size,
     }))
   return list
+}
+
+async function fetchJsdelivrFonts(): Promise<RemoteFont[]> {
+  const res = await fetch(JSDELIVR_LIST_URL)
+  if (!res.ok) throw new Error('jsdelivr list failed')
+  const json = (await res.json()) as { files?: { name: string; size?: number }[] }
+  return (json.files ?? [])
+    .filter((f) => f.name.startsWith('/Fonts/') && FONT_RE.test(f.name))
+    .map((f) => {
+      const file = f.name.slice('/Fonts/'.length)
+      return {
+        name: prettyName(file),
+        file,
+        url: `${BASE}/${encodeURIComponent(file)}`,
+        size: f.size,
+      }
+    })
 }
 
 /* ---------------- offline storage ---------------- */
