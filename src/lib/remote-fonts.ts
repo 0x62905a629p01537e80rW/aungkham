@@ -47,7 +47,7 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
     // Raw is the freshness fallback for tier metadata when jsDelivr still
     // returns an older successful response after a purge.
     const res = rawResponse?.ok ? rawResponse : cdnResponse
-    if (res.ok) {
+    if (res?.ok) {
       const json = (await res.json()) as {
         fonts?: { premium?: string[]; free?: string[] }
         premium?: string[]
