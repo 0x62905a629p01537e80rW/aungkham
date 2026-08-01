@@ -14,13 +14,10 @@ export interface RemoteFont {
   size?: number
 }
 
-/** jsDelivr edge CDN — no bandwidth cap, no rate limit, better SEA coverage */
-const BASE = 'https://cdn.jsdelivr.net/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW@main/Fonts'
+import { cdnBase, cdnListUrl } from './cdn-ref'
 
-const INDEX_URL = `${BASE}/fonts.json`
-const CHECK_URL = `${BASE}/check.json`
-const LIST_URL =
-  'https://data.jsdelivr.com/v1/packages/gh/0x62905a629p01537e80rW/0x62905a629p01537e80rW@main?structure=flat'
+/** jsDelivr edge CDN, pinned to the newest commit so uploads appear at once */
+const base = () => cdnBase('Fonts')
 const FONT_RE = /\.(ttf|otf|woff2?)$/i
 
 /* ---------------- free / premium tiers ---------------- */
@@ -38,7 +35,7 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
   if (tierCache && !force) return tierCache
   const map: Record<string, FontTier> = {}
   try {
-    const res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await fetch(`${await base()}/check.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const json = (await res.json()) as {
         fonts?: { premium?: string[]; free?: string[] }
