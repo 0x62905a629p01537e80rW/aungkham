@@ -9,7 +9,6 @@ import {
   Blend,
   Store,
   Trash2,
-  TypeOutline,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'

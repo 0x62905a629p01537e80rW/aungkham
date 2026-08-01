@@ -135,7 +135,7 @@ export function InsertMenu({ open, onClose, onInsert, initialTab }: InsertMenuPr
                   aria-label={a.name}
                   onClick={() => {
                     onInsert(
-                      { kind: tab === 'shapes' ? 'sticker' : 'sticker', src: a.src!, aspect: 1 },
+                      { kind: 'sticker', src: a.src!, aspect: 1 },
                       a.name,
                     )
                     onClose()
