@@ -146,7 +146,38 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
       return { kind, name: prettyName(file), file, url: `${BASE}/${encodeURIComponent(file)}`, size: f.size }
     })
 
-  // 3) GitHub folder listing when jsDelivr is empty or stale
+  // 3) jsDelivr's browser-safe folder page. The data API can retain an old
+  // flat index even after individual files and directory pages are current.
+  if (!list.length) {
+    try {
+      const page = await fetch(`${BASE}/`)
+      if (page.ok) {
+        const html = await page.text()
+        const doc = new DOMParser().parseFromString(html, 'text/html')
+        const names = Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[href]'))
+          .map((anchor) => {
+            try {
+              const pathname = decodeURIComponent(new URL(anchor.href, `${BASE}/`).pathname)
+              return pathname.split('/').filter(Boolean).pop() ?? ''
+            } catch {
+              return ''
+            }
+          })
+          .filter((name) => IMG_RE.test(name))
+        list = [...new Set(names)].map((file) => ({
+          kind,
+          name: prettyName(file),
+          file,
+          url: `${BASE}/${encodeURIComponent(file)}`,
+          size: undefined,
+        }))
+      }
+    } catch {
+      /* fall through to the origin listing */
+    }
+  }
+
+  // 4) GitHub folder listing as a final fallback
   if (!list.length) {
     try {
       const gh = await fetch(ghListUrl(folder(kind)))
