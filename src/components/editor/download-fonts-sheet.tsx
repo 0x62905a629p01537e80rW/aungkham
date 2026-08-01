@@ -426,7 +426,7 @@ export function DownloadFontsSheet({
             )
           })}
 
-          {results.length > 0 && !previewing && shown.length >= limit &&
+          {results.length > 0 && !previewing && shown.length >= Math.min(limit, results.length) &&
             (limit < results.length ? (
               <button
                 type="button"
