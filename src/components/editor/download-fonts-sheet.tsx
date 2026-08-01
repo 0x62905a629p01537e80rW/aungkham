@@ -340,7 +340,13 @@ export function DownloadFontsSheet({
               </div>
             ))}
 
-          {results.map((f) => {
+          {previewing && (
+            <p className="flex items-center justify-center gap-2 py-2 text-[11px] text-muted-foreground">
+              <RefreshCw className="size-3.5 animate-spin" /> Loading fonts…
+            </p>
+          )}
+
+          {shown.map((f) => {
             const has = isRemoteFontInstalled(f.name)
             const ready = isRemoteFontReady(f.name)
             const premium = fontTier(f, tiers) === 'premium'
@@ -410,6 +416,21 @@ export function DownloadFontsSheet({
               </div>
             )
           })}
+
+          {results.length > 0 &&
+            (limit < results.length ? (
+              <button
+                type="button"
+                onClick={() => setLimit((n) => n + 20)}
+                className="w-full rounded-2xl border border-border/60 bg-foreground/5 py-2 text-[11px] font-semibold text-foreground/80 active:scale-95"
+              >
+                See more ({results.length - limit} left)
+              </button>
+            ) : (
+              <p className="py-3 text-center text-[10px] text-muted-foreground">
+                No more fonts.
+              </p>
+            ))}
 
           {!loading &&
             results.length === 0 &&
