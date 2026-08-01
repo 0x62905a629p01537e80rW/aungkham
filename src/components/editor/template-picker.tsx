@@ -8,7 +8,6 @@ import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import type { TextLayer } from '@/lib/text-layer'
 import { exportTemplatesJson } from '@/lib/export-templates'
-import { DownloadTemplatesPanel } from './download-templates-panel'
 
 import {
   AlertDialog,
@@ -92,7 +91,6 @@ export function TemplateGallery({
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
-  const [view, setView] = useState<'gallery' | 'download'>('gallery')
   const [selectMode, setSelectMode] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const activeGroup = lang === 'EN' && group === 'New' ? 'All' : group
@@ -123,26 +121,6 @@ export function TemplateGallery({
 
   return (
     <div className={cn('flex flex-col', scroll && 'min-h-0 flex-1', className)}>
-      <div className="shrink-0 pb-2">
-        <GlassTabs
-          size="sm"
-          value={view}
-          onChange={(v) => setView(v as 'gallery' | 'download')}
-          items={[
-            { key: 'gallery', label: 'Templates' },
-            { key: 'download', label: 'Download' },
-          ]}
-        />
-      </div>
-
-      {view === 'download' ? (
-        <div className={cn(scroll ? 'min-h-0 flex-1 overflow-y-auto perf-scroll no-scrollbar' : '')}>
-          <DownloadTemplatesPanel
-            onApply={(layers, bg) => (onRequestChoice ? onRequestChoice(layers, bg) : onApply?.(layers, bg))}
-          />
-        </div>
-      ) : (
-      <>
       <div className="sticky top-0 z-10 -mx-1 bg-background/80 px-1 pt-1 backdrop-blur-xl">
         <div className="flex shrink-0 items-center gap-1 pb-2">
           <button
@@ -255,8 +233,6 @@ export function TemplateGallery({
 
 
       </div>
-      </>
-      )}
     </div>
   )
 }
