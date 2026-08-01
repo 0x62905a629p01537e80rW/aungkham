@@ -1,5 +1,5 @@
 /**
- * Fonts published at https://myandev.github.io/Fonts
+ * Fonts published at https://cdn.jsdelivr.net/gh/myandev/myandev.github.io/Fonts
  * Listed at runtime, downloaded on demand and kept offline in IndexedDB.
  */
 
@@ -14,15 +14,13 @@ export interface RemoteFont {
   size?: number
 }
 
-const PAGES_BASE = 'https://myandev.github.io/Fonts'
 /** jsDelivr edge CDN — no bandwidth cap, no rate limit, better SEA coverage */
 const BASE = 'https://cdn.jsdelivr.net/gh/myandev/myandev.github.io@main/Fonts'
 
-const INDEX_URL = `${PAGES_BASE}/fonts.json`
-const CHECK_URL = `${PAGES_BASE}/check.json`
-const JSDELIVR_LIST_URL =
+const INDEX_URL = `${BASE}/fonts.json`
+const CHECK_URL = `${BASE}/check.json`
+const LIST_URL =
   'https://data.jsdelivr.com/v1/packages/gh/myandev/myandev.github.io@main?structure=flat'
-const API_URL = 'https://api.github.com/repos/myandev/myandev.github.io/contents/Fonts'
 const FONT_RE = /\.(ttf|otf|woff2?)$/i
 
 /* ---------------- free / premium tiers ---------------- */
@@ -40,10 +38,7 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
   if (tierCache && !force) return tierCache
   const map: Record<string, FontTier> = {}
   try {
-    let res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' }).catch(
-      () => null as Response | null,
-    )
-    if (!res?.ok) res = await fetch(`${BASE}/check.json`, { cache: 'no-store' })
+    const res = await fetch(`${CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const json = (await res.json()) as {
         fonts?: { premium?: string[]; free?: string[] }
