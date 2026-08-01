@@ -91,7 +91,6 @@ export function TemplateGallery({
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
-  const [view, setView] = useState<'gallery' | 'download'>('gallery')
   const [selectMode, setSelectMode] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const activeGroup = lang === 'EN' && group === 'New' ? 'All' : group
