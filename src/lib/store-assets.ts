@@ -93,14 +93,21 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   if (hit && !force) return hit
   const BASE = await base(kind)
   const prefix = listPrefix(kind)
+  let list: StoreAsset[] = []
+
+  const merge = (incoming: StoreAsset[]) => {
+    const byFile = new Map(list.map((asset) => [key(asset.file), asset]))
+    for (const asset of incoming) byFile.set(key(asset.file), asset)
+    list = [...byFile.values()]
+  }
 
   // 1) optional hand-written index
   try {
-    const res = await cdnFetch(`${BASE}/index.json`)
+    const res = await cdnFetch(`${BASE}/index.json`, force ? { cache: 'no-store' } : undefined)
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { files?: unknown[] })?.files ?? [])
-      const list = (arr as unknown[])
+      const indexed = (arr as unknown[])
         .map((it) => {
           const file =
             typeof it === 'string'
@@ -119,10 +126,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
           } satisfies StoreAsset
         })
         .filter(Boolean) as StoreAsset[]
-      if (list.length) {
-        catalog.set(kind, list)
-        return list
-      }
+      merge(indexed)
     }
   } catch {
     /* fall through */
@@ -131,7 +135,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   // 2) jsDelivr flat listing
   let files: { name: string; size?: number }[] = []
   try {
-    const res = await fetch(await cdnListUrl())
+    const res = await fetch(await cdnListUrl(), force ? { cache: 'no-store' } : undefined)
     if (res.ok) {
       const json = (await res.json()) as { files?: { name: string; size?: number }[] }
       files = json.files ?? []
@@ -139,18 +143,19 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   } catch {
     files = []
   }
-  let list = files
+  merge(files
     .filter((f) => f.name.startsWith(prefix) && IMG_RE.test(f.name))
     .map((f) => {
       const file = f.name.slice(prefix.length)
       return { kind, name: prettyName(file), file, url: `${BASE}/${encodeURIComponent(file)}`, size: f.size }
-    })
+    }))
 
   // 3) jsDelivr's browser-safe folder page. The data API can retain an old
   // flat index even after individual files and directory pages are current.
-  if (!list.length) {
+  // A manual refresh checks and merges it even when an older source was non-empty.
+  if (force || !list.length) {
     try {
-      const page = await fetch(`${BASE}/`)
+      const page = await fetch(`${BASE}/`, force ? { cache: 'no-store' } : undefined)
       if (page.ok) {
         const html = await page.text()
         const doc = new DOMParser().parseFromString(html, 'text/html')
@@ -164,26 +169,27 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
             }
           })
           .filter((name) => IMG_RE.test(name))
-        list = [...new Set(names)].map((file) => ({
+        merge([...new Set(names)].map((file) => ({
           kind,
           name: prettyName(file),
           file,
           url: `${BASE}/${encodeURIComponent(file)}`,
           size: undefined,
-        }))
+        })))
       }
     } catch {
       /* fall through to the origin listing */
     }
   }
 
-  // 4) GitHub folder listing as a final fallback
-  if (!list.length) {
+  // 4) The origin listing is also merged on manual refresh. This makes newly
+  // committed files visible while jsDelivr's separate directory index catches up.
+  if (force || !list.length) {
     try {
-      const gh = await fetch(ghListUrl(folder(kind)))
+      const gh = await fetch(ghListUrl(folder(kind)), force ? { cache: 'no-store' } : undefined)
       if (gh.ok) {
         const json = (await gh.json()) as { name: string; size?: number; type?: string }[]
-        list = (Array.isArray(json) ? json : [])
+        merge((Array.isArray(json) ? json : [])
           .filter((f) => f.type !== 'dir' && IMG_RE.test(f.name))
           .map((f) => ({
             kind,
@@ -191,7 +197,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
             file: f.name,
             url: `${BASE}/${encodeURIComponent(f.name)}`,
             size: f.size,
-          }))
+          })))
       }
     } catch {
       /* folder not published yet */
