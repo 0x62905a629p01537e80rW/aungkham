@@ -14,7 +14,7 @@ export interface RemoteFont {
   size?: number
 }
 
-import { cdnBase, cdnListUrl } from './cdn-ref'
+import { cdnBase, cdnFetch, cdnListUrl, ghListUrl } from './cdn-ref'
 
 /** jsDelivr edge CDN, pinned to the newest commit so uploads appear at once */
 const base = () => cdnBase('Fonts')
@@ -35,7 +35,7 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
   if (tierCache && !force) return tierCache
   const map: Record<string, FontTier> = {}
   try {
-    const res = await fetch(`${await base()}/check.json?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await cdnFetch(`${await base()}/check.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const json = (await res.json()) as {
         fonts?: { premium?: string[]; free?: string[] }
@@ -104,7 +104,7 @@ async function fetchCatalog(): Promise<RemoteFont[]> {
 
   // 1) optional hand-written index
   try {
-    const res = await fetch(`${BASE}/fonts.json?t=${Date.now()}`, { cache: 'no-store' })
+    const res = await cdnFetch(`${BASE}/fonts.json?t=${Date.now()}`, { cache: 'no-store' })
     if (res.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { fonts?: unknown[] })?.fonts ?? [])
@@ -135,10 +135,16 @@ async function fetchCatalog(): Promise<RemoteFont[]> {
 }
 
 async function fetchJsdelivrFonts(BASE: string): Promise<RemoteFont[]> {
-  const res = await fetch(await cdnListUrl())
-  if (!res.ok) throw new Error('jsdelivr list failed')
-  const json = (await res.json()) as { files?: { name: string; size?: number }[] }
-  return (json.files ?? [])
+  let files: { name: string; size?: number }[] = []
+  try {
+    const res = await fetch(await cdnListUrl())
+    if (!res.ok) throw new Error('jsdelivr list failed')
+    const json = (await res.json()) as { files?: { name: string; size?: number }[] }
+    files = json.files ?? []
+  } catch {
+    files = []
+  }
+  const list = files
     .filter((f) => f.name.startsWith('/Fonts/') && FONT_RE.test(f.name))
     .map((f) => {
       const file = f.name.slice('/Fonts/'.length)
@@ -149,6 +155,23 @@ async function fetchJsdelivrFonts(BASE: string): Promise<RemoteFont[]> {
         size: f.size,
       }
     })
+  if (list.length) return list
+  // jsDelivr listing empty or stale — read the folder straight from GitHub
+  return fetchGithubFonts(BASE)
+}
+
+async function fetchGithubFonts(BASE: string): Promise<RemoteFont[]> {
+  const res = await fetch(ghListUrl('Fonts'))
+  if (!res.ok) throw new Error('github list failed')
+  const json = (await res.json()) as { name: string; size?: number; type?: string }[]
+  return (Array.isArray(json) ? json : [])
+    .filter((f) => f.type !== 'dir' && FONT_RE.test(f.name))
+    .map((f) => ({
+      name: prettyName(f.name),
+      file: f.name,
+      url: `${BASE}/${encodeURIComponent(f.name)}`,
+      size: f.size,
+    }))
 }
 
 /* ---------------- offline storage ---------------- */
@@ -268,7 +291,7 @@ export async function previewRemoteFont(font: RemoteFont): Promise<void> {
 }
 
 async function fetchFile(font: RemoteFont): Promise<ArrayBuffer> {
-  const res = await fetch(font.url)
+  const res = await cdnFetch(font.url)
   if (!res.ok) throw new Error('download failed')
   return res.arrayBuffer()
 }
