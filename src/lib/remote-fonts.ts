@@ -35,18 +35,9 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
   if (tierCache && !force) return tierCache
   const map: Record<string, FontTier> = {}
   try {
-    const cacheBuster = Date.now()
-    const cdnUrl = `${await base()}/check.json?t=${cacheBuster}`
-    const rawUrl = `${rawBase('Fonts')}/check.json?t=${cacheBuster}`
-    const [cdnResult, rawResult] = await Promise.allSettled([
-      cdnFetch(cdnUrl, { cache: 'no-store' }),
-      fetch(rawUrl, { cache: 'no-store' }),
-    ])
-    const rawResponse = rawResult.status === 'fulfilled' ? rawResult.value : null
-    const cdnResponse = cdnResult.status === 'fulfilled' ? cdnResult.value : null
-    // Raw is the freshness fallback for tier metadata when jsDelivr still
-    // returns an older successful response after a purge.
-    const res = rawResponse?.ok ? rawResponse : cdnResponse
+    // Plain cacheable request — jsDelivr serves whatever the repo owner
+    // last purged; no cache-busting query, no parallel raw hit.
+    const res = await cdnFetch(`${await base()}/check.json`)
     if (res?.ok) {
       const json = (await res.json()) as {
         fonts?: { premium?: string[]; free?: string[] }
