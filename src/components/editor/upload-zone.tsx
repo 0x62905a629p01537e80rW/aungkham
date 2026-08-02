@@ -266,6 +266,10 @@ const FEATURED = UPLOADED_TEMPLATES
                   </button>
                 ))}
               </div>
+              <DownloadedBackgrounds
+                className="mt-3"
+                onPick={(src) => onImage(src)}
+              />
             </div>
 
           </div>
