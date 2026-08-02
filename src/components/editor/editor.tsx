@@ -58,6 +58,7 @@ export function Editor() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [discardOpen, setDiscardOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [doodleDiscard, setDoodleDiscard] = useState(false)
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const [adjusting, setAdjusting] = useState(false)
   const [removingBg, setRemovingBg] = useState(false)
@@ -609,8 +610,8 @@ export function Editor() {
               onRedo={() => doodleControls.current?.redo()}
               onClear={() => doodleControls.current?.clear()}
               onCancel={() => {
-                setDraftDoodle(undefined)
-                setDoodling(false)
+                if (draftDoodle) setDoodleDiscard(true)
+                else setDoodling(false)
               }}
               onApply={() => {
                 setDoodle(draftDoodle)
