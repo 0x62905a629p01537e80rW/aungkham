@@ -195,7 +195,7 @@ export function Editor() {
           next.y = l.y + dy
         }
         if (dRot) next.rotation = l.rotation + dRot
-        if (scale !== 1) next.fontSize = Math.max(1, l.fontSize * scale)
+        if (scale !== 1) next.fontSize = Math.max(0.5, Math.min(120, l.fontSize * scale))
         if (patch.hidden !== undefined) next.hidden = patch.hidden
         if (patch.locked !== undefined) next.locked = patch.locked
         return next
