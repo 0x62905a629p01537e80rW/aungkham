@@ -14,6 +14,8 @@ import {
 import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
+import { AspectPicker } from './aspect-picker'
+import { DownloadedBackgrounds } from './downloaded-backgrounds'
 import { deleteProject, loadProjects, type SavedProject } from '@/lib/projects'
 import { TemplateGallery, TemplateThumb } from './template-picker'
 import { StorePanel } from './store-panel'
@@ -21,7 +23,7 @@ import { DownloadFontsSheet } from './download-fonts-sheet'
 import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
 import type { TextLayer } from '@/lib/text-layer'
 
-import { makeBackgroundDataUrl, makeGradientDataUrl, makeSolidDataUrl } from '@/lib/background'
+import { gradientCss, makeBackgroundDataUrl } from '@/lib/background'
 
 type Tab = 'create' | 'fonts' | 'templates' | 'store' | 'projects'
 
@@ -43,6 +45,7 @@ const FEATURED = UPLOADED_TEMPLATES
   const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('create')
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
+  const [pendingCss, setPendingCss] = useState<string | null>(null)
   const [projects, setProjects] = useState<SavedProject[]>([])
 
   useEffect(() => {
@@ -219,7 +222,7 @@ const FEATURED = UPLOADED_TEMPLATES
                 {t('home.solidColors')}
               </span>
               <SolidGrid
-                onPick={(c) => onImage(makeSolidDataUrl(c))}
+                onPick={(c) => setPendingCss(c)}
                 onCustom={() => setPicker('solid')}
               />
             </div>
@@ -230,7 +233,7 @@ const FEATURED = UPLOADED_TEMPLATES
                 {t('home.gradients')}
               </span>
               <GradientGrid
-                onPick={(stops) => onImage(makeGradientDataUrl(stops))}
+                onPick={(stops) => setPendingCss(gradientCss(stops))}
                 onCustom={() => setPicker('gradient')}
               />
             </div>
