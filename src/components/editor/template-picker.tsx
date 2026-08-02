@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils'
 import { GlassTabs } from '@/components/ui/glass-tabs'
 import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
+import { LOGO_FONT_KEYS } from '@/lib/logo-templates'
+import { ensureRemoteFontsForKeys } from '@/lib/remote-fonts'
 import type { TextLayer } from '@/lib/text-layer'
 import { exportTemplatesJson } from '@/lib/export-templates'
 import {
@@ -103,6 +105,9 @@ export function TemplateGallery({
 
   useEffect(() => {
     void ensureTemplatePacksLoaded().then(() => force((n) => n + 1))
+    void ensureRemoteFontsForKeys(LOGO_FONT_KEYS)
+      .then(() => force((n) => n + 1))
+      .catch(() => {})
     return subscribeRemoteTemplates(() => force((n) => n + 1))
   }, [])
 
@@ -114,7 +119,7 @@ export function TemplateGallery({
 
   const groups = useMemo(
     () => [
-      ...TEMPLATE_GROUPS.filter((g) => !(lang === 'EN' && g === 'New')),
+      ...TEMPLATE_GROUPS.filter((g) => !(lang === 'EN' && (g === 'New' || g === 'Logo'))),
       'Free',
       'Downloaded',
     ],
