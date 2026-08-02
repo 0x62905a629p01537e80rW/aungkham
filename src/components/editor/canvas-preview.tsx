@@ -290,6 +290,35 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       commitView({ ...viewRef.current, scale: viewRef.current.scale * factor })
     }
 
+    // Wheel / trackpad-pinch zoom anchored at the cursor. Registered natively so
+    // preventDefault actually stops the page from scrolling behind the canvas.
+    const wheelRef = useRef<(e: WheelEvent) => void>(() => {})
+    wheelRef.current = (e: WheelEvent) => {
+      const host = containerRef.current?.parentElement
+      if (!host) return
+      const rect = host.getBoundingClientRect()
+      const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1)
+      const v = viewRef.current
+      const next = Math.max(0.2, Math.min(64, v.scale * Math.exp(-dy * 0.0015)))
+      if (next === v.scale) return
+      const k = next / v.scale
+      const px = e.clientX - (rect.left + rect.width / 2)
+      const py = e.clientY - (rect.top + rect.height / 2)
+      measureBase()
+      commitView({ scale: next, tx: px - (px - v.tx) * k, ty: py - (py - v.ty) * k })
+    }
+
+    useEffect(() => {
+      const host = containerRef.current?.parentElement
+      if (!host) return
+      const onWheel = (e: WheelEvent) => {
+        e.preventDefault()
+        wheelRef.current(e)
+      }
+      host.addEventListener('wheel', onWheel, { passive: false })
+      return () => host.removeEventListener('wheel', onWheel)
+    }, [])
+
 
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
