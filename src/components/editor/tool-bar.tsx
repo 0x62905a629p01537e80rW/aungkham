@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import {
   Keyboard,
   Layers,
@@ -62,6 +62,7 @@ import {
   Smile,
   Shapes,
   Layers2,
+  Pencil,
   Droplet,
   Droplets,
   FlipHorizontal,
@@ -133,6 +134,8 @@ interface ToolBarProps {
   onReplaceImage?: () => void
   onOpenTemplates?: () => void
   onInsertElement?: (tab: 'stickers' | 'shapes' | 'overlay') => void
+  /** Opens freehand doodle drawing mode on the main canvas. */
+  onDraw?: () => void
   onImageTool?: (
     tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg',
   ) => void
@@ -233,6 +236,7 @@ export function ToolBar({
   onOpenTemplates,
   onInsertElement,
   onImageTool,
+  onDraw,
   autoOpenTool,
   onAutoOpenHandled,
   onEraseAll,
@@ -312,54 +316,72 @@ export function ToolBar({
         <span className="mr-1 shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           BG
         </span>
-        {IMAGE_TOOLS.map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            type="button"
-            disabled={!!selected}
-            onClick={() =>
-              key === 'replace'
-                ? onReplaceImage?.()
-                : onImageTool?.(
-                    key as
-                      | 'crop'
-                      | 'resize'
-                      | 'flip'
-                      | 'fit'
-                      | 'frame'
-                      | 'blur'
-                      | 'adjust'
-                      | 'filter'
-                      | 'removebg',
-                  )
-            }
-            className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
-          >
-            <Icon className="size-[17px]" />
-            {label}
-          </button>
-        ))}
-        {onInsertElement && (
-          <>
-            <span className="mx-1 h-6 w-px shrink-0 bg-border/60" />
-            {([
-              { id: 'stickers', label: 'Stickers', Icon: Smile },
-              { id: 'shapes', label: 'Shapes', Icon: Shapes },
-              { id: 'overlay', label: 'Overlays', Icon: Layers2 },
-            ] as const).map(({ id, label, Icon }) => (
-              <button
-                key={id}
-                type="button"
-                disabled={!!selected}
-                onClick={() => onInsertElement(id)}
-                className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
-              >
-                <Icon className="size-[17px]" />
-                {label}
-              </button>
-            ))}
-          </>
-        )}
+        {IMAGE_TOOLS.map(({ key, label, icon: Icon }) => {
+          const button = (
+            <button
+              key={key}
+              type="button"
+              disabled={!!selected}
+              onClick={() =>
+                key === 'replace'
+                  ? onReplaceImage?.()
+                  : onImageTool?.(
+                      key as
+                        | 'crop'
+                        | 'resize'
+                        | 'flip'
+                        | 'fit'
+                        | 'frame'
+                        | 'blur'
+                        | 'adjust'
+                        | 'filter'
+                        | 'removebg',
+                    )
+              }
+              className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
+            >
+              <Icon className="size-[17px]" />
+              {label}
+            </button>
+          )
+
+          // Sticker / shape / overlay shortcuts sit right before "Adjust".
+          if (key !== 'adjust') return button
+          return (
+            <Fragment key="adjust-group">
+              {onInsertElement &&
+                ([
+                  { id: 'stickers', label: 'Stickers', Icon: Smile },
+                  { id: 'shapes', label: 'Shapes', Icon: Shapes },
+                  { id: 'overlay', label: 'Overlays', Icon: Layers2 },
+                ] as const).map(({ id, label: elLabel, Icon: ElIcon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    disabled={!!selected}
+                    onClick={() => onInsertElement(id)}
+                    className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
+                  >
+                    <ElIcon className="size-[17px]" />
+                    {elLabel}
+                  </button>
+                ))}
+              {onDraw && (
+                <button
+                  type="button"
+                  disabled={!!selected}
+                  onClick={onDraw}
+                  className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
+                >
+                  <Pencil className="size-[17px]" />
+                  Draw
+                </button>
+              )}
+              <span className="mx-1 h-6 w-px shrink-0 bg-border/60" />
+              {button}
+            </Fragment>
+          )
+        })}
       </div>
 
       <div className="overflow-x-auto perf-scroll px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

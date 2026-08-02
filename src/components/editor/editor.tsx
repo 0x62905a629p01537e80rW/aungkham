@@ -25,6 +25,13 @@ import { shouldAskForRating } from '@/lib/rate-us'
 import { AuthProvider } from '@/components/auth-provider'
 import { ScreenGuard } from './screen-guard'
 import { EraseBar, EraseOverlay, DEFAULT_BRUSH, type EraseBrush, type EraseControls } from './erase-overlay'
+import {
+  DoodleBar,
+  DoodleOverlay,
+  DEFAULT_DOODLE,
+  type DoodleBrush,
+  type DoodleControls,
+} from './doodle-overlay'
 import { useI18n } from '@/components/i18n'
 import { ensureGoogleFontsLoaded } from '@/lib/google-fonts'
 import { ensureRemoteFontsLoaded } from '@/lib/remote-fonts'
@@ -73,6 +80,12 @@ export function Editor() {
   const [eraseBypass, setEraseBypass] = useState(false)
   const [eraseHistory, setEraseHistory] = useState({ canUndo: false, canRedo: false })
   const eraseControls = useRef<EraseControls | null>(null)
+  const [doodling, setDoodling] = useState(false)
+  const [doodle, setDoodle] = useState<string | undefined>(undefined)
+  const [draftDoodle, setDraftDoodle] = useState<string | undefined>(undefined)
+  const [pen, setPen] = useState<DoodleBrush>(DEFAULT_DOODLE)
+  const [doodleHistory, setDoodleHistory] = useState({ canUndo: false, canRedo: false })
+  const doodleControls = useRef<DoodleControls | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const exportRef = useRef<HTMLDivElement>(null)
   const replaceRef = useRef<HTMLInputElement>(null)
@@ -510,6 +523,7 @@ export function Editor() {
                 exporting={exporting}
                 showGrid={showGrid}
                 eraseMask={erasing ? (eraseBypass ? undefined : draftMask) : eraseMask}
+                doodle={doodling ? undefined : doodle}
                 overlay={
                   erasing ? (
                     <EraseOverlay
@@ -519,9 +533,17 @@ export function Editor() {
                       controlsRef={eraseControls}
                       onHistory={setEraseHistory}
                     />
+                  ) : doodling ? (
+                    <DoodleOverlay
+                      initial={doodle}
+                      brush={pen}
+                      onChange={setDraftDoodle}
+                      controlsRef={doodleControls}
+                      onHistory={setDoodleHistory}
+                    />
                   ) : undefined
                 }
-                selectedId={erasing ? null : selectedId}
+                selectedId={erasing || doodling ? null : selectedId}
                 onSelect={setSelectedId}
                 onMove={(id, x, y) => updateLayer(id, { x, y })}
                 onResize={(id, fontSize) => updateLayer(id, { fontSize })}
@@ -557,6 +579,25 @@ export function Editor() {
                 setErasing(false)
               }}
             />
+          ) : doodling ? (
+            <DoodleBar
+              brush={pen}
+              onBrush={(patch) => setPen((b) => ({ ...b, ...patch }))}
+              canUndo={doodleHistory.canUndo}
+              canRedo={doodleHistory.canRedo}
+              onUndo={() => doodleControls.current?.undo()}
+              onRedo={() => doodleControls.current?.redo()}
+              onClear={() => doodleControls.current?.clear()}
+              onCancel={() => {
+                setDraftDoodle(undefined)
+                setDoodling(false)
+              }}
+              onApply={() => {
+                setDoodle(draftDoodle)
+                setDraftDoodle(undefined)
+                setDoodling(false)
+              }}
+            />
           ) : (
           <ToolBar
             layers={layers}
@@ -589,6 +630,11 @@ export function Editor() {
               setSelectedId(null)
               setDraftMask(eraseMask)
               setErasing(true)
+            }}
+            onDraw={() => {
+              setSelectedId(null)
+              setDraftDoodle(doodle)
+              setDoodling(true)
             }}
           />
           )}
@@ -659,7 +705,14 @@ export function Editor() {
 
 
 
-          <ExportCanvas ref={exportRef} image={image} layers={layers} size={naturalSize} eraseMask={eraseMask} />
+          <ExportCanvas
+            ref={exportRef}
+            image={image}
+            layers={layers}
+            size={naturalSize}
+            eraseMask={eraseMask}
+            doodle={doodle}
+          />
 
           {filtering && (
             <FilterEditor
