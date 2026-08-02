@@ -37,27 +37,29 @@ export function StorePanel({
         />
       </div>
 
-      {tab === 'templates' && <DownloadTemplatesPanel onApply={onApplyTemplate} />}
-      {tab === 'fonts' && <DownloadFontsSheet open inline />}
-      {tab === 'background' && (
-        <StoreAssetsGrid
-          kind="Background"
-          emptyHint="No backgrounds published yet."
-          onUse={(src) => onUseBackground?.(src)}
-        />
-      )}
-      {tab === 'shapes' && (
-        <StoreAssetsGrid
-          kind="Shapes"
-          emptyHint="No shapes published yet. Downloaded shapes appear in Add element › Shapes."
-        />
-      )}
-      {tab === 'stickers' && (
-        <StoreAssetsGrid
-          kind="Stickers"
-          emptyHint="No stickers published yet. Downloaded stickers appear in Add element › Stickers."
-        />
-      )}
+      <div className="flex min-h-0 flex-1 flex-col">
+        {tab === 'templates' && <DownloadTemplatesPanel onApply={onApplyTemplate} />}
+        {tab === 'fonts' && <DownloadFontsSheet open inline />}
+        {tab === 'background' && (
+          <StoreAssetsGrid
+            kind="Background"
+            emptyHint="No backgrounds published yet."
+            onUse={(src) => onUseBackground?.(src)}
+          />
+        )}
+        {tab === 'shapes' && (
+          <StoreAssetsGrid
+            kind="Shapes"
+            emptyHint="No shapes published yet. Downloaded shapes appear in Add element › Shapes."
+          />
+        )}
+        {tab === 'stickers' && (
+          <StoreAssetsGrid
+            kind="Stickers"
+            emptyHint="No stickers published yet. Downloaded stickers appear in Add element › Stickers."
+          />
+        )}
+      </div>
     </div>
   )
 }
