@@ -6,8 +6,15 @@ export const AD_EVENT = 'app:show-ad'
 /** In-memory (per app run). Resets when the app is closed or fully reloaded. */
 let adShown = false
 
-type AdConfig = { showAd?: boolean; skip?: boolean; second?: string | number }
-type Ad = { url: string; skip: boolean; seconds: number }
+type AdConfig = {
+  showAd?: boolean
+  skip?: boolean
+  second?: string | number
+  enableUrl?: boolean
+  Url?: string
+  url?: string
+}
+type Ad = { url: string; skip: boolean; seconds: number; link: string | null }
 
 let adPromise: Promise<Ad | null> | null = null
 
@@ -32,7 +39,10 @@ export function prefetchAd(): Promise<Ad | null> {
       await (img.decode ? img.decode() : new Promise((r) => { img.onload = r; img.onerror = r }))
 
       const seconds = Math.max(0, Number(String(cfg.second ?? 0).trim()) || 0)
-      return { url, skip: cfg.skip === true, seconds }
+      const rawLink = String(cfg.Url ?? cfg.url ?? '').trim()
+      const link =
+        cfg.enableUrl === true && /^https?:\/\//i.test(rawLink) ? rawLink : null
+      return { url, skip: cfg.skip === true, seconds, link }
     } catch {
       return null
     }
@@ -111,7 +121,18 @@ export function LaunchAd() {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
       <div className="relative w-full max-w-md">
-        <img src={ad.url} alt="Announcement" className="w-full rounded-2xl shadow-2xl" />
+        {ad.link ? (
+          <a
+            href={ad.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block cursor-pointer"
+          >
+            <img src={ad.url} alt="Announcement" className="w-full rounded-2xl shadow-2xl" />
+          </a>
+        ) : (
+          <img src={ad.url} alt="Announcement" className="w-full rounded-2xl shadow-2xl" />
+        )}
         <button
           type="button"
           disabled={!canSkip}
