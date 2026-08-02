@@ -28,6 +28,7 @@ import { EraseBar, EraseOverlay, DEFAULT_BRUSH, type EraseBrush, type EraseContr
 import {
   DoodleBar,
   DoodleOverlay,
+  ShowToolsButton,
   DEFAULT_DOODLE,
   type DoodleBrush,
   type DoodleControls,
@@ -85,6 +86,8 @@ export function Editor() {
   const [draftDoodle, setDraftDoodle] = useState<string | undefined>(undefined)
   const [pen, setPen] = useState<DoodleBrush>(DEFAULT_DOODLE)
   const [doodleHistory, setDoodleHistory] = useState({ canUndo: false, canRedo: false })
+  const [panMode, setPanMode] = useState(false)
+  const [toolsHidden, setToolsHidden] = useState(false)
   const doodleControls = useRef<DoodleControls | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const exportRef = useRef<HTMLDivElement>(null)
@@ -537,6 +540,8 @@ export function Editor() {
                     <DoodleOverlay
                       initial={doodle}
                       brush={pen}
+                      panMode={panMode}
+                      onDrawStart={() => setToolsHidden(true)}
                       onChange={setDraftDoodle}
                       controlsRef={doodleControls}
                       onHistory={setDoodleHistory}
@@ -580,9 +585,14 @@ export function Editor() {
               }}
             />
           ) : doodling ? (
+            toolsHidden ? (
+              <ShowToolsButton onShow={() => setToolsHidden(false)} />
+            ) : (
             <DoodleBar
               brush={pen}
               onBrush={(patch) => setPen((b) => ({ ...b, ...patch }))}
+              panMode={panMode}
+              onPanMode={setPanMode}
               canUndo={doodleHistory.canUndo}
               canRedo={doodleHistory.canRedo}
               onUndo={() => doodleControls.current?.undo()}
@@ -598,6 +608,7 @@ export function Editor() {
                 setDoodling(false)
               }}
             />
+            )
           ) : (
           <ToolBar
             layers={layers}
@@ -634,6 +645,8 @@ export function Editor() {
             onDraw={() => {
               setSelectedId(null)
               setDraftDoodle(doodle)
+              setToolsHidden(false)
+              setPanMode(false)
               setDoodling(true)
             }}
           />
