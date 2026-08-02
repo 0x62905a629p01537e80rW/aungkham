@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import {
   Keyboard,
   Layers,
@@ -62,6 +62,7 @@ import {
   Smile,
   Shapes,
   Layers2,
+  Pencil,
   Droplet,
   Droplets,
   FlipHorizontal,
