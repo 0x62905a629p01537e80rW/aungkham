@@ -137,7 +137,7 @@ export function DownloadTemplatesPanel({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center gap-2 pb-2">
+      <div className="flex shrink-0 items-center gap-2 pb-2">
         <h2 className="text-sm font-semibold text-foreground">Download Templates</h2>
         <input
           ref={fileRef}
@@ -177,7 +177,7 @@ export function DownloadTemplatesPanel({
         </p>
       )}
 
-      <div className="flex flex-col gap-3 pb-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pb-6">
         {allPacks.map((pack) => {
           const tier = templateTier(pack, tiers)
           const has = installed.has(pack.file) || isTemplatePackInstalled(pack.file)
