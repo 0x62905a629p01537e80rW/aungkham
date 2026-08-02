@@ -12,6 +12,8 @@ export interface RemoteFont {
   url: string
   /** bytes, when known */
   size?: number
+  /** tier recorded at install time (used for export gating) */
+  tier?: FontTier
 }
 
 import { cdnBase, cdnFetch, cdnListUrl } from './cdn-ref'
@@ -61,6 +63,8 @@ export function fontTier(
   font: { file: string; name: string },
   tiers: Record<string, FontTier> | null,
 ): FontTier {
+  const own = (font as RemoteFont).tier
+  if (own) return own
   if (!tiers) return 'free'
   return (
     tiers[tierKey(font.file)] ??
@@ -158,6 +162,38 @@ async function fetchJsdelivrFonts(BASE: string): Promise<RemoteFont[]> {
       }
     })
   return list
+}
+
+/* ---------------- free fonts folder ---------------- */
+
+let freeCache: RemoteFont[] | null = null
+
+/** Fonts published under /Freefonts, listed by Freefonts/index.json. */
+export async function fetchFreeFonts(force = false): Promise<RemoteFont[]> {
+  if (freeCache && !force) return freeCache
+  const BASE = await cdnBase('Freefonts')
+  try {
+    const res = await cdnFetch(`${BASE}/index.json`)
+    if (!res.ok) throw new Error('no index')
+    const raw = (await res.json()) as unknown
+    const arr = Array.isArray(raw) ? raw : ((raw as { fonts?: unknown[] })?.fonts ?? [])
+    freeCache = (arr as unknown[])
+      .map((it) => {
+        const file = typeof it === 'string' ? it : ((it as { file?: string })?.file ?? '')
+        if (!file || !FONT_RE.test(file)) return null
+        const clean = decodeURIComponent(file)
+        return {
+          name: prettyName(clean),
+          file: clean,
+          url: `${BASE}/${encodeURIComponent(clean)}`,
+          tier: 'free' as FontTier,
+        }
+      })
+      .filter(Boolean) as RemoteFont[]
+  } catch {
+    freeCache = []
+  }
+  return freeCache
 }
 
 /* ---------------- offline storage ---------------- */
