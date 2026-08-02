@@ -89,7 +89,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.375rem;
   --glass-rim: color-mix(in oklab, white 55%, transparent);
   --glass-edge: color-mix(in oklab, white 14%, transparent);
   --glass-shadow: color-mix(in oklab, var(--foreground) 45%, transparent);

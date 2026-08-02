@@ -58,6 +58,7 @@ export function Editor() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [discardOpen, setDiscardOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [doodleDiscard, setDoodleDiscard] = useState(false)
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const [adjusting, setAdjusting] = useState(false)
   const [removingBg, setRemovingBg] = useState(false)
@@ -265,8 +266,18 @@ export function Editor() {
     setEraseHistory({ canUndo: false, canRedo: false })
   }
 
+  function clearDoodle() {
+    setDoodling(false)
+    setDoodle(undefined)
+    setDraftDoodle(undefined)
+    setToolsHidden(false)
+    setPanMode(false)
+    setDoodleHistory({ canUndo: false, canRedo: false })
+  }
+
   function resetAll() {
     clearErase()
+    clearDoodle()
     setImage(null)
     setLayers([])
     setSelectedId(null)
@@ -599,8 +610,8 @@ export function Editor() {
               onRedo={() => doodleControls.current?.redo()}
               onClear={() => doodleControls.current?.clear()}
               onCancel={() => {
-                setDraftDoodle(undefined)
-                setDoodling(false)
+                if (draftDoodle) setDoodleDiscard(true)
+                else setDoodling(false)
               }}
               onApply={() => {
                 setDoodle(draftDoodle)
@@ -768,6 +779,38 @@ export function Editor() {
           )}
         </>
       )}
+
+      <AlertDialog open={doodleDiscard} onOpenChange={setDoodleDiscard}>
+        <AlertDialogContent className="glass-panel max-w-[min(92vw,340px)] rounded-2xl border-0 shadow-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-base font-normal">
+              {t('discard.title')}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              {t('discard.desc')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <AlertDialogAction
+              onClick={() => {
+                setDoodleDiscard(false)
+                doodleControls.current?.clear()
+                setDraftDoodle(undefined)
+                setDoodle(undefined)
+                setToolsHidden(false)
+                setPanMode(false)
+                setDoodling(false)
+              }}
+              className="glass-indicator w-full rounded-full border-0 font-normal text-primary-foreground hover:opacity-90"
+            >
+              {t('discard.confirm')}
+            </AlertDialogAction>
+            <AlertDialogCancel className="glass-tile mt-0 w-full rounded-full border-0 font-normal">
+              {t('discard.cancel')}
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={discardOpen} onOpenChange={setDiscardOpen}>
         <AlertDialogContent className="glass-panel max-w-[min(92vw,340px)] rounded-3xl border-0 shadow-2xl">
