@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Check, Crown, Download, Loader2, RefreshCw, Trash2, Upload, X } from 'lucide-react'
+import { Check, Crown, Download, Loader2, Play, RefreshCw, Trash2, Upload, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/components/auth-provider'
 import { PaymentPage } from './payment-page'
@@ -22,6 +22,7 @@ import {
 import {
   ensureRemoteFontsLoaded,
   fetchFontTiers,
+  fetchFreeFonts,
   fetchRemoteFonts,
   fontTier,
   installRemoteFont,
@@ -46,9 +47,10 @@ export function DownloadFontsSheet({
   inline?: boolean
 }) {
   const [fonts, setFonts] = useState<RemoteFont[]>([])
+  const [freeFonts, setFreeFonts] = useState<RemoteFont[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<'mm' | 'en' | 'free' | 'premium' | 'downloaded'>('mm')
+  const [tab, setTab] = useState<'mm' | 'free' | 'en' | 'premium' | 'downloaded'>('mm')
   const [busy, setBusy] = useState<string | null>(null)
   const [tick, force] = useState(0)
   const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
@@ -103,6 +105,7 @@ export function DownloadFontsSheet({
     try {
       const list = await fetchRemoteFonts(refresh)
       setFonts(list)
+      void fetchFreeFonts(refresh).then(setFreeFonts).catch(() => {})
       // Tier metadata can change independently from the font catalog, so
       // refresh it whenever this page opens.
       void fetchFontTiers(true).then(setTiers).catch(() => {})
@@ -131,11 +134,11 @@ export function DownloadFontsSheet({
       const extra = installed.filter((f) => !fonts.some((x) => x.name === f.name))
       return [...known, ...extra]
     }
-    if (tab === 'free') return fonts.filter((f) => fontTier(f, tiers) === 'free')
+    if (tab === 'free') return freeFonts
     if (tab === 'premium') return fonts.filter((f) => fontTier(f, tiers) === 'premium')
     return fonts
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fonts, tab, tiers, tick])
+  }, [fonts, freeFonts, tab, tiers, tick])
 
   const targets = useMemo(() => results.slice(0, limit), [results, limit])
 
@@ -171,16 +174,29 @@ export function DownloadFontsSheet({
   )
 
   async function download(font: RemoteFont) {
-    if (fontTier(font, tiers) === 'premium' && !isPro) {
+    const tier = fontTier(font, tiers)
+    if (tier === 'premium' && !isPro) {
       setPay(true)
       return
     }
     setBusy(font.name)
     setError(null)
     try {
-      await installRemoteFont(font)
+      await installRemoteFont({ ...font, tier })
     } catch {
       setError(`Couldn't download ${font.name}.`)
+    }
+    setBusy(null)
+  }
+
+  /** Install a premium font for trial — usable in the editor, gated on export. */
+  async function tryFont(font: RemoteFont) {
+    setBusy(font.name)
+    setError(null)
+    try {
+      await installRemoteFont({ ...font, tier: 'premium' })
+    } catch {
+      setError(`Couldn't load ${font.name}.`)
     }
     setBusy(null)
   }
@@ -244,8 +260,8 @@ export function DownloadFontsSheet({
           {(
             [
               { id: 'mm', label: 'Myanmar' },
-              { id: 'en', label: 'English' },
               { id: 'free', label: 'Free' },
+              { id: 'en', label: 'English' },
               { id: 'premium', label: 'Premium' },
               { id: 'downloaded', label: 'Downloaded' },
             ] as const
@@ -410,19 +426,31 @@ export function DownloadFontsSheet({
                     </button>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    aria-label={locked ? `Unlock ${f.name} with Pro` : `Download ${f.name}`}
-                    onClick={() => void download(f)}
-                    className={cn(
-                      'flex size-7 shrink-0 items-center justify-center rounded-full active:scale-90',
-                      locked
-                        ? 'bg-amber-500/15 text-amber-500'
-                        : 'bg-emerald-500/15 text-emerald-500',
+                  <div className="flex shrink-0 items-center gap-1">
+                    {locked && (
+                      <button
+                        type="button"
+                        aria-label={`Try ${f.name}`}
+                        onClick={() => void tryFont(f)}
+                        className="flex items-center gap-1 rounded-full bg-foreground/10 px-2 py-1 text-[10px] font-bold text-foreground active:scale-90"
+                      >
+                        <Play className="size-3" /> Try
+                      </button>
                     )}
-                  >
-                    {locked ? <Crown className="size-3.5" /> : <Download className="size-3.5" />}
-                  </button>
+                    <button
+                      type="button"
+                      aria-label={locked ? `Unlock ${f.name} with Pro` : `Download ${f.name}`}
+                      onClick={() => void download(f)}
+                      className={cn(
+                        'flex size-7 items-center justify-center rounded-full active:scale-90',
+                        locked
+                          ? 'bg-amber-500/15 text-amber-500'
+                          : 'bg-emerald-500/15 text-emerald-500',
+                      )}
+                    >
+                      {locked ? <Crown className="size-3.5" /> : <Download className="size-3.5" />}
+                    </button>
+                  </div>
                 )}
               </div>
             )
