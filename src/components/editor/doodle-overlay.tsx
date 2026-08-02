@@ -2,12 +2,14 @@ import { useEffect, useRef, type MutableRefObject, type PointerEvent } from 'rea
 import {
   Check,
   Eraser,
+  Hand,
   Highlighter,
   Minus,
   Pen,
   PenLine,
   Redo2,
   RotateCcw,
+  SlidersHorizontal,
   Sparkles,
   SprayCan,
   Undo2,
@@ -47,16 +49,29 @@ const MAX_DIM = 1800
 interface DoodleOverlayProps {
   initial?: string
   brush: DoodleBrush
+  /** When true the surface is inert so pinch-zoom / pan reaches the canvas. */
+  panMode?: boolean
   onChange: (data: string | undefined) => void
+  /** Fired when a stroke begins, used to collapse the tool bar out of the way. */
+  onDrawStart?: () => void
   controlsRef: MutableRefObject<DoodleControls | null>
   onHistory?: (s: { canUndo: boolean; canRedo: boolean }) => void
 }
 
 /** Freehand drawing surface laid over the canvas image box. */
-export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory }: DoodleOverlayProps) {
+export function DoodleOverlay({
+  initial,
+  brush,
+  panMode,
+  onChange,
+  onDrawStart,
+  controlsRef,
+  onHistory,
+}: DoodleOverlayProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const drawing = useRef(false)
+  const active = useRef(new Set<number>())
   const last = useRef<{ x: number; y: number } | null>(null)
   const start = useRef<{ x: number; y: number } | null>(null)
   const snapshot = useRef<ImageData | null>(null)
@@ -241,10 +256,17 @@ export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory
   function down(e: PointerEvent<HTMLDivElement>) {
     e.stopPropagation()
     e.preventDefault()
+    active.current.add(e.pointerId)
+    if (active.current.size > 1) {
+      // Second finger down: this is a zoom gesture, not a stroke.
+      abortStroke()
+      return
+    }
     const p = pointOf(e.clientX, e.clientY)
     if (!p) return
     pushHistory()
     drawing.current = true
+    onDrawStart?.()
     start.current = p
     last.current = p
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -260,7 +282,7 @@ export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory
 
   function move(e: PointerEvent<HTMLDivElement>) {
     e.stopPropagation()
-    if (!drawing.current) return
+    if (!drawing.current || active.current.size > 1) return
     const p = pointOf(e.clientX, e.clientY)
     if (!p) return
     if (snapshot.current) {
@@ -276,6 +298,7 @@ export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory
 
   function up(e: PointerEvent<HTMLDivElement>) {
     e.stopPropagation()
+    active.current.delete(e.pointerId)
     if (!drawing.current) return
     drawing.current = false
     last.current = null
@@ -289,10 +312,27 @@ export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory
     emit()
   }
 
+  /** Roll back the in-progress stroke (used when a pinch gesture starts). */
+  function abortStroke() {
+    if (!drawing.current) return
+    drawing.current = false
+    last.current = null
+    start.current = null
+    snapshot.current = null
+    const ctx = ctxOf()
+    const prev = undoStack.current.pop()
+    if (ctx && prev) ctx.putImageData(prev, 0, 0)
+    syncHistory()
+    emit()
+  }
+
   return (
     <div
       ref={hostRef}
-      className="absolute inset-0 z-30 cursor-crosshair touch-none select-none"
+      className={cn(
+        'absolute inset-0 z-30 touch-none select-none',
+        panMode ? 'pointer-events-none' : 'cursor-crosshair',
+      )}
       onPointerDown={down}
       onPointerMove={move}
       onPointerUp={up}
