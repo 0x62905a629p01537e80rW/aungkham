@@ -90,7 +90,7 @@ export function StoreAssetsGrid({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center gap-2 pb-2">
+      <div className="flex shrink-0 items-center gap-2 pb-2">
         <h3 className="text-sm font-semibold text-foreground">{kind}</h3>
         <button
           type="button"
@@ -102,7 +102,7 @@ export function StoreAssetsGrid({
         </button>
       </div>
 
-      {error && <p className="pb-2 text-xs text-destructive">{error}</p>}
+      {error && <p className="shrink-0 pb-2 text-xs text-destructive">{error}</p>}
       {loading && !all.length && (
         <p className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground">
           <Loader2 className="size-3.5 animate-spin" /> Loading…
@@ -114,22 +114,22 @@ export function StoreAssetsGrid({
         </p>
       )}
 
-      <div className="grid grid-cols-3 gap-2 pb-6">
+      <div className="grid min-h-0 flex-1 auto-rows-min grid-cols-3 gap-2 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pb-6">
         {all.map((asset) => {
           const tier = storeTier(asset, tiers)
           const has = isStoreAssetInstalled(kind, asset.file)
           const src = getStoreAssetSrc(kind, asset.file)
           return (
-            <div key={asset.file} className="glass-tile overflow-hidden rounded-2xl p-1.5">
+            <div key={asset.file} className="glass-tile relative aspect-square overflow-hidden rounded-2xl">
               <button
                 type="button"
                 aria-label={asset.name}
                 disabled={!has || !src}
                 onClick={() => src && onUse?.(src, asset)}
-                className="relative block aspect-square w-full overflow-hidden rounded-xl bg-secondary/40 active:scale-[0.98] disabled:opacity-80"
+                className="relative block size-full overflow-hidden rounded-2xl bg-secondary/40 active:scale-[0.98] disabled:opacity-80"
               >
                 {src ? (
-                  <img src={src} alt={asset.name} className="size-full object-contain" />
+                  <img src={src} alt={asset.name} className="size-full object-cover" />
                 ) : (
                   <span className="grid size-full place-items-center text-[10px] text-muted-foreground">
                     …
@@ -147,37 +147,34 @@ export function StoreAssetsGrid({
                   {tier === 'premium' ? 'Pro' : 'Free'}
                 </span>
               </button>
-              <div className="flex items-center gap-1 pt-1">
-                <span className="truncate text-[10px] text-muted-foreground">{asset.name}</span>
-                {has ? (
+              {has ? (
+                <>
+                  <span className="pointer-events-none absolute right-1 top-1 flex items-center gap-0.5 rounded-full bg-emerald-500/25 px-1.5 py-0.5 text-[9px] font-bold text-emerald-500">
+                    <Check className="size-2.5" />
+                  </span>
                   <button
                     type="button"
                     aria-label={`Delete ${asset.name}`}
                     onClick={() => void removeStoreAsset(kind, asset.file)}
-                    className="ml-auto flex size-6 items-center justify-center rounded-full text-muted-foreground active:scale-90"
+                    className="absolute bottom-1 right-1 flex size-7 items-center justify-center rounded-full bg-background/70 text-muted-foreground backdrop-blur active:scale-90"
                   >
                     <Trash2 className="size-3.5" />
                   </button>
-                ) : (
-                  <button
-                    type="button"
-                    aria-label={`Download ${asset.name}`}
-                    onClick={() => void download(asset)}
-                    disabled={busy === asset.file}
-                    className="glass-cta ml-auto flex size-6 items-center justify-center rounded-full disabled:opacity-50"
-                  >
-                    {busy === asset.file ? (
-                      <Loader2 className="size-3 animate-spin" />
-                    ) : (
-                      <Download className="size-3" />
-                    )}
-                  </button>
-                )}
-              </div>
-              {has && (
-                <span className="mt-0.5 flex items-center gap-1 text-[9px] font-bold text-emerald-500">
-                  <Check className="size-2.5" /> Added
-                </span>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  aria-label={`Download ${asset.name}`}
+                  onClick={() => void download(asset)}
+                  disabled={busy === asset.file}
+                  className="glass-cta absolute bottom-1 right-1 flex size-7 items-center justify-center rounded-full disabled:opacity-50"
+                >
+                  {busy === asset.file ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Download className="size-3.5" />
+                  )}
+                </button>
               )}
             </div>
           )
