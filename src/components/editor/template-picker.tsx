@@ -8,6 +8,7 @@ import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import { LOGO_FONT_KEYS } from '@/lib/logo-templates'
 import { THUMB_FONT_KEYS } from '@/lib/thumbnail-templates'
+import { FBAD_FONT_KEYS } from '@/lib/fbad-templates'
 import { ensureRemoteFontsForKeys } from '@/lib/remote-fonts'
 import type { TextLayer } from '@/lib/text-layer'
 import { exportTemplatesJson } from '@/lib/export-templates'
@@ -103,11 +104,11 @@ export function TemplateGallery({
   const [selected, setSelected] = useState<string[]>([])
   const [tick, force] = useState(0)
   const activeGroup =
-    lang === 'EN' && (group === 'New' || group === 'Logo' || group === 'Thumbnail') ? 'All' : group
+    lang === 'EN' && (group === 'New' || group === 'Logo' || group === 'Thumbnail' || group === 'Facebook Ad') ? 'All' : group
 
   useEffect(() => {
     void ensureTemplatePacksLoaded().then(() => force((n) => n + 1))
-    void ensureRemoteFontsForKeys([...LOGO_FONT_KEYS, ...THUMB_FONT_KEYS])
+    void ensureRemoteFontsForKeys([...LOGO_FONT_KEYS, ...THUMB_FONT_KEYS, ...FBAD_FONT_KEYS])
       .then(() => force((n) => n + 1))
       .catch(() => {})
     return subscribeRemoteTemplates(() => force((n) => n + 1))
@@ -122,7 +123,7 @@ export function TemplateGallery({
   const groups = useMemo(
     () => [
       ...TEMPLATE_GROUPS.filter(
-        (g) => !(lang === 'EN' && (g === 'New' || g === 'Logo' || g === 'Thumbnail')),
+        (g) => !(lang === 'EN' && (g === 'New' || g === 'Logo' || g === 'Thumbnail' || g === 'Facebook Ad')),
       ),
       'Free',
       'Downloaded',
