@@ -265,6 +265,15 @@ export function Editor() {
     setEraseHistory({ canUndo: false, canRedo: false })
   }
 
+  function clearDoodle() {
+    setDoodling(false)
+    setDoodle(undefined)
+    setDraftDoodle(undefined)
+    setToolsHidden(false)
+    setPanMode(false)
+    setDoodleHistory({ canUndo: false, canRedo: false })
+  }
+
   function resetAll() {
     clearErase()
     clearDoodle()
