@@ -101,7 +101,7 @@ export function TemplateGallery({
   const [selectMode, setSelectMode] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const [tick, force] = useState(0)
-  const activeGroup = lang === 'EN' && group === 'New' ? 'All' : group
+  const activeGroup = lang === 'EN' && (group === 'New' || group === 'Logo') ? 'All' : group
 
   useEffect(() => {
     void ensureTemplatePacksLoaded().then(() => force((n) => n + 1))
