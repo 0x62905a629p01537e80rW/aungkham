@@ -8,6 +8,7 @@ import { shapeDataUrl } from '@/lib/shapes'
 import { PREMIUM_TEMPLATES } from '@/lib/premium-templates'
 import { PREMIUM_TEMPLATES_2 } from '@/lib/premium-templates-2'
 import { IMPORTED_TEMPLATES } from '@/lib/imported-templates'
+import { LOGO_TEMPLATES } from '@/lib/logo-templates'
 import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
 import { fitScale, measurable } from '@/lib/template-fit'
 
