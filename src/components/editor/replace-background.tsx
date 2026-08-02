@@ -3,10 +3,11 @@ import { ImageIcon, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
+import { AspectPicker } from './aspect-picker'
+import { DownloadedBackgrounds } from './downloaded-backgrounds'
 import {
   makeBackgroundDataUrl,
-  makeGradientDataUrl,
-  makeSolidDataUrl,
+  gradientCss,
 } from '@/lib/background'
 
 interface ReplaceBackgroundProps {
@@ -19,6 +20,7 @@ interface ReplaceBackgroundProps {
 export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundProps) {
   const galleryRef = useRef<HTMLInputElement>(null)
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
+  const [pendingCss, setPendingCss] = useState<string | null>(null)
 
   if (!open) return null
 
@@ -56,12 +58,14 @@ export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundPr
           </button>
         </div>
 
+        <DownloadedBackgrounds className="mx-auto w-full max-w-sm" onPick={(src) => onPick(src)} />
+
         <div className="mx-auto w-full max-w-sm">
           <span className="mb-2 block px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Solid colors
           </span>
           <SolidGrid
-            onPick={(c) => onPick(makeSolidDataUrl(c))}
+            onPick={(c) => setPendingCss(c)}
             onCustom={() => setPicker('solid')}
           />
         </div>
@@ -71,7 +75,7 @@ export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundPr
             Gradients
           </span>
           <GradientGrid
-            onPick={(stops) => onPick(makeGradientDataUrl(stops))}
+            onPick={(stops) => setPendingCss(gradientCss(stops))}
             onCustom={() => setPicker('gradient')}
           />
 
@@ -89,7 +93,18 @@ export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundPr
         onClose={() => setPicker(null)}
         onConfirm={(css) => {
           setPicker(null)
-          onPick(makeBackgroundDataUrl(css))
+          setPendingCss(css)
+        }}
+      />
+
+      <AspectPicker
+        open={pendingCss !== null}
+        preview={pendingCss ?? undefined}
+        onClose={() => setPendingCss(null)}
+        onPick={(ratio) => {
+          const css = pendingCss!
+          setPendingCss(null)
+          onPick(makeBackgroundDataUrl(css, 1200, ratio))
         }}
       />
     </div>
