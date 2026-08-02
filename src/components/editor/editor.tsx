@@ -267,6 +267,7 @@ export function Editor() {
 
   function resetAll() {
     clearErase()
+    clearDoodle()
     setImage(null)
     setLayers([])
     setSelectedId(null)
