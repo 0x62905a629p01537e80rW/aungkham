@@ -2,12 +2,14 @@ import { useEffect, useRef, type MutableRefObject, type PointerEvent } from 'rea
 import {
   Check,
   Eraser,
+  Hand,
   Highlighter,
   Minus,
   Pen,
   PenLine,
   Redo2,
   RotateCcw,
+  SlidersHorizontal,
   Sparkles,
   SprayCan,
   Undo2,
@@ -47,16 +49,29 @@ const MAX_DIM = 1800
 interface DoodleOverlayProps {
   initial?: string
   brush: DoodleBrush
+  /** When true the surface is inert so pinch-zoom / pan reaches the canvas. */
+  panMode?: boolean
   onChange: (data: string | undefined) => void
+  /** Fired when a stroke begins, used to collapse the tool bar out of the way. */
+  onDrawStart?: () => void
   controlsRef: MutableRefObject<DoodleControls | null>
   onHistory?: (s: { canUndo: boolean; canRedo: boolean }) => void
 }
 
 /** Freehand drawing surface laid over the canvas image box. */
-export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory }: DoodleOverlayProps) {
+export function DoodleOverlay({
+  initial,
+  brush,
+  panMode,
+  onChange,
+  onDrawStart,
+  controlsRef,
+  onHistory,
+}: DoodleOverlayProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const drawing = useRef(false)
+  const active = useRef(new Set<number>())
   const last = useRef<{ x: number; y: number } | null>(null)
   const start = useRef<{ x: number; y: number } | null>(null)
   const snapshot = useRef<ImageData | null>(null)
@@ -241,10 +256,17 @@ export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory
   function down(e: PointerEvent<HTMLDivElement>) {
     e.stopPropagation()
     e.preventDefault()
+    active.current.add(e.pointerId)
+    if (active.current.size > 1) {
+      // Second finger down: this is a zoom gesture, not a stroke.
+      abortStroke()
+      return
+    }
     const p = pointOf(e.clientX, e.clientY)
     if (!p) return
     pushHistory()
     drawing.current = true
+    onDrawStart?.()
     start.current = p
     last.current = p
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -260,7 +282,7 @@ export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory
 
   function move(e: PointerEvent<HTMLDivElement>) {
     e.stopPropagation()
-    if (!drawing.current) return
+    if (!drawing.current || active.current.size > 1) return
     const p = pointOf(e.clientX, e.clientY)
     if (!p) return
     if (snapshot.current) {
@@ -276,6 +298,7 @@ export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory
 
   function up(e: PointerEvent<HTMLDivElement>) {
     e.stopPropagation()
+    active.current.delete(e.pointerId)
     if (!drawing.current) return
     drawing.current = false
     last.current = null
@@ -289,10 +312,27 @@ export function DoodleOverlay({ initial, brush, onChange, controlsRef, onHistory
     emit()
   }
 
+  /** Roll back the in-progress stroke (used when a pinch gesture starts). */
+  function abortStroke() {
+    if (!drawing.current) return
+    drawing.current = false
+    last.current = null
+    start.current = null
+    snapshot.current = null
+    const ctx = ctxOf()
+    const prev = undoStack.current.pop()
+    if (ctx && prev) ctx.putImageData(prev, 0, 0)
+    syncHistory()
+    emit()
+  }
+
   return (
     <div
       ref={hostRef}
-      className="absolute inset-0 z-30 cursor-crosshair touch-none select-none"
+      className={cn(
+        'absolute inset-0 z-30 touch-none select-none',
+        panMode ? 'pointer-events-none' : 'cursor-crosshair',
+      )}
       onPointerDown={down}
       onPointerMove={move}
       onPointerUp={up}
@@ -331,6 +371,8 @@ const SWATCHES = [
 interface DoodleBarProps {
   brush: DoodleBrush
   onBrush: (patch: Partial<DoodleBrush>) => void
+  panMode: boolean
+  onPanMode: (v: boolean) => void
   canUndo: boolean
   canRedo: boolean
   onUndo: () => void
@@ -344,6 +386,8 @@ interface DoodleBarProps {
 export function DoodleBar({
   brush,
   onBrush,
+  panMode,
+  onPanMode,
   canUndo,
   canRedo,
   onUndo,
@@ -370,6 +414,14 @@ export function DoodleBar({
           Cancel
         </button>
         <div className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label="Pan and zoom"
+            className={cn(iconBtn, panMode && 'bg-primary text-primary-foreground')}
+            onClick={() => onPanMode(!panMode)}
+          >
+            <Hand className="size-5" />
+          </button>
           <button type="button" aria-label="Undo" disabled={!canUndo} className={iconBtn} onClick={onUndo}>
             <Undo2 className="size-5" />
           </button>
@@ -456,5 +508,20 @@ export function DoodleBar({
         Straight line {brush.straight ? 'on' : 'off'}
       </button>
     </div>
+  )
+}
+
+/** Floating pill that brings the collapsed drawing tools back. */
+export function ShowToolsButton({ onShow }: { onShow: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onShow}
+      className="glass-bar fixed inset-x-0 bottom-0 z-50 mx-auto flex w-auto items-center justify-center gap-2 rounded-t-2xl px-5 py-3 text-sm font-semibold text-foreground transition active:scale-95"
+      style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+    >
+      <SlidersHorizontal className="size-4" />
+      Show tools
+    </button>
   )
 }
