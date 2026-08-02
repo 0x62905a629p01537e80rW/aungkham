@@ -360,7 +360,18 @@ const FEATURED = UPLOADED_TEMPLATES
         onClose={() => setPicker(null)}
         onConfirm={(css) => {
           setPicker(null)
-          onImage(makeBackgroundDataUrl(css))
+          setPendingCss(css)
+        }}
+      />
+
+      <AspectPicker
+        open={pendingCss !== null}
+        preview={pendingCss ?? undefined}
+        onClose={() => setPendingCss(null)}
+        onPick={(ratio) => {
+          const css = pendingCss!
+          setPendingCss(null)
+          onImage(makeBackgroundDataUrl(css, 1200, ratio))
         }}
       />
     </div>
