@@ -428,13 +428,13 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       if (!layer) return
       const dist = centerDistance(layer, e.clientX, e.clientY)
       const ratio = dist / st.startDist
-      const next = Math.max(2, Math.min(40, st.startSize * ratio))
+      const next = Math.max(0.5, Math.min(120, st.startSize * ratio))
       onResize(st.id, Math.round(next * 2) / 2)
       // Keep the wrap box proportional so scaling doesn't re-flow the lines.
       if (st.startWrap) {
         const k = next / st.startSize
         onChange?.(st.id, {
-          wrapWidth: Math.round(Math.max(5, Math.min(400, st.startWrap * k)) * 10) / 10,
+          wrapWidth: Math.round(Math.max(5, Math.min(1200, st.startWrap * k)) * 10) / 10,
         })
       }
     }
