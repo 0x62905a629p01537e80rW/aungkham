@@ -371,6 +371,8 @@ const SWATCHES = [
 interface DoodleBarProps {
   brush: DoodleBrush
   onBrush: (patch: Partial<DoodleBrush>) => void
+  panMode: boolean
+  onPanMode: (v: boolean) => void
   canUndo: boolean
   canRedo: boolean
   onUndo: () => void
@@ -384,6 +386,8 @@ interface DoodleBarProps {
 export function DoodleBar({
   brush,
   onBrush,
+  panMode,
+  onPanMode,
   canUndo,
   canRedo,
   onUndo,
@@ -410,6 +414,14 @@ export function DoodleBar({
           Cancel
         </button>
         <div className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label="Pan and zoom"
+            className={cn(iconBtn, panMode && 'bg-primary text-primary-foreground')}
+            onClick={() => onPanMode(!panMode)}
+          >
+            <Hand className="size-5" />
+          </button>
           <button type="button" aria-label="Undo" disabled={!canUndo} className={iconBtn} onClick={onUndo}>
             <Undo2 className="size-5" />
           </button>
@@ -496,5 +508,20 @@ export function DoodleBar({
         Straight line {brush.straight ? 'on' : 'off'}
       </button>
     </div>
+  )
+}
+
+/** Floating pill that brings the collapsed drawing tools back. */
+export function ShowToolsButton({ onShow }: { onShow: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onShow}
+      className="glass-bar fixed inset-x-0 bottom-0 z-50 mx-auto flex w-auto items-center justify-center gap-2 rounded-t-2xl px-5 py-3 text-sm font-semibold text-foreground transition active:scale-95"
+      style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+    >
+      <SlidersHorizontal className="size-4" />
+      Show tools
+    </button>
   )
 }
