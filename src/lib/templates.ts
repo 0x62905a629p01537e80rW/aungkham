@@ -9,6 +9,7 @@ import { PREMIUM_TEMPLATES } from '@/lib/premium-templates'
 import { PREMIUM_TEMPLATES_2 } from '@/lib/premium-templates-2'
 import { IMPORTED_TEMPLATES } from '@/lib/imported-templates'
 import { LOGO_TEMPLATES } from '@/lib/logo-templates'
+import { THUMBNAIL_TEMPLATES } from '@/lib/thumbnail-templates'
 import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
 import { fitScale, measurable } from '@/lib/template-fit'
 
@@ -869,9 +870,10 @@ export const TEMPLATES: TemplateDef[] = [
   ...UPLOADED_TEMPLATES,
   ...IMPORTED_TEMPLATES,
   ...LOGO_TEMPLATES,
+  ...THUMBNAIL_TEMPLATES,
   ...PREMIUM_TEMPLATES,
   ...PREMIUM_TEMPLATES_2,
   ...buildAll(),
 ]
 
-export const TEMPLATE_GROUPS: string[] = ['All', 'New', 'Logo', 'Premium', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
+export const TEMPLATE_GROUPS: string[] = ['All', 'New', 'Logo', 'Thumbnail', 'Premium', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
