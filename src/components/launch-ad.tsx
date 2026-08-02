@@ -18,6 +18,20 @@ type Ad = { url: string; skip: boolean; seconds: number; link: string | null }
 
 let adPromise: Promise<Ad | null> | null = null
 
+/** Tolerant JSON parse: repairs a missing comma between "a": x "b": y pairs. */
+function parseLoose(text: string): AdConfig | null {
+  try {
+    return JSON.parse(text) as AdConfig
+  } catch {
+    try {
+      const fixed = text.replace(/("|\d|true|false|null)(\s*[\r\n]+\s*)(")/g, '$1,$2$3')
+      return JSON.parse(fixed) as AdConfig
+    } catch {
+      return null
+    }
+  }
+}
+
 /** Fetch ad.json and fully download + decode ad.png before it can ever be shown. */
 export function prefetchAd(): Promise<Ad | null> {
   if (adPromise) return adPromise
@@ -26,8 +40,8 @@ export function prefetchAd(): Promise<Ad | null> {
     try {
       const res = await fetch(`${BASE}/ad.json`)
       if (!res.ok) return null
-      const cfg = (await res.json()) as AdConfig
-      if (cfg.showAd !== true) return null
+      const cfg = parseLoose(await res.text())
+      if (!cfg || cfg.showAd !== true) return null
 
       // Download the full image bytes, then decode it, before declaring it ready.
       const imgRes = await fetch(`${BASE}/ad.png`)
