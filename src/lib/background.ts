@@ -84,37 +84,67 @@ export const MORE_GRADIENTS: GradientPreset[] = [
 ]
 
 
-export function makeSolidDataUrl(color: string, size = 1200) {
+export interface AspectRatio {
+  label: string
+  /** width / height */
+  ratio: number
+}
+
+export const ASPECT_RATIOS: AspectRatio[] = [
+  { label: '1:1', ratio: 1 },
+  { label: '4:5', ratio: 4 / 5 },
+  { label: '9:16', ratio: 9 / 16 },
+  { label: '3:4', ratio: 3 / 4 },
+  { label: '16:9', ratio: 16 / 9 },
+  { label: '4:3', ratio: 4 / 3 },
+  { label: '3:2', ratio: 3 / 2 },
+  { label: '2:3', ratio: 2 / 3 },
+]
+
+function dims(size: number, ratio: number) {
+  return ratio >= 1
+    ? { w: Math.round(size), h: Math.round(size / ratio) }
+    : { w: Math.round(size * ratio), h: Math.round(size) }
+}
+
+export function makeSolidDataUrl(color: string, size = 1200, ratio = 1) {
+  const { w, h } = dims(size, ratio)
   const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
+  canvas.width = w
+  canvas.height = h
   const ctx = canvas.getContext('2d')!
   ctx.fillStyle = color
-  ctx.fillRect(0, 0, size, size)
+  ctx.fillRect(0, 0, w, h)
   return canvas.toDataURL('image/png')
 }
 
-export function makeGradientDataUrl(stops: [string, string, string?], size = 1200) {
+export function gradientCss(stops: [string, string, string?]) {
+  return `linear-gradient(135deg,${(stops.filter(Boolean) as string[]).join(',')})`
+}
+
+export function makeGradientDataUrl(stops: [string, string, string?], size = 1200, ratio = 1) {
+  const { w, h } = dims(size, ratio)
   const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
+  canvas.width = w
+  canvas.height = h
   const ctx = canvas.getContext('2d')!
-  const grad = ctx.createLinearGradient(0, 0, size, size)
+  const grad = ctx.createLinearGradient(0, 0, w, h)
   const filtered = stops.filter(Boolean) as string[]
   filtered.forEach((c, i) => grad.addColorStop(i / (filtered.length - 1), c))
   ctx.fillStyle = grad
-  ctx.fillRect(0, 0, size, size)
+  ctx.fillRect(0, 0, w, h)
   return canvas.toDataURL('image/png')
 }
 
 /** Renders a solid hex OR a css linear/radial gradient string to a data URL. */
-export function makeBackgroundDataUrl(css: string, size = 1200) {
+export function makeBackgroundDataUrl(css: string, size = 1200, ratio = 1) {
   const m = /^(linear|radial)-gradient\((.*)\)$/is.exec(css.trim())
-  if (!m) return makeSolidDataUrl(css, size)
+  if (!m) return makeSolidDataUrl(css, size, ratio)
 
+  const { w, h } = dims(size, ratio)
   const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
+  canvas.width = w
+  canvas.height = h
   const ctx = canvas.getContext('2d')!
   const parts = m[2].split(/,(?![^(]*\))/).map((p) => p.trim())
   let angle = 90
@@ -131,12 +161,12 @@ export function makeBackgroundDataUrl(css: string, size = 1200) {
 
   let grad: CanvasGradient
   if (m[1].toLowerCase() === 'radial') {
-    grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 1.4)
+    grad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) / 1.4)
   } else {
     const rad = ((angle - 90) * Math.PI) / 180
-    const cx = size / 2
-    const cy = size / 2
-    const len = Math.abs(size * Math.cos(rad)) / 2 + Math.abs(size * Math.sin(rad)) / 2
+    const cx = w / 2
+    const cy = h / 2
+    const len = Math.abs(w * Math.cos(rad)) / 2 + Math.abs(h * Math.sin(rad)) / 2
     grad = ctx.createLinearGradient(
       cx - Math.cos(rad) * len,
       cy - Math.sin(rad) * len,
@@ -146,6 +176,6 @@ export function makeBackgroundDataUrl(css: string, size = 1200) {
   }
   parsed.forEach((st) => grad.addColorStop(Math.min(1, Math.max(0, st.pos)), st.color))
   ctx.fillStyle = grad
-  ctx.fillRect(0, 0, size, size)
+  ctx.fillRect(0, 0, w, h)
   return canvas.toDataURL('image/png')
 }
