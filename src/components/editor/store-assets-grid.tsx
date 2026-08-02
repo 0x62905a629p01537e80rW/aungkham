@@ -37,6 +37,7 @@ export function StoreAssetsGrid({
   const [busy, setBusy] = useState<string | null>(null)
   const [pay, setPay] = useState(false)
   const [, force] = useState(0)
+  const [visible, setVisible] = useState(12)
   const { isPro } = useAuth()
 
   useEffect(() => subscribeStoreAssets(() => force((n) => n + 1)), [])
@@ -61,6 +62,7 @@ export function StoreAssetsGrid({
     // Always re-fetch listings when the section opens so freshly purged
     // jsDelivr uploads appear without tapping Refresh.
     void load(true)
+    setVisible(12)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind])
 
@@ -68,6 +70,8 @@ export function StoreAssetsGrid({
     const remote = new Set(assets.map((a) => a.file))
     return [...assets, ...listInstalledStoreAssets(kind).filter((a) => !remote.has(a.file))]
   }, [assets, kind])
+
+  const shown = all.slice(0, visible)
 
   async function download(asset: StoreAsset) {
     const map = tiers ?? (await fetchStoreTiers(kind).catch(() => ({}) as Record<string, StoreTier>))
@@ -115,7 +119,7 @@ export function StoreAssetsGrid({
       )}
 
       <div className="grid min-h-0 flex-1 auto-rows-min grid-cols-3 gap-2 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pb-6">
-        {all.map((asset) => {
+        {shown.map((asset) => {
           const tier = storeTier(asset, tiers)
           const has = isStoreAssetInstalled(kind, asset.file)
           const src = getStoreAssetSrc(kind, asset.file)
@@ -179,6 +183,25 @@ export function StoreAssetsGrid({
             </div>
           )
         })}
+        {all.length > 0 && (
+          <div className="col-span-3 pt-1">
+            {visible < all.length ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const next = all.slice(visible, visible + 12)
+                  setVisible((v) => v + 12)
+                  for (const a of next) void previewStoreAsset(a).catch(() => {})
+                }}
+                className="glass-tile w-full rounded-xl py-2 text-xs font-semibold text-primary transition active:scale-[0.98]"
+              >
+                See more ({all.length - visible})
+              </button>
+            ) : (
+              <p className="py-2 text-center text-[11px] text-muted-foreground">Nothing more.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
