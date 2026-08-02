@@ -25,6 +25,8 @@ interface CanvasPreviewProps {
   showGrid?: boolean
   /** Stage-level erase mask (white = keep, transparent = erased) for all layers. */
   eraseMask?: string
+  /** Flattened freehand drawing rendered above the image and layers. */
+  doodle?: string
   /** Extra content rendered inside the image box, e.g. the erase brush surface. */
   overlay?: ReactNode
   onSelect: (id: string | null) => void
@@ -47,6 +49,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       exporting,
       showGrid = false,
       eraseMask,
+      doodle,
       overlay,
       onSelect,
       onMove,
@@ -925,6 +928,16 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               const sel = layers.find((l) => l.id === selectedId && !l.hidden)
               return sel ? <div className="absolute inset-0">{renderChrome(sel)}</div> : null
             })()}
+
+          {doodle && (
+            <img
+              src={doodle}
+              alt=""
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-20 h-full w-full"
+              draggable={false}
+            />
+          )}
 
           {overlay}
 
