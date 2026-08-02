@@ -790,6 +790,14 @@ export function Editor() {
               {t('discard.desc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-base font-normal">
+              {t('discard.title')}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              {t('discard.desc')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
             <AlertDialogAction
               onClick={() => {
