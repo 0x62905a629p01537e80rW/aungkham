@@ -8,10 +8,11 @@ interface ExportCanvasProps {
   layers: TextLayer[]
   size: { w: number; h: number } | null
   eraseMask?: string
+  doodle?: string
 }
 
 export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(function ExportCanvas(
-  { image, layers, size, eraseMask },
+  { image, layers, size, eraseMask, doodle },
   ref,
 ) {
   const safeSize = size ?? { w: 1, h: 1 }
@@ -72,6 +73,16 @@ export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(functi
           )
         })}
         </div>
+
+        {doodle && (
+          <img
+            src={doodle}
+            alt=""
+            className="absolute inset-0 block h-full w-full"
+            style={{ objectFit: 'fill' }}
+            draggable={false}
+          />
+        )}
       </div>
     </div>
   )
