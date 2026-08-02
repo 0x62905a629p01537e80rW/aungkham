@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "production-2",
+      "version": "0.1.0",
+      "title": "Production_2"
+    },
+    "tools": [
+      {
+        "name": "list_fonts",
+        "title": "List fonts",
+        "description": "List the Myanmar and English fonts available in the app's public font store, with their tier (free or premium) and download URL.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "tier": {
+              "default": "all",
+              "description": "Filter fonts by tier.",
+              "type": "string",
+              "enum": [
+                "all",
+                "free",
+                "premium"
+              ]
+            },
+            "limit": {
+              "default": 50,
+              "description": "Maximum number of fonts to return.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_store_assets",
+        "title": "List store assets",
+        "description": "List public asset-store items (templates, backgrounds, shapes or stickers) available for download in the app, with their CDN URLs.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "templates",
+                "backgrounds",
+                "shapes",
+                "stickers"
+              ],
+              "description": "Which asset store category to list."
+            },
+            "limit": {
+              "default": 30,
+              "description": "Maximum number of assets to return.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          "required": [
+            "category"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_template_pack",
+        "title": "Get template pack",
+        "description": "Fetch one published template pack JSON from the app's public template store so its layers and styling can be inspected.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "Template pack file name, e.g. 'mm-pack-01.json' from list_store_assets."
+            }
+          },
+          "required": [
+            "file"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
