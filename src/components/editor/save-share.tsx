@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, FileText, FolderPlus, Loader2, Save } from 'lucide-react'
+import { ArrowLeft, FileText, FolderPlus, Loader2, Ratio, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth-provider'
 import { requestAd } from '@/components/launch-ad'
@@ -15,6 +15,7 @@ interface SaveShareProps {
   onBack: () => void
   onSaveImage: () => void
   onSaveProject: () => void
+  onBatchExport?: () => void
 }
 
 
@@ -25,6 +26,7 @@ export function SaveShare({
   savedProject = false,
   onBack,
   onSaveProject,
+  onBatchExport,
 }: SaveShareProps) {
   const { isPro } = useAuth()
   const [saving, setSaving] = useState(false)
@@ -121,6 +123,12 @@ export function SaveShare({
                 )}
               </Button>
             </div>
+
+            {onBatchExport && (
+              <Button variant="outline" className="mt-3 h-11 w-full rounded-xl" onClick={onBatchExport}>
+                <Ratio className="mr-2 size-4" /> Smart resize &amp; batch export
+              </Button>
+            )}
           </section>
 
           <section className="mt-4 rounded-2xl border border-border p-4">
