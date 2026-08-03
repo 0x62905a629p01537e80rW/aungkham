@@ -361,6 +361,24 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       return () => host.removeEventListener('wheel', onWheel)
     }, [])
 
+    // Safety net: a pointer that ends outside the stage (or whose captured
+    // element unmounted) never reaches stageUp. Track releases on the window so
+    // the pointer map can't accumulate ghosts that later fake a pinch.
+    useEffect(() => {
+      const release = (e: globalThis.PointerEvent) => {
+        pointers.current.delete(e.pointerId)
+        if (pointers.current.size < 2) pinchRef.current = null
+        if (pointers.current.size === 0) panRef.current = null
+      }
+      window.addEventListener('pointerup', release)
+      window.addEventListener('pointercancel', release)
+      return () => {
+        window.removeEventListener('pointerup', release)
+        window.removeEventListener('pointercancel', release)
+      }
+    }, [])
+
+
 
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>, id: string) {
