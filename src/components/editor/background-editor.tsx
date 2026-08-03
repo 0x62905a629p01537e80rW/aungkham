@@ -942,7 +942,7 @@ function FitStage({
   const optsRef = useRef(opts)
   optsRef.current = opts
   const frame = useRef<number | null>(null)
-  const [, setReady] = useState(0)
+  const [ready, setReady] = useState(0)
 
   useEffect(() => {
     let alive = true
@@ -994,7 +994,7 @@ function FitStage({
     return () => {
       if (frame.current) cancelAnimationFrame(frame.current)
     }
-  }, [key])
+  }, [key, ready])
 
   return <canvas ref={canvasRef} className={className} />
 }
