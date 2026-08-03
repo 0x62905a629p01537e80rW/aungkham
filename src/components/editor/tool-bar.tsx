@@ -529,7 +529,7 @@ export function ToolBar({
                 collisionPadding={12}
                 onOpenAutoFocus={(e) => e.preventDefault()}
 
-                className="glass-panel w-[min(86vw,296px)] rounded-3xl border-0 bg-transparent p-3 shadow-none transition-[background-color,backdrop-filter,opacity] duration-300 has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-dragging=true]]:![backdrop-filter:none] has-[[data-peek=true]]:!bg-transparent has-[[data-peek=true]]:!shadow-none has-[[data-peek=true]]:![backdrop-filter:none]"
+                className="glass-panel w-[min(86vw,296px)] rounded-2xl p-3 transition-[background-color,opacity] duration-200 has-[[data-dragging=true]]:!border-transparent has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-peek=true]]:!border-transparent has-[[data-peek=true]]:!bg-transparent has-[[data-peek=true]]:!shadow-none"
               >
                 <ToolContent
                   tool={tool.key}
