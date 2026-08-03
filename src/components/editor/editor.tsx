@@ -567,7 +567,11 @@ export function Editor() {
                 exporting={exporting}
                 showGrid={showGrid}
                 onViewChange={(v) => {
-                  viewRef.current = v
+                  viewRef.current = {
+                    scale: v.scale,
+                    cx: Math.max(5, Math.min(95, v.cx)),
+                    cy: Math.max(5, Math.min(95, v.cy)),
+                  }
                 }}
                 eraseMask={erasing ? (eraseBypass ? undefined : draftMask) : eraseMask}
                 doodle={doodling ? undefined : doodle}
