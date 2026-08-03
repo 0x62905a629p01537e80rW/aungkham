@@ -327,19 +327,19 @@ export function ToolBar({
 
   return (
     <nav
-      className="glass-bar fixed inset-x-0 bottom-0 z-30 border-t border-border/40"
+      className="glass-bar fixed inset-x-0 bottom-0 z-30 border-t border-border/70"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      {/* Image / background row — locked while a layer is selected */}
+      {/* Tier 1 — background / canvas tools. Locked while a layer is selected. */}
       <div
         aria-hidden={!!selected}
         className={cn(
-          'flex items-center gap-1 overflow-x-auto perf-scroll border-b border-border/60 px-2 py-1.5 transition duration-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          selected && 'pointer-events-none select-none opacity-45',
+          'rail-row gap-0.5 border-b border-border/60 bg-secondary/40 px-2 py-1 transition duration-200',
+          selected && 'pointer-events-none select-none opacity-40',
         )}
       >
-        <span className="mr-1 shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          BG
+        <span className="mr-1.5 shrink-0 font-display text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+          Canvas
         </span>
         {IMAGE_TOOLS.map(({ key, label, icon: Icon }) => {
           const button = (
@@ -363,9 +363,9 @@ export function ToolBar({
                         | 'removebg',
                     )
               }
-              className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
+              className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium tracking-tight text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
             >
-              <Icon className="size-[17px]" />
+              <Icon className="size-[16px]" strokeWidth={1.9} />
               {label}
             </button>
           )
@@ -385,9 +385,9 @@ export function ToolBar({
                     type="button"
                     disabled={!!selected}
                     onClick={() => onInsertElement(id)}
-                    className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
+                    className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium tracking-tight text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
                   >
-                    <ElIcon className="size-[17px]" />
+                    <ElIcon className="size-[16px]" strokeWidth={1.9} />
                     {elLabel}
                   </button>
                 ))}
@@ -396,25 +396,26 @@ export function ToolBar({
                   type="button"
                   disabled={!!selected}
                   onClick={onDraw}
-                  className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] font-medium text-foreground/75 transition active:scale-95"
+                  className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium tracking-tight text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
                 >
-                  <Pencil className="size-[17px]" />
+                  <Pencil className="size-[16px]" strokeWidth={1.9} />
                   Draw
                 </button>
               )}
-              <span className="mx-1 h-6 w-px shrink-0 bg-border/60" />
+              <span className="mx-1 h-7 w-px shrink-0 bg-border" />
               {button}
             </Fragment>
           )
         })}
       </div>
 
-      <div className="overflow-x-auto perf-scroll px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-       <div className="relative flex w-max items-center gap-1">
+      {/* Tier 2 — layer / text tools with a sliding accent underline. */}
+      <div className="rail-row px-2 pb-1 pt-1.5">
+       <div className="relative flex w-max items-end gap-0.5">
         {pill && (
           <span
             aria-hidden
-            className="glass-indicator pointer-events-none absolute inset-y-0 rounded-2xl"
+            className="glass-indicator pointer-events-none absolute inset-y-0"
             style={{ transform: `translateX(${pill.left}px)`, width: pill.width }}
           />
         )}
@@ -422,22 +423,24 @@ export function ToolBar({
           type="button"
           onClick={onAdd}
           aria-label="Add text layer"
-          className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl bg-primary px-3 py-1.5 text-[10px] font-semibold text-primary-foreground transition active:scale-95"
+          className="mb-1.5 flex shrink-0 flex-col items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-[10px] font-semibold text-primary-foreground transition active:scale-95"
         >
-          <Plus className="size-[18px]" strokeWidth={2.4} />
+          <Plus className="size-[18px]" strokeWidth={2.6} />
           Add
         </button>
 
         <button
           type="button"
           onClick={onOpenTemplates}
-          className="flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium text-foreground/85 transition active:scale-95"
+          className="mb-1.5 flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[10px] font-medium text-foreground/85 transition-colors hover:bg-accent active:scale-95"
         >
-          <LayoutTemplate className="size-[18px]" />
+          <LayoutTemplate className="size-[18px]" strokeWidth={1.9} />
           Templates
         </button>
 
-        <span className="mx-1 h-8 w-px shrink-0 bg-border" />
+        <span className="mx-1 mb-3 h-7 w-px shrink-0 bg-border" />
+
+
 
 
         {TOOLS.filter(
