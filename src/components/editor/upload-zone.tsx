@@ -130,28 +130,25 @@ const FEATURED = UPLOADED_TEMPLATES
             </div>
 
             {/* Primary actions */}
-            <div className="mt-4 grid grid-cols-2 gap-3 px-4">
+            <div className="mt-4 grid grid-cols-[1fr_auto] gap-3 px-4">
               <button
                 type="button"
                 onClick={() => galleryRef.current?.click()}
-                className="flex h-24 w-full flex-col items-center justify-center gap-2 rounded-2xl bg-primary text-primary-foreground shadow-lg transition active:scale-[0.98]"
+                className="flex h-20 w-full flex-col items-center justify-center gap-1.5 rounded-2xl bg-primary text-primary-foreground shadow-lg transition active:scale-[0.98]"
               >
-                <span className="grid size-10 place-items-center rounded-xl bg-background/20">
-                  <Plus className="size-6" />
-                </span>
+                <Plus className="size-6" />
                 <span className="text-[15px] font-bold">Editing</span>
               </button>
               <button
                 type="button"
                 onClick={() => setTab('templates')}
-                className="flex h-24 w-full flex-col items-center justify-center gap-2 rounded-2xl bg-secondary text-foreground shadow-lg transition active:scale-[0.98]"
+                className="flex h-20 w-28 flex-col items-center justify-center gap-1.5 rounded-2xl bg-secondary text-foreground shadow-lg transition active:scale-[0.98]"
               >
-                <span className="grid size-10 place-items-center rounded-xl bg-background/40">
-                  <LayoutTemplate className="size-6" />
-                </span>
+                <LayoutTemplate className="size-6" />
                 <span className="text-[15px] font-bold">Templates</span>
               </button>
             </div>
+
 
 
             {/* Tool grid */}

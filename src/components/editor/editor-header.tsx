@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { ArrowLeft, ArrowRight, FileJson, Grid3x3, History, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PremiumBadge } from './premium-badge'
@@ -64,13 +66,26 @@ export function EditorHeader({
   onExportTemplate,
 }: EditorHeaderProps) {
   const { t } = useI18n()
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const onScroll = (e: Event) => setScrolled(!!(e as CustomEvent<boolean>).detail)
+    window.addEventListener('home-scroll', onScroll as EventListener)
+    return () => window.removeEventListener('home-scroll', onScroll as EventListener)
+  }, [])
+  const transparent = !hasImage && !scrolled
   const iconBtn =
     'size-9 rounded-lg text-foreground/75 transition-colors hover:bg-accent hover:text-foreground active:scale-95'
   return (
     <header
-      className="glass-bar sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/70 px-2"
+      className={cn(
+        'sticky top-0 z-30 flex h-14 items-center justify-between px-2 transition-colors duration-200',
+        transparent
+          ? 'border-b border-transparent bg-transparent'
+          : 'glass-bar border-b border-border/70',
+      )}
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
+
       {hasImage ? (
         <div className="flex w-full items-center justify-between gap-1.5">
           <Button
