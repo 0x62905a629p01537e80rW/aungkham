@@ -114,12 +114,33 @@ const FEATURED = UPLOADED_TEMPLATES
           <div className="flex flex-col">
             {/* Hero banner */}
             <div className="relative h-44 w-full overflow-hidden">
+              <div aria-hidden className="absolute inset-0 flex flex-col justify-center gap-2 opacity-70">
+                {[0, 1].map((row) => (
+                  <div
+                    key={row}
+                    className="marquee-track gap-2"
+                    style={{
+                      animationDuration: row ? '34s' : '26s',
+                      animationDirection: row ? 'reverse' : 'normal',
+                    }}
+                  >
+                    {[...FEATURED.slice(0, 12), ...FEATURED.slice(0, 12)].map((tpl, i) => (
+                      <div
+                        key={`${row}-${i}`}
+                        className="relative h-[72px] w-[128px] shrink-0 overflow-hidden rounded-xl border border-border/50"
+                      >
+                        <TemplateThumb template={tpl} bg="#0d0d14" />
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
               <div
                 aria-hidden
                 className="absolute inset-0"
                 style={{
                   background:
-                    'radial-gradient(120% 90% at 20% 0%, color-mix(in oklab, var(--primary) 55%, transparent), transparent 60%), radial-gradient(100% 80% at 90% 20%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 65%), linear-gradient(180deg, color-mix(in oklab, var(--primary) 20%, var(--background)), var(--background))',
+                    'radial-gradient(120% 90% at 20% 0%, color-mix(in oklab, var(--primary) 35%, transparent), transparent 65%), linear-gradient(180deg, color-mix(in oklab, var(--background) 55%, transparent) 0%, color-mix(in oklab, var(--background) 82%, transparent) 55%, var(--background) 100%)',
                 }}
               />
               <div className="relative flex h-full flex-col justify-end px-5 pb-8">
@@ -134,6 +155,7 @@ const FEATURED = UPLOADED_TEMPLATES
                 </p>
               </div>
             </div>
+
 
             {/* Primary actions */}
             <div className="mt-4 grid grid-cols-[1fr_auto] gap-3 px-4">
