@@ -820,6 +820,11 @@ function FontPicker({
     })),
   ]
 
+  // Downloaded premium fonts also belong in the premium groups.
+  const installedPremium = listInstalledRemoteFonts()
+    .filter((f) => f.tier === 'premium')
+    .map((f) => `rf:${f.name}`)
+
   const base =
     group === 'recent'
       ? (recents.map((k) => all.find((f) => f.key === k)).filter(Boolean) as FontEntry[])
@@ -829,13 +834,19 @@ function FontPicker({
           ? all.filter((f) => f.customId)
           : group === 'downloaded'
             ? all.filter((f) => f.key.startsWith('gf:') || f.key.startsWith('rf:'))
-            : all.filter(
-                (f) =>
-                  !f.customId &&
-                  !f.key.startsWith('gf:') &&
-                  !f.key.startsWith('rf:') &&
-                  groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
-              )
+            : [
+                ...all.filter(
+                  (f) =>
+                    !f.customId &&
+                    !f.key.startsWith('gf:') &&
+                    !f.key.startsWith('rf:') &&
+                    groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
+                ),
+                ...(group === 'mm-premium'
+                  ? all.filter((f) => installedPremium.includes(f.key))
+                  : []),
+              ]
+
 
   const q = query.trim().toLowerCase()
   const items = q ? base.filter((f) => f.label.toLowerCase().includes(q)) : base
