@@ -771,6 +771,8 @@ function FontPicker({
           : groupOf(current?.category ?? 'Sans'),
   )
   const [query, setQuery] = useState('')
+  const [storeTab, setStoreTab] = useState<'mm' | 'free' | 'en' | 'premium' | null>(null)
+
   const [, force] = useState(0)
   const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
