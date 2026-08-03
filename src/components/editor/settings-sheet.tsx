@@ -6,7 +6,10 @@ import {
   Crown,
   FileText,
   Headphones,
+  Info,
+  Lightbulb,
   LogOut,
+  MessageSquareHeart,
   Settings as SettingsIcon,
   ShieldAlert,
   Star,
@@ -91,7 +94,11 @@ function Row({
       onClick={onClick}
       className="flex w-full items-center gap-3 border-b border-border/50 px-1 py-4 text-left transition active:opacity-70"
     >
-      {icon && <span className="shrink-0">{icon}</span>}
+      {icon && (
+        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-secondary text-primary">
+          {icon}
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span className="block text-base font-semibold">{title}</span>
         <span className="mt-0.5 block text-sm text-muted-foreground">{desc}</span>
@@ -443,22 +450,30 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
               <Row
                 title={t('settings.feedback')}
                 desc={t('settings.feedbackDesc')}
+                icon={<MessageSquareHeart className="size-5" />}
                 onClick={() => mailto('Myan app — Feedback')}
               />
               <Row
                 title={t('settings.request')}
                 desc={t('settings.requestDesc')}
+                icon={<Lightbulb className="size-5" />}
                 onClick={() => mailto('Myan app — Feature request')}
               />
               <Row
                 title={t('settings.rate')}
                 desc={t('settings.rateDesc')}
+                icon={<Star className="size-5" />}
                 onClick={() => {
                   markRated()
                   window.open(PLAY_STORE_URL, '_blank', 'noopener,noreferrer')
                 }}
               />
-              <Row title={t('settings.about')} desc={t('settings.aboutDesc')} onClick={() => setAbout(true)} />
+              <Row
+                title={t('settings.about')}
+                desc={t('settings.aboutDesc')}
+                icon={<Info className="size-5" />}
+                onClick={() => setAbout(true)}
+              />
               <Row
                 title={t('settings.fonts')}
                 desc={t('settings.fontsDesc')}
