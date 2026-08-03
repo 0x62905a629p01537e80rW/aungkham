@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import {
+  ArrowLeft,
+  Plus,
   Camera,
   FolderOpen,
   ImageIcon,
