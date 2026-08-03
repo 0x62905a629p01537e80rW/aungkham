@@ -2118,25 +2118,69 @@ function ToolContent({
             <ToolHeading>Bend</ToolHeading>
             <button
               type="button"
-              onClick={() => onChange({ bend: 0 })}
+              onClick={() => onChange({ bend: 0, bendRadius: 100, bendFlip: false })}
               className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
             >
               Reset
             </button>
           </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {BEND_PRESETS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => onChange(p.patch)}
+                className={cn(
+                  'h-9 rounded-xl border text-[11px] font-semibold transition active:scale-95',
+                  layer.bend === p.patch.bend ? 'border-primary bg-primary/10 text-primary' : 'border-border',
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
           <SliderField
             label="Arc"
             value={layer.bend ?? 0}
-            min={-100}
-            max={100}
+            min={-200}
+            max={200}
             onChange={(v) => onChange({ bend: v })}
           />
+
+          <SliderField
+            label="Radius"
+            value={layer.bendRadius ?? 100}
+            min={30}
+            max={400}
+            suffix="%"
+            onChange={(v) => onChange({ bendRadius: v })}
+          />
+
+          <button
+            type="button"
+            onClick={() => onChange({ bendFlip: !layer.bendFlip })}
+            className={cn(
+              'h-10 w-full rounded-xl border text-xs font-semibold transition active:scale-95',
+              layer.bendFlip ? 'border-primary bg-primary/10 text-primary' : 'border-border',
+            )}
+          >
+            Read from inside
+          </button>
         </div>
       )
     default:
       return null
   }
 }
+
+const BEND_PRESETS = [
+  { label: 'Flat', patch: { bend: 0, bendRadius: 100, bendFlip: false } },
+  { label: 'Arch', patch: { bend: 60, bendRadius: 100, bendFlip: false } },
+  { label: 'Valley', patch: { bend: -60, bendRadius: 100, bendFlip: false } },
+  { label: 'Circle', patch: { bend: 200, bendRadius: 100, bendFlip: false } },
+] satisfies { label: string; patch: Partial<TextLayer> }[]
 
 const PERSPECTIVE_PRESETS = [
   { label: 'Left', patch: { rotateY: -35, rotateX: 0 } },
