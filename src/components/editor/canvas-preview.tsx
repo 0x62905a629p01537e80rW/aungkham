@@ -12,7 +12,7 @@ import {
   ZoomOut,
   Minimize,
 } from 'lucide-react'
-import { LayerText, layerTextStyle, layerTransform } from './text-layer-view'
+import { LayerText, layerTextStyle, layerTransform, chromeTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
 import { pulseInteraction, rafThrottle } from '@/lib/perf'
 
