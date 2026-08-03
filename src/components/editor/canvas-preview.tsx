@@ -37,6 +37,8 @@ interface CanvasPreviewProps {
   onChange?: (id: string, patch: Partial<TextLayer>) => void
   onDuplicate?: (id: string) => void
   onBringForward?: (id: string) => void
+  /** Reports zoom level and the image-space centre of the visible area (%). */
+  onViewChange?: (v: { scale: number; cx: number; cy: number }) => void
 }
 
 export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
@@ -59,6 +61,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       onChange,
       onDuplicate,
       onBringForward,
+      onViewChange,
     },
     ref,
   ) {
