@@ -21,33 +21,45 @@ export const SIZE_PRESETS: SizePreset[] = [
 /**
  * Re-flow a design into a different canvas shape.
  *
- * Positions are percentages of the box and font sizes are percentages of its
- * height, so a naive ratio change would stretch the composition. Everything is
- * therefore re-expressed relative to the canvas *width*, which is the axis a
- * viewer reads type against.
+ * The artwork is fitted (never cropped) into the new canvas, so every layer is
+ * mapped into that same "content box": positions move with the box and type is
+ * scaled by the box factor, which keeps the composition readable and inside the
+ * frame in every ratio.
  */
+export function fitBox(from: { w: number; h: number }, to: { w: number; h: number }) {
+  const s = Math.min(to.w / Math.max(1, from.w), to.h / Math.max(1, from.h))
+  const boxW = from.w * s
+  const boxH = from.h * s
+  return { s, boxW, boxH, fx: boxW / to.w, fy: boxH / to.h }
+}
+
 export function resizeLayers(
   layers: TextLayer[],
   from: { w: number; h: number },
   to: { w: number; h: number },
 ): TextLayer[] {
-  const r0 = from.w / Math.max(1, from.h)
-  const r1 = to.w / Math.max(1, to.h)
-  if (!r0 || !r1) return layers
-  const k = r1 / r0
-  if (Math.abs(k - 1) < 0.001) return layers
+  if (!from.w || !from.h || !to.w || !to.h) return layers
+  const { fx, fy } = fitBox(from, to)
+  if (Math.abs(fx - 1) < 0.001 && Math.abs(fy - 1) < 0.001) return layers
 
   return layers.map((l) => ({
     ...l,
-    y: Math.max(2, Math.min(98, 50 + (l.y - 50) * k)),
-    fontSize: Math.max(0.5, Math.min(120, l.fontSize * k)),
-    shadowOffsetX: l.shadowOffsetX * k,
-    shadowOffsetY: l.shadowOffsetY * k,
-    shadowBlur: l.shadowBlur * k,
+    x: Math.max(1, Math.min(99, 50 + (l.x - 50) * fx)),
+    y: Math.max(1, Math.min(99, 50 + (l.y - 50) * fy)),
+    fontSize: Math.max(0.5, Math.min(120, l.fontSize * fy)),
+    wrapWidth: l.wrapWidth != null ? l.wrapWidth * fx : l.wrapWidth,
+    shadowOffsetX: l.shadowOffsetX * fx,
+    shadowOffsetY: l.shadowOffsetY * fy,
+    shadowBlur: l.shadowBlur * fy,
   }))
 }
 
-/** Cover-crop a background photo into a new pixel size. */
+/**
+ * Fit a background photo into a new pixel size without cropping it.
+ *
+ * The gaps are filled with a blurred, zoomed copy of the same photo, so a wide
+ * export of a tall design still looks intentional instead of letterboxed.
+ */
 export async function resizeBackground(
   src: string,
   to: { w: number; h: number },
@@ -64,10 +76,21 @@ export async function resizeBackground(
   canvas.height = to.h
   const ctx = canvas.getContext('2d')
   if (!ctx) return src
-  const scale = Math.max(to.w / img.naturalWidth, to.h / img.naturalHeight)
-  const w = img.naturalWidth * scale
-  const h = img.naturalHeight * scale
+
+  const iw = img.naturalWidth
+  const ih = img.naturalHeight
   ctx.imageSmoothingQuality = 'high'
-  ctx.drawImage(img, (to.w - w) / 2, (to.h - h) / 2, w, h)
+
+  // Backdrop: cover-crop + blur so the padding matches the photo.
+  const cover = Math.max(to.w / iw, to.h / ih) * 1.08
+  ctx.save()
+  ctx.filter = 'blur(28px) brightness(0.96)'
+  ctx.drawImage(img, (to.w - iw * cover) / 2, (to.h - ih * cover) / 2, iw * cover, ih * cover)
+  ctx.restore()
+
+  // Foreground: contain-fit, fully visible.
+  const { boxW, boxH } = fitBox({ w: iw, h: ih }, to)
+  ctx.drawImage(img, (to.w - boxW) / 2, (to.h - boxH) / 2, boxW, boxH)
   return canvas.toDataURL('image/png')
 }
+
