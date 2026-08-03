@@ -712,6 +712,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           onPointerDown={(e) => handlePointerDown(e, layer.id)}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+
           onDoubleClick={(e) => {
             e.stopPropagation()
             if (layer.graphic) return
