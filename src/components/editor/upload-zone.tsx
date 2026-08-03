@@ -80,17 +80,27 @@ const FEATURED = UPLOADED_TEMPLATES
     projects: t('home.tab.projects'),
   }
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('home-subview', { detail: tab !== 'create' }))
+    return () => {
+      window.dispatchEvent(new CustomEvent('home-subview', { detail: false }))
+    }
+  }, [tab])
+
   return (
     <div
-      className={`relative flex min-h-0 flex-1 flex-col overflow-hidden ${tab === 'create' ? '' : 'pt-14'}`}
+      className="relative flex min-h-0 flex-1 flex-col overflow-hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       {tab !== 'create' && (
-        <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
+        <div
+          className="flex shrink-0 items-center gap-3 border-b border-border/60 bg-background px-3 py-2.5"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.625rem)' }}
+        >
           <button
             type="button"
             onClick={() => setTab('create')}
-            className="grid size-9 shrink-0 place-items-center rounded-lg bg-secondary text-foreground transition active:scale-95"
+            className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-foreground transition active:scale-95"
             aria-label="Back"
           >
             <ArrowLeft className="size-5" />
@@ -107,8 +117,9 @@ const FEATURED = UPLOADED_TEMPLATES
         }
         className={`flex min-h-0 w-full flex-1 flex-col overscroll-contain perf-scroll no-scrollbar ${
           tab === 'store' ? 'overflow-hidden' : 'overflow-y-auto'
-        } ${tab === 'create' ? 'pb-6' : 'px-4 py-4'}`}
+        } ${tab === 'create' ? 'pb-6' : tab === 'templates' ? '' : 'px-4 py-4'}`}
       >
+
 
         {tab === 'create' && (
           <div className="flex flex-col">
