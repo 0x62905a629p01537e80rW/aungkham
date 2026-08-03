@@ -88,6 +88,19 @@ import {
   TypeOutline,
   WandSparkles,
   Crown,
+  AlignLeft,
+  AlignRight,
+  AlignCenter,
+  AlignStartHorizontal,
+  AlignCenterHorizontal,
+  AlignEndHorizontal,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Crosshair,
+  Paintbrush,
+  Copy,
   Check,
   Search,
   X,
@@ -105,6 +118,8 @@ import { PaymentPage } from './payment-page'
 import { ColorPickerPanel, parseGradient } from './color-picker'
 import { DEFAULT_STROKE_WIDTH, OUTLINE_PRESETS, shapeDataUrl } from '@/lib/shapes'
 import { TEXT_EFFECTS, EFFECT_DEFAULTS, textEffectStyle, type TextEffectKey } from '@/lib/text-effects'
+import { alignPatch, type AlignMode } from '@/lib/align-layer'
+import { copyLayerStyle, getCopiedStyle } from '@/lib/style-clipboard'
 import { cn } from '@/lib/utils'
 import { rotateImage } from '@/lib/texture-image'
 import {
@@ -166,6 +181,8 @@ type ToolKey =
   | 'format'
   | 'spacing'
   | 'position'
+  | 'align'
+  | 'style'
   | 'color'
   | 'gradient'
   | 'texture'
@@ -209,6 +226,8 @@ const TOOLS: ToolDef[] = [
   { key: 'format', label: 'Format', icon: TypeIcon, needsLayer: true },
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
   { key: 'position', label: 'Position', icon: Move, needsLayer: true },
+  { key: 'align', label: 'Align', icon: AlignCenter, needsLayer: true },
+  { key: 'style', label: 'Copy style', icon: Paintbrush, needsLayer: true },
   { key: 'color', label: 'Color', icon: Palette, needsLayer: true },
   { key: 'gradient', label: 'Gradient', icon: Blend, needsLayer: true },
   { key: 'texture', label: 'Texture', icon: Grid2x2, needsLayer: true, pro: true },
@@ -1762,6 +1781,102 @@ function ToolContent({
               onChange={(v) => onChange({ effectColor: v })}
             />
           )}
+        </div>
+      )
+    }
+    case 'align': {
+      const set = (mode: AlignMode) => {
+        const patch = alignPatch(layer.id, mode)
+        if (patch) onChange(patch)
+      }
+      const nudge = (dx: number, dy: number) =>
+        onChange({
+          x: Math.max(-20, Math.min(120, layer.x + dx)),
+          y: Math.max(-20, Math.min(120, layer.y + dy)),
+        })
+      const btn =
+        'flex h-11 items-center justify-center rounded-xl border border-border/60 text-muted-foreground transition active:scale-95'
+      return (
+        <div className="space-y-4">
+          <ToolHeading>Align to canvas</ToolHeading>
+          <div className="grid grid-cols-3 gap-2">
+            <button type="button" aria-label="Align left" className={btn} onClick={() => set('left')}>
+              <AlignLeft className="size-5" />
+            </button>
+            <button type="button" aria-label="Align centre" className={btn} onClick={() => set('hcenter')}>
+              <AlignCenter className="size-5" />
+            </button>
+            <button type="button" aria-label="Align right" className={btn} onClick={() => set('right')}>
+              <AlignRight className="size-5" />
+            </button>
+            <button type="button" aria-label="Align top" className={btn} onClick={() => set('top')}>
+              <AlignStartHorizontal className="size-5" />
+            </button>
+            <button type="button" aria-label="Align middle" className={btn} onClick={() => set('vcenter')}>
+              <AlignCenterHorizontal className="size-5" />
+            </button>
+            <button type="button" aria-label="Align bottom" className={btn} onClick={() => set('bottom')}>
+              <AlignEndHorizontal className="size-5" />
+            </button>
+          </div>
+
+          <ToolHeading>Nudge</ToolHeading>
+          <div className="mx-auto grid w-40 grid-cols-3 gap-2">
+            <span />
+            <button type="button" aria-label="Nudge up" className={btn} onClick={() => nudge(0, -0.5)}>
+              <ChevronUp className="size-5" />
+            </button>
+            <span />
+            <button type="button" aria-label="Nudge left" className={btn} onClick={() => nudge(-0.5, 0)}>
+              <ChevronLeft className="size-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Centre"
+              className={btn}
+              onClick={() => onChange({ x: 50, y: 50 })}
+            >
+              <Crosshair className="size-4" />
+            </button>
+            <button type="button" aria-label="Nudge right" className={btn} onClick={() => nudge(0.5, 0)}>
+              <ChevronRight className="size-5" />
+            </button>
+            <span />
+            <button type="button" aria-label="Nudge down" className={btn} onClick={() => nudge(0, 0.5)}>
+              <ChevronDown className="size-5" />
+            </button>
+            <span />
+          </div>
+        </div>
+      )
+    }
+
+    case 'style': {
+      const copied = getCopiedStyle()
+      return (
+        <div className="space-y-3">
+          <ToolHeading>Format painter</ToolHeading>
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
+            Copy this layer&apos;s complete look — font, fill, stroke, shadow and effects — then
+            paste it onto any other layer.
+          </p>
+          <button
+            type="button"
+            onClick={() => copyLayerStyle(layer)}
+            className="glass-cta flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold active:scale-95"
+          >
+            <Copy className="size-4" />
+            Copy style
+          </button>
+          <button
+            type="button"
+            disabled={!copied}
+            onClick={() => copied && onChange(copied)}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 py-3 text-sm font-semibold transition active:scale-95 disabled:opacity-40"
+          >
+            <Paintbrush className="size-4" />
+            {copied ? 'Paste style here' : 'Nothing copied yet'}
+          </button>
         </div>
       )
     }
