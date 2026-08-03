@@ -451,8 +451,7 @@
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-}
-@utility rail-row {
+
   &::-webkit-scrollbar {
     display: none;
   }
