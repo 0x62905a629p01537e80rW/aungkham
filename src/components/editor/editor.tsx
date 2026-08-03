@@ -664,6 +664,10 @@ export function Editor() {
             onReplaceImage={() => setReplacing(true)}
             onOpenTemplates={() => setTemplating(true)}
             onInsertElement={(tabId) => {
+              if (tabId === 'overlay') {
+                overlayRef.current?.click()
+                return
+              }
               setInsertTab(tabId)
               setInserting(true)
             }}
@@ -702,6 +706,14 @@ export function Editor() {
             accept="image/*"
             className="hidden"
             onChange={onReplaceFile}
+          />
+
+          <input
+            ref={overlayRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onOverlayFile}
           />
 
           <TemplatePicker
