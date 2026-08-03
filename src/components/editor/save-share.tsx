@@ -93,17 +93,12 @@ export function SaveShare({
               <Button
                 variant="outline"
                 className="relative rounded-xl"
-                onClick={() => isPro && onSaveProject()}
-                disabled={!isPro}
+                onClick={onSaveProject}
               >
                 <FolderPlus className="mr-1.5 size-4" />
-                {isPro && savedProject ? 'Saved' : 'Project'}
-                {!isPro && (
-                  <span className="absolute -right-1 -top-2 rounded bg-[var(--primary)] px-1 text-[9px] font-bold text-white">
-                    PRO
-                  </span>
-                )}
+                {savedProject ? 'Saved' : 'Project'}
               </Button>
+
               <Button
                 variant="outline"
                 className="relative rounded-xl"
