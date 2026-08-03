@@ -99,7 +99,7 @@ export function SaveShare({
                 <FolderPlus className="mr-1.5 size-4" />
                 {isPro && savedProject ? 'Saved' : 'Project'}
                 {!isPro && (
-                  <span className="absolute -right-1 -top-2 rounded bg-[#8b5cf6] px-1 text-[9px] font-bold text-white">
+                  <span className="absolute -right-1 -top-2 rounded bg-[var(--primary)] px-1 text-[9px] font-bold text-white">
                     PRO
                   </span>
                 )}
@@ -117,7 +117,7 @@ export function SaveShare({
                 )}
                 PDF
                 {!isPro && (
-                  <span className="absolute -right-1 -top-2 rounded bg-[#8b5cf6] px-1 text-[9px] font-bold text-white">
+                  <span className="absolute -right-1 -top-2 rounded bg-[var(--primary)] px-1 text-[9px] font-bold text-white">
                     PRO
                   </span>
                 )}

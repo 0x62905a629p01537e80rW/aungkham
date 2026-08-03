@@ -155,7 +155,7 @@ export function ProSplash() {
       <div className="relative space-y-3 px-5 pb-6 pt-3">
         <div className="relative rounded-2xl border border-[#7c5cff]/60 bg-white/[0.04] p-4">
           {pricing.promoLabel && (
-            <span className="absolute -top-2 left-4 rounded-md bg-[#ec4899] px-2 py-0.5 text-[9px] font-bold">
+            <span className="absolute -top-2 left-4 rounded-md bg-[var(--primary)] px-2 py-0.5 text-[9px] font-bold">
               {pricing.promoLabel}
             </span>
           )}
@@ -184,7 +184,7 @@ export function ProSplash() {
             setOpen(false)
             setPay(true)
           }}
-          className="flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-sm font-bold shadow-lg transition active:scale-[0.98]"
+          className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold shadow-lg transition active:scale-[0.98]"
         >
           Continue
         </button>
@@ -209,7 +209,7 @@ export function ProSplash() {
               type="button"
               onClick={() => void handleRestore()}
               disabled={restoring}
-              className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#3b82f6] text-xs font-bold transition active:scale-[0.98] disabled:opacity-60"
+              className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[var(--primary)] to-[#3b82f6] text-xs font-bold transition active:scale-[0.98] disabled:opacity-60"
             >
               {restoring && <Loader2 className="size-3.5 animate-spin" />}
               Log in with Google

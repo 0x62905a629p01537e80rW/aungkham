@@ -53,7 +53,7 @@ export function LayersList({
   const [picking, setPicking] = useState(false)
   const [marked, setMarked] = useState<string[]>([])
 
-  const groupColors = ['#f97316', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6']
+  const groupColors = ['#f97316', '#22c55e', '#3b82f6', '#a855f7', 'var(--primary)', '#14b8a6']
   const groupIds = Array.from(
     new Set(layers.map((l) => l.groupId).filter(Boolean) as string[]),
   )

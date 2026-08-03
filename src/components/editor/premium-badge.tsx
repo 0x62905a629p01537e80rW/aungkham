@@ -91,7 +91,7 @@ export function PremiumBadge() {
           <div className="space-y-3 px-5 pb-5">
             {isPro && (
               <div className="mb-1 rounded-2xl border border-border bg-muted/50 p-4">
-                <p className="flex items-center gap-1.5 text-sm font-bold text-[#8b5cf6]">
+                <p className="flex items-center gap-1.5 text-sm font-bold text-[var(--primary)]">
                   <BadgeCheck className="size-4" />
                   Status: Active
                 </p>
@@ -131,7 +131,7 @@ export function PremiumBadge() {
 
             {BENEFITS.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start gap-3">
-                <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
                   <Icon className="size-4" />
                 </div>
                 <div className="leading-tight">
@@ -151,9 +151,9 @@ export function PremiumBadge() {
               </button>
             ) : (
               <>
-                <div className="relative mt-4 overflow-hidden rounded-2xl border border-[#8b5cf6]/40 bg-muted/50 p-4 text-center">
+                <div className="relative mt-4 overflow-hidden rounded-2xl border border-[var(--primary)]/40 bg-muted/50 p-4 text-center">
                   {pricing.promoLabel && (
-                    <span className="absolute left-0 top-0 rounded-br-xl bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[10px] font-extrabold text-white">
+                    <span className="absolute left-0 top-0 rounded-br-xl bg-primary px-2 py-0.5 text-[10px] font-extrabold text-white">
                       {pricing.promoLabel}
                     </span>
                   )}
@@ -171,7 +171,7 @@ export function PremiumBadge() {
                     )}
                   </p>
                   <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground">
-                    <BadgeCheck className="size-3.5 text-[#8b5cf6]" />
+                    <BadgeCheck className="size-3.5 text-[var(--primary)]" />
                     One-time payment · Lifetime access
                   </p>
                 </div>
@@ -182,7 +182,7 @@ export function PremiumBadge() {
                     setOpen(false)
                     setPay(true)
                   }}
-                  className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
+                  className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
                 >
                   <ProGem className="size-4" />
                   Buy Pro · Lifetime

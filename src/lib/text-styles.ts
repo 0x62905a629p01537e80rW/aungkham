@@ -63,9 +63,9 @@ const PALETTE: [string, string][] = [
   ['Sky', '#0ea5e9'],
   ['Blue', '#3b82f6'],
   ['Indigo', '#6366f1'],
-  ['Violet', '#8b5cf6'],
+  ['Violet', 'var(--primary)'],
   ['Purple', '#a855f7'],
-  ['Pink', '#ec4899'],
+  ['Pink', 'var(--primary)'],
 ]
 
 const GRADIENTS: [string, string, string, number][] = [

@@ -234,7 +234,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                 <div className="relative mt-2 overflow-hidden rounded-3xl border border-border/50 bg-muted/40 p-5">
                   <p className="flex items-center gap-2 text-xl font-semibold">
                     Myan
-                    <span className="rounded-md bg-gradient-to-r from-[#ec4899] to-[#8b5cf6] px-2 py-0.5 text-[11px] font-bold text-white">
+                    <span className="rounded-md bg-primary px-2 py-0.5 text-[11px] font-bold text-white">
                       Pro
                     </span>
                   </p>
@@ -265,7 +265,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                   <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
                     {PRO_BENEFITS.map((b) => (
                       <li key={b} className="flex items-start gap-2">
-                        <Check className="mt-0.5 size-4 shrink-0 text-[#8b5cf6]" />
+                        <Check className="mt-0.5 size-4 shrink-0 text-[var(--primary)]" />
                         {b}
                       </li>
                     ))}

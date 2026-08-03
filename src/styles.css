@@ -257,7 +257,7 @@
   place-items: center;
   border-radius: 1rem;
   overflow: hidden;
-  background: conic-gradient(from 0deg, #ec4899, #8b5cf6, #3b82f6, #22d3ee, #ec4899);
+  background: conic-gradient(from 0deg, var(--primary), var(--primary), #3b82f6, #22d3ee, var(--primary));
   animation: pro-orb-pulse 2.4s ease-in-out infinite;
 }
 .pro-orb::before {
@@ -278,7 +278,7 @@
   position: absolute;
   inset: 0;
   border-radius: 1.25rem;
-  border: 2px solid color-mix(in oklab, #8b5cf6 60%, transparent);
+  border: 2px solid color-mix(in oklab, var(--primary) 60%, transparent);
   animation: pro-orb-ring 2.4s ease-out infinite;
   pointer-events: none;
 }

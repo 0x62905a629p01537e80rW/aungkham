@@ -112,7 +112,7 @@ export function PremiumGate({
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/60 backdrop-blur-sm">
           <div className="glass-panel w-full max-w-md rounded-t-3xl border-t border-border bg-background p-5 pb-8">
             <div className="mb-3 flex items-start justify-between">
-              <p className="flex items-center gap-1.5 text-sm font-extrabold text-[#8b5cf6]">
+              <p className="flex items-center gap-1.5 text-sm font-extrabold text-[var(--primary)]">
                 <ProGem className="size-4" /> Premium
               </p>
               <button
@@ -132,7 +132,7 @@ export function PremiumGate({
             <div className="mt-4 space-y-2">
               {usesPremiumFont(layers) && (
                 <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
                     <TypeIcon className="size-5" />
                   </div>
                   <div className="leading-tight">
@@ -145,7 +145,7 @@ export function PremiumGate({
               )}
               {usesPremiumLiquid(layers) && (
                 <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
                     <Droplets className="size-5" />
                   </div>
                   <div className="leading-tight">
@@ -158,7 +158,7 @@ export function PremiumGate({
               )}
               {usesPremiumTexture(layers) && (
                 <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
                     <ImageIcon className="size-5" />
                   </div>
                   <div className="leading-tight">
@@ -171,7 +171,7 @@ export function PremiumGate({
               )}
               {usesPremiumCutout(layers) && (
                 <div className="flex items-center gap-3 rounded-2xl border border-border bg-muted/50 p-3">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6]">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
                     <Scissors className="size-5" />
                   </div>
                   <div className="leading-tight">
@@ -190,7 +190,7 @@ export function PremiumGate({
                 setOpen(false)
                 setPay(true)
               }}
-              className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
+              className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
             >
               <ProGem className="size-4" />
               Purchase Premium To Unlock

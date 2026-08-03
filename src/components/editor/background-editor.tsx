@@ -73,7 +73,7 @@ const FIT_COLORS = [
 
 const FIT_GRADIENTS: { from: string; to: string }[] = [
   { from: '#22c55e', to: '#0ea5e9' },
-  { from: '#a855f7', to: '#ec4899' },
+  { from: '#a855f7', to: 'var(--primary)' },
   { from: '#f97316', to: '#facc15' },
   { from: '#0f172a', to: '#334155' },
   { from: '#f43f5e', to: '#7c3aed' },

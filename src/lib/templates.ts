@@ -278,7 +278,7 @@ const DESIGNS: Design[] = [
     group: 'Retro',
     en: { main: 'POP\nSHOW', sub: 'RETRO TITLE', tail: '80s' },
     mm: { main: 'ပေါ့ပ်\nရှိုး', sub: 'ရက်ထရိုခေါင်းစဉ်', tail: '၈၀' },
-    c: { a: '#ec4899', b: '#111111', ink: '#111111', paper: '#ffffff' },
+    c: { a: 'var(--primary)', b: '#111111', ink: '#111111', paper: '#ffffff' },
     make: (c, k, f, mm) => [
       text(c.main, {
         x: 50,

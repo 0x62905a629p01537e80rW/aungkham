@@ -688,7 +688,7 @@ function FontCard({
       >
         {locked && (
           <span className="absolute inset-0 z-10 grid place-items-center rounded-2xl bg-background/60 backdrop-blur-[2px]">
-            <Lock className="size-4 text-[#8b5cf6]" />
+            <Lock className="size-4 text-[var(--primary)]" />
           </span>
         )}
         <span className="min-w-0 flex-1">
