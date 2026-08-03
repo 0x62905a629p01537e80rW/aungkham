@@ -13,19 +13,9 @@ export const UNICODE_SAMPLE = 'မြန်မာ စာလုံး Aa'
 export const ZAWGYI_SAMPLE = 'ျမန္မာ စာလုံး Aa'
 export const LATIN_SAMPLE = 'The quick brown fox Aa'
 
-/** Faces that are Zawgyi-encoded without saying so in the file name. */
-const ZAWGYI_NAMES = [
-  'winuniinnwa',
-  'wininnwa',
-  'myanmar3',
-  'mm3h',
-  'mm3sh',
-  'panglong',
-  'parabaik',
-  'namkhon',
-  'yunghkio',
-  'thanlwin',
-]
+/** Faces that are Zawgyi/legacy-encoded without saying so in the file name. */
+const ZAWGYI_NAMES = ['winuniinnwa', 'wininnwa', 'winburmese', 'acemyanmar']
+
 
 export function isZawgyiFontName(name: string) {
   const id = name.toLowerCase()
