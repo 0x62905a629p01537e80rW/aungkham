@@ -106,7 +106,7 @@ export function ProSplash() {
       <div className="relative mt-6 px-5 text-center">
         <div className="flex items-center justify-center gap-2">
           <h2 className="text-2xl font-extrabold tracking-tight">Myan</h2>
-          <span className="flex items-center gap-1 rounded-md bg-[#22c3f0] px-2 py-0.5 text-[10px] font-bold">
+          <span className="flex items-center gap-1 rounded-md bg-[#22c3f0] px-2 py-0.5 text-[10px] font-bold text-[#04121a]">
             <ProGem className="size-3" />
             Pro
           </span>
