@@ -173,6 +173,7 @@ type ToolKey =
   | 'liquid'
   | 'stroke'
   | 'shadow'
+  | 'effects'
   | 'highlight'
   | 'rotate'
   | 'rotate3d'
@@ -195,6 +196,8 @@ interface ToolDef {
   imageOnly?: boolean
   /** only for graphic layers (image / shape / sticker) */
   graphicOnly?: boolean
+  /** only for real text layers */
+  textOnly?: boolean
   /** Pro-only feature — free users can try it, export is gated */
   pro?: boolean
 }
@@ -213,6 +216,7 @@ const TOOLS: ToolDef[] = [
   { key: 'liquid', label: 'Liquid', icon: Droplets, needsLayer: true, pro: true },
   { key: 'stroke', label: 'Stroke', icon: PenLine, needsLayer: true },
   { key: 'shadow', label: 'Shadow', icon: Sparkles, needsLayer: true },
+  { key: 'effects', label: 'Effects', icon: Wand2, needsLayer: true, textOnly: true },
   { key: 'highlight', label: 'Highlight', icon: Sun, needsLayer: true },
   { key: 'rotate3d', label: '3D Rotate', icon: Rotate3d, needsLayer: true },
   { key: 'depth3d', label: '3D', icon: Box, needsLayer: true },
@@ -423,6 +427,7 @@ export function ToolBar({
           (tool) =>
             (!tool.shapeOnly || !!selected?.graphic?.path) &&
             (!tool.graphicOnly || !!selected?.graphic) &&
+            (!tool.textOnly || !selected?.graphic) &&
             (!tool.imageOnly || (!!selected?.graphic && !selected.graphic.path)),
         ).map((tool) => {
           const disabled = tool.needsLayer && !selected
