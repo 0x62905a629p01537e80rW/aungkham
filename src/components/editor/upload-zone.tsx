@@ -49,6 +49,7 @@ const FEATURED = UPLOADED_TEMPLATES
   const [picker, setPicker] = useState<'solid' | 'gradient' | null>(null)
   const [pendingCss, setPendingCss] = useState<string | null>(null)
   const [projects, setProjects] = useState<SavedProject[]>([])
+  const [storeTab, setStoreTab] = useState<'templates' | 'fonts'>('fonts')
 
   useEffect(() => {
     setProjects(loadProjects())
@@ -66,7 +67,7 @@ const FEATURED = UPLOADED_TEMPLATES
     { id: 'gallery', label: 'Gallery', icon: ImageIcon, run: () => galleryRef.current?.click() },
     { id: 'templates', label: t('home.tab.templates'), icon: LayoutTemplate, run: () => setTab('templates') },
     { id: 'fonts', label: 'Fonts', icon: Type, run: () => setTab('fonts') },
-    { id: 'store', label: 'Store', icon: Store, run: () => setTab('store') },
+    { id: 'store', label: 'Store', icon: Store, run: () => { setStoreTab('fonts'); setTab('store') } },
     { id: 'solid', label: t('home.solidColors'), icon: Palette, run: () => setPicker('solid') },
     { id: 'gradient', label: t('home.gradients'), icon: Blend, run: () => setPicker('gradient') },
     { id: 'camera', label: t('home.takePhoto') ?? 'Camera', icon: Camera, run: () => cameraRef.current?.click() },
@@ -276,14 +277,25 @@ const FEATURED = UPLOADED_TEMPLATES
         )}
 
         {tab === 'store' && (
-          <StorePanel onApplyTemplate={onApplyTemplate} onUseBackground={(src) => onImage(src)} />
+          <StorePanel
+            initialTab={storeTab}
+            onApplyTemplate={onApplyTemplate}
+            onUseBackground={(src) => onImage(src)}
+          />
         )}
 
         {tab === 'fonts' && <DownloadFontsSheet open inline />}
 
         {tab === 'templates' &&
           (onApplyTemplate ? (
-            <TemplateGallery scroll={false} onApply={onApplyTemplate} />
+            <TemplateGallery
+              scroll={false}
+              onApply={onApplyTemplate}
+              onOpenStore={() => {
+                setStoreTab('templates')
+                setTab('store')
+              }}
+            />
           ) : (
             <button
               type="button"
