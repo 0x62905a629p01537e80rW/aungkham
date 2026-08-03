@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth-provider'
 import { requestAd } from '@/components/launch-ad'
 import { SaveImageDialog } from './save-image-dialog'
+import { PaymentPage } from './payment-page'
+
 import { ShareRow } from './share-row'
 import { defaultFilename, exportPdf } from '@/lib/export-image'
 
