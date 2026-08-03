@@ -289,7 +289,7 @@ export function TemplateGallery({
           </p>
         )}
 
-        <div className="flex flex-col gap-2">
+        <div className={cn(view === 'grid' ? 'grid grid-cols-2 gap-2' : 'flex flex-col gap-2')}>
           {list.map((t) => {
             const bg = THUMB_BG[hashOf(t.id) % THUMB_BG.length]
             const isPremium = t.group === 'Premium'
