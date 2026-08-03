@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Check, Eraser, Loader2, Redo2, Undo2, X, Brush } from 'lucide-react'
+import { Check, Eraser, Redo2, Undo2, X, Brush } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { loadImage } from '@/lib/image-ops'
 import { dilate, growMaskByColor, inpaint, type InpaintQuality } from '@/lib/inpaint'
+import { beginInteraction, endInteraction } from '@/lib/perf'
 
 type Mode = 'classic' | 'seamless' | 'auto'
 
@@ -26,8 +27,8 @@ interface Props {
 /** Brush-away unwanted objects, text or watermarks with content-aware fill. */
 export function ObjectRemover({ open, src, onClose, onApply }: Props) {
   const wrapRef = useRef<HTMLDivElement | null>(null)
+  const stageRef = useRef<HTMLDivElement | null>(null)
   const workRef = useRef<HTMLCanvasElement | null>(null)
-  const viewRef = useRef<HTMLCanvasElement | null>(null)
   const maskRef = useRef<HTMLCanvasElement | null>(null)
   const loupeRef = useRef<HTMLCanvasElement | null>(null)
 
@@ -36,29 +37,18 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
   const painting = useRef(false)
   const last = useRef<{ x: number; y: number } | null>(null)
   const touched = useRef(false)
+  const hideBrush = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [ready, setReady] = useState(false)
   const [busy, setBusy] = useState(false)
+  /** Snapshot of the mask, used to shimmer exactly over the region being erased. */
+  const [sweepMask, setSweepMask] = useState<string | null>(null)
   const [mode, setMode] = useState<Mode>('seamless')
   const [range, setRange] = useState(40)
+  const [brushHint, setBrushHint] = useState(false)
   const [erasing, setErasing] = useState(false)
   const [hist, setHist] = useState({ undo: false, redo: false })
   const [loupe, setLoupe] = useState<{ side: 'left' | 'right' } | null>(null)
-
-  /** Repaint the visible canvas from the working pixels + current mask. */
-  const repaint = useCallback(() => {
-    const view = viewRef.current
-    const work = workRef.current
-    const mask = maskRef.current
-    if (!view || !work || !mask) return
-    const ctx = view.getContext('2d')!
-    ctx.clearRect(0, 0, view.width, view.height)
-    ctx.drawImage(work, 0, 0)
-    ctx.save()
-    ctx.globalAlpha = 0.55
-    ctx.drawImage(mask, 0, 0)
-    ctx.restore()
-  }, [])
 
   // Load the source image into the working buffers.
   useEffect(() => {
@@ -74,7 +64,7 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
       const scale = Math.min(1, MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight))
       const w = Math.max(1, Math.round(img.naturalWidth * scale))
       const h = Math.max(1, Math.round(img.naturalHeight * scale))
-      for (const ref of [workRef, viewRef, maskRef]) {
+      for (const ref of [workRef, maskRef]) {
         const c = ref.current
         if (!c) continue
         c.width = w
@@ -83,32 +73,49 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
       }
       workRef.current?.getContext('2d')!.drawImage(img, 0, 0, w, h)
       setReady(true)
-      repaint()
     })
     return () => {
       alive = false
     }
-  }, [open, src, repaint])
+  }, [open, src])
+
+  useEffect(
+    () => () => {
+      if (hideBrush.current) clearTimeout(hideBrush.current)
+    },
+    [],
+  )
+
+  /** Show a live brush-size ring for a moment while the slider is scrubbed. */
+  const flashBrush = useCallback(() => {
+    setBrushHint(true)
+    if (hideBrush.current) clearTimeout(hideBrush.current)
+    hideBrush.current = setTimeout(() => setBrushHint(false), 700)
+  }, [])
 
   if (!open) return null
 
   const toCanvas = (e: React.PointerEvent) => {
-    const view = viewRef.current!
-    const rect = view.getBoundingClientRect()
+    const work = workRef.current!
+    const rect = work.getBoundingClientRect()
     return {
-      x: ((e.clientX - rect.left) / rect.width) * view.width,
-      y: ((e.clientY - rect.top) / rect.height) * view.height,
+      x: ((e.clientX - rect.left) / rect.width) * work.width,
+      y: ((e.clientY - rect.top) / rect.height) * work.height,
       rect,
     }
   }
 
   const brushPx = () => {
-    const view = viewRef.current
-    if (!view) return range
-    const rect = view.getBoundingClientRect()
-    return (range * view.width) / Math.max(1, rect.width)
+    const work = workRef.current
+    if (!work) return range
+    const rect = work.getBoundingClientRect()
+    return (range * work.width) / Math.max(1, rect.width)
   }
 
+  /**
+   * Strokes land straight into the overlay mask canvas — the browser composites
+   * it over the untouched work canvas, so no per-move re-draw of the photo.
+   */
   const strokeTo = (x: number, y: number) => {
     const mask = maskRef.current
     if (!mask) return
@@ -125,24 +132,29 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
     ctx.stroke()
     ctx.globalCompositeOperation = 'source-over'
     last.current = { x, y }
-    repaint()
   }
 
   const drawLoupe = (cx: number, cy: number) => {
     const c = loupeRef.current
-    const view = viewRef.current
-    if (!c || !view) return
+    const work = workRef.current
+    const mask = maskRef.current
+    if (!c || !work || !mask) return
     const ctx = c.getContext('2d')!
     const zoom = 2.4
     const size = c.width / zoom
     ctx.clearRect(0, 0, c.width, c.height)
-    ctx.drawImage(view, cx - size / 2, cy - size / 2, size, size, 0, 0, c.width, c.height)
+    ctx.drawImage(work, cx - size / 2, cy - size / 2, size, size, 0, 0, c.width, c.height)
+    ctx.save()
+    ctx.globalAlpha = 0.55
+    ctx.drawImage(mask, cx - size / 2, cy - size / 2, size, size, 0, 0, c.width, c.height)
+    ctx.restore()
   }
 
   const down = (e: React.PointerEvent) => {
     if (!ready || busy) return
     e.currentTarget.setPointerCapture(e.pointerId)
     painting.current = true
+    beginInteraction()
     const { x, y, rect } = toCanvas(e)
     last.current = null
     setLoupe({ side: e.clientX - rect.left > rect.width / 2 ? 'left' : 'right' })
@@ -152,9 +164,21 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
 
   const move = (e: React.PointerEvent) => {
     if (!painting.current) return
-    const { x, y, rect } = toCanvas(e)
-    setLoupe({ side: e.clientX - rect.left > rect.width / 2 ? 'left' : 'right' })
-    strokeTo(x, y)
+    // Coalesced events keep the stroke smooth without extra React work.
+    const events = (e.nativeEvent as PointerEvent).getCoalescedEvents?.() ?? []
+    const work = workRef.current!
+    const rect = work.getBoundingClientRect()
+    for (const ce of events.length ? events : [e.nativeEvent as PointerEvent]) {
+      strokeTo(
+        ((ce.clientX - rect.left) / rect.width) * work.width,
+        ((ce.clientY - rect.top) / rect.height) * work.height,
+      )
+    }
+    const { x, y } = toCanvas(e)
+    setLoupe((p) => {
+      const side = e.clientX - rect.left > rect.width / 2 ? 'left' : 'right'
+      return p?.side === side ? p : { side }
+    })
     drawLoupe(x, y)
   }
 
@@ -162,6 +186,7 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
     if (!painting.current) return
     painting.current = false
     last.current = null
+    endInteraction()
     setLoupe(null)
     if (erasing) return
     await runRemoval()
@@ -173,7 +198,7 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
     if (!work || !mask) return
     const w = work.width
     const h = work.height
-    const mctx = mask.getContext('2d')!
+    const mctx = mask.getContext('2d', { willReadFrequently: true })!
     const md = mctx.getImageData(0, 0, w, h).data
     let hasMask = false
     let flags: Uint8Array<ArrayBufferLike> = new Uint8Array(w * h)
@@ -185,8 +210,12 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
     }
     if (!hasMask) return
 
+    // Apple-style: shimmer sweeps across exactly the brushed region.
+    setSweepMask(mask.toDataURL('image/png'))
+    mctx.clearRect(0, 0, w, h)
     setBusy(true)
-    await new Promise((r) => setTimeout(r, 20))
+    // Two frames so the shimmer is painted before the heavy math blocks.
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(null))))
     try {
       const wctx = work.getContext('2d', { willReadFrequently: true })!
       const before = wctx.getImageData(0, 0, w, h)
@@ -202,9 +231,9 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
       touched.current = true
       setHist({ undo: history.current.length > 0, redo: false })
     } finally {
-      mctx.clearRect(0, 0, w, h)
+      // Let the fade-out of the shimmer read as the reveal.
       setBusy(false)
-      repaint()
+      setTimeout(() => setSweepMask(null), 220)
     }
   }
 
@@ -216,7 +245,6 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
     future.current.push(current)
     ctx.putImageData(history.current.pop()!, 0, 0)
     setHist({ undo: history.current.length > 0, redo: true })
-    repaint()
   }
 
   const redo = () => {
@@ -226,7 +254,6 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
     history.current.push(ctx.getImageData(0, 0, work.width, work.height))
     ctx.putImageData(future.current.pop()!, 0, 0)
     setHist({ undo: true, redo: future.current.length > 0 })
-    repaint()
   }
 
   const apply = () => {
@@ -273,17 +300,42 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
 
       {/* canvas */}
       <div ref={wrapRef} className="relative flex flex-1 items-center justify-center overflow-hidden px-2">
-        <canvas ref={workRef} className="hidden" />
-        <canvas ref={maskRef} className="hidden" />
-        <canvas
-          ref={viewRef}
+        <div
+          ref={stageRef}
+          className="relative touch-none"
           onPointerDown={down}
           onPointerMove={move}
           onPointerUp={up}
           onPointerCancel={up}
-          className="max-h-full max-w-full touch-none rounded-lg"
-          style={{ objectFit: 'contain' }}
-        />
+        >
+          <canvas
+            ref={workRef}
+            className="block max-h-full max-w-full rounded-lg"
+            style={{ objectFit: 'contain' }}
+          />
+          <canvas
+            ref={maskRef}
+            className="pointer-events-none absolute inset-0 size-full rounded-lg opacity-55"
+          />
+
+          {/* Apple-like erase shimmer, clipped to the brushed shape */}
+          {sweepMask && (
+            <div
+              className={cn(
+                'pointer-events-none absolute inset-0 transition-opacity duration-200',
+                busy ? 'opacity-100' : 'opacity-0',
+              )}
+              style={{
+                WebkitMaskImage: `url(${sweepMask})`,
+                maskImage: `url(${sweepMask})`,
+                WebkitMaskSize: '100% 100%',
+                maskSize: '100% 100%',
+              }}
+            >
+              <div className="remover-shimmer" />
+            </div>
+          )}
+        </div>
 
         {loupe && (
           <canvas
@@ -298,10 +350,19 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
         )}
         {!loupe && <canvas ref={loupeRef} width={150} height={150} className="hidden" />}
 
-        {busy && (
-          <div className="absolute inset-0 grid place-items-center bg-background/40 backdrop-blur-[1px]">
-            <Loader2 className="size-7 animate-spin text-primary" />
-          </div>
+        {/* live brush-size preview while the range slider moves */}
+        <div
+          className={cn(
+            'pointer-events-none absolute rounded-full border-2 border-primary bg-primary/20 transition-opacity duration-200',
+            brushHint ? 'opacity-100' : 'opacity-0',
+          )}
+          style={{ width: range, height: range }}
+        />
+        {brushHint && (
+          <span
+            className="remover-ping pointer-events-none absolute rounded-full border border-primary/60"
+            style={{ width: range, height: range }}
+          />
         )}
       </div>
 
@@ -313,7 +374,10 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
           min={8}
           max={110}
           value={range}
-          onChange={(e) => setRange(Number(e.target.value))}
+          onChange={(e) => {
+            setRange(Number(e.target.value))
+            flashBrush()
+          }}
           className="h-1 w-full flex-1 cursor-pointer appearance-none rounded-full bg-muted accent-primary"
         />
       </div>
