@@ -646,8 +646,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const hy = (v: number | string) => (flipY ? mirror(v) : v)
       const sx = flipX ? -1 : 1
       const sy = flipY ? -1 : 1
-      const aw = Math.max(0.1, Math.abs(wS))
-      const ah = Math.max(0.1, Math.abs(hS))
+      // Clamp the inverse-scale compensation: at extreme stretch values an exact
+      // inverse blew the handle buttons up into huge ellipses.
+      const clamp = (v: number) => Math.max(0.5, Math.min(2, v))
+      const aw = clamp(Math.abs(wS) || 1)
+      const ah = clamp(Math.abs(hS) || 1)
       const OFF = 22 * inv
       const hTr = (ox: number, oy: number) =>
         `translate(calc(-50% + ${(ox * sx * OFF) / aw}px), calc(-50% + ${(oy * sy * OFF) / ah}px)) scale(${(inv * sx) / aw}, ${(inv * sy) / ah})`
@@ -658,7 +661,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             position: 'absolute',
             left: `${layer.x}%`,
             top: `${layer.y}%`,
-            transform: layerTransform(layer),
+            transform: chromeTransform(layer),
+            willChange: interacting ? 'transform' : 'auto',
+
             whiteSpace: 'nowrap',
             cursor: 'move',
             touchAction: 'none',
