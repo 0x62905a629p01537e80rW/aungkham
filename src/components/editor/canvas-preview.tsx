@@ -85,7 +85,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     } | null>(null)
     const lastTapRef = useRef<{ id: string; time: number } | null>(null)
     const [editingId, setEditingId] = useState<string | null>(null)
-    const [guides, setGuides] = useState<{ v: boolean; h: boolean }>({ v: false, h: false })
+    const [guides, setGuides] = useState<{ v: number | null; h: number | null }>({ v: null, h: null })
     const editorRef = useRef<HTMLTextAreaElement | null>(null)
     const [frame, setFrame] = useState({ w: 0, h: 0 })
 
@@ -375,12 +375,27 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       let x = st.originX + (dx / rect.width) * 100
       let y = st.originY + (dy / rect.height) * 100
 
-      // Snap to the horizontal/vertical centre of the image and show guides.
+      // Snap to the canvas centre/thirds and to the centre of any other layer.
       const tol = 1.6
-      const snapV = Math.abs(x - 50) < tol
-      const snapH = Math.abs(y - 50) < tol
-      if (snapV) x = 50
-      if (snapH) y = 50
+      const others = layers.filter((l) => l.id !== st.id && l.visible !== false)
+      const xTargets = [50, ...others.map((l) => l.x)]
+      const yTargets = [50, ...others.map((l) => l.y)]
+      let snapV: number | null = null
+      let snapH: number | null = null
+      for (const t of xTargets) {
+        if (Math.abs(x - t) < tol) {
+          snapV = t
+          x = t
+          break
+        }
+      }
+      for (const t of yTargets) {
+        if (Math.abs(y - t) < tol) {
+          snapH = t
+          y = t
+          break
+        }
+      }
       setGuides((g) => (g.v === snapV && g.h === snapH ? g : { v: snapV, h: snapH }))
 
       emitMove(st.id, Math.max(-200, Math.min(300, x)), Math.max(-200, Math.min(300, y)))
@@ -392,7 +407,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       stageUp(e)
       emitMove.flush()
       dragRectRef.current = null
-      setGuides({ v: false, h: false })
+      setGuides({ v: null, h: null })
       const st = dragState.current
       dragState.current = null
 
@@ -990,18 +1005,18 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         </div>
 
 
-        {!exporting && (guides.v || guides.h) && (
+        {!exporting && (guides.v !== null || guides.h !== null) && (
           <div className="pointer-events-none absolute inset-0">
-            {guides.v && (
+            {guides.v !== null && (
               <span
-                className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white"
-                style={{ boxShadow: '0 0 4px rgba(0,0,0,0.55)' }}
+                className="absolute top-0 h-full w-px -translate-x-1/2 bg-[#22d3ee]"
+                style={{ left: `${guides.v}%`, boxShadow: '0 0 4px rgba(0,0,0,0.55)' }}
               />
             )}
-            {guides.h && (
+            {guides.h !== null && (
               <span
-                className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-white"
-                style={{ boxShadow: '0 0 4px rgba(0,0,0,0.55)' }}
+                className="absolute left-0 h-px w-full -translate-y-1/2 bg-[#22d3ee]"
+                style={{ top: `${guides.h}%`, boxShadow: '0 0 4px rgba(0,0,0,0.55)' }}
               />
             )}
           </div>
