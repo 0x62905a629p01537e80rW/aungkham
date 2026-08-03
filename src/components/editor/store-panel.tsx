@@ -9,21 +9,23 @@ import { StoreAssetsGrid } from './store-assets-grid'
 type StoreTab = 'templates' | 'background' | 'shapes' | 'stickers' | 'fonts'
 
 const TABS: { key: StoreTab; label: string }[] = [
+  { key: 'fonts', label: 'Fonts' },
   { key: 'templates', label: 'Templates' },
-  { key: 'background', label: 'Background' },
   { key: 'shapes', label: 'Shapes' },
   { key: 'stickers', label: 'Stickers' },
-  { key: 'fonts', label: 'Fonts' },
+  { key: 'background', label: 'Background' },
 ]
 
 export function StorePanel({
   onApplyTemplate,
   onUseBackground,
+  initialTab = 'fonts',
 }: {
   onApplyTemplate?: (layers: TextLayer[], bg?: string) => void
   onUseBackground?: (src: string) => void
+  initialTab?: StoreTab
 }) {
-  const [tab, setTab] = useState<StoreTab>('templates')
+  const [tab, setTab] = useState<StoreTab>(initialTab)
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
