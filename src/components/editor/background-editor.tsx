@@ -415,7 +415,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
       >
         {tool === 'crop' ? (
           <CropStage
-            src={straight ?? working}
+            src={working}
             rect={rect}
             ratio={ratio}
             onChange={setRect}
