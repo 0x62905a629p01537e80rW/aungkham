@@ -998,6 +998,7 @@ function CropStage({
         draggable={false}
       />
       <div
+        hidden={hideHandles}
         className="absolute touch-none border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"
         style={{
           left: `${rect.x * 100}%`,
