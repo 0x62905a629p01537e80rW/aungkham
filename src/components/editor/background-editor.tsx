@@ -101,7 +101,9 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   const [rect, setRect] = useState({ x: 0.08, y: 0.08, w: 0.84, h: 0.84 })
   const [cropTab, setCropTab] = useState<'crop' | 'correct' | 'rotate'>('crop')
   const [angle, setAngle] = useState(0)
-  const [straight, setStraight] = useState<string | null>(null)
+  const cropImgRef = useRef<HTMLImageElement | null>(null)
+  const angleReadout = useRef<HTMLSpanElement | null>(null)
+
 
 
   // resize
