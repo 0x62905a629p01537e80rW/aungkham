@@ -116,7 +116,7 @@ const PAL: { ink: string; paper: string; accent: string }[] = [
   { ink: "#ffffff", paper: "#3a0010", accent: "#ff2d55" },
   { ink: "#04303d", paper: "#e6fbff", accent: "#00e0ff" },
   { ink: "#ffffff", paper: "#111111", accent: "#ff7a18" },
-  { ink: "#12002b", paper: "#ffffff", accent: "#8b5cf6" },
+  { ink: "#12002b", paper: "#ffffff", accent: "var(--primary)" },
 ]
 
 interface Row { m: string; s: string; c: string; f: number; p: number; l: number; a: number; bg: string }

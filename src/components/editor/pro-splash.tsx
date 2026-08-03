@@ -27,8 +27,8 @@ function ProGem({ className = 'size-4' }: { className?: string }) {
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="pro-splash-gem" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#8b7cf6" />
-          <stop offset="100%" stopColor="#5b4bd6" />
+          <stop offset="0%" stopColor="#22c3f0" />
+          <stop offset="100%" stopColor="#0b7fbf" />
         </linearGradient>
       </defs>
       <path d="M12 2 22 12 12 22 2 12z" fill="url(#pro-splash-gem)" />
@@ -80,8 +80,8 @@ export function ProSplash() {
 
 
   return (
-    <div className="fixed inset-0 z-[70] flex flex-col bg-[#07070c] text-white animate-fade-in">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[38%] bg-[radial-gradient(110%_70%_at_50%_0%,#7c5cff33_0%,transparent_70%)]" />
+    <div className="fixed inset-0 z-[70] flex flex-col bg-[#070a0d] text-white animate-fade-in">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[38%] bg-[radial-gradient(110%_70%_at_50%_0%,#22c3f033_0%,transparent_70%)]" />
 
       {/* Header */}
       <div className="relative flex items-center justify-between px-5 pt-4">
@@ -106,7 +106,7 @@ export function ProSplash() {
       <div className="relative mt-6 px-5 text-center">
         <div className="flex items-center justify-center gap-2">
           <h2 className="text-2xl font-extrabold tracking-tight">Myan</h2>
-          <span className="flex items-center gap-1 rounded-md bg-[#7c5cff] px-2 py-0.5 text-[10px] font-bold">
+          <span className="flex items-center gap-1 rounded-md bg-[#22c3f0] px-2 py-0.5 text-[10px] font-bold text-[#04121a]">
             <ProGem className="size-3" />
             Pro
           </span>
@@ -142,8 +142,8 @@ export function ProSplash() {
         <div className="space-y-2.5 pb-4">
           {BENEFITS.map((line) => (
             <div key={line} className="flex items-start gap-2.5">
-              <span className="mt-[1px] grid size-4 shrink-0 place-items-center rounded-full bg-[#7c5cff]/20">
-                <Check className="size-3 text-[#a78bfa]" />
+              <span className="mt-[1px] grid size-4 shrink-0 place-items-center rounded-full bg-[#22c3f0]/20">
+                <Check className="size-3 text-[#7fdcff]" />
               </span>
               <p className="text-[12px] font-medium leading-snug text-white/85">{line}</p>
             </div>
@@ -153,9 +153,9 @@ export function ProSplash() {
 
       {/* Price + CTA */}
       <div className="relative space-y-3 px-5 pb-6 pt-3">
-        <div className="relative rounded-2xl border border-[#7c5cff]/60 bg-white/[0.04] p-4">
+        <div className="relative rounded-2xl border border-[#22c3f0]/60 bg-white/[0.04] p-4">
           {pricing.promoLabel && (
-            <span className="absolute -top-2 left-4 rounded-md bg-[#ec4899] px-2 py-0.5 text-[9px] font-bold">
+            <span className="absolute -top-2 left-4 rounded-md bg-[var(--primary)] px-2 py-0.5 text-[9px] font-bold">
               {pricing.promoLabel}
             </span>
           )}
@@ -184,7 +184,7 @@ export function ProSplash() {
             setOpen(false)
             setPay(true)
           }}
-          className="flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-sm font-bold shadow-lg transition active:scale-[0.98]"
+          className="flex h-12 w-full items-center justify-center rounded-xl bg-[#22c3f0] text-sm font-bold text-[#04121a] transition active:scale-[0.98]"
         >
           Continue
         </button>
@@ -197,9 +197,9 @@ export function ProSplash() {
       {/* Restore login dialog */}
       {askLogin && (
         <div className="absolute inset-0 z-10 grid place-items-center bg-black/70 p-6 animate-fade-in">
-          <div className="w-full max-w-[300px] rounded-2xl border border-white/10 bg-[#111119] p-5 text-center">
-            <div className="mx-auto grid size-10 place-items-center rounded-full bg-[#7c5cff]/20">
-              <LogIn className="size-5 text-[#a78bfa]" />
+          <div className="w-full max-w-[300px] rounded-2xl border border-white/10 bg-[#111820] p-5 text-center">
+            <div className="mx-auto grid size-10 place-items-center rounded-full bg-[#22c3f0]/20">
+              <LogIn className="size-5 text-[#7fdcff]" />
             </div>
             <h3 className="mt-3 text-sm font-bold">Sign in to restore</h3>
             <p className="mt-1 text-[11px] leading-relaxed text-white/60">
@@ -209,7 +209,7 @@ export function ProSplash() {
               type="button"
               onClick={() => void handleRestore()}
               disabled={restoring}
-              className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#3b82f6] text-xs font-bold transition active:scale-[0.98] disabled:opacity-60"
+              className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[#22c3f0] text-[#04121a] text-xs font-bold transition active:scale-[0.98] disabled:opacity-60"
             >
               {restoring && <Loader2 className="size-3.5 animate-spin" />}
               Log in with Google

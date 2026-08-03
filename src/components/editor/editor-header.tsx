@@ -65,10 +65,10 @@ export function EditorHeader({
 }: EditorHeaderProps) {
   const { t } = useI18n()
   const iconBtn =
-    'size-9 rounded-full text-foreground/80 transition hover:text-foreground active:scale-95'
+    'size-9 rounded-lg text-foreground/75 transition-colors hover:bg-accent hover:text-foreground active:scale-95'
   return (
     <header
-      className="glass-bar sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/40 px-2"
+      className="glass-bar sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/70 px-2"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
       {hasImage ? (
@@ -78,13 +78,14 @@ export function EditorHeader({
             size="icon"
             aria-label="Back to home"
             onClick={onNewImage}
-            className={cn(iconBtn, 'glass-tile')}
+            className={iconBtn}
           >
             <ArrowLeft className="size-5" />
           </Button>
 
-          {/* Glass cluster of editing controls */}
-          <div className="glass-tile flex items-center gap-0.5 rounded-full px-1 py-1">
+          {/* Editing controls */}
+          <div className="flex items-center gap-0.5 rounded-xl bg-secondary/70 px-1 py-1">
+
             <Button
               variant="ghost"
               size="icon"
@@ -150,7 +151,7 @@ export function EditorHeader({
                 align="end"
                 sideOffset={10}
                 collisionPadding={12}
-                className="glass-panel border-0 bg-transparent shadow-none max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto perf-scroll rounded-3xl p-0"
+                className="glass-panel max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto perf-scroll rounded-2xl p-0"
               >
                 <LayersList
                   layers={layers}
@@ -176,7 +177,7 @@ export function EditorHeader({
               size="icon"
               aria-label="Export as template JSON"
               onClick={onExportTemplate}
-              className={cn(iconBtn, 'glass-tile')}
+              className={iconBtn}
             >
               <FileJson className="size-5" />
             </Button>
@@ -186,13 +187,7 @@ export function EditorHeader({
             size="icon"
             aria-label="Next"
             onClick={onNext}
-            className="size-9 rounded-full text-primary-foreground transition active:scale-95"
-            style={{
-              background:
-                'linear-gradient(150deg, var(--primary), color-mix(in oklab, var(--primary) 65%, white))',
-              boxShadow:
-                'inset 0 1px 0 var(--glass-rim), 0 10px 22px -12px color-mix(in oklab, var(--primary) 80%, transparent)',
-            }}
+            className="size-9 rounded-lg bg-primary text-primary-foreground transition hover:bg-primary/90 active:scale-95"
           >
             <ArrowRight className="size-5" />
           </Button>
@@ -206,17 +201,18 @@ export function EditorHeader({
               className="size-9 shrink-0 object-contain"
             />
             <div className="leading-tight">
-              <p className="text-sm font-bold tracking-tight">Myan</p>
+              <p className="font-display text-sm font-bold tracking-tight">Myan</p>
               <p className="text-[11px] text-muted-foreground">{t('brand.tagline')}</p>
             </div>
           </div>
-          <div className="glass-tile flex items-center gap-1 rounded-full p-1">
+          <div className="flex items-center gap-1">
             <PremiumBadge />
-            <ThemeToggle className="size-9 rounded-full text-foreground/80 hover:text-foreground" />
+            <ThemeToggle className="size-9 rounded-lg text-foreground/75 hover:bg-accent hover:text-foreground" />
             <SettingsSheet />
           </div>
         </>
       )}
+
     </header>
   )
 }

@@ -326,7 +326,7 @@ export function LanguageToggle({ className }: { className?: string }) {
       <PopoverContent
         align="end"
         sideOffset={10}
-        className="glass-panel w-44 border-0 bg-transparent p-1.5 shadow-none"
+        className="glass-panel w-44 rounded-xl p-1.5"
       >
         {options.map((o) => (
           <button
