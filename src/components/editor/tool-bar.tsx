@@ -143,6 +143,8 @@ interface ToolBarProps {
   onReplaceImage?: () => void
   onOpenTemplates?: () => void
   onInsertElement?: (tab: 'stickers' | 'shapes' | 'overlay') => void
+  /** Current background photo, used by the photo fill mode. */
+  bgImage?: string | null
   /** Opens freehand doodle drawing mode on the main canvas. */
   onDraw?: () => void
   onImageTool?: (
@@ -257,6 +259,7 @@ export function ToolBar({
   onOpenTemplates,
   onInsertElement,
   onImageTool,
+  bgImage,
   onDraw,
   autoOpenTool,
   onAutoOpenHandled,
@@ -538,6 +541,7 @@ export function ToolBar({
                   onDelete={onDelete}
                   onMoveLayer={onMoveLayer}
                   onCloseTool={() => setOpenTool(null)}
+                  bgImage={bgImage}
                 />
               </PopoverContent>
             </Popover>
@@ -582,6 +586,7 @@ interface ToolContentProps {
   onDelete: (id: string) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
   onCloseTool?: () => void
+  bgImage?: string | null
 }
 
 const BLEND_MODES = [
@@ -1401,6 +1406,7 @@ function ToolContent({
   onDelete,
   onMoveLayer,
   onCloseTool,
+  bgImage,
 }: ToolContentProps) {
   if (!layer) return null
 
@@ -2001,7 +2007,7 @@ function ToolContent({
         </div>
       )
     case 'texture':
-      return <TexturePanel layer={layer} onChange={onChange} />
+      return <TexturePanel layer={layer} onChange={onChange} bgImage={bgImage} />
 
     case 'rotate3d':
       return (
