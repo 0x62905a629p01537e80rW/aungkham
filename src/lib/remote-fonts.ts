@@ -14,9 +14,12 @@ export interface RemoteFont {
   size?: number
   /** tier recorded at install time (used for export gating) */
   tier?: FontTier
+  /** script the font supports — drives which preview sample is shown */
+  script?: 'mm' | 'latin'
 }
 
 import { cdnBase, cdnFetch, cdnListUrl } from './cdn-ref'
+import { BUNDLED_FONTS, BUNDLED_FREE_FONTS, withBundled } from './local-fonts'
 
 /** jsDelivr edge CDN, pinned to the newest commit so uploads appear at once */
 const base = () => cdnBase('Fonts')
@@ -97,10 +100,10 @@ let catalogCache: RemoteFont[] | null = null
 export async function fetchRemoteFonts(force = false): Promise<RemoteFont[]> {
   if (catalogCache && !force) return catalogCache
   try {
-    catalogCache = await fetchCatalog()
+    catalogCache = withBundled(await fetchCatalog())
   } catch {
-    // CDN unreachable — no catalog available
-    catalogCache = []
+    // CDN unreachable — fall back to the fonts shipped with the app
+    catalogCache = [...BUNDLED_FONTS]
   }
   return catalogCache
 }
@@ -190,8 +193,9 @@ export async function fetchFreeFonts(force = false): Promise<RemoteFont[]> {
         }
       })
       .filter(Boolean) as RemoteFont[]
+    freeCache = withBundled(freeCache, BUNDLED_FREE_FONTS)
   } catch {
-    freeCache = []
+    freeCache = [...BUNDLED_FREE_FONTS]
   }
   return freeCache
 }
