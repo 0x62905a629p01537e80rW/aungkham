@@ -3,7 +3,7 @@ import { Check, Crown, Download, X } from 'lucide-react'
 
 
 import { cn } from '@/lib/utils'
-import { GlassTabs } from '@/components/ui/glass-tabs'
+
 import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import { LOGO_FONT_KEYS } from '@/lib/logo-templates'
@@ -165,66 +165,87 @@ export function TemplateGallery({
 
   return (
     <div className={cn('flex flex-col', scroll && 'min-h-0 flex-1', className)}>
-      <div className="sticky top-0 z-10 -mx-1 bg-background/80 px-1 pt-1 backdrop-blur-xl">
-        <div className="flex shrink-0 items-center gap-1 pb-2">
-          <button
-            type="button"
-            onClick={() => {
-              setSelectMode((v) => !v)
-              setSelected([])
-            }}
-            className="glass-tile rounded-full px-2.5 py-1 text-[11px] font-semibold"
-          >
-            {selectMode ? 'Cancel' : 'Select'}
-          </button>
-          {selectMode && (
-            <>
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-xl">
+        <div className="flex items-center gap-2 px-4 pt-3">
+          <div className="flex items-center rounded-full bg-secondary p-0.5">
+            {(['EN', 'MM'] as TemplateLang[]).map((l) => (
               <button
+                key={l}
                 type="button"
-                onClick={() => setSelected(list.map((t) => t.id))}
-                className="glass-tile rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                onClick={() => setLang(l)}
+                className={cn(
+                  'rounded-full px-3 py-1.5 text-[12px] font-semibold transition',
+                  lang === l ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
+                )}
               >
-                All
+                {l === 'EN' ? 'English' : 'မြန်မာ'}
               </button>
-              <button
-                type="button"
-                onClick={handleExport}
-                disabled={!selected.length || exporting}
-                className="glass-cta flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold disabled:opacity-40"
-              >
-                <Download className="size-3" /> {exporting ? 'Exporting…' : `Export (${selected.length})`}
-              </button>
+            ))}
+          </div>
 
-            </>
-          )}
-          <div className="ml-auto" />
-          <GlassTabs
-            size="sm"
-            className="w-auto"
-            value={lang}
-            onChange={(l) => setLang(l as TemplateLang)}
-            items={[
-              { key: 'EN', label: 'English' },
-              { key: 'MM', label: 'မြန်မာ' },
-            ]}
-          />
+          <div className="ml-auto flex items-center gap-1.5">
+            {selectMode && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setSelected(list.map((t) => t.id))}
+                  className="rounded-full bg-secondary px-3 py-1.5 text-[11px] font-semibold text-foreground"
+                >
+                  All
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExport}
+                  disabled={!selected.length || exporting}
+                  className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground disabled:opacity-40"
+                >
+                  <Download className="size-3" />
+                  {exporting ? 'Exporting…' : selected.length}
+                </button>
+              </>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectMode((v) => !v)
+                setSelected([])
+              }}
+              className={cn(
+                'rounded-full px-3 py-1.5 text-[11px] font-semibold transition',
+                selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-foreground',
+              )}
+            >
+              {selectMode ? 'Cancel' : 'Select'}
+            </button>
+          </div>
         </div>
 
-        <div className="shrink-0 pb-2">
-          <GlassTabs
-            variant="chips"
-            size="sm"
-            value={activeGroup}
-            onChange={(g) => setGroup(g as typeof group)}
-            items={groups.map((g) => ({
-              key: g,
-              label: g,
-            }))}
-          />
+        <div className="mt-2.5 flex gap-1.5 overflow-x-auto no-scrollbar px-4 pb-2.5">
+          {groups.map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGroup(g)}
+              className={cn(
+                'shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition',
+                activeGroup === g
+                  ? 'bg-foreground text-background'
+                  : 'bg-secondary/70 text-muted-foreground',
+              )}
+            >
+              {g}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className={cn(scroll ? 'min-h-0 flex-1 overflow-y-auto perf-scroll no-scrollbar pb-8' : 'pb-2')}>
+      <div
+        className={cn(
+          'px-4 pt-3',
+          scroll ? 'min-h-0 flex-1 overflow-y-auto perf-scroll no-scrollbar pb-8' : 'pb-4',
+        )}
+      >
+
 
         {activeGroup === 'Downloaded' && !list.length && (
           <p className="py-8 text-center text-xs text-muted-foreground">
