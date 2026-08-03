@@ -926,19 +926,26 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           {layers.filter((l) => !l.hidden).map((layer) => {
             const isEditing = editingId === layer.id && !exporting
             const inv = 1 / view.scale
+            // Promote the layer being manipulated to its own GPU texture so
+            // drag / stretch / rotate composite on the GPU instead of forcing a
+            // full repaint of the text (shadows, strokes, gradients) each frame.
+            const live = interacting && layer.id === selectedId && !exporting
             const wrapperStyle: CSSProperties = {
               position: 'absolute',
               left: `${layer.x}%`,
               top: `${layer.y}%`,
-              transform: layerTransform(layer),
+              transform: `${layerTransform(layer)} translateZ(0)`,
               opacity: layer.opacity,
               mixBlendMode: (layer.blendMode ?? 'normal') as CSSProperties['mixBlendMode'],
               whiteSpace: 'nowrap',
               cursor: isEditing ? 'text' : 'move',
               touchAction: 'none',
+              willChange: live ? 'transform' : 'auto',
+              backfaceVisibility: live ? 'hidden' : 'visible',
               outlineWidth: `${1 * inv}px`,
               outlineOffset: `${5 * inv}px`,
             }
+
 
             const textStyle = layerTextStyle(layer)
             const inner = <LayerText layer={layer} />
