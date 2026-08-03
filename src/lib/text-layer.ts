@@ -4,7 +4,9 @@ import type { TextEffectKey } from '@/lib/text-effects'
 
 export type TextureType = 'none' | 'ocean' | 'neon' | 'mono'
 
-export type FillType = 'solid' | 'gradient' | 'texture'
+export type FillType = 'solid' | 'gradient' | 'texture' | 'pattern' | 'photo'
+
+import type { PatternKey } from '@/lib/text-patterns'
 
 
 
@@ -56,6 +58,15 @@ export interface TextLayer {
   textureOffsetX?: number
   textureOffsetY?: number
 
+  /* Pattern fill */
+  patternKey?: PatternKey
+  patternScale?: number
+  patternColor?: string
+
+  /* Photo fill — the background photo showing through the glyphs */
+  photoFill?: string
+  photoZoom?: number
+
   /* 3D extrusion */
   depthOn: boolean
   depth: number
@@ -78,6 +89,10 @@ export interface TextLayer {
 
   /* Bend (arc) */
   bend: number
+  /** radius multiplier for the arc, 100 = auto-fit */
+  bendRadius?: number
+  /** read the arc from the inside of the circle */
+  bendFlip?: boolean
 
   /* One-tap text effect preset (see lib/text-effects) */
   effect?: TextEffectKey
