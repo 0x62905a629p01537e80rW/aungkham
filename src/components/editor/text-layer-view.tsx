@@ -196,6 +196,25 @@ export function layerTransform(layer: TextLayer): string {
   return parts.filter(Boolean).join(' ')
 }
 
+/**
+ * Transform used for the selection frame / handles.
+ *
+ * Deliberately drops perspective, 3D rotation and skew: those warp the handle
+ * buttons into stretched ellipses and make the controls unusable. The frame
+ * still follows position, 2D rotation, flips and the width/height scale.
+ */
+export function chromeTransform(layer: TextLayer): string {
+  const parts = [
+    'translate(-50%, -50%)',
+    `rotate(${layer.rotation}deg)`,
+    layer.flipH || layer.flipV ? `scale(${layer.flipH ? -1 : 1}, ${layer.flipV ? -1 : 1})` : '',
+    (layer.widthScale ?? 100) !== 100 ? `scaleX(${(layer.widthScale ?? 100) / 100})` : '',
+    (layer.heightScale ?? 100) !== 100 ? `scaleY(${(layer.heightScale ?? 100) / 100})` : '',
+  ]
+  return parts.filter(Boolean).join(' ')
+}
+
+
 /** Text content, optionally bent along an arc. */
 function LayerGraphic({ layer }: { layer: TextLayer }) {
   const g = layer.graphic!
