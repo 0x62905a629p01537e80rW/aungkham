@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Check, Crown, Download, X } from 'lucide-react'
+import { Check, Crown, Download, LayoutGrid, Rows3, Store, X } from 'lucide-react'
 
 
 import { cn } from '@/lib/utils'
