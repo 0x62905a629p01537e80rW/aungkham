@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { toPng } from 'html-to-image'
+import { Trash2 } from 'lucide-react'
+
 import { EditorHeader } from './editor-header'
 import { UploadZone } from './upload-zone'
 import { CanvasPreview } from './canvas-preview'
