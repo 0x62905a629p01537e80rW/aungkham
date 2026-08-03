@@ -325,134 +325,119 @@
 }
 
 /* ---------------------------------------------------------------
-   Liquid glass surfaces — frosted, translucent, with a fortified
-   edge: crisp rim light, inner bevel and a deep grounded shadow.
+   Flat studio surfaces.
+
+   The class names are kept (they are used in ~60 places) but the
+   visual language is now opaque and value-layered: no backdrop
+   blur, no rim highlights, no gloss. Depth comes from stepped
+   surface values, hairline borders and restrained shadows.
    --------------------------------------------------------------- */
 
 @utility glass-panel {
   transition:
-    background-image 420ms cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 420ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 420ms cubic-bezier(0.4, 0, 0.2, 1),
-    backdrop-filter 420ms cubic-bezier(0.4, 0, 0.2, 1);
-  background-image:
-    linear-gradient(
-      145deg,
-      color-mix(in oklab, var(--card) 62%, transparent),
-      color-mix(in oklab, var(--card) 38%, transparent)
-    );
-  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
-  backdrop-filter: blur(28px) saturate(180%);
-  box-shadow:
-    inset 0 1px 0 var(--glass-rim),
-    inset 0 -1px 0 color-mix(in oklab, var(--foreground) 8%, transparent),
-    inset 0 0 0 1px var(--glass-edge),
-    0 18px 45px -18px var(--glass-shadow);
+    background-color 200ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 200ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
+  background-color: var(--surface-1);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--elev-3);
 }
 
 @utility glass-tile {
   transition:
-    background-image 420ms cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 420ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 420ms cubic-bezier(0.4, 0, 0.2, 1),
-    backdrop-filter 420ms cubic-bezier(0.4, 0, 0.2, 1);
-  background-image:
-    linear-gradient(
-      150deg,
-      color-mix(in oklab, var(--card) 70%, transparent),
-      color-mix(in oklab, var(--card) 42%, transparent)
-    );
-  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
-  backdrop-filter: blur(18px) saturate(170%);
-  box-shadow:
-    inset 0 1px 0 var(--glass-rim),
-    0 10px 24px -14px var(--glass-shadow);
+    background-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0, 0, 1);
+  background-color: var(--surface-2);
+  border: 1px solid transparent;
+  box-shadow: none;
 }
 
-/* Sliding active pill inside GlassTabs */
+/* Active-state marker. Modern apps mark the active tab with a short
+   accent underline rather than a floating pill. */
 .glass-indicator {
-  background-image: linear-gradient(
-    150deg,
-    color-mix(in oklab, var(--primary) 92%, white 8%),
-    color-mix(in oklab, var(--primary) 78%, transparent)
-  );
-  border: 1px solid color-mix(in oklab, white 26%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 45%, transparent),
-    inset 0 -1px 0 color-mix(in oklab, black 14%, transparent),
-    0 8px 18px -10px color-mix(in oklab, var(--primary) 70%, transparent);
-  backdrop-filter: blur(14px) saturate(180%);
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
   transition:
-    transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
-    width 380ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 260ms cubic-bezier(0.2, 0, 0, 1),
+    width 260ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* Primary call-to-action with liquid glass finish */
+.glass-indicator::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  height: 2.5px;
+  width: 20px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background-color: var(--primary);
+}
+
+/* Variant: solid filled marker (used where the tab sits on a tile row) */
+.indicator-solid {
+  background-color: var(--surface-3);
+  border: 1px solid var(--hairline);
+}
+.indicator-solid::after {
+  display: none;
+}
+
+/* Primary call-to-action — solid accent, flat */
 @utility glass-cta {
   position: relative;
   overflow: hidden;
   color: var(--primary-foreground);
-  background-image: linear-gradient(
-    150deg,
-    color-mix(in oklab, var(--primary) 94%, white 10%),
-    color-mix(in oklab, var(--primary) 74%, transparent)
-  );
-  border: 1px solid color-mix(in oklab, white 28%, transparent);
-  backdrop-filter: blur(20px) saturate(185%);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 50%, transparent),
-    inset 0 -1px 0 color-mix(in oklab, black 16%, transparent),
-    0 14px 30px -14px color-mix(in oklab, var(--primary) 75%, transparent);
+  background-color: var(--primary);
+  border: 1px solid transparent;
+  box-shadow: var(--elev-2);
   transition:
-    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 @utility premium-glass {
   position: relative;
   overflow: hidden;
-  color: #fff;
-  background-image:
-    linear-gradient(
-      135deg,
-      color-mix(in oklab, white 22%, transparent),
-      transparent 42%
-    ),
-    linear-gradient(
-      118deg,
-      oklch(0.68 0.16 305),
-      oklch(0.66 0.15 265) 46%,
-      oklch(0.72 0.13 215) 78%,
-      oklch(0.8 0.1 190)
-    );
-  border: 1px solid color-mix(in oklab, white 34%, transparent);
-  backdrop-filter: blur(18px) saturate(180%);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 55%, transparent),
-    inset 0 -1px 0 color-mix(in oklab, black 18%, transparent),
-    0 16px 34px -16px oklch(0.66 0.15 285 / 0.75);
+  color: oklch(0.135 0.02 245);
+  background-image: linear-gradient(
+    100deg,
+    oklch(0.78 0.14 205),
+    oklch(0.7 0.16 245) 55%,
+    oklch(0.68 0.15 275)
+  );
+  border: 1px solid transparent;
+  box-shadow: var(--elev-2);
   transition:
-    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-
+/* Fixed app bars — opaque, hairline-separated */
 @utility glass-bar {
-
   transition:
-    background-image 420ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 420ms cubic-bezier(0.4, 0, 0.2, 1),
-    backdrop-filter 420ms cubic-bezier(0.4, 0, 0.2, 1);
-  background-image:
-    linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--background) 72%, transparent),
-      color-mix(in oklab, var(--background) 55%, transparent)
-    );
-  backdrop-filter: blur(26px) saturate(180%);
-  box-shadow:
-    inset 0 1px 0 var(--glass-rim),
-    0 -10px 30px -20px var(--glass-shadow);
+    background-color 200ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
+  background-color: var(--surface-0);
+  box-shadow: none;
+}
+
+/* Row of controls sitting inside an app bar */
+@utility rail-row {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+@utility rail-row {
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Smooth cross-fade when toggling light/dark */
