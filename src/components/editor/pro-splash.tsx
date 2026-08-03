@@ -184,7 +184,7 @@ export function ProSplash() {
             setOpen(false)
             setPay(true)
           }}
-          className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-bold shadow-lg transition active:scale-[0.98]"
+          className="flex h-12 w-full items-center justify-center rounded-xl bg-[#22c3f0] text-sm font-bold text-[#04121a] transition active:scale-[0.98]"
         >
           Continue
         </button>
