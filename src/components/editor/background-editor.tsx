@@ -97,6 +97,10 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   // crop
   const [ratio, setRatio] = useState<number | null>(null)
   const [rect, setRect] = useState({ x: 0.08, y: 0.08, w: 0.84, h: 0.84 })
+  const [cropTab, setCropTab] = useState<'crop' | 'correct' | 'rotate'>('crop')
+  const [angle, setAngle] = useState(0)
+  const [straight, setStraight] = useState<string | null>(null)
+
 
   // resize
   const [keepAspect, setKeepAspect] = useState(true)
