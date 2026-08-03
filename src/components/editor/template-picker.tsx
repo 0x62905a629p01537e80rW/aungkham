@@ -169,17 +169,22 @@ export function TemplateGallery({
 
   return (
     <div className={cn('flex flex-col', scroll && 'min-h-0 flex-1', className)}>
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-xl">
+      <div className="sticky top-0 z-30 bg-background shadow-[0_1px_0_hsl(var(--border)/0.4)]">
         <div className="flex items-center gap-2 px-4 pt-3">
-          <div className="flex items-center rounded-full bg-secondary p-0.5">
+          <div className="relative flex items-center rounded-full bg-secondary p-0.5">
+            <span
+              aria-hidden
+              className="absolute inset-y-0.5 left-0.5 w-[calc(50%-0.125rem)] rounded-full bg-primary transition-transform duration-300 ease-out"
+              style={{ transform: lang === 'EN' ? 'translateX(0%)' : 'translateX(100%)' }}
+            />
             {(['EN', 'MM'] as TemplateLang[]).map((l) => (
               <button
                 key={l}
                 type="button"
                 onClick={() => setLang(l)}
                 className={cn(
-                  'rounded-full px-3 py-1.5 text-[12px] font-semibold transition',
-                  lang === l ? 'bg-primary text-primary-foreground' : 'text-muted-foreground',
+                  'relative z-10 w-[4.75rem] rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors duration-300',
+                  lang === l ? 'text-primary-foreground' : 'text-muted-foreground',
                 )}
               >
                 {l === 'EN' ? 'English' : 'မြန်မာ'}
@@ -188,7 +193,7 @@ export function TemplateGallery({
           </div>
 
           <div className="ml-auto flex items-center gap-1.5">
-            {selectMode && (
+            {selectMode ? (
               <>
                 <button
                   type="button"
@@ -207,6 +212,32 @@ export function TemplateGallery({
                   {exporting ? 'Exporting…' : selected.length}
                 </button>
               </>
+            ) : (
+              <>
+                {onOpenStore && (
+                  <button
+                    type="button"
+                    onClick={onOpenStore}
+                    aria-label="Open template store"
+                    className="flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-[11px] font-semibold text-foreground active:scale-95"
+                  >
+                    <Store className="size-3.5" />
+                    Store
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setView((v) => (v === 'single' ? 'grid' : 'single'))}
+                  aria-label={view === 'single' ? 'Switch to grid view' : 'Switch to single view'}
+                  className="flex size-8 items-center justify-center rounded-full bg-secondary text-foreground active:scale-95"
+                >
+                  {view === 'single' ? (
+                    <LayoutGrid className="size-4" />
+                  ) : (
+                    <Rows3 className="size-4" />
+                  )}
+                </button>
+              </>
             )}
             <button
               type="button"
@@ -223,6 +254,7 @@ export function TemplateGallery({
             </button>
           </div>
         </div>
+
 
         <div className="mt-2.5 flex gap-1.5 overflow-x-auto no-scrollbar px-4 pb-2.5">
           {groups.map((g) => (
