@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { fontFamily, TEXTURES, type TextLayer } from '@/lib/text-layer'
+import { textEffectStyle } from '@/lib/text-effects'
 
 
 function hexToRgb(hex: string) {
@@ -151,7 +152,8 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
   }
 
 
-  return { ...base, color: layer.color }
+  const solid: CSSProperties = { ...base, color: layer.color }
+  return solid
 }
 
 /** Wrapper transform shared by the editor canvas and the export canvas. */
