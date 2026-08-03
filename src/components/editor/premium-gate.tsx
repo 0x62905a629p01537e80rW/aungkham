@@ -190,7 +190,7 @@ export function PremiumGate({
                 setOpen(false)
                 setPay(true)
               }}
-              className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-white shadow-lg transition active:scale-[0.98]"
+              className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-primary-foreground shadow-lg transition active:scale-[0.98]"
             >
               <ProGem className="size-4" />
               Purchase Premium To Unlock
