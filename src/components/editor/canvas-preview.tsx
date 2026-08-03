@@ -12,7 +12,7 @@ import {
   ZoomOut,
   Minimize,
 } from 'lucide-react'
-import { LayerText, layerTextStyle, layerTransform } from './text-layer-view'
+import { LayerText, layerTextStyle, layerTransform, chromeTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
 import { pulseInteraction, rafThrottle } from '@/lib/perf'
 
@@ -222,10 +222,22 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       rafThrottle((id: string, x: number, y: number) => onMoveRef.current(id, x, y)),
     ).current
 
+    // Stretch drags stream at the display refresh rate; coalesce them to one
+    // committed change per frame so the GPU-composited layer keeps up.
+    const onChangeRef = useRef(onChange)
+    onChangeRef.current = onChange
+    const emitStretch = useRef(
+      rafThrottle((id: string, axis: 'x' | 'y', value: number) =>
+        onChangeRef.current?.(id, axis === 'x' ? { widthScale: value } : { heightScale: value }),
+      ),
+    ).current
+
     useEffect(() => () => {
       emitMove.cancel()
+      emitStretch.cancel()
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
-    }, [emitMove])
+    }, [emitMove, emitStretch])
+
 
     function stageDown(e: PointerEvent<HTMLDivElement>) {
       pulseInteraction(400)
@@ -366,6 +378,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const dy = e.clientY - st.startY
       if (!st.moved && Math.hypot(dx, dy) < 4) return
       st.moved = true
+      markInteracting()
       const rect = dragRectRef.current ?? containerRef.current?.getBoundingClientRect() ?? null
       if (!rect || !rect.width || !rect.height) return
       dragRectRef.current = { width: rect.width, height: rect.height }
@@ -452,6 +465,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function handleResizeMove(e: PointerEvent<HTMLButtonElement>) {
       const st = resizeState.current
       if (!st) return
+      markInteracting()
       const layer = layers.find((l) => l.id === st.id)
       if (!layer) return
       const dist = centerDistance(layer, e.clientX, e.clientY)
@@ -500,6 +514,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function handleRotateMove(e: PointerEvent<HTMLButtonElement>) {
       const st = rotateState.current
       if (!st) return
+      markInteracting()
       const layer = layers.find((l) => l.id === st.id)
       if (!layer) return
       const delta = pointerAngle(layer, e.clientX, e.clientY) - st.startAngle
@@ -573,7 +588,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
-      const startValue = axis === 'x' ? (layer.widthScale ?? 100) : (layer.heightScale ?? 100)
+      markInteracting()
+      const raw = axis === 'x' ? (layer.widthScale ?? 100) : (layer.heightScale ?? 100)
+      const startValue = Math.max(10, Math.min(400, Math.abs(raw)))
       stretchState.current = {
         id: layer.id,
         axis,
@@ -586,20 +603,21 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function handleStretchMove(e: PointerEvent<HTMLButtonElement>) {
       const st = stretchState.current
       if (!st) return
+      markInteracting()
       const rect = containerRef.current?.getBoundingClientRect()
       const span = (st.axis === 'x' ? rect?.width : rect?.height) || 300
       const delta = (st.axis === 'x' ? e.clientX : e.clientY) - st.start
-      // Dragging down / right decreases the value (and can cross zero to mirror).
-      const dir = -1
-      let next = st.startValue + (dir * delta * 200) / span
-      // Dragging past zero mirrors the layer on that axis (negative scale).
-      next = Math.max(-400, Math.min(400, Math.round(next)))
-      if (Math.abs(next) < 5) next = next < 0 ? -5 : 5
-      onChange?.(st.id, st.axis === 'x' ? { widthScale: next } : { heightScale: next })
+      // Dragging down / right decreases the value. Never crosses zero: mirroring
+      // is the job of the flip buttons, and negative scales used to turn the
+      // text inside-out mid-drag.
+      let next = st.startValue - (delta * 140) / span
+      next = Math.max(10, Math.min(400, Math.round(next)))
+      emitStretch(st.id, st.axis, next)
       setStretchHud({ id: st.id, axis: st.axis, value: next })
     }
 
     function handleStretchUp(e: PointerEvent<HTMLButtonElement>) {
+      emitStretch.flush()
       stretchState.current = null
       setStretchHud(null)
       try {
@@ -608,6 +626,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         /* ignore */
       }
     }
+
 
 
 
@@ -630,8 +649,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const hy = (v: number | string) => (flipY ? mirror(v) : v)
       const sx = flipX ? -1 : 1
       const sy = flipY ? -1 : 1
-      const aw = Math.max(0.1, Math.abs(wS))
-      const ah = Math.max(0.1, Math.abs(hS))
+      // Clamp the inverse-scale compensation: at extreme stretch values an exact
+      // inverse blew the handle buttons up into huge ellipses.
+      const clamp = (v: number) => Math.max(0.5, Math.min(2, v))
+      const aw = clamp(Math.abs(wS) || 1)
+      const ah = clamp(Math.abs(hS) || 1)
       const OFF = 22 * inv
       const hTr = (ox: number, oy: number) =>
         `translate(calc(-50% + ${(ox * sx * OFF) / aw}px), calc(-50% + ${(oy * sy * OFF) / ah}px)) scale(${(inv * sx) / aw}, ${(inv * sy) / ah})`
@@ -642,7 +664,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             position: 'absolute',
             left: `${layer.x}%`,
             top: `${layer.y}%`,
-            transform: layerTransform(layer),
+            transform: chromeTransform(layer),
+            willChange: interacting ? 'transform' : 'auto',
+
             whiteSpace: 'nowrap',
             cursor: 'move',
             touchAction: 'none',
@@ -905,19 +929,26 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           {layers.filter((l) => !l.hidden).map((layer) => {
             const isEditing = editingId === layer.id && !exporting
             const inv = 1 / view.scale
+            // Promote the layer being manipulated to its own GPU texture so
+            // drag / stretch / rotate composite on the GPU instead of forcing a
+            // full repaint of the text (shadows, strokes, gradients) each frame.
+            const live = interacting && layer.id === selectedId && !exporting
             const wrapperStyle: CSSProperties = {
               position: 'absolute',
               left: `${layer.x}%`,
               top: `${layer.y}%`,
-              transform: layerTransform(layer),
+              transform: `${layerTransform(layer)} translateZ(0)`,
               opacity: layer.opacity,
               mixBlendMode: (layer.blendMode ?? 'normal') as CSSProperties['mixBlendMode'],
               whiteSpace: 'nowrap',
               cursor: isEditing ? 'text' : 'move',
               touchAction: 'none',
+              willChange: live ? 'transform' : 'auto',
+              backfaceVisibility: live ? 'hidden' : 'visible',
               outlineWidth: `${1 * inv}px`,
               outlineOffset: `${5 * inv}px`,
             }
+
 
             const textStyle = layerTextStyle(layer)
             const inner = <LayerText layer={layer} />
