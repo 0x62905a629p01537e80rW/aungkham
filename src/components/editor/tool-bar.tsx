@@ -637,14 +637,26 @@ type FontGroup =
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'english', label: 'English' },
   { key: 'mm-free', label: 'Myanmar' },
-  { key: 'en-premium', label: 'Premium (Eng)' },
   { key: 'mm-premium', label: 'Premium (MM)' },
+  { key: 'en-premium', label: 'Premium (Eng)' },
   { key: 'google', label: 'Google Fonts' },
   { key: 'downloaded', label: 'Downloaded' },
   { key: 'favorites', label: 'Favorites' },
   { key: 'recent', label: 'Recent' },
   { key: 'custom', label: 'Upload' },
 ]
+
+/** Which store tab a "Download more fonts" tap should land on. */
+const STORE_TAB_FOR_GROUP: Partial<Record<FontGroup, 'mm' | 'free' | 'en' | 'premium'>> = {
+  english: 'en',
+  'mm-free': 'free',
+  'mm-premium': 'premium',
+  'en-premium': 'premium',
+  downloaded: 'mm',
+  favorites: 'mm',
+  recent: 'mm',
+}
+
 
 
 function groupOf(cat: FontOption['category']): FontGroup {
