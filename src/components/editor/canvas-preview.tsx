@@ -573,7 +573,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
-      const startValue = axis === 'x' ? (layer.widthScale ?? 100) : (layer.heightScale ?? 100)
+      markInteracting()
+      const raw = axis === 'x' ? (layer.widthScale ?? 100) : (layer.heightScale ?? 100)
+      const startValue = Math.max(10, Math.min(400, Math.abs(raw)))
       stretchState.current = {
         id: layer.id,
         axis,
@@ -586,20 +588,21 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function handleStretchMove(e: PointerEvent<HTMLButtonElement>) {
       const st = stretchState.current
       if (!st) return
+      markInteracting()
       const rect = containerRef.current?.getBoundingClientRect()
       const span = (st.axis === 'x' ? rect?.width : rect?.height) || 300
       const delta = (st.axis === 'x' ? e.clientX : e.clientY) - st.start
-      // Dragging down / right decreases the value (and can cross zero to mirror).
-      const dir = -1
-      let next = st.startValue + (dir * delta * 200) / span
-      // Dragging past zero mirrors the layer on that axis (negative scale).
-      next = Math.max(-400, Math.min(400, Math.round(next)))
-      if (Math.abs(next) < 5) next = next < 0 ? -5 : 5
-      onChange?.(st.id, st.axis === 'x' ? { widthScale: next } : { heightScale: next })
+      // Dragging down / right decreases the value. Never crosses zero: mirroring
+      // is the job of the flip buttons, and negative scales used to turn the
+      // text inside-out mid-drag.
+      let next = st.startValue - (delta * 140) / span
+      next = Math.max(10, Math.min(400, Math.round(next)))
+      emitStretch(st.id, st.axis, next)
       setStretchHud({ id: st.id, axis: st.axis, value: next })
     }
 
     function handleStretchUp(e: PointerEvent<HTMLButtonElement>) {
+      emitStretch.flush()
       stretchState.current = null
       setStretchHud(null)
       try {
@@ -608,6 +611,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         /* ignore */
       }
     }
+
 
 
 
