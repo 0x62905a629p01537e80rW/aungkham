@@ -33,6 +33,8 @@ import {
   ratioFit,
   resizeImage,
   rotateImage,
+  straightenImage,
+
 } from '@/lib/image-ops'
 import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
