@@ -77,6 +77,15 @@ export interface TextLayer {
   /* Bend (arc) */
   bend: number
 
+  /* One-tap text effect preset (see lib/text-effects) */
+  effect?: TextEffectKey
+  effectIntensity?: number
+  effectOffset?: number
+  effectDirection?: number
+  effectBlur?: number
+  effectThickness?: number
+  effectColor?: string
+
   /* Flip */
   flipH: boolean
   flipV: boolean
