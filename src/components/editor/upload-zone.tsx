@@ -113,12 +113,16 @@ const FEATURED = UPLOADED_TEMPLATES
         {tab === 'create' && (
           <div className="flex flex-col">
             {/* Hero banner */}
-            <div className="relative h-44 w-full overflow-hidden">
-              <div aria-hidden className="absolute inset-0 flex flex-col justify-center gap-2 opacity-70">
+            <div className="relative h-[17.5rem] w-full overflow-hidden">
+              {/* Animated template band — starts below the header */}
+              <div
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 top-14 flex flex-col justify-start gap-2.5 overflow-hidden pt-3 opacity-80"
+              >
                 {[0, 1].map((row) => (
                   <div
                     key={row}
-                    className="marquee-track gap-2"
+                    className="marquee-track gap-2.5"
                     style={{
                       animationDuration: row ? '34s' : '26s',
                       animationDirection: row ? 'reverse' : 'normal',
@@ -127,7 +131,7 @@ const FEATURED = UPLOADED_TEMPLATES
                     {[...FEATURED.slice(0, 12), ...FEATURED.slice(0, 12)].map((tpl, i) => (
                       <div
                         key={`${row}-${i}`}
-                        className="relative h-[72px] w-[128px] shrink-0 overflow-hidden rounded-xl border border-border/50"
+                        className="relative h-[84px] w-[150px] shrink-0 overflow-hidden rounded-xl border border-border/50"
                       >
                         <TemplateThumb template={tpl} bg="#0d0d14" />
                       </div>
@@ -135,15 +139,28 @@ const FEATURED = UPLOADED_TEMPLATES
                   </div>
                 ))}
               </div>
+
+              {/* Soft scrim under the header */}
               <div
                 aria-hidden
-                className="absolute inset-0"
+                className="pointer-events-none absolute inset-x-0 top-0 h-24"
                 style={{
                   background:
-                    'radial-gradient(120% 90% at 20% 0%, color-mix(in oklab, var(--primary) 35%, transparent), transparent 65%), linear-gradient(180deg, color-mix(in oklab, var(--background) 55%, transparent) 0%, color-mix(in oklab, var(--background) 82%, transparent) 55%, var(--background) 100%)',
+                    'linear-gradient(180deg, var(--background) 0%, color-mix(in oklab, var(--background) 85%, transparent) 55%, transparent 100%)',
                 }}
               />
-              <div className="relative flex h-full flex-col justify-end px-5 pb-8">
+
+              {/* Bottom fade + brand tint */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    'radial-gradient(120% 80% at 20% 0%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 65%), linear-gradient(180deg, transparent 30%, color-mix(in oklab, var(--background) 75%, transparent) 62%, var(--background) 100%)',
+                }}
+              />
+
+              <div className="relative flex h-full flex-col justify-end px-5 pb-6">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
                   Text on Photo
                 </p>
@@ -155,6 +172,7 @@ const FEATURED = UPLOADED_TEMPLATES
                 </p>
               </div>
             </div>
+
 
 
             {/* Primary actions */}
