@@ -1527,6 +1527,7 @@ function ToolContent({
       const g = layer.graphic
       if (!g?.path) return null
       const outline = !!g.outline
+      void 0
       const width = g.strokeWidth ?? DEFAULT_STROKE_WIDTH
       const strokeColor = g.strokeColor ?? layer.color
       const apply = (patch: Partial<typeof g>) => {
