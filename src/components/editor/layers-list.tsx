@@ -55,8 +55,11 @@ export function LayersList({
   onReorder,
   onGroup,
   onUngroup,
+  onSaveProject,
+  onExportJson,
 }: LayersListProps) {
   const [picking, setPicking] = useState(false)
+  const [saveOpen, setSaveOpen] = useState(false)
   const [marked, setMarked] = useState<string[]>([])
 
   const groupColors = ['#f97316', '#22c55e', '#3b82f6', '#a855f7', 'var(--primary)', '#14b8a6']
