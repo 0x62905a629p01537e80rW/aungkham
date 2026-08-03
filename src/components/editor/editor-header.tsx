@@ -67,12 +67,20 @@ export function EditorHeader({
 }: EditorHeaderProps) {
   const { t } = useI18n()
   const [scrolled, setScrolled] = useState(false)
+  const [subview, setSubview] = useState(false)
   useEffect(() => {
     const onScroll = (e: Event) => setScrolled(!!(e as CustomEvent<boolean>).detail)
+    const onSub = (e: Event) => setSubview(!!(e as CustomEvent<boolean>).detail)
     window.addEventListener('home-scroll', onScroll as EventListener)
-    return () => window.removeEventListener('home-scroll', onScroll as EventListener)
+    window.addEventListener('home-subview', onSub as EventListener)
+    return () => {
+      window.removeEventListener('home-scroll', onScroll as EventListener)
+      window.removeEventListener('home-subview', onSub as EventListener)
+    }
   }, [])
   const transparent = !hasImage && !scrolled
+  if (!hasImage && subview) return null
+
   const iconBtn =
     'size-9 rounded-lg text-foreground/75 transition-colors hover:bg-accent hover:text-foreground active:scale-95'
   return (
