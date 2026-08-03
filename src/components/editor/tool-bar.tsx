@@ -183,6 +183,7 @@ type ToolKey =
   | 'erase'
   | 'cutout'
   | 'outline'
+  | 'cropel'
 
 interface ToolDef {
   key: ToolKey
@@ -192,6 +193,8 @@ interface ToolDef {
   shapeOnly?: boolean
   /** only for image/sticker graphic layers */
   imageOnly?: boolean
+  /** only for graphic layers (image / shape / sticker) */
+  graphicOnly?: boolean
   /** Pro-only feature — free users can try it, export is gated */
   pro?: boolean
 }
@@ -219,6 +222,7 @@ const TOOLS: ToolDef[] = [
   { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: false },
   { key: 'cutout', label: 'Remove BG', icon: Scissors, needsLayer: true, imageOnly: true, pro: true },
   { key: 'outline', label: 'Outline', icon: Circle, needsLayer: true, shapeOnly: true },
+  { key: 'cropel', label: 'Crop', icon: Crop, needsLayer: true, graphicOnly: true },
 ]
 
 
@@ -418,6 +422,7 @@ export function ToolBar({
         {TOOLS.filter(
           (tool) =>
             (!tool.shapeOnly || !!selected?.graphic?.path) &&
+            (!tool.graphicOnly || !!selected?.graphic) &&
             (!tool.imageOnly || (!!selected?.graphic && !selected.graphic.path)),
         ).map((tool) => {
           const disabled = tool.needsLayer && !selected
