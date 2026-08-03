@@ -15,38 +15,46 @@ export function AspectPicker({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-background/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] grid place-items-center bg-background/80 p-5 backdrop-blur-md">
       <button type="button" aria-label="Close" className="absolute inset-0" onClick={onClose} />
-      <div
-        className="glass-panel relative mb-4 w-[min(24rem,calc(100%-1.5rem))] rounded-[1.75rem] p-4"
-        style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
-      >
-        <h3 className="mb-1 text-center text-base font-semibold text-foreground">Choose a size</h3>
-        <p className="mb-3 text-center text-xs text-muted-foreground">
+      <div className="glass-panel relative w-[min(22rem,100%)] rounded-3xl border border-border/60 p-5 shadow-2xl">
+        <h3 className="text-center text-lg font-semibold tracking-tight text-foreground">
+          Choose a size
+        </h3>
+        <p className="mb-4 mt-1 text-center text-xs text-muted-foreground">
           Pick the aspect ratio you want to edit in.
         </p>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-2.5">
           {ASPECT_RATIOS.map((a) => (
             <button
               key={a.label}
               type="button"
               onClick={() => onPick(a.ratio)}
-              className="glass-tile flex flex-col items-center gap-1.5 rounded-2xl p-2 transition active:scale-95"
+              className="group flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-secondary/40 p-2.5 transition hover:border-primary/50 hover:bg-primary/10 active:scale-95"
             >
-              <span className="grid h-10 w-full place-items-center">
+              <span className="grid h-11 w-full place-items-center">
                 <span
-                  className="rounded-[4px] border border-border"
+                  className="rounded-[5px] ring-1 ring-border/70 transition group-hover:ring-primary/60"
                   style={{
-                    background: preview ?? 'var(--secondary)',
-                    height: a.ratio >= 1 ? `${Math.round(36 / a.ratio)}px` : '36px',
-                    width: a.ratio >= 1 ? '36px' : `${Math.round(36 * a.ratio)}px`,
+                    background: preview ?? 'var(--primary)',
+                    height: a.ratio >= 1 ? `${Math.round(38 / a.ratio)}px` : '38px',
+                    width: a.ratio >= 1 ? '38px' : `${Math.round(38 * a.ratio)}px`,
                   }}
                 />
               </span>
-              <span className="text-[10px] font-semibold text-foreground">{a.label}</span>
+              <span className="text-[10px] font-semibold tabular-nums text-foreground">
+                {a.label}
+              </span>
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-4 w-full rounded-full border border-border/60 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-accent active:scale-[0.98]"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   )
