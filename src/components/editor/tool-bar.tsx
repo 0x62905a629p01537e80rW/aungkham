@@ -62,7 +62,6 @@ import {
   Smile,
   Shapes,
   Layers2,
-  ImagePlus,
   Pencil,
   Droplet,
   Droplets,
