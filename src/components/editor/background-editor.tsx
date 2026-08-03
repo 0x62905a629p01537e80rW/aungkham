@@ -299,22 +299,21 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
     }
   }, [tool, working, frame])
 
-  // Live preview for crop straightening
+  // Live preview for crop straightening — pure CSS transform, so it tracks the
+  // finger at the display refresh rate instead of re-encoding the bitmap.
+  function applyStraighten(deg: number) {
+    const el = cropImgRef.current
+    if (!el) return
+    const s = straightenCoverScale(el.clientWidth || 1, el.clientHeight || 1, deg)
+    el.style.transform = `rotate(${deg}deg) scale(${s})`
+  }
+
   useEffect(() => {
     if (tool !== 'crop') return
-    if (!angle) {
-      setStraight(null)
-      return
-    }
-    let alive = true
-    const id = setTimeout(() => {
-      straightenImage(working, angle).then((url) => alive && setStraight(url))
-    }, 90)
-    return () => {
-      alive = false
-      clearTimeout(id)
-    }
-  }, [tool, working, angle])
+    applyStraighten(angle)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tool, working, angle, cropTab])
+
 
   async function apply() {
     setBusy(true)
