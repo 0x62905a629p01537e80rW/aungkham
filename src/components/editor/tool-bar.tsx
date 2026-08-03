@@ -1523,11 +1523,61 @@ function ToolContent({
           )}
         </div>
       )
+    case 'cropel': {
+      const g = layer.graphic
+      if (!g) return null
+      const crop = g.crop ?? { top: 0, right: 0, bottom: 0, left: 0 }
+      const setCrop = (patch: Partial<typeof crop>) =>
+        onChange({ graphic: { ...g, crop: { ...crop, ...patch } } })
+      return (
+        <div className="space-y-4">
+          <ToolHeading>Crop element</ToolHeading>
+          <SliderField
+            label="Top"
+            value={crop.top}
+            min={0}
+            max={90}
+            step={1}
+            onChange={(v) => setCrop({ top: v })}
+          />
+          <SliderField
+            label="Bottom"
+            value={crop.bottom}
+            min={0}
+            max={90}
+            step={1}
+            onChange={(v) => setCrop({ bottom: v })}
+          />
+          <SliderField
+            label="Left"
+            value={crop.left}
+            min={0}
+            max={90}
+            step={1}
+            onChange={(v) => setCrop({ left: v })}
+          />
+          <SliderField
+            label="Right"
+            value={crop.right}
+            min={0}
+            max={90}
+            step={1}
+            onChange={(v) => setCrop({ right: v })}
+          />
+          <button
+            type="button"
+            onClick={() => onChange({ graphic: { ...g, crop: undefined } })}
+            className="w-full rounded-xl border border-border/60 py-2 text-[11px] font-medium text-muted-foreground transition active:scale-95"
+          >
+            Reset crop
+          </button>
+        </div>
+      )
+    }
     case 'outline': {
       const g = layer.graphic
       if (!g?.path) return null
       const outline = !!g.outline
-      void 0
       const width = g.strokeWidth ?? DEFAULT_STROKE_WIDTH
       const strokeColor = g.strokeColor ?? layer.color
       const apply = (patch: Partial<typeof g>) => {
