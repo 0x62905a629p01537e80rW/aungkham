@@ -608,6 +608,27 @@ export function ColorPickerPanel({
         />
       </div>)}
 
+      {/* Colours sampled from the current photo */}
+      {mode === 'solid' && photoPalette.length > 0 && (
+        <div className="mt-2">
+          <p className="mb-1 text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
+            From photo
+          </p>
+          <div className="grid grid-cols-8 gap-1">
+            {photoPalette.map((c) => (
+              <button
+                key={`ph-${c}`}
+                type="button"
+                onClick={() => pickPreset(c)}
+                className="aspect-square rounded-[4px] border border-black/10 transition active:scale-90"
+                style={{ background: c }}
+                aria-label={`Photo colour ${c}`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Preview + recently used pills */}
       <div className="mt-2 flex items-start gap-1.5">
         <div

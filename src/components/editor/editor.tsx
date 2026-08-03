@@ -17,6 +17,7 @@ import { TemplatePicker } from './template-picker'
 import { ExportTemplateDialog } from './export-template-dialog'
 import { makeSolidDataUrl } from '@/lib/background'
 import { loadImage } from '@/lib/image-ops'
+import { extractPhotoPalette } from '@/lib/image-palette'
 import { saveProject, type SavedProject } from '@/lib/projects'
 import { RateDialog } from './rate-dialog'
 import { PremiumGate, stripPremiumFonts } from './premium-gate'
@@ -124,6 +125,11 @@ export function Editor() {
     const ro = new ResizeObserver(measure)
     ro.observe(el)
     return () => ro.disconnect()
+  }, [image])
+
+  // Keep the colour picker's "from photo" palette in sync with the background.
+  useEffect(() => {
+    void extractPhotoPalette(image)
   }, [image])
 
   const ratio = naturalSize ? naturalSize.w / naturalSize.h : 16 / 9
