@@ -3,7 +3,7 @@ import { Check, Crown, Download, X } from 'lucide-react'
 
 
 import { cn } from '@/lib/utils'
-import { GlassTabs } from '@/components/ui/glass-tabs'
+
 import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
 import { LOGO_FONT_KEYS } from '@/lib/logo-templates'
