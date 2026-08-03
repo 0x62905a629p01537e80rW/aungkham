@@ -377,7 +377,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
       // Snap to the canvas centre/thirds and to the centre of any other layer.
       const tol = 1.6
-      const others = layers.filter((l) => l.id !== st.id && l.visible !== false)
+      const others = layers.filter((l) => l.id !== st.id && !l.hidden)
       const xTargets = [50, ...others.map((l) => l.x)]
       const yTargets = [50, ...others.map((l) => l.y)]
       let snapV: number | null = null
