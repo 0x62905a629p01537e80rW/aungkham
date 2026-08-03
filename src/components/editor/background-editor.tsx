@@ -866,11 +866,13 @@ function CropStage({
   rect,
   ratio,
   onChange,
+  hideHandles = false,
 }: {
   src: string
   rect: { x: number; y: number; w: number; h: number }
   ratio: number | null
   onChange: (r: { x: number; y: number; w: number; h: number }) => void
+  hideHandles?: boolean
 }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
