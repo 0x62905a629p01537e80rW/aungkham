@@ -464,7 +464,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       } catch {
         /* ignore */
       }
-      if (st && !st.moved) {
+      // A cancelled pointer (scroll takeover, system gesture) is not a tap.
+      if (st && !st.moved && e.type !== 'pointercancel') {
+
         const now = Date.now()
         const last = lastTapRef.current
         if (last && last.id === st.id && now - last.time < 350) {
