@@ -922,7 +922,85 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   )
 }
 
+/**
+ * Draws the Fit composition straight onto a canvas at preview resolution.
+ * Every option change repaints synchronously inside one animation frame — no
+ * PNG encode/decode round-trip — so sliders and pinch-zoom stay at 60fps.
+ */
+function FitStage({
+  src,
+  opts,
+  className,
+}: {
+  src: string
+  opts: RatioFitOptions
+  className?: string
+}) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const imgRef = useRef<HTMLImageElement | null>(null)
+  const backdropRef = useRef<HTMLImageElement | null>(null)
+  const optsRef = useRef(opts)
+  optsRef.current = opts
+  const frame = useRef<number | null>(null)
+  const [, setReady] = useState(0)
+
+  useEffect(() => {
+    let alive = true
+    loadImage(src).then((img) => {
+      if (!alive) return
+      imgRef.current = img
+      setReady((n) => n + 1)
+    })
+    return () => {
+      alive = false
+    }
+  }, [src])
+
+  const backdropSrc = opts.backdropImage ?? null
+  useEffect(() => {
+    let alive = true
+    if (!backdropSrc) {
+      backdropRef.current = null
+      setReady((n) => n + 1)
+      return
+    }
+    loadImage(backdropSrc).then((img) => {
+      if (!alive) return
+      backdropRef.current = img
+      setReady((n) => n + 1)
+    })
+    return () => {
+      alive = false
+    }
+  }, [backdropSrc])
+
+  const key = JSON.stringify(opts)
+  useEffect(() => {
+    if (frame.current) cancelAnimationFrame(frame.current)
+    frame.current = requestAnimationFrame(() => {
+      frame.current = null
+      const img = imgRef.current
+      const canvas = canvasRef.current
+      if (!img || !canvas) return
+      const out = drawRatioFit(img, optsRef.current, backdropRef.current, 900)
+      if (canvas.width !== out.width || canvas.height !== out.height) {
+        canvas.width = out.width
+        canvas.height = out.height
+      }
+      const ctx = canvas.getContext('2d')!
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(out, 0, 0)
+    })
+    return () => {
+      if (frame.current) cancelAnimationFrame(frame.current)
+    }
+  }, [key])
+
+  return <canvas ref={canvasRef} className={className} />
+}
+
 type CropHandle = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'w' | 'e'
+
 
 function CropStage({
   src,
