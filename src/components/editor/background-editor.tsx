@@ -297,12 +297,32 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
     }
   }, [tool, working, frame])
 
+  // Live preview for crop straightening
+  useEffect(() => {
+    if (tool !== 'crop') return
+    if (!angle) {
+      setStraight(null)
+      return
+    }
+    let alive = true
+    const id = setTimeout(() => {
+      straightenImage(working, angle).then((url) => alive && setStraight(url))
+    }, 90)
+    return () => {
+      alive = false
+      clearTimeout(id)
+    }
+  }, [tool, working, angle])
+
   async function apply() {
     setBusy(true)
     try {
       let out = working
-      if (tool === 'crop') out = await cropImage(working, rect)
-      else if (tool === 'resize') out = await resizeImage(working, rw, rh)
+      if (tool === 'crop') {
+        const base = angle ? await straightenImage(working, angle) : working
+        out = await cropImage(base, rect)
+      } else if (tool === 'resize') out = await resizeImage(working, rw, rh)
+
       else if (tool === 'fit') out = await ratioFit(working, fitOptions())
       else if (tool === 'frame')
         out = frame.kind === 'none' ? working : await applyFrame(working, frame)
