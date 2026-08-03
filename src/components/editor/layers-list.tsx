@@ -6,11 +6,14 @@ import {
   Eye,
   EyeOff,
   Check,
+  FileJson,
+  FolderDown,
   GripVertical,
   Group,
   Lock,
   LockOpen,
   Plus,
+  Save,
   Trash2,
   Type,
   Ungroup,
@@ -32,7 +35,10 @@ interface LayersListProps {
   onReorder?: (from: number, to: number) => void
   onGroup?: (ids: string[]) => void
   onUngroup?: (id: string) => void
+  onSaveProject?: () => void
+  onExportJson?: () => void
 }
+
 
 const ROW_H = 64
 
