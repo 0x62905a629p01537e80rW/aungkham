@@ -176,7 +176,7 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
     const mctx = mask.getContext('2d')!
     const md = mctx.getImageData(0, 0, w, h).data
     let hasMask = false
-    let flags = new Uint8Array(w * h)
+    let flags: Uint8Array<ArrayBufferLike> = new Uint8Array(w * h)
     for (let p = 0; p < w * h; p += 1) {
       if (md[p * 4 + 3] > 24) {
         flags[p] = 255
