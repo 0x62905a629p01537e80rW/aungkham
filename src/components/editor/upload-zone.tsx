@@ -60,218 +60,159 @@ const FEATURED = UPLOADED_TEMPLATES
     reader.readAsDataURL(file)
   }
 
+  const TOOLS: { id: string; label: string; icon: typeof BackgroundIcon; run: () => void }[] = [
+    { id: 'gallery', label: t('home.chooseLibrary') ?? 'Gallery', icon: ImageIcon, run: () => galleryRef.current?.click() },
+    { id: 'templates', label: t('home.tab.templates'), icon: LayoutTemplate, run: () => setTab('templates') },
+    { id: 'fonts', label: 'Fonts', icon: Type, run: () => setTab('fonts') },
+    { id: 'store', label: 'Store', icon: Store, run: () => setTab('store') },
+    { id: 'solid', label: t('home.solidColors'), icon: Palette, run: () => setPicker('solid') },
+    { id: 'gradient', label: t('home.gradients'), icon: Blend, run: () => setPicker('gradient') },
+    { id: 'camera', label: t('home.takePhoto') ?? 'Camera', icon: Camera, run: () => cameraRef.current?.click() },
+    { id: 'projects', label: t('home.tab.projects'), icon: FolderOpen, run: () => setTab('projects') },
+  ]
+
+  const SUB_TITLES: Record<string, string> = {
+    fonts: 'Fonts',
+    templates: t('home.tab.templates'),
+    store: 'Store',
+    projects: t('home.tab.projects'),
+  }
+
   return (
     <div
-      className="relative flex min-h-0 flex-1 flex-col overflow-hidden px-6 pt-5"
+      className="relative flex min-h-0 flex-1 flex-col overflow-hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      {/* Ambient backdrop */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            'radial-gradient(60% 40% at 50% 0%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 70%), radial-gradient(60% 40% at 50% 100%, color-mix(in oklab, var(--accent-foreground) 12%, transparent), transparent 70%)',
-        }}
-      />
+      {tab !== 'create' && (
+        <div className="flex shrink-0 items-center gap-3 border-b border-border/50 px-4 py-3">
+          <button
+            type="button"
+            onClick={() => setTab('create')}
+            className="grid size-9 shrink-0 place-items-center rounded-lg bg-secondary text-foreground transition active:scale-95"
+            aria-label="Back"
+          >
+            <ArrowLeft className="size-5" />
+          </button>
+          <h2 className="truncate text-base font-semibold text-foreground">{SUB_TITLES[tab]}</h2>
+        </div>
+      )}
 
-      {/* Tabs — floating liquid glass pill */}
       <div
-        className="relative mx-auto flex w-full max-w-sm items-center gap-1 rounded-[2rem] p-1.5"
-        style={{
-          background:
-            'linear-gradient(150deg, color-mix(in oklab, var(--card) 62%, transparent), color-mix(in oklab, var(--card) 34%, transparent))',
-          backdropFilter: 'blur(30px) saturate(190%)',
-          border: '1px solid color-mix(in oklab, var(--foreground) 8%, transparent)',
-          boxShadow:
-            'inset 0 1px 0 var(--glass-rim), inset 0 0 0 1px var(--glass-edge), 0 18px 40px -18px var(--glass-shadow)',
-        }}
-      >
-        {(() => {
-          const tabs: { id: Tab; label: string; icon: typeof BackgroundIcon }[] = [
-            { id: 'create', label: t('home.tab.create'), icon: BackgroundIcon },
-            { id: 'fonts', label: 'Fonts', icon: Type },
-            { id: 'templates', label: t('home.tab.templates'), icon: LayoutTemplate },
-            { id: 'store', label: 'Store', icon: Store },
-            { id: 'projects', label: t('home.tab.projects'), icon: FolderOpen },
-          ]
-          const index = tabs.findIndex((x) => x.id === tab)
-          return (
-            <>
-              {/* Glass lens that slides under the active tab */}
-              <span
-                aria-hidden
-                className="absolute left-1.5 top-1.5 bottom-1.5 rounded-[1.6rem] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.32,1.4,0.4,1)]"
-                style={{
-                  width: `calc((100% - 0.75rem - ${(tabs.length - 1) * 0.25}rem) / ${tabs.length})`,
-                  transform: `translateX(calc(${index} * (100% + 0.25rem)))`,
-                  background:
-                    'linear-gradient(160deg, color-mix(in oklab, var(--background) 88%, transparent), color-mix(in oklab, var(--background) 58%, transparent))',
-                  backdropFilter: 'blur(10px) saturate(150%)',
-                  boxShadow:
-                    'inset 0 1px 0 var(--glass-rim), inset 0 -1px 0 color-mix(in oklab, var(--foreground) 8%, transparent), 0 8px 20px -10px var(--glass-shadow)',
-                  border: '1px solid color-mix(in oklab, var(--foreground) 7%, transparent)',
-                }}
-              />
-              {tabs.map(({ id, label, icon: Icon }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setTab(id)}
-                  className={`relative z-10 flex flex-1 flex-col items-center justify-center gap-1 rounded-[1.6rem] px-1 py-2 text-[10px] font-semibold transition-all duration-300 active:scale-95 ${
-                    tab === id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <Icon
-                    className={`transition-all duration-300 ${tab === id ? 'size-5 scale-105' : 'size-[18px]'}`}
-                  />
-                  <span className="leading-none">{label}</span>
-                </button>
-              ))}
-            </>
-          )
-        })()}
-      </div>
-
-
-      {/* Tab content */}
-      <div
-        className={`mx-auto mt-5 flex min-h-0 w-full max-w-sm flex-1 flex-col overscroll-contain perf-scroll no-scrollbar px-1 pb-3 ${
+        className={`flex min-h-0 w-full flex-1 flex-col overscroll-contain perf-scroll no-scrollbar ${
           tab === 'store' ? 'overflow-hidden' : 'overflow-y-auto'
-        }`}
+        } ${tab === 'create' ? 'pb-6' : 'px-4 py-4'}`}
       >
         {tab === 'create' && (
-          <div className="flex flex-col gap-5">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            {/* Hero banner */}
+            <div className="relative h-44 w-full overflow-hidden">
+              <div
+                aria-hidden
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'radial-gradient(120% 90% at 20% 0%, color-mix(in oklab, var(--primary) 55%, transparent), transparent 60%), radial-gradient(100% 80% at 90% 20%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 65%), linear-gradient(180deg, color-mix(in oklab, var(--primary) 20%, var(--background)), var(--background))',
+                }}
+              />
+              <div className="relative flex h-full flex-col justify-end px-5 pb-8">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+                  Text on Photo
+                </p>
+                <h1 className="mt-1 text-3xl font-black leading-none tracking-tight text-foreground">
+                  Myan Studio
+                </h1>
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Fonts, templates & effects in one place
+                </p>
+              </div>
+            </div>
+
+            {/* Primary actions */}
+            <div className="-mt-5 flex gap-3 px-4">
               <button
                 type="button"
                 onClick={() => galleryRef.current?.click()}
-                className="group relative flex h-16 flex-1 items-center gap-3 overflow-hidden rounded-[1.75rem] px-4 text-left transition active:scale-[0.98]"
-                style={{
-                  background:
-                    'linear-gradient(150deg, color-mix(in oklab, var(--card) 62%, transparent), color-mix(in oklab, var(--card) 34%, transparent))',
-                  backdropFilter: 'blur(30px) saturate(190%)',
-                  border: '1px solid color-mix(in oklab, var(--foreground) 8%, transparent)',
-                  boxShadow:
-                    'inset 0 1px 0 var(--glass-rim), inset 0 0 0 1px var(--glass-edge), 0 18px 40px -18px var(--glass-shadow)',
-                }}
+                className="flex h-24 flex-1 flex-col items-center justify-center gap-2 rounded-2xl bg-primary text-primary-foreground shadow-lg transition active:scale-[0.98]"
               >
-                {/* specular sheen */}
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[1.75rem]"
-                  style={{
-                    background:
-                      'linear-gradient(to bottom, color-mix(in oklab, white 22%, transparent), transparent)',
-                  }}
-                />
-                <span
-                  className="relative grid size-11 shrink-0 place-items-center rounded-2xl text-primary"
-                  style={{
-                    background:
-                      'linear-gradient(160deg, color-mix(in oklab, var(--primary) 22%, transparent), color-mix(in oklab, var(--primary) 8%, transparent))',
-                    boxShadow: 'inset 0 1px 0 var(--glass-rim)',
-                  }}
-                >
-                  <ImageIcon className="size-5" />
+                <span className="grid size-10 place-items-center rounded-xl bg-background/20">
+                  <Plus className="size-6" />
                 </span>
-                <span className="relative flex-1 text-[15px] font-semibold text-foreground">
-                  {t('home.chooseLibrary')}
-                </span>
+                <span className="text-[15px] font-bold">Editing</span>
               </button>
-
               <button
                 type="button"
-                aria-label={t('home.takePhoto') ?? 'Take a photo'}
-                onClick={() => cameraRef.current?.click()}
-                className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-[1.75rem] transition active:scale-[0.98]"
-                style={{
-                  background:
-                    'linear-gradient(150deg, color-mix(in oklab, var(--card) 62%, transparent), color-mix(in oklab, var(--card) 34%, transparent))',
-                  backdropFilter: 'blur(30px) saturate(190%)',
-                  border: '1px solid color-mix(in oklab, var(--foreground) 8%, transparent)',
-                  boxShadow:
-                    'inset 0 1px 0 var(--glass-rim), inset 0 0 0 1px var(--glass-edge), 0 18px 40px -18px var(--glass-shadow)',
-                }}
+                onClick={() => setTab('templates')}
+                className="flex h-24 w-[38%] flex-col items-center justify-center gap-2 rounded-2xl bg-secondary text-foreground transition active:scale-[0.98]"
               >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[1.75rem]"
-                  style={{
-                    background:
-                      'linear-gradient(to bottom, color-mix(in oklab, white 22%, transparent), transparent)',
-                  }}
-                />
-                <span
-                  className="relative grid size-11 place-items-center rounded-2xl text-primary"
-                  style={{
-                    background:
-                      'linear-gradient(160deg, color-mix(in oklab, var(--primary) 22%, transparent), color-mix(in oklab, var(--primary) 8%, transparent))',
-                    boxShadow: 'inset 0 1px 0 var(--glass-rim)',
-                  }}
-                >
-                  <Camera className="size-5" />
+                <span className="grid size-10 place-items-center rounded-xl bg-background/40">
+                  <LayoutTemplate className="size-6" />
                 </span>
+                <span className="text-[15px] font-bold">Templates</span>
               </button>
             </div>
 
-
-            <div className="glass-tile rounded-[1.75rem] p-3">
-              <span className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                <Palette className="size-3.5 text-primary" />
-                {t('home.solidColors')}
-              </span>
-              <SolidGrid
-                onPick={(c) => setPendingCss(c)}
-                onCustom={() => setPicker('solid')}
-              />
+            {/* Tool grid */}
+            <div className="mt-6 grid grid-cols-4 gap-y-6 px-4">
+              {TOOLS.map(({ id, label, icon: Icon, run }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={run}
+                  className="flex flex-col items-center gap-2 transition active:scale-95"
+                >
+                  <Icon className="size-6 text-foreground" strokeWidth={1.6} />
+                  <span className="w-full truncate px-0.5 text-center text-[11px] font-medium text-muted-foreground">
+                    {label}
+                  </span>
+                </button>
+              ))}
             </div>
 
-            <div className="glass-tile rounded-[1.75rem] p-3">
-              <span className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                <Blend className="size-3.5 text-primary" />
-                {t('home.gradients')}
-              </span>
+            {/* Explore */}
+            <div className="mt-8">
+              <div className="mb-3 flex items-center justify-between px-4">
+                <h2 className="text-lg font-bold text-foreground">Explore</h2>
+                <button
+                  type="button"
+                  onClick={() => setTab('templates')}
+                  className="text-xs font-semibold text-primary transition active:opacity-70"
+                >
+                  {t('home.seeAllTemplates')}
+                </button>
+              </div>
+              <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1">
+                {FEATURED.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => onApplyTemplate?.(tpl.build(), tpl.bg)}
+                    className="relative w-40 shrink-0 overflow-hidden rounded-2xl border border-border/40 transition active:scale-95"
+                  >
+                    <div className="pointer-events-none relative aspect-[4/5] w-full">
+                      <TemplateThumb template={tpl} />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Colors */}
+            <div className="mt-8 px-4">
+              <h2 className="mb-3 text-lg font-bold text-foreground">{t('home.solidColors')}</h2>
+              <SolidGrid onPick={(c) => setPendingCss(c)} onCustom={() => setPicker('solid')} />
+            </div>
+
+            <div className="mt-6 px-4">
+              <h2 className="mb-3 text-lg font-bold text-foreground">{t('home.gradients')}</h2>
               <GradientGrid
                 onPick={(stops) => setPendingCss(gradientCss(stops))}
                 onCustom={() => setPicker('gradient')}
               />
             </div>
 
-            <div className="glass-tile rounded-[1.75rem] p-3">
-              <div className="mb-2 flex items-center justify-between gap-2 px-1">
-                <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  <LayoutTemplate className="size-3.5 text-primary" />
-                  {t('home.templatesSection')}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setTab('templates')}
-                  className="text-[11px] font-semibold text-primary transition active:opacity-70"
-                >
-                  {t('home.seeAllTemplates')}
-                </button>
-              </div>
-              <div className="grid grid-flow-col grid-rows-3 gap-2 overflow-x-auto no-scrollbar pb-1">
-                {FEATURED.map((tpl) => (
-                  <button
-                    key={tpl.id}
-                    type="button"
-                    onClick={() => onApplyTemplate?.(tpl.build(), tpl.bg)}
-                    className="relative w-28 shrink-0 overflow-hidden rounded-xl border border-border/40 transition active:scale-95"
-                  >
-                    <div className="pointer-events-none relative aspect-[16/9] w-full">
-                      <TemplateThumb template={tpl} />
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <DownloadedBackgrounds
-                className="mt-3"
-                onPick={(src) => onImage(src)}
-              />
+            <div className="mt-6 px-4">
+              <DownloadedBackgrounds onPick={(src) => onImage(src)} />
             </div>
-
           </div>
         )}
 
@@ -297,8 +238,8 @@ const FEATURED = UPLOADED_TEMPLATES
 
         {tab === 'projects' &&
           (projects.length === 0 ? (
-            <div className="glass-panel mb-2 flex min-h-[24rem] flex-1 flex-col items-center justify-center rounded-3xl px-6 py-12 text-center">
-              <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-secondary text-secondary-foreground">
+            <div className="glass-panel mb-2 flex min-h-[24rem] flex-1 flex-col items-center justify-center rounded-2xl px-6 py-12 text-center">
+              <div className="mb-3 grid size-12 place-items-center rounded-xl bg-secondary text-secondary-foreground">
                 <FolderOpen className="size-6 text-primary" />
               </div>
               <p className="text-sm font-semibold text-foreground">{t('home.noProjects')}</p>
@@ -309,10 +250,7 @@ const FEATURED = UPLOADED_TEMPLATES
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {projects.map((p) => (
-                <div
-                  key={p.id}
-                  className="glass-tile group relative overflow-hidden rounded-2xl"
-                >
+                <div key={p.id} className="glass-tile group relative overflow-hidden rounded-2xl">
                   <button
                     type="button"
                     className="block w-full"
@@ -331,7 +269,7 @@ const FEATURED = UPLOADED_TEMPLATES
                     type="button"
                     aria-label={t('home.deleteProject')}
                     onClick={() => setProjects(deleteProject(p.id))}
-                    className="glass-tile absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full text-destructive"
+                    className="glass-tile absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-lg text-destructive"
                   >
                     <Trash2 className="size-3.5" />
                   </button>
@@ -340,6 +278,7 @@ const FEATURED = UPLOADED_TEMPLATES
             </div>
           ))}
       </div>
+
 
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={readFile} />
       <input
