@@ -420,6 +420,8 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
             ratio={ratio}
             onChange={setRect}
             hideHandles={cropTab !== 'crop'}
+            imageRef={cropImgRef}
+
           />
         ) : tool === 'blur' ? (
           <BlurStage
