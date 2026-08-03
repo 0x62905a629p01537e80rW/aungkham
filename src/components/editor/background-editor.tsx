@@ -28,14 +28,18 @@ import {
   blurImage,
   blurOutside,
   cropImage,
+  drawRatioFit,
   flipImage,
   loadImage,
   ratioFit,
   resizeImage,
   rotateImage,
+  straightenCoverScale,
   straightenImage,
-
+  type RatioFitOptions,
 } from '@/lib/image-ops'
+import { LiveSlider } from './live-slider'
+
 import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
 export type BgTool = 'crop' | 'resize' | 'flip' | 'fit' | 'blur' | 'frame'
