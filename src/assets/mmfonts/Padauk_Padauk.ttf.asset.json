@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "3477e59b-e0e3-4e8a-b3ba-c324592df710",
-  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
-  "url": "/__l5e/assets-v1/3477e59b-e0e3-4e8a-b3ba-c324592df710/Padauk_Padauk.ttf",
-  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/3477e59b-e0e3-4e8a-b3ba-c324592df710/Padauk_Padauk.ttf",
-  "original_filename": "Padauk_Padauk.ttf",
-  "size": 472488,
   "content_type": "font/ttf",
-  "created_at": "2026-07-31T18:01:21Z"
+  "created_at": "2026-07-31T18:01:21Z",
+  "original_filename": "Padauk_Padauk.ttf",
+  "project_id": "3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14",
+  "r2_key": "a/v1/3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14/3477e59b-e0e3-4e8a-b3ba-c324592df710/Padauk_Padauk.ttf",
+  "size": 472488,
+  "url": "/__l5e/assets-v1/3477e59b-e0e3-4e8a-b3ba-c324592df710/Padauk_Padauk.ttf",
+  "version": 1
 }

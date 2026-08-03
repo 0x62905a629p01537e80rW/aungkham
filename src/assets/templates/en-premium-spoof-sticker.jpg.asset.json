@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "27aeb39f-7e1e-4b85-9c21-e702b0a201d3",
-  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
-  "url": "/__l5e/assets-v1/27aeb39f-7e1e-4b85-9c21-e702b0a201d3/en-premium-spoof-sticker.jpg",
-  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/27aeb39f-7e1e-4b85-9c21-e702b0a201d3/en-premium-spoof-sticker.jpg",
-  "original_filename": "en-premium-spoof-sticker.jpg",
-  "size": 13053,
   "content_type": "image/jpeg",
-  "created_at": "2026-07-31T14:39:46Z"
+  "created_at": "2026-07-31T14:39:46Z",
+  "original_filename": "en-premium-spoof-sticker.jpg",
+  "project_id": "3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14",
+  "r2_key": "a/v1/3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14/27aeb39f-7e1e-4b85-9c21-e702b0a201d3/en-premium-spoof-sticker.jpg",
+  "size": 13053,
+  "url": "/__l5e/assets-v1/27aeb39f-7e1e-4b85-9c21-e702b0a201d3/en-premium-spoof-sticker.jpg",
+  "version": 1
 }

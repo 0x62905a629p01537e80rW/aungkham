@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "d0e20611-4ece-441e-b5e2-f7fc62366ab2",
-  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
-  "url": "/__l5e/assets-v1/d0e20611-4ece-441e-b5e2-f7fc62366ab2/Myanmar3_mm3sh.ttf",
-  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/d0e20611-4ece-441e-b5e2-f7fc62366ab2/Myanmar3_mm3sh.ttf",
-  "original_filename": "Myanmar3_mm3sh.ttf",
-  "size": 99108,
   "content_type": "font/ttf",
-  "created_at": "2026-07-31T17:59:05Z"
+  "created_at": "2026-07-31T17:59:05Z",
+  "original_filename": "Myanmar3_mm3sh.ttf",
+  "project_id": "3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14",
+  "r2_key": "a/v1/3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14/d0e20611-4ece-441e-b5e2-f7fc62366ab2/Myanmar3_mm3sh.ttf",
+  "size": 99108,
+  "url": "/__l5e/assets-v1/d0e20611-4ece-441e-b5e2-f7fc62366ab2/Myanmar3_mm3sh.ttf",
+  "version": 1
 }

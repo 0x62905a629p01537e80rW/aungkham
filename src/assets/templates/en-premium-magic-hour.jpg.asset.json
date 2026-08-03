@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "e036ce81-2e34-48bf-a1fb-b42ccd65a3b0",
-  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
-  "url": "/__l5e/assets-v1/e036ce81-2e34-48bf-a1fb-b42ccd65a3b0/en-premium-magic-hour.jpg",
-  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/e036ce81-2e34-48bf-a1fb-b42ccd65a3b0/en-premium-magic-hour.jpg",
-  "original_filename": "en-premium-magic-hour.jpg",
-  "size": 116896,
   "content_type": "image/jpeg",
-  "created_at": "2026-07-31T14:39:33Z"
+  "created_at": "2026-07-31T14:39:33Z",
+  "original_filename": "en-premium-magic-hour.jpg",
+  "project_id": "3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14",
+  "r2_key": "a/v1/3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14/e036ce81-2e34-48bf-a1fb-b42ccd65a3b0/en-premium-magic-hour.jpg",
+  "size": 116896,
+  "url": "/__l5e/assets-v1/e036ce81-2e34-48bf-a1fb-b42ccd65a3b0/en-premium-magic-hour.jpg",
+  "version": 1
 }

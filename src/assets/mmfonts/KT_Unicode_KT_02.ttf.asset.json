@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "ded17dec-2902-4358-bd7d-231e231cbcb6",
-  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
-  "url": "/__l5e/assets-v1/ded17dec-2902-4358-bd7d-231e231cbcb6/KT_Unicode_KT_02.ttf",
-  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/ded17dec-2902-4358-bd7d-231e231cbcb6/KT_Unicode_KT_02.ttf",
-  "original_filename": "KT_Unicode_KT_02.ttf",
-  "size": 347076,
   "content_type": "font/ttf",
-  "created_at": "2026-07-31T17:58:42Z"
+  "created_at": "2026-07-31T17:58:42Z",
+  "original_filename": "KT_Unicode_KT_02.ttf",
+  "project_id": "3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14",
+  "r2_key": "a/v1/3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14/ded17dec-2902-4358-bd7d-231e231cbcb6/KT_Unicode_KT_02.ttf",
+  "size": 347076,
+  "url": "/__l5e/assets-v1/ded17dec-2902-4358-bd7d-231e231cbcb6/KT_Unicode_KT_02.ttf",
+  "version": 1
 }

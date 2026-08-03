@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "1bf37218-a86f-4254-bd22-dde5b88f09f5",
-  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
-  "url": "/__l5e/assets-v1/1bf37218-a86f-4254-bd22-dde5b88f09f5/Namkhon_NK_SSmart4.ttf",
-  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/1bf37218-a86f-4254-bd22-dde5b88f09f5/Namkhon_NK_SSmart4.ttf",
-  "original_filename": "Namkhon_NK_SSmart4.ttf",
-  "size": 465452,
   "content_type": "font/ttf",
-  "created_at": "2026-07-31T18:00:49Z"
+  "created_at": "2026-07-31T18:00:49Z",
+  "original_filename": "Namkhon_NK_SSmart4.ttf",
+  "project_id": "3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14",
+  "r2_key": "a/v1/3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14/1bf37218-a86f-4254-bd22-dde5b88f09f5/Namkhon_NK_SSmart4.ttf",
+  "size": 465452,
+  "url": "/__l5e/assets-v1/1bf37218-a86f-4254-bd22-dde5b88f09f5/Namkhon_NK_SSmart4.ttf",
+  "version": 1
 }

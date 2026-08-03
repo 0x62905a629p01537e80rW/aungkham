@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "609d425a-5661-477f-b4f8-463fd3ce32c3",
-  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
-  "url": "/__l5e/assets-v1/609d425a-5661-477f-b4f8-463fd3ce32c3/MyanmarSabae_MyanmarSabae.ttf",
-  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/609d425a-5661-477f-b4f8-463fd3ce32c3/MyanmarSabae_MyanmarSabae.ttf",
-  "original_filename": "MyanmarSabae_MyanmarSabae.ttf",
-  "size": 42148,
   "content_type": "font/ttf",
-  "created_at": "2026-07-31T18:00:00Z"
+  "created_at": "2026-07-31T18:00:00Z",
+  "original_filename": "MyanmarSabae_MyanmarSabae.ttf",
+  "project_id": "3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14",
+  "r2_key": "a/v1/3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14/609d425a-5661-477f-b4f8-463fd3ce32c3/MyanmarSabae_MyanmarSabae.ttf",
+  "size": 42148,
+  "url": "/__l5e/assets-v1/609d425a-5661-477f-b4f8-463fd3ce32c3/MyanmarSabae_MyanmarSabae.ttf",
+  "version": 1
 }

@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "da770bec-5f06-4e6a-b428-48679a4a909b",
-  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
-  "url": "/__l5e/assets-v1/da770bec-5f06-4e6a-b428-48679a4a909b/Pyidaungsu_pyidaungsu-1.2.ttf",
-  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/da770bec-5f06-4e6a-b428-48679a4a909b/Pyidaungsu_pyidaungsu-1.2.ttf",
-  "original_filename": "Pyidaungsu_pyidaungsu-1.2.ttf",
-  "size": 303780,
   "content_type": "font/ttf",
-  "created_at": "2026-07-31T18:02:06Z"
+  "created_at": "2026-07-31T18:02:06Z",
+  "original_filename": "Pyidaungsu_pyidaungsu-1.2.ttf",
+  "project_id": "3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14",
+  "r2_key": "a/v1/3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14/da770bec-5f06-4e6a-b428-48679a4a909b/Pyidaungsu_pyidaungsu-1.2.ttf",
+  "size": 303780,
+  "url": "/__l5e/assets-v1/da770bec-5f06-4e6a-b428-48679a4a909b/Pyidaungsu_pyidaungsu-1.2.ttf",
+  "version": 1
 }

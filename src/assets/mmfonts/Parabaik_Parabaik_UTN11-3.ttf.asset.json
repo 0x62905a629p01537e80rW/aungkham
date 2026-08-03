@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "7a0b81cc-b13a-414f-b84f-3eace3b7c4be",
-  "project_id": "0d74e705-d4a6-477b-a2eb-73918bac2969",
-  "url": "/__l5e/assets-v1/7a0b81cc-b13a-414f-b84f-3eace3b7c4be/Parabaik_Parabaik_UTN11-3.ttf",
-  "r2_key": "a/v1/0d74e705-d4a6-477b-a2eb-73918bac2969/7a0b81cc-b13a-414f-b84f-3eace3b7c4be/Parabaik_Parabaik_UTN11-3.ttf",
-  "original_filename": "Parabaik_Parabaik_UTN11-3.ttf",
-  "size": 149540,
   "content_type": "font/ttf",
-  "created_at": "2026-07-31T18:02:03Z"
+  "created_at": "2026-07-31T18:02:03Z",
+  "original_filename": "Parabaik_Parabaik_UTN11-3.ttf",
+  "project_id": "3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14",
+  "r2_key": "a/v1/3a2a750d-3fb8-481d-b8d3-8c5ec39e4f14/7a0b81cc-b13a-414f-b84f-3eace3b7c4be/Parabaik_Parabaik_UTN11-3.ttf",
+  "size": 149540,
+  "url": "/__l5e/assets-v1/7a0b81cc-b13a-414f-b84f-3eace3b7c4be/Parabaik_Parabaik_UTN11-3.ttf",
+  "version": 1
 }
