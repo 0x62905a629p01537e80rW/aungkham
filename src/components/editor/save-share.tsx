@@ -31,6 +31,7 @@ export function SaveShare({
   const { isPro } = useAuth()
   const [saving, setSaving] = useState(false)
   const [pdfBusy, setPdfBusy] = useState(false)
+  const [pay, setPay] = useState(false)
 
   // Show the (preloaded) ad once per app run when a free user hits Next.
   useEffect(() => {
@@ -38,7 +39,11 @@ export function SaveShare({
   }, [isPro])
 
   async function handlePdf() {
-    if (!preview || !isPro) return
+    if (!isPro) {
+      setPay(true)
+      return
+    }
+    if (!preview) return
     setPdfBusy(true)
     try {
       await exportPdf(preview, `${defaultFilename()}.pdf`)
@@ -48,6 +53,7 @@ export function SaveShare({
       setPdfBusy(false)
     }
   }
+
 
   return (
 
