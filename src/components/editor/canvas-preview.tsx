@@ -850,6 +850,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
         <div
           className="relative"
+          data-canvas-box=""
           style={{
             width: boxSize.w ? `${boxSize.w}px` : '100%',
             height: boxSize.h ? `${boxSize.h}px` : '100%',
@@ -910,6 +911,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             return (
               <div
                 key={layer.id}
+                data-layer-id={layer.id}
                 style={wrapperStyle}
                 className="outline-transparent"
 
