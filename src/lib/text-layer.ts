@@ -115,6 +115,8 @@ export interface GraphicContent {
   cutout?: boolean
   /** image only: original src before background removal */
   originalSrc?: string
+  /** crop insets in percent of the source artwork (0-100 each side) */
+  crop?: { top: number; right: number; bottom: number; left: number }
 }
 
 
