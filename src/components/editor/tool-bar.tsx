@@ -473,7 +473,7 @@ export function ToolBar({
                   onEraseAll()
                 }}
                 className={cn(
-                  'flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium text-foreground/75 transition active:scale-95',
+                  'mb-1.5 flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[10px] font-medium text-foreground/75 transition-colors hover:bg-accent active:scale-95',
                   eraseDisabled && 'opacity-35',
                 )}
               >
