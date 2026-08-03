@@ -130,7 +130,7 @@ const FEATURED = UPLOADED_TEMPLATES
             </div>
 
             {/* Primary actions */}
-            <div className="-mt-5 grid grid-cols-2 gap-3 px-4">
+            <div className="mt-4 grid grid-cols-2 gap-3 px-4">
               <button
                 type="button"
                 onClick={() => galleryRef.current?.click()}
@@ -183,7 +183,7 @@ const FEATURED = UPLOADED_TEMPLATES
                   {t('home.seeAllTemplates')}
                 </button>
               </div>
-              <div className="grid grid-flow-col grid-rows-2 auto-cols-[6.5rem] gap-2.5 overflow-x-auto no-scrollbar px-4 pb-1">
+              <div className="grid grid-flow-col grid-rows-2 auto-cols-[9.5rem] gap-2.5 overflow-x-auto no-scrollbar px-4 pb-1">
                 {FEATURED.map((tpl) => (
                   <button
                     key={tpl.id}
@@ -191,7 +191,8 @@ const FEATURED = UPLOADED_TEMPLATES
                     onClick={() => onApplyTemplate?.(tpl.build(), tpl.bg)}
                     className="relative w-full shrink-0 overflow-hidden rounded-xl border border-border/40 bg-secondary transition active:scale-95"
                   >
-                    <div className="pointer-events-none relative aspect-[4/5] w-full">
+                    <div className="pointer-events-none relative aspect-video w-full">
+
                       <TemplateThumb template={tpl} />
                     </div>
                   </button>
