@@ -78,8 +78,17 @@ export interface RatioFitOptions {
   shadow?: { blur: number; opacity: number; offsetY: number; color?: string } | null
 }
 
-/** Fit the image inside a canvas of the given aspect ratio, with background + offsets. */
-export async function ratioFit(src: string, opts: RatioFitOptions = {}) {
+/**
+ * Synchronous core of `ratioFit`. Works on already-decoded images and returns a
+ * canvas, so it can be called every animation frame for a live 60fps preview.
+ * `maxSize` caps the long edge (use a small value for previews).
+ */
+export function drawRatioFit(
+  img: HTMLImageElement,
+  opts: RatioFitOptions = {},
+  backdrop?: HTMLImageElement | null,
+  maxSize?: number,
+) {
   const {
     ratio = 1,
     scale = 1,
@@ -89,12 +98,11 @@ export async function ratioFit(src: string, opts: RatioFitOptions = {}) {
     offsetY = 0,
     blurBackground = 0,
     backgroundOpacity = 1,
-    backdropImage = null,
     backdropBlur = 0,
     shadow = null,
   } = opts
-  const img = await loadImage(src)
-  const long = Math.max(img.naturalWidth, img.naturalHeight)
+  let long = Math.max(img.naturalWidth, img.naturalHeight)
+  if (maxSize && long > maxSize) long = maxSize
   const cw = ratio >= 1 ? long : long * ratio
   const ch = ratio >= 1 ? long / ratio : long
   const { canvas, ctx } = ctxOf(cw, ch)
@@ -131,9 +139,8 @@ export async function ratioFit(src: string, opts: RatioFitOptions = {}) {
     ctx.filter = 'none'
   }
 
-  if (backdropImage) {
-    const bg = await loadImage(backdropImage)
-    drawCover(bg, bg.naturalWidth, bg.naturalHeight, backdropBlur, backgroundOpacity)
+  if (backdrop) {
+    drawCover(backdrop, backdrop.naturalWidth, backdrop.naturalHeight, backdropBlur, backgroundOpacity)
   } else if (blurBackground > 0) {
     drawCover(img, img.naturalWidth, img.naturalHeight, blurBackground, backgroundOpacity)
   }
@@ -152,8 +159,24 @@ export async function ratioFit(src: string, opts: RatioFitOptions = {}) {
   }
   ctx.drawImage(img, dx, dy, w, h)
   ctx.restore()
-  return canvas.toDataURL('image/png')
+  return canvas
 }
+
+/** Fit the image inside a canvas of the given aspect ratio, with background + offsets. */
+export async function ratioFit(src: string, opts: RatioFitOptions = {}) {
+  const img = await loadImage(src)
+  const backdrop = opts.backdropImage ? await loadImage(opts.backdropImage) : null
+  return drawRatioFit(img, opts, backdrop).toDataURL('image/png')
+}
+
+/** Cover scale needed so a rotated w x h frame still fills the frame. */
+export function straightenCoverScale(w: number, h: number, deg: number) {
+  const rad = (Math.abs(deg) * Math.PI) / 180
+  const cos = Math.cos(rad)
+  const sin = Math.sin(rad)
+  return Math.max((w * cos + h * sin) / w, (w * sin + h * cos) / h)
+}
+
 
 
 /** Fit the image inside a square canvas with a background color. */
