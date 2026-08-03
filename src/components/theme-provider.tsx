@@ -11,7 +11,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: 'light',
+  theme: 'dark',
   setTheme: () => {},
   toggleTheme: () => {},
 })
@@ -36,21 +36,19 @@ function applyThemeClass(theme: Theme, animate = false) {
 function updateThemeColorMeta(theme: Theme) {
   const meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
   if (meta) {
-    meta.setAttribute('content', theme === 'dark' ? '#0f172a' : '#ffffff')
+    meta.setAttribute('content', theme === 'dark' ? '#070a0d' : '#ffffff')
   }
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light')
+  const [theme, setThemeState] = useState<Theme>('dark')
 
   useEffect(() => {
-    let initial: Theme = 'light'
+    let initial: Theme = 'dark'
     try {
       const saved = localStorage.getItem('theme') as Theme | null
       if (saved === 'light' || saved === 'dark') {
         initial = saved
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        initial = 'dark'
       }
     } catch {
       // storage or media query not available
@@ -102,15 +100,13 @@ export const themeInitScript = `
 (function(){
   try {
     var theme = localStorage.getItem('theme');
-    if (!theme) {
-      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
+    if (theme !== 'light') { theme = 'dark'; }
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     }
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', theme === 'dark' ? '#0f172a' : '#ffffff');
+      meta.setAttribute('content', theme === 'dark' ? '#070a0d' : '#ffffff');
     }
   } catch (e) {}
 })();
