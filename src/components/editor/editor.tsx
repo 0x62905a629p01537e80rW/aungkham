@@ -566,6 +566,9 @@ export function Editor() {
                 layers={layers}
                 exporting={exporting}
                 showGrid={showGrid}
+                onViewChange={(v) => {
+                  viewRef.current = v
+                }}
                 eraseMask={erasing ? (eraseBypass ? undefined : draftMask) : eraseMask}
                 doodle={doodling ? undefined : doodle}
                 overlay={
