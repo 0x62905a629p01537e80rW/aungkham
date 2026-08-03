@@ -90,6 +90,7 @@ export function TemplateGallery({
   className,
   scroll = true,
   onRequestChoice,
+  onOpenStore,
 }: {
   onApply?: (layers: TextLayer[], bg?: string) => void
   className?: string
@@ -97,9 +98,12 @@ export function TemplateGallery({
   scroll?: boolean
   /** If provided, the gallery asks before applying instead of calling onApply directly. */
   onRequestChoice?: (layers: TextLayer[], bg?: string) => void
+  /** Opens the Store on its Templates section. */
+  onOpenStore?: () => void
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
+  const [view, setView] = useState<'single' | 'grid'>('single')
   const [selectMode, setSelectMode] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const [tick, force] = useState(0)
