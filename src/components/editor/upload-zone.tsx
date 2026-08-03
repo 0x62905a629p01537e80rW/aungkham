@@ -130,11 +130,11 @@ const FEATURED = UPLOADED_TEMPLATES
             </div>
 
             {/* Primary actions */}
-            <div className="-mt-5 flex gap-3 px-4">
+            <div className="-mt-5 grid grid-cols-2 gap-3 px-4">
               <button
                 type="button"
                 onClick={() => galleryRef.current?.click()}
-                className="flex h-24 flex-1 flex-col items-center justify-center gap-2 rounded-2xl bg-primary text-primary-foreground shadow-lg transition active:scale-[0.98]"
+                className="flex h-24 w-full flex-col items-center justify-center gap-2 rounded-2xl bg-primary text-primary-foreground shadow-lg transition active:scale-[0.98]"
               >
                 <span className="grid size-10 place-items-center rounded-xl bg-background/20">
                   <Plus className="size-6" />
@@ -144,7 +144,7 @@ const FEATURED = UPLOADED_TEMPLATES
               <button
                 type="button"
                 onClick={() => setTab('templates')}
-                className="flex h-24 w-[38%] flex-col items-center justify-center gap-2 rounded-2xl bg-secondary text-foreground transition active:scale-[0.98]"
+                className="flex h-24 w-full flex-col items-center justify-center gap-2 rounded-2xl bg-secondary text-foreground shadow-lg transition active:scale-[0.98]"
               >
                 <span className="grid size-10 place-items-center rounded-xl bg-background/40">
                   <LayoutTemplate className="size-6" />
@@ -152,6 +152,7 @@ const FEATURED = UPLOADED_TEMPLATES
                 <span className="text-[15px] font-bold">Templates</span>
               </button>
             </div>
+
 
             {/* Tool grid */}
             <div className="mt-6 grid grid-cols-4 gap-y-6 px-4">
@@ -182,13 +183,13 @@ const FEATURED = UPLOADED_TEMPLATES
                   {t('home.seeAllTemplates')}
                 </button>
               </div>
-              <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1">
+              <div className="grid grid-flow-col grid-rows-2 auto-cols-[6.5rem] gap-2.5 overflow-x-auto no-scrollbar px-4 pb-1">
                 {FEATURED.map((tpl) => (
                   <button
                     key={tpl.id}
                     type="button"
                     onClick={() => onApplyTemplate?.(tpl.build(), tpl.bg)}
-                    className="relative w-40 shrink-0 overflow-hidden rounded-2xl border border-border/40 transition active:scale-95"
+                    className="relative w-full shrink-0 overflow-hidden rounded-xl border border-border/40 bg-secondary transition active:scale-95"
                   >
                     <div className="pointer-events-none relative aspect-[4/5] w-full">
                       <TemplateThumb template={tpl} />
@@ -196,6 +197,7 @@ const FEATURED = UPLOADED_TEMPLATES
                   </button>
                 ))}
               </div>
+
             </div>
 
             {/* Colors */}
