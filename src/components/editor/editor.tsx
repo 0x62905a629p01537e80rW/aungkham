@@ -736,6 +736,7 @@ export function Editor() {
             onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
             onOpenTemplates={() => setTemplating(true)}
+            bgImage={image}
             onInsertElement={(tabId) => {
               if (tabId === 'overlay') {
                 overlayRef.current?.click()
