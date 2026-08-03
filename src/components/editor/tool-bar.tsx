@@ -88,6 +88,12 @@ import {
   TypeOutline,
   WandSparkles,
   Crown,
+  AlignStartHorizontal,
+  AlignCenterHorizontal,
+  AlignEndHorizontal,
+  Crosshair,
+  Paintbrush,
+  Copy,
   Check,
   Search,
   X,
@@ -104,6 +110,9 @@ import { BgRemover } from './bg-remover'
 import { PaymentPage } from './payment-page'
 import { ColorPickerPanel, parseGradient } from './color-picker'
 import { DEFAULT_STROKE_WIDTH, OUTLINE_PRESETS, shapeDataUrl } from '@/lib/shapes'
+import { TEXT_EFFECTS, EFFECT_DEFAULTS, textEffectStyle, type TextEffectKey } from '@/lib/text-effects'
+import { alignPatch, type AlignMode } from '@/lib/align-layer'
+import { copyLayerStyle, getCopiedStyle } from '@/lib/style-clipboard'
 import { cn } from '@/lib/utils'
 import { rotateImage } from '@/lib/texture-image'
 import {
@@ -165,6 +174,8 @@ type ToolKey =
   | 'format'
   | 'spacing'
   | 'position'
+  | 'align'
+  | 'style'
   | 'color'
   | 'gradient'
   | 'texture'
@@ -173,6 +184,7 @@ type ToolKey =
   | 'liquid'
   | 'stroke'
   | 'shadow'
+  | 'effects'
   | 'highlight'
   | 'rotate'
   | 'rotate3d'
@@ -195,6 +207,8 @@ interface ToolDef {
   imageOnly?: boolean
   /** only for graphic layers (image / shape / sticker) */
   graphicOnly?: boolean
+  /** only for real text layers */
+  textOnly?: boolean
   /** Pro-only feature — free users can try it, export is gated */
   pro?: boolean
 }
@@ -205,6 +219,8 @@ const TOOLS: ToolDef[] = [
   { key: 'format', label: 'Format', icon: TypeIcon, needsLayer: true },
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
   { key: 'position', label: 'Position', icon: Move, needsLayer: true },
+  { key: 'align', label: 'Align', icon: AlignCenter, needsLayer: true },
+  { key: 'style', label: 'Copy style', icon: Paintbrush, needsLayer: true },
   { key: 'color', label: 'Color', icon: Palette, needsLayer: true },
   { key: 'gradient', label: 'Gradient', icon: Blend, needsLayer: true },
   { key: 'texture', label: 'Texture', icon: Grid2x2, needsLayer: true, pro: true },
@@ -213,6 +229,7 @@ const TOOLS: ToolDef[] = [
   { key: 'liquid', label: 'Liquid', icon: Droplets, needsLayer: true, pro: true },
   { key: 'stroke', label: 'Stroke', icon: PenLine, needsLayer: true },
   { key: 'shadow', label: 'Shadow', icon: Sparkles, needsLayer: true },
+  { key: 'effects', label: 'Effects', icon: Wand2, needsLayer: true, textOnly: true },
   { key: 'highlight', label: 'Highlight', icon: Sun, needsLayer: true },
   { key: 'rotate3d', label: '3D Rotate', icon: Rotate3d, needsLayer: true },
   { key: 'depth3d', label: '3D', icon: Box, needsLayer: true },
@@ -423,6 +440,7 @@ export function ToolBar({
           (tool) =>
             (!tool.shapeOnly || !!selected?.graphic?.path) &&
             (!tool.graphicOnly || !!selected?.graphic) &&
+            (!tool.textOnly || !selected?.graphic) &&
             (!tool.imageOnly || (!!selected?.graphic && !selected.graphic.path)),
         ).map((tool) => {
           const disabled = tool.needsLayer && !selected
@@ -1670,6 +1688,191 @@ function ToolContent({
         </div>
       )
     }
+    case 'effects': {
+      const active = layer.effect ?? 'none'
+      const def = TEXT_EFFECTS.find((e) => e.key === active)
+      const has = (f: string) => !!def?.fields.includes(f as never)
+      return (
+        <div className="space-y-4">
+          <ToolHeading>Text effects</ToolHeading>
+          <div className="grid grid-cols-4 gap-2">
+            {TEXT_EFFECTS.map((e) => (
+              <button
+                key={e.key}
+                type="button"
+                onClick={() => onChange({ effect: e.key })}
+                className={cn(
+                  'relative flex h-14 flex-col items-center justify-center gap-1 rounded-xl border text-[10px] font-medium transition active:scale-95',
+                  active === e.key
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border/60 text-muted-foreground',
+                )}
+              >
+                <span
+                  className="text-base font-black leading-none"
+                  style={effectPreviewStyle(e.key)}
+                >
+                  Ag
+                </span>
+                {e.label}
+                {e.pro && (
+                  <Crown className="absolute right-1 top-1 size-3 text-amber-400" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          {has('intensity') && (
+            <SliderField
+              label="Intensity"
+              value={layer.effectIntensity ?? EFFECT_DEFAULTS.effectIntensity}
+              min={0}
+              max={100}
+              onChange={(v) => onChange({ effectIntensity: v })}
+            />
+          )}
+          {has('thickness') && (
+            <SliderField
+              label="Thickness"
+              value={layer.effectThickness ?? EFFECT_DEFAULTS.effectThickness}
+              min={0}
+              max={100}
+              onChange={(v) => onChange({ effectThickness: v })}
+            />
+          )}
+          {has('offset') && (
+            <SliderField
+              label="Offset"
+              value={layer.effectOffset ?? EFFECT_DEFAULTS.effectOffset}
+              min={0}
+              max={100}
+              onChange={(v) => onChange({ effectOffset: v })}
+            />
+          )}
+          {has('direction') && (
+            <SliderField
+              label="Direction"
+              value={layer.effectDirection ?? EFFECT_DEFAULTS.effectDirection}
+              min={0}
+              max={360}
+              onChange={(v) => onChange({ effectDirection: v })}
+            />
+          )}
+          {has('blur') && (
+            <SliderField
+              label="Blur"
+              value={layer.effectBlur ?? EFFECT_DEFAULTS.effectBlur}
+              min={0}
+              max={100}
+              onChange={(v) => onChange({ effectBlur: v })}
+            />
+          )}
+          {has('color') && (
+            <ColorField
+              label="Effect color"
+              value={layer.effectColor ?? EFFECT_DEFAULTS.effectColor}
+              onChange={(v) => onChange({ effectColor: v })}
+            />
+          )}
+        </div>
+      )
+    }
+    case 'align': {
+      const set = (mode: AlignMode) => {
+        const patch = alignPatch(layer.id, mode)
+        if (patch) onChange(patch)
+      }
+      const nudge = (dx: number, dy: number) =>
+        onChange({
+          x: Math.max(-20, Math.min(120, layer.x + dx)),
+          y: Math.max(-20, Math.min(120, layer.y + dy)),
+        })
+      const btn =
+        'flex h-11 items-center justify-center rounded-xl border border-border/60 text-muted-foreground transition active:scale-95'
+      return (
+        <div className="space-y-4">
+          <ToolHeading>Align to canvas</ToolHeading>
+          <div className="grid grid-cols-3 gap-2">
+            <button type="button" aria-label="Align left" className={btn} onClick={() => set('left')}>
+              <AlignLeft className="size-5" />
+            </button>
+            <button type="button" aria-label="Align centre" className={btn} onClick={() => set('hcenter')}>
+              <AlignCenter className="size-5" />
+            </button>
+            <button type="button" aria-label="Align right" className={btn} onClick={() => set('right')}>
+              <AlignRight className="size-5" />
+            </button>
+            <button type="button" aria-label="Align top" className={btn} onClick={() => set('top')}>
+              <AlignStartHorizontal className="size-5" />
+            </button>
+            <button type="button" aria-label="Align middle" className={btn} onClick={() => set('vcenter')}>
+              <AlignCenterHorizontal className="size-5" />
+            </button>
+            <button type="button" aria-label="Align bottom" className={btn} onClick={() => set('bottom')}>
+              <AlignEndHorizontal className="size-5" />
+            </button>
+          </div>
+
+          <ToolHeading>Nudge</ToolHeading>
+          <div className="mx-auto grid w-40 grid-cols-3 gap-2">
+            <span />
+            <button type="button" aria-label="Nudge up" className={btn} onClick={() => nudge(0, -0.5)}>
+              <ChevronUp className="size-5" />
+            </button>
+            <span />
+            <button type="button" aria-label="Nudge left" className={btn} onClick={() => nudge(-0.5, 0)}>
+              <ChevronLeft className="size-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Centre"
+              className={btn}
+              onClick={() => onChange({ x: 50, y: 50 })}
+            >
+              <Crosshair className="size-4" />
+            </button>
+            <button type="button" aria-label="Nudge right" className={btn} onClick={() => nudge(0.5, 0)}>
+              <ChevronRight className="size-5" />
+            </button>
+            <span />
+            <button type="button" aria-label="Nudge down" className={btn} onClick={() => nudge(0, 0.5)}>
+              <ChevronDown className="size-5" />
+            </button>
+            <span />
+          </div>
+        </div>
+      )
+    }
+
+    case 'style': {
+      const copied = getCopiedStyle()
+      return (
+        <div className="space-y-3">
+          <ToolHeading>Format painter</ToolHeading>
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
+            Copy this layer&apos;s complete look — font, fill, stroke, shadow and effects — then
+            paste it onto any other layer.
+          </p>
+          <button
+            type="button"
+            onClick={() => copyLayerStyle(layer)}
+            className="glass-cta flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold active:scale-95"
+          >
+            <Copy className="size-4" />
+            Copy style
+          </button>
+          <button
+            type="button"
+            disabled={!copied}
+            onClick={() => copied && onChange(copied)}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 py-3 text-sm font-semibold transition active:scale-95 disabled:opacity-40"
+          >
+            <Paintbrush className="size-4" />
+            {copied ? 'Paste style here' : 'Nothing copied yet'}
+          </button>
+        </div>
+      )
+    }
     case 'shadow':
       return (
         <div className="space-y-4">
@@ -2337,3 +2540,15 @@ function LiquidPanel({
   )
 }
 
+
+
+/** Tiny "Ag" swatch used in the effect picker. */
+function effectPreviewStyle(key: TextEffectKey) {
+  return (
+    textEffectStyle({
+      effect: key,
+      color: 'currentColor',
+      effectColor: key === 'neon' ? '#22d3ee' : '#000000',
+    }) ?? {}
+  )
+}

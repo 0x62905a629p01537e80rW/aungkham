@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Circle, Move3d, Pipette, Plus, Trash2, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { GlassTabs } from '@/components/ui/glass-tabs'
+import { getPhotoPalette, subscribePhotoPalette } from '@/lib/image-palette'
 import { listRecentColors, recordRecentColor, subscribeRecents } from '@/lib/recents'
 
 // ---------- color math ----------
@@ -197,6 +198,7 @@ export function ColorPickerPanel({
   })
 
   const [recents, setRecents] = useState<string[]>(() => listRecentColors())
+  const [photoPalette, setPhotoPalette] = useState<string[]>(() => getPhotoPalette())
 
   const areaRef = useRef<HTMLDivElement>(null)
   const hueRef = useRef<HTMLDivElement>(null)
@@ -205,6 +207,7 @@ export function ColorPickerPanel({
   const firstRun = useRef(false)
 
   useEffect(() => subscribeRecents(() => setRecents(listRecentColors())), [])
+  useEffect(() => subscribePhotoPalette(() => setPhotoPalette(getPhotoPalette())), [])
 
   // remember the last colour the user actually settled on
   const lastValueRef = useRef<string>('')
@@ -604,6 +607,27 @@ export function ColorPickerPanel({
           onCommit={(x) => { touch(); setA(clamp((parseFloat(x) || 0) / 100)) }}
         />
       </div>)}
+
+      {/* Colours sampled from the current photo */}
+      {mode === 'solid' && photoPalette.length > 0 && (
+        <div className="mt-2">
+          <p className="mb-1 text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
+            From photo
+          </p>
+          <div className="grid grid-cols-8 gap-1">
+            {photoPalette.map((c) => (
+              <button
+                key={`ph-${c}`}
+                type="button"
+                onClick={() => pickPreset(c)}
+                className="aspect-square rounded-[4px] border border-black/10 transition active:scale-90"
+                style={{ background: c }}
+                aria-label={`Photo colour ${c}`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Preview + recently used pills */}
       <div className="mt-2 flex items-start gap-1.5">

@@ -1,5 +1,7 @@
 export type TextAlign = 'left' | 'center' | 'right'
 
+import type { TextEffectKey } from '@/lib/text-effects'
+
 export type TextureType = 'none' | 'ocean' | 'neon' | 'mono'
 
 export type FillType = 'solid' | 'gradient' | 'texture'
@@ -76,6 +78,15 @@ export interface TextLayer {
 
   /* Bend (arc) */
   bend: number
+
+  /* One-tap text effect preset (see lib/text-effects) */
+  effect?: TextEffectKey
+  effectIntensity?: number
+  effectOffset?: number
+  effectDirection?: number
+  effectBlur?: number
+  effectThickness?: number
+  effectColor?: string
 
   /* Flip */
   flipH: boolean
