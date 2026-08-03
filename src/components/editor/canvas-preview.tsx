@@ -222,10 +222,22 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       rafThrottle((id: string, x: number, y: number) => onMoveRef.current(id, x, y)),
     ).current
 
+    // Stretch drags stream at the display refresh rate; coalesce them to one
+    // committed change per frame so the GPU-composited layer keeps up.
+    const onChangeRef = useRef(onChange)
+    onChangeRef.current = onChange
+    const emitStretch = useRef(
+      rafThrottle((id: string, axis: 'x' | 'y', value: number) =>
+        onChangeRef.current?.(id, axis === 'x' ? { widthScale: value } : { heightScale: value }),
+      ),
+    ).current
+
     useEffect(() => () => {
       emitMove.cancel()
+      emitStretch.cancel()
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
-    }, [emitMove])
+    }, [emitMove, emitStretch])
+
 
     function stageDown(e: PointerEvent<HTMLDivElement>) {
       pulseInteraction(400)
