@@ -503,9 +503,9 @@ export function ToolBar({
                   type="button"
                   disabled={disabled}
                   className={cn(
-                    'relative z-10 flex shrink-0 flex-col items-center gap-0.5 rounded-2xl px-2.5 py-1.5 text-[10px] font-medium transition-colors duration-300 active:scale-95',
+                    'relative z-10 flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 pb-3 pt-1.5 text-[10px] font-medium transition-colors duration-200 active:scale-95',
                     isOpen
-                      ? 'text-primary-foreground'
+                      ? 'font-semibold text-primary'
                       : 'text-foreground/75 hover:text-foreground',
                     disabled && 'opacity-35',
                   )}
