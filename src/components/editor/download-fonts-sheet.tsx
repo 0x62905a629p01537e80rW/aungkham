@@ -43,16 +43,19 @@ export function DownloadFontsSheet({
   open,
   onClose,
   inline = false,
+  initialTab = 'mm',
 }: {
   open: boolean
   onClose?: () => void
   inline?: boolean
+  initialTab?: 'mm' | 'free' | 'en' | 'premium' | 'downloaded'
 }) {
   const [fonts, setFonts] = useState<RemoteFont[]>(BUNDLED_FONTS)
   const [freeFonts, setFreeFonts] = useState<RemoteFont[]>(BUNDLED_FREE_FONTS)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<'mm' | 'free' | 'en' | 'premium' | 'downloaded'>('mm')
+  const [tab, setTab] = useState<'mm' | 'free' | 'en' | 'premium' | 'downloaded'>(initialTab)
+
   const [busy, setBusy] = useState<string | null>(null)
   const [tick, force] = useState(0)
   const [tiers, setTiers] = useState<Record<string, FontTier> | null>(null)
