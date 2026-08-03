@@ -162,19 +162,22 @@ export function ProSplash() {
           {pricing.originalMmk && (
             <p className="text-[11px] text-white/45 line-through">{pricing.originalMmk}</p>
           )}
-          {pricing.loaded ? (
+          {pricing.loaded && pricing.priceMmk ? (
             <p className="text-lg font-bold">
               {pricing.priceMmk}
               {pricing.priceUsd && (
                 <span className="text-[11px] font-semibold text-white/60"> OR {pricing.priceUsd}</span>
               )}
             </p>
+          ) : pricing.loaded ? (
+            <p className="text-xs font-semibold text-white/60">Price unavailable — try again later</p>
           ) : (
             <span className="flex items-center gap-2 py-1 text-white/50">
               <Loader2 className="size-4 animate-spin" />
               <span className="text-xs font-semibold">Loading price…</span>
             </span>
           )}
+
           <p className="mt-0.5 text-[10px] text-white/55">One-time payment · Lifetime access</p>
         </div>
 
