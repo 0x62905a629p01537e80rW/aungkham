@@ -14,6 +14,7 @@ import { SIZE_PRESETS, resizeBackground, resizeLayers } from '@/lib/smart-resize
 import { defaultFilename, downloadDataUrl } from '@/lib/export-image'
 import { ReplaceBackground } from './replace-background'
 import { BgRemover } from './bg-remover'
+import { ObjectRemover } from './object-remover'
 import { ExportCanvas } from './export-canvas'
 import { createGraphicLayer, createTextLayer, type GraphicContent, type TextLayer } from '@/lib/text-layer'
 import { InsertMenu } from './insert-menu'
@@ -67,6 +68,7 @@ export function Editor() {
   const [bgTool, setBgTool] = useState<BgTool | null>(null)
   const [adjusting, setAdjusting] = useState(false)
   const [removingBg, setRemovingBg] = useState(false)
+  const [removingObject, setRemovingObject] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [showGrid, setShowGrid] = useState(false)
   const [replacing, setReplacing] = useState(false)
@@ -755,7 +757,9 @@ export function Editor() {
                   ? setFiltering(true)
                   : t === 'removebg'
                     ? setRemovingBg(true)
-                    : setBgTool(t as BgTool)
+                    : t === 'remove'
+                      ? setRemovingObject(true)
+                      : setBgTool(t as BgTool)
             }
             onEraseAll={() => {
               setSelectedId(null)
@@ -897,6 +901,13 @@ export function Editor() {
             src={image}
             title="Remove background"
             onClose={() => setRemovingBg(false)}
+            onApply={applyBackground}
+          />
+
+          <ObjectRemover
+            open={removingObject}
+            src={image}
+            onClose={() => setRemovingObject(false)}
             onApply={applyBackground}
           />
 
