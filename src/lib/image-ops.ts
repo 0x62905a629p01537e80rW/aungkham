@@ -201,3 +201,25 @@ export async function blurOutside(
   ctx.drawImage(sharp.canvas, 0, 0)
   return canvas.toDataURL('image/png')
 }
+
+/**
+ * Straighten (free rotate) by an arbitrary angle, scaling up so the rotated
+ * image still covers the original frame — no empty corners.
+ */
+export async function straightenImage(src: string, deg: number) {
+  const img = await loadImage(src)
+  const w = img.naturalWidth
+  const h = img.naturalHeight
+  const rad = (Math.abs(deg) * Math.PI) / 180
+  const cos = Math.cos(rad)
+  const sin = Math.sin(rad)
+  // scale required so the rotated rect still covers the w x h frame
+  const scale = Math.max((w * cos + h * sin) / w, (w * sin + h * cos) / h)
+  const { canvas, ctx } = ctxOf(w, h)
+  ctx.imageSmoothingQuality = 'high'
+  ctx.translate(w / 2, h / 2)
+  ctx.rotate((deg * Math.PI) / 180)
+  ctx.scale(scale, scale)
+  ctx.drawImage(img, -w / 2, -h / 2, w, h)
+  return canvas.toDataURL('image/png')
+}
