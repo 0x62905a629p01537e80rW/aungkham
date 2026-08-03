@@ -1289,6 +1289,8 @@ function TexturePanel({
           </button>
         </>
       )}
+      </>
+      )}
 
       <div className={cn(fade, others)}>
         <ColorField
