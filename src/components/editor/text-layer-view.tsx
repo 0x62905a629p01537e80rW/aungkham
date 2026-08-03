@@ -175,6 +175,12 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
   const g = layer.graphic!
   const h = layer.fontSize * 2
   const w = h * (g.aspect || 1)
+  const crop = g.crop
+  const cl = Math.min(90, Math.max(0, crop?.left ?? 0))
+  const cr = Math.min(90, Math.max(0, crop?.right ?? 0))
+  const ct = Math.min(90, Math.max(0, crop?.top ?? 0))
+  const cb = Math.min(90, Math.max(0, crop?.bottom ?? 0))
+  const cropped = cl + cr + ct + cb > 0
   const box: CSSProperties = {
     width: `${w}cqh`,
     height: `${h}cqh`,
@@ -187,6 +193,30 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
       layer.shadowBlur > 0 || layer.shadowOffsetX !== 0 || layer.shadowOffsetY !== 0
         ? `drop-shadow(${layer.shadowOffsetX / 10}cqh ${layer.shadowOffsetY / 10}cqh ${layer.shadowBlur / 10}cqh ${layer.shadowColor})`
         : undefined,
+  }
+
+  const withCrop = (node: ReactNode) => {
+    if (!cropped) return node
+    return (
+      <div
+        style={{
+          width: `${(w * (100 - cl - cr)) / 100}cqh`,
+          height: `${(h * (100 - ct - cb)) / 100}cqh`,
+          overflow: 'hidden',
+          position: 'relative',
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            left: `${(-w * cl) / 100}cqh`,
+            top: `${(-h * ct) / 100}cqh`,
+          }}
+        >
+          {node}
+        </div>
+      </div>
+    )
   }
 
   if (g.kind === 'shape') {
@@ -213,11 +243,13 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
       />
     )
     if (layer.liquidOn && layer.liquidPlate) return <LiquidPlate layer={layer}>{node}</LiquidPlate>
-    return node
+    return withCrop(node)
   }
 
 
-  return <img src={g.src} alt="" crossOrigin="anonymous" draggable={false} style={box} />
+  return withCrop(
+    <img src={g.src} alt="" crossOrigin="anonymous" draggable={false} style={box} />,
+  )
 }
 
 function LayerTextImpl({ layer }: { layer: TextLayer }) {
