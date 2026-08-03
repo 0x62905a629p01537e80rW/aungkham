@@ -1049,9 +1049,24 @@ function FontPicker({
                     : 'No uploaded fonts yet — upload one above.'}
           </p>
         )}
+
+        {group !== 'custom' && group !== 'google' && STORE_TAB_FOR_GROUP[group] && (
+          <button
+            type="button"
+            onClick={() => setStoreTab(STORE_TAB_FOR_GROUP[group]!)}
+            className="mt-1 flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/50 bg-primary/10 py-3 text-[12px] font-semibold text-foreground active:scale-[0.99]"
+          >
+            <Download className="size-4 text-primary" /> Download more fonts
+          </button>
+        )}
       </div>
       </div>
+
+      {storeTab && (
+        <DownloadFontsSheet open initialTab={storeTab} onClose={() => setStoreTab(null)} />
+      )}
     </div>
+
 
   )
 }
