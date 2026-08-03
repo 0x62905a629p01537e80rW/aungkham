@@ -93,6 +93,9 @@ export function Editor() {
   const canvasRef = useRef<HTMLDivElement>(null)
   const exportRef = useRef<HTMLDivElement>(null)
   const replaceRef = useRef<HTMLInputElement>(null)
+  const overlayRef = useRef<HTMLInputElement>(null)
+  /** Current canvas zoom/pan, used to place new layers inside the visible area. */
+  const viewRef = useRef({ scale: 1, cx: 50, cy: 50 })
   const stageRef = useRef<HTMLElement>(null)
   const [stageSize, setStageSize] = useState({ w: 0, h: 0 })
 
@@ -221,15 +224,42 @@ export function Editor() {
 
   function addLayer() {
     const layer = createTextLayer('New text')
-    setLayers((prev) => [...prev, layer])
+    const v = viewRef.current
+    setLayers((prev) => [
+      ...prev,
+      { ...layer, x: v.cx, y: v.cy, fontSize: layer.fontSize / Math.max(1, v.scale) },
+    ])
     setSelectedId(layer.id)
   }
 
   function addGraphic(graphic: GraphicContent, name: string) {
     const layer = createGraphicLayer(graphic, name)
-    setLayers((prev) => [...prev, layer])
+    const v = viewRef.current
+    setLayers((prev) => [
+      ...prev,
+      { ...layer, x: v.cx, y: v.cy, fontSize: layer.fontSize / Math.max(1, v.scale) },
+    ])
     setSelectedId(layer.id)
     if (graphic.path) setAutoOpenTool('outline')
+  }
+
+  /** Overlays skip the picker sheet and open the photo library straight away. */
+  function onOverlayFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file || !file.type.startsWith('image/')) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const src = reader.result as string
+      const img = new Image()
+      img.onload = () =>
+        addGraphic(
+          { kind: 'image', src, aspect: img.naturalWidth / Math.max(1, img.naturalHeight) },
+          file.name.replace(/\.[^.]+$/, '') || 'Overlay',
+        )
+      img.src = src
+    }
+    reader.readAsDataURL(file)
   }
 
   function duplicateLayer(id: string) {
@@ -536,6 +566,13 @@ export function Editor() {
                 layers={layers}
                 exporting={exporting}
                 showGrid={showGrid}
+                onViewChange={(v) => {
+                  viewRef.current = {
+                    scale: v.scale,
+                    cx: Math.max(5, Math.min(95, v.cx)),
+                    cy: Math.max(5, Math.min(95, v.cy)),
+                  }
+                }}
                 eraseMask={erasing ? (eraseBypass ? undefined : draftMask) : eraseMask}
                 doodle={doodling ? undefined : doodle}
                 overlay={
@@ -634,6 +671,10 @@ export function Editor() {
             onReplaceImage={() => setReplacing(true)}
             onOpenTemplates={() => setTemplating(true)}
             onInsertElement={(tabId) => {
+              if (tabId === 'overlay') {
+                overlayRef.current?.click()
+                return
+              }
               setInsertTab(tabId)
               setInserting(true)
             }}
@@ -672,6 +713,14 @@ export function Editor() {
             accept="image/*"
             className="hidden"
             onChange={onReplaceFile}
+          />
+
+          <input
+            ref={overlayRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onOverlayFile}
           />
 
           <TemplatePicker

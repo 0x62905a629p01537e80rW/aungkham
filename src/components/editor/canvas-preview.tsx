@@ -37,6 +37,8 @@ interface CanvasPreviewProps {
   onChange?: (id: string, patch: Partial<TextLayer>) => void
   onDuplicate?: (id: string) => void
   onBringForward?: (id: string) => void
+  /** Reports zoom level and the image-space centre of the visible area (%). */
+  onViewChange?: (v: { scale: number; cx: number; cy: number }) => void
 }
 
 export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
@@ -59,6 +61,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       onChange,
       onDuplicate,
       onBringForward,
+      onViewChange,
     },
     ref,
   ) {
@@ -145,6 +148,16 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         setView({ scale: 1, tx: 0, ty: 0 })
       }
     }, [exporting])
+
+    // Keep the parent informed so newly added layers land in the visible area.
+    useEffect(() => {
+      if (!onViewChange || !boxSize.w || !boxSize.h) return
+      onViewChange({
+        scale: view.scale,
+        cx: 50 - (view.tx / view.scale / boxSize.w) * 100,
+        cy: 50 - (view.ty / view.scale / boxSize.h) * 100,
+      })
+    }, [view, boxSize.w, boxSize.h, onViewChange])
 
     const baseSize = useRef({ w: 0, h: 0 })
     const rafRef = useRef<number | null>(null)

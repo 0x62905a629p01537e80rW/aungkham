@@ -115,6 +115,8 @@ export interface GraphicContent {
   cutout?: boolean
   /** image only: original src before background removal */
   originalSrc?: string
+  /** crop insets in percent of the source artwork (0-100 each side) */
+  crop?: { top: number; right: number; bottom: number; left: number }
 }
 
 
@@ -292,10 +294,14 @@ export function createGraphicLayer(
   name = 'Graphic',
 ): TextLayer {
   const layer = createTextLayer(name)
+  // Overlays keep their native aspect ratio; wide artwork gets a smaller
+  // height so the inserted element always fits inside the canvas.
+  const aspect = graphic.aspect || 1
+  const base = graphic.kind === 'image' ? 26 / Math.max(1, aspect) : 30
   return {
     ...layer,
     graphic,
-    fontSize: 30,
+    fontSize: base,
     color: graphic.kind === 'shape' ? '#000000' : layer.color,
   }
 }

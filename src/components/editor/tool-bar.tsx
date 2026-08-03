@@ -183,6 +183,7 @@ type ToolKey =
   | 'erase'
   | 'cutout'
   | 'outline'
+  | 'cropel'
 
 interface ToolDef {
   key: ToolKey
@@ -192,6 +193,8 @@ interface ToolDef {
   shapeOnly?: boolean
   /** only for image/sticker graphic layers */
   imageOnly?: boolean
+  /** only for graphic layers (image / shape / sticker) */
+  graphicOnly?: boolean
   /** Pro-only feature — free users can try it, export is gated */
   pro?: boolean
 }
@@ -219,6 +222,7 @@ const TOOLS: ToolDef[] = [
   { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: false },
   { key: 'cutout', label: 'Remove BG', icon: Scissors, needsLayer: true, imageOnly: true, pro: true },
   { key: 'outline', label: 'Outline', icon: Circle, needsLayer: true, shapeOnly: true },
+  { key: 'cropel', label: 'Crop', icon: Crop, needsLayer: true, graphicOnly: true },
 ]
 
 
@@ -353,7 +357,7 @@ export function ToolBar({
                 ([
                   { id: 'stickers', label: 'Stickers', Icon: Smile },
                   { id: 'shapes', label: 'Shapes', Icon: Shapes },
-                  { id: 'overlay', label: 'Overlays', Icon: Layers2 },
+                  { id: 'overlay', label: 'Overlays', Icon: ImagePlus },
                 ] as const).map(({ id, label: elLabel, Icon: ElIcon }) => (
                   <button
                     key={id}
@@ -418,6 +422,7 @@ export function ToolBar({
         {TOOLS.filter(
           (tool) =>
             (!tool.shapeOnly || !!selected?.graphic?.path) &&
+            (!tool.graphicOnly || !!selected?.graphic) &&
             (!tool.imageOnly || (!!selected?.graphic && !selected.graphic.path)),
         ).map((tool) => {
           const disabled = tool.needsLayer && !selected
@@ -1518,6 +1523,57 @@ function ToolContent({
           )}
         </div>
       )
+    case 'cropel': {
+      const g = layer.graphic
+      if (!g) return null
+      const crop = g.crop ?? { top: 0, right: 0, bottom: 0, left: 0 }
+      const setCrop = (patch: Partial<typeof crop>) =>
+        onChange({ graphic: { ...g, crop: { ...crop, ...patch } } })
+      return (
+        <div className="space-y-4">
+          <ToolHeading>Crop element</ToolHeading>
+          <SliderField
+            label="Top"
+            value={crop.top}
+            min={0}
+            max={90}
+            step={1}
+            onChange={(v) => setCrop({ top: v })}
+          />
+          <SliderField
+            label="Bottom"
+            value={crop.bottom}
+            min={0}
+            max={90}
+            step={1}
+            onChange={(v) => setCrop({ bottom: v })}
+          />
+          <SliderField
+            label="Left"
+            value={crop.left}
+            min={0}
+            max={90}
+            step={1}
+            onChange={(v) => setCrop({ left: v })}
+          />
+          <SliderField
+            label="Right"
+            value={crop.right}
+            min={0}
+            max={90}
+            step={1}
+            onChange={(v) => setCrop({ right: v })}
+          />
+          <button
+            type="button"
+            onClick={() => onChange({ graphic: { ...g, crop: undefined } })}
+            className="w-full rounded-xl border border-border/60 py-2 text-[11px] font-medium text-muted-foreground transition active:scale-95"
+          >
+            Reset crop
+          </button>
+        </div>
+      )
+    }
     case 'outline': {
       const g = layer.graphic
       if (!g?.path) return null
