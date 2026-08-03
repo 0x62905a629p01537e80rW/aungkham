@@ -1066,14 +1066,18 @@ function CropStage({
     'absolute rounded-full border-2 border-white/90 bg-white/10 backdrop-blur-[2px] touch-none'
 
   return (
-    <div ref={wrapRef} className="relative max-h-full max-w-full touch-none select-none">
+    <div ref={wrapRef} className="relative max-h-full max-w-full touch-none select-none overflow-hidden">
       <img
-        ref={imgRef}
+        ref={(el) => {
+          imgRef.current = el
+          if (imageRef) imageRef.current = el
+        }}
         src={src}
         alt="Crop preview"
-        className="max-h-[50dvh] max-w-full select-none"
+        className="max-h-[50dvh] max-w-full select-none will-change-transform"
         draggable={false}
       />
+
       <div
         hidden={hideHandles}
         className="absolute touch-none border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"
