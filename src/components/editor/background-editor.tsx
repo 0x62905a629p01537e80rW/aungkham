@@ -538,8 +538,8 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
                     onClick={async () => {
                       const next = await run()
                       setAngle(0)
-                      setStraight(null)
                       setWorking(next)
+
                     }}
                     className="flex flex-col items-center gap-1 rounded-2xl border border-border py-3 text-[11px] font-semibold active:scale-95"
                   >
