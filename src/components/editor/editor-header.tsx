@@ -177,7 +177,7 @@ export function EditorHeader({
               size="icon"
               aria-label="Export as template JSON"
               onClick={onExportTemplate}
-              className={cn(iconBtn, 'glass-tile')}
+              className={iconBtn}
             >
               <FileJson className="size-5" />
             </Button>
@@ -187,13 +187,7 @@ export function EditorHeader({
             size="icon"
             aria-label="Next"
             onClick={onNext}
-            className="size-9 rounded-full text-primary-foreground transition active:scale-95"
-            style={{
-              background:
-                'linear-gradient(150deg, var(--primary), color-mix(in oklab, var(--primary) 65%, white))',
-              boxShadow:
-                'inset 0 1px 0 var(--glass-rim), 0 10px 22px -12px color-mix(in oklab, var(--primary) 80%, transparent)',
-            }}
+            className="size-9 rounded-lg bg-primary text-primary-foreground transition hover:bg-primary/90 active:scale-95"
           >
             <ArrowRight className="size-5" />
           </Button>
@@ -207,17 +201,18 @@ export function EditorHeader({
               className="size-9 shrink-0 object-contain"
             />
             <div className="leading-tight">
-              <p className="text-sm font-bold tracking-tight">Myan</p>
+              <p className="font-display text-sm font-bold tracking-tight">Myan</p>
               <p className="text-[11px] text-muted-foreground">{t('brand.tagline')}</p>
             </div>
           </div>
-          <div className="glass-tile flex items-center gap-1 rounded-full p-1">
+          <div className="flex items-center gap-1">
             <PremiumBadge />
-            <ThemeToggle className="size-9 rounded-full text-foreground/80 hover:text-foreground" />
+            <ThemeToggle className="size-9 rounded-lg text-foreground/75 hover:bg-accent hover:text-foreground" />
             <SettingsSheet />
           </div>
         </>
       )}
+
     </header>
   )
 }
