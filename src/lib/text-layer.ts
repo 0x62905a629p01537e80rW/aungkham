@@ -1,5 +1,7 @@
 export type TextAlign = 'left' | 'center' | 'right'
 
+import type { TextEffectKey } from '@/lib/text-effects'
+
 export type TextureType = 'none' | 'ocean' | 'neon' | 'mono'
 
 export type FillType = 'solid' | 'gradient' | 'texture'
