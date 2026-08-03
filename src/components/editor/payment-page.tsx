@@ -261,13 +261,14 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
             <p className="text-[11px] text-muted-foreground line-through">{pricing.originalMmk}</p>
           )}
           <p className="mt-0.5 text-2xl font-extrabold tracking-tight">
-            {pricing.priceMmk}
+            {pricing.priceMmk || (pricing.loaded ? '—' : '···')}
             {pricing.priceUsd && (
               <span className="ml-1 text-[13px] font-bold text-muted-foreground">
                 OR {pricing.priceUsd}
               </span>
             )}
           </p>
+
           <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
             <BadgeCheck className="size-3.5 text-primary" />
             {t('pay.oneTime')}
