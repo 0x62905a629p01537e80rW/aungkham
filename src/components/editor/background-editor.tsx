@@ -28,14 +28,18 @@ import {
   blurImage,
   blurOutside,
   cropImage,
+  drawRatioFit,
   flipImage,
   loadImage,
   ratioFit,
   resizeImage,
   rotateImage,
+  straightenCoverScale,
   straightenImage,
-
+  type RatioFitOptions,
 } from '@/lib/image-ops'
+import { LiveSlider } from './live-slider'
+
 import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
 export type BgTool = 'crop' | 'resize' | 'flip' | 'fit' | 'blur' | 'frame'
@@ -101,7 +105,9 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   const [rect, setRect] = useState({ x: 0.08, y: 0.08, w: 0.84, h: 0.84 })
   const [cropTab, setCropTab] = useState<'crop' | 'correct' | 'rotate'>('crop')
   const [angle, setAngle] = useState(0)
-  const [straight, setStraight] = useState<string | null>(null)
+  const cropImgRef = useRef<HTMLImageElement | null>(null)
+  const angleReadout = useRef<HTMLSpanElement | null>(null)
+
 
 
   // resize
@@ -127,7 +133,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   const [fitShadowOpacity, setFitShadowOpacity] = useState(0.35)
   const [fitShadowOffset, setFitShadowOffset] = useState(10)
   const [fitAdvanced, setFitAdvanced] = useState(false)
-  const [fitPreview, setFitPreview] = useState<string | null>(null)
+  
   const backdropInput = useRef<HTMLInputElement | null>(null)
   const [draggingSlider, setDraggingSlider] = useState<string | null>(null)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -254,35 +260,8 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
     }
   }
 
-  // Live preview for Fit
-  useEffect(() => {
-    if (tool !== 'fit') return
-    let alive = true
-    const id = setTimeout(() => {
-      ratioFit(working, fitOptions()).then((url) => alive && setFitPreview(url))
-    }, 90)
-    return () => {
-      alive = false
-      clearTimeout(id)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    tool,
-    working,
-    fitRatio,
-    fitScale,
-    fitColor,
-    fitGradient,
-    fitX,
-    fitY,
-    fitBlur,
-    fitBgOpacity,
-    fitBackdrop,
-    fitBackdropBlur,
-    fitShadowBlur,
-    fitShadowOpacity,
-    fitShadowOffset,
-  ])
+  // Fit previews are drawn synchronously by <FitStage /> every frame.
+
 
 
   // Live preview for Frame
@@ -299,22 +278,21 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
     }
   }, [tool, working, frame])
 
-  // Live preview for crop straightening
+  // Live preview for crop straightening — pure CSS transform, so it tracks the
+  // finger at the display refresh rate instead of re-encoding the bitmap.
+  function applyStraighten(deg: number) {
+    const el = cropImgRef.current
+    if (!el) return
+    const s = straightenCoverScale(el.clientWidth || 1, el.clientHeight || 1, deg)
+    el.style.transform = `rotate(${deg}deg) scale(${s})`
+  }
+
   useEffect(() => {
     if (tool !== 'crop') return
-    if (!angle) {
-      setStraight(null)
-      return
-    }
-    let alive = true
-    const id = setTimeout(() => {
-      straightenImage(working, angle).then((url) => alive && setStraight(url))
-    }, 90)
-    return () => {
-      alive = false
-      clearTimeout(id)
-    }
-  }, [tool, working, angle])
+    applyStraighten(angle)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tool, working, angle, cropTab])
+
 
   async function apply() {
     setBusy(true)
@@ -414,11 +392,13 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
       >
         {tool === 'crop' ? (
           <CropStage
-            src={straight ?? working}
+            src={working}
             rect={rect}
             ratio={ratio}
             onChange={setRect}
             hideHandles={cropTab !== 'crop'}
+            imageRef={cropImgRef}
+
           />
         ) : tool === 'blur' ? (
           <BlurStage
@@ -429,29 +409,31 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
             compact={panel}
             onFocus={(f) => setFocus((p) => ({ ...p, ...f }))}
           />
-        ) : (
+        ) : tool === 'fit' ? (
           <div
             className={cn(
-              'max-h-full max-w-full overflow-hidden rounded-none',
-              tool === 'fit' && fitColor === 'transparent' && !fitGradient && 'checker-grid',
-              tool === 'fit' && 'touch-none select-none',
+              'max-h-full max-w-full touch-none select-none overflow-hidden',
+              fitColor === 'transparent' && !fitGradient && 'checker-grid',
             )}
-            {...(tool === 'fit' ? fitGestures : {})}
+            {...fitGestures}
           >
+            <FitStage
+              src={working}
+              opts={fitOptions()}
+              className={cn('max-w-full object-contain', panel ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
+            />
+          </div>
+        ) : (
+          <div className="max-h-full max-w-full overflow-hidden">
             <img
-              src={
-                tool === 'fit'
-                  ? (fitPreview ?? working)
-                  : tool === 'frame'
-                    ? (framePreview ?? working)
-                    : working
-              }
+              src={tool === 'frame' ? (framePreview ?? working) : working}
               alt="Preview"
               draggable={false}
               className={cn('max-w-full object-contain', panel ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
             />
           </div>
         )}
+
       </div>
 
 
@@ -497,17 +479,20 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
             {cropTab === 'correct' && (
               <div className="space-y-2">
                 <div className="text-center text-sm font-bold tabular-nums text-primary">
-                  {angle > 0 ? `+${angle}` : angle}°
+                  <span ref={angleReadout}>{angle > 0 ? `+${angle}` : angle}</span>°
                 </div>
-                <SliderField
-                  label="Straighten"
+                <LiveSlider
                   value={angle}
                   min={-15}
                   max={15}
-                  step={1}
-                  suffix="°"
-                  hideLabel
-                  onChange={setAngle}
+                  step={0.5}
+                  onLive={(v) => {
+                    // 60fps: transform only, no bitmap work, no React re-render.
+                    applyStraighten(v)
+                    if (angleReadout.current)
+                      angleReadout.current.textContent = v > 0 ? `+${v}` : String(v)
+                  }}
+                  onCommit={setAngle}
                   {...sliderDrag('Straighten')}
                 />
                 <button
@@ -520,6 +505,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
                 </button>
               </div>
             )}
+
 
             {cropTab === 'rotate' && (
               <div className="grid grid-cols-4 gap-2">
@@ -535,8 +521,8 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
                     onClick={async () => {
                       const next = await run()
                       setAngle(0)
-                      setStraight(null)
                       setWorking(next)
+
                     }}
                     className="flex flex-col items-center gap-1 rounded-2xl border border-border py-3 text-[11px] font-semibold active:scale-95"
                   >
@@ -936,7 +922,85 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   )
 }
 
+/**
+ * Draws the Fit composition straight onto a canvas at preview resolution.
+ * Every option change repaints synchronously inside one animation frame — no
+ * PNG encode/decode round-trip — so sliders and pinch-zoom stay at 60fps.
+ */
+function FitStage({
+  src,
+  opts,
+  className,
+}: {
+  src: string
+  opts: RatioFitOptions
+  className?: string
+}) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const imgRef = useRef<HTMLImageElement | null>(null)
+  const backdropRef = useRef<HTMLImageElement | null>(null)
+  const optsRef = useRef(opts)
+  optsRef.current = opts
+  const frame = useRef<number | null>(null)
+  const [ready, setReady] = useState(0)
+
+  useEffect(() => {
+    let alive = true
+    loadImage(src).then((img) => {
+      if (!alive) return
+      imgRef.current = img
+      setReady((n) => n + 1)
+    })
+    return () => {
+      alive = false
+    }
+  }, [src])
+
+  const backdropSrc = opts.backdropImage ?? null
+  useEffect(() => {
+    let alive = true
+    if (!backdropSrc) {
+      backdropRef.current = null
+      setReady((n) => n + 1)
+      return
+    }
+    loadImage(backdropSrc).then((img) => {
+      if (!alive) return
+      backdropRef.current = img
+      setReady((n) => n + 1)
+    })
+    return () => {
+      alive = false
+    }
+  }, [backdropSrc])
+
+  const key = JSON.stringify(opts)
+  useEffect(() => {
+    if (frame.current) cancelAnimationFrame(frame.current)
+    frame.current = requestAnimationFrame(() => {
+      frame.current = null
+      const img = imgRef.current
+      const canvas = canvasRef.current
+      if (!img || !canvas) return
+      const out = drawRatioFit(img, optsRef.current, backdropRef.current, 900)
+      if (canvas.width !== out.width || canvas.height !== out.height) {
+        canvas.width = out.width
+        canvas.height = out.height
+      }
+      const ctx = canvas.getContext('2d')!
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(out, 0, 0)
+    })
+    return () => {
+      if (frame.current) cancelAnimationFrame(frame.current)
+    }
+  }, [key, ready])
+
+  return <canvas ref={canvasRef} className={className} />
+}
+
 type CropHandle = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'w' | 'e'
+
 
 function CropStage({
   src,
@@ -944,13 +1008,16 @@ function CropStage({
   ratio,
   onChange,
   hideHandles = false,
+  imageRef,
 }: {
   src: string
   rect: { x: number; y: number; w: number; h: number }
   ratio: number | null
   onChange: (r: { x: number; y: number; w: number; h: number }) => void
   hideHandles?: boolean
+  imageRef?: React.MutableRefObject<HTMLImageElement | null>
 }) {
+
   const wrapRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const rectRef = useRef(rect)
@@ -1066,14 +1133,18 @@ function CropStage({
     'absolute rounded-full border-2 border-white/90 bg-white/10 backdrop-blur-[2px] touch-none'
 
   return (
-    <div ref={wrapRef} className="relative max-h-full max-w-full touch-none select-none">
+    <div ref={wrapRef} className="relative max-h-full max-w-full touch-none select-none overflow-hidden">
       <img
-        ref={imgRef}
+        ref={(el) => {
+          imgRef.current = el
+          if (imageRef) imageRef.current = el
+        }}
         src={src}
         alt="Crop preview"
-        className="max-h-[50dvh] max-w-full select-none"
+        className="max-h-[50dvh] max-w-full select-none will-change-transform"
         draggable={false}
       />
+
       <div
         hidden={hideHandles}
         className="absolute touch-none border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"
