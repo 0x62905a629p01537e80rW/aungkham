@@ -378,6 +378,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const dy = e.clientY - st.startY
       if (!st.moved && Math.hypot(dx, dy) < 4) return
       st.moved = true
+      markInteracting()
       const rect = dragRectRef.current ?? containerRef.current?.getBoundingClientRect() ?? null
       if (!rect || !rect.width || !rect.height) return
       dragRectRef.current = { width: rect.width, height: rect.height }
@@ -464,6 +465,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function handleResizeMove(e: PointerEvent<HTMLButtonElement>) {
       const st = resizeState.current
       if (!st) return
+      markInteracting()
       const layer = layers.find((l) => l.id === st.id)
       if (!layer) return
       const dist = centerDistance(layer, e.clientX, e.clientY)
@@ -512,6 +514,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function handleRotateMove(e: PointerEvent<HTMLButtonElement>) {
       const st = rotateState.current
       if (!st) return
+      markInteracting()
       const layer = layers.find((l) => l.id === st.id)
       if (!layer) return
       const delta = pointerAngle(layer, e.clientX, e.clientY) - st.startAngle
