@@ -331,7 +331,7 @@ export function Editor() {
   }
 
   function requestExit() {
-    if (layers.length === 0) {
+    if (!image) {
       resetAll()
       return
     }
