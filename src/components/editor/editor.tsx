@@ -569,6 +569,7 @@ export function Editor() {
         canRedo={future.current.length > 0}
         onUndo={undo}
         onRedo={redo}
+        onHistory={() => setHistoryOpen(true)}
         layers={layers}
         selectedId={selectedId}
         onSelectLayer={setSelectedId}
@@ -828,8 +829,23 @@ export function Editor() {
               onBack={() => setShowSave(false)}
               onSaveImage={handleSaveImage}
               onSaveProject={handleSaveProject}
+              onBatchExport={() => setBatchOpen(true)}
             />
           )}
+
+          <HistoryPanel
+            open={historyOpen}
+            entries={historyEntries}
+            current={historyIndex}
+            onClose={() => setHistoryOpen(false)}
+            onJump={jumpTo}
+          />
+
+          <BatchExportDialog
+            open={batchOpen}
+            onClose={() => setBatchOpen(false)}
+            onExport={runBatchExport}
+          />
 
           <PremiumGate
             requested={nextRequested}
@@ -845,9 +861,9 @@ export function Editor() {
 
           <ExportCanvas
             ref={exportRef}
-            image={image}
-            layers={layers}
-            size={naturalSize}
+            image={batch?.image ?? image}
+            layers={batch?.layers ?? layers}
+            size={batch?.size ?? naturalSize}
             eraseMask={eraseMask}
             doodle={doodle}
           />
