@@ -932,7 +932,7 @@ export function Editor() {
                 setPanMode(false)
                 setDoodling(false)
               }}
-              className="glass-indicator w-full rounded-full border-0 font-normal text-primary-foreground hover:opacity-90"
+              className="glass-cta w-full rounded-xl border-0 font-normal hover:opacity-90"
             >
               {t('discard.confirm')}
             </AlertDialogAction>
@@ -959,7 +959,7 @@ export function Editor() {
                 setDiscardOpen(false)
                 resetAll()
               }}
-              className="glass-indicator w-full rounded-full border-0 font-normal text-primary-foreground hover:opacity-90"
+              className="glass-cta w-full rounded-xl border-0 font-normal hover:opacity-90"
             >
               {t('discard.confirm')}
             </AlertDialogAction>
