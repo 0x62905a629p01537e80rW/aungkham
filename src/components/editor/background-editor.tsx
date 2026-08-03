@@ -33,6 +33,8 @@ import {
   ratioFit,
   resizeImage,
   rotateImage,
+  straightenImage,
+
 } from '@/lib/image-ops'
 import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
@@ -97,6 +99,10 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   // crop
   const [ratio, setRatio] = useState<number | null>(null)
   const [rect, setRect] = useState({ x: 0.08, y: 0.08, w: 0.84, h: 0.84 })
+  const [cropTab, setCropTab] = useState<'crop' | 'correct' | 'rotate'>('crop')
+  const [angle, setAngle] = useState(0)
+  const [straight, setStraight] = useState<string | null>(null)
+
 
   // resize
   const [keepAspect, setKeepAspect] = useState(true)
@@ -293,12 +299,32 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
     }
   }, [tool, working, frame])
 
+  // Live preview for crop straightening
+  useEffect(() => {
+    if (tool !== 'crop') return
+    if (!angle) {
+      setStraight(null)
+      return
+    }
+    let alive = true
+    const id = setTimeout(() => {
+      straightenImage(working, angle).then((url) => alive && setStraight(url))
+    }, 90)
+    return () => {
+      alive = false
+      clearTimeout(id)
+    }
+  }, [tool, working, angle])
+
   async function apply() {
     setBusy(true)
     try {
       let out = working
-      if (tool === 'crop') out = await cropImage(working, rect)
-      else if (tool === 'resize') out = await resizeImage(working, rw, rh)
+      if (tool === 'crop') {
+        const base = angle ? await straightenImage(working, angle) : working
+        out = await cropImage(base, rect)
+      } else if (tool === 'resize') out = await resizeImage(working, rw, rh)
+
       else if (tool === 'fit') out = await ratioFit(working, fitOptions())
       else if (tool === 'frame')
         out = frame.kind === 'none' ? working : await applyFrame(working, frame)
@@ -387,7 +413,13 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
         )}
       >
         {tool === 'crop' ? (
-          <CropStage src={working} rect={rect} ratio={ratio} onChange={setRect} />
+          <CropStage
+            src={straight ?? working}
+            rect={rect}
+            ratio={ratio}
+            onChange={setRect}
+            hideHandles={cropTab !== 'crop'}
+          />
         ) : tool === 'blur' ? (
           <BlurStage
             src={working}
@@ -441,24 +473,101 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
         <div className="space-y-4">
 
         {tool === 'crop' && (
-          <div className="flex gap-2 overflow-x-auto perf-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {RATIOS.map((r) => (
-              <button
-                key={r.label}
-                type="button"
-                onClick={() => setRatio(r.value)}
-                className={cn(
-                  'shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition active:scale-95',
-                  ratio === r.value
-                    ? 'border-primary/40 bg-primary/15 text-primary backdrop-blur-xl [box-shadow:inset_0_1px_0_color-mix(in_oklab,white_35%,transparent),0_8px_18px_-10px_color-mix(in_oklab,var(--primary)_50%,transparent)]'
-                    : 'border-border text-foreground/80',
-                )}
-              >
-                {r.label}
-              </button>
-            ))}
+          <div className="space-y-4">
+            {cropTab === 'crop' && (
+              <div className="flex gap-2 overflow-x-auto perf-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {RATIOS.map((r) => (
+                  <button
+                    key={r.label}
+                    type="button"
+                    onClick={() => setRatio(r.value)}
+                    className={cn(
+                      'shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition active:scale-95',
+                      ratio === r.value
+                        ? 'border-primary/40 bg-primary/15 text-primary'
+                        : 'border-border text-foreground/80',
+                    )}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {cropTab === 'correct' && (
+              <div className="space-y-2">
+                <div className="text-center text-sm font-bold tabular-nums text-primary">
+                  {angle > 0 ? `+${angle}` : angle}°
+                </div>
+                <SliderField
+                  label="Straighten"
+                  value={angle}
+                  min={-15}
+                  max={15}
+                  step={1}
+                  suffix="°"
+                  hideLabel
+                  onChange={setAngle}
+                  {...sliderDrag('Straighten')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setAngle(0)}
+                  className="mx-auto flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-[11px] font-semibold text-muted-foreground active:scale-95"
+                >
+                  <RotateCcw className="size-3.5" />
+                  Reset
+                </button>
+              </div>
+            )}
+
+            {cropTab === 'rotate' && (
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { icon: RotateCcw, label: '-90°', run: () => rotateImage(working, -90) },
+                  { icon: RotateCw, label: '+90°', run: () => rotateImage(working, 90) },
+                  { icon: FlipHorizontal, label: 'Flip H', run: () => flipImage(working, 'h') },
+                  { icon: FlipVertical, label: 'Flip V', run: () => flipImage(working, 'v') },
+                ].map(({ icon: Icon, label, run }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={async () => {
+                      const next = await run()
+                      setAngle(0)
+                      setStraight(null)
+                      setWorking(next)
+                    }}
+                    className="flex flex-col items-center gap-1 rounded-2xl border border-border py-3 text-[11px] font-semibold active:scale-95"
+                  >
+                    <Icon className="size-5 text-primary" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center justify-around border-t border-border/60 pt-2">
+              {(['crop', 'correct', 'rotate'] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setCropTab(k)}
+                  className={cn(
+                    'relative px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.12em] transition',
+                    cropTab === k ? 'text-foreground' : 'text-muted-foreground',
+                  )}
+                >
+                  {k}
+                  {cropTab === k && (
+                    <span className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-primary" />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         )}
+
 
 
         {tool === 'flip' && (
@@ -834,11 +943,13 @@ function CropStage({
   rect,
   ratio,
   onChange,
+  hideHandles = false,
 }: {
   src: string
   rect: { x: number; y: number; w: number; h: number }
   ratio: number | null
   onChange: (r: { x: number; y: number; w: number; h: number }) => void
+  hideHandles?: boolean
 }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
@@ -964,6 +1075,7 @@ function CropStage({
         draggable={false}
       />
       <div
+        hidden={hideHandles}
         className="absolute touch-none border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"
         style={{
           left: `${rect.x * 100}%`,

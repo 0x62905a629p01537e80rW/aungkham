@@ -6,11 +6,14 @@ import {
   Eye,
   EyeOff,
   Check,
+  FileJson,
+  FolderDown,
   GripVertical,
   Group,
   Lock,
   LockOpen,
   Plus,
+  Save,
   Trash2,
   Type,
   Ungroup,
@@ -32,7 +35,10 @@ interface LayersListProps {
   onReorder?: (from: number, to: number) => void
   onGroup?: (ids: string[]) => void
   onUngroup?: (id: string) => void
+  onSaveProject?: () => void
+  onExportJson?: () => void
 }
+
 
 const ROW_H = 64
 
@@ -49,8 +55,11 @@ export function LayersList({
   onReorder,
   onGroup,
   onUngroup,
+  onSaveProject,
+  onExportJson,
 }: LayersListProps) {
   const [picking, setPicking] = useState(false)
+  const [saveOpen, setSaveOpen] = useState(false)
   const [marked, setMarked] = useState<string[]>([])
 
   const groupColors = ['#f97316', '#22c55e', '#3b82f6', '#a855f7', 'var(--primary)', '#14b8a6']
@@ -259,8 +268,56 @@ export function LayersList({
           )
         })}
       </div>
+
+      {(onSaveProject || onExportJson) && (
+        <div className="border-t border-border/60 pt-3">
+          {saveOpen ? (
+            <div className="space-y-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setSaveOpen(false)
+                  onSaveProject?.()
+                }}
+                className="flex w-full items-center gap-2.5 rounded-xl bg-primary/10 px-3 py-2.5 text-sm font-semibold text-primary transition active:scale-[0.98]"
+              >
+                <FolderDown className="size-4" />
+                Save project
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSaveOpen(false)
+                  onExportJson?.()
+                }}
+                className="flex w-full items-center gap-2.5 rounded-xl bg-muted/60 px-3 py-2.5 text-sm font-semibold transition active:scale-[0.98]"
+              >
+                <FileJson className="size-4" />
+                Save as JSON
+              </button>
+              <button
+                type="button"
+                onClick={() => setSaveOpen(false)}
+                className="w-full rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSaveOpen(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-border px-3 py-2.5 text-sm font-semibold transition hover:bg-accent active:scale-[0.98]"
+            >
+              <Save className="size-4 text-primary" />
+              Save project
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
+
 }
 
 function IconBtn({

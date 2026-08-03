@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, ArrowRight, FileJson, Grid3x3, History, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Grid3x3, History, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -37,6 +37,7 @@ interface EditorHeaderProps {
   onUngroupLayer?: (id: string) => void
   onInsert?: () => void
   onExportTemplate?: () => void
+  onSaveProject?: () => void
 }
 
 export function EditorHeader({
@@ -64,6 +65,7 @@ export function EditorHeader({
   onUngroupLayer,
   onInsert,
   onExportTemplate,
+  onSaveProject,
 }: EditorHeaderProps) {
   const { t } = useI18n()
   const [scrolled, setScrolled] = useState(false)
@@ -191,22 +193,13 @@ export function EditorHeader({
                   onMove={onMoveLayer}
                   onGroup={onGroupLayers}
                   onUngroup={onUngroupLayer}
+                  onSaveProject={onSaveProject}
+                  onExportJson={onExportTemplate}
                 />
               </PopoverContent>
             </Popover>
           </div>
 
-          {onExportTemplate && (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Export as template JSON"
-              onClick={onExportTemplate}
-              className={iconBtn}
-            >
-              <FileJson className="size-5" />
-            </Button>
-          )}
 
           <Button
             size="icon"
