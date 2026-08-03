@@ -7,13 +7,30 @@
  * Latin-only fonts likewise show tofu boxes for a Myanmar sample.
  */
 
-export const UNICODE_SAMPLE = 'မြန်မာ ဖောင့်စတိုင် Aa'
+/** Short sample: avoids rare stacked clusters that many display faces lack. */
+export const UNICODE_SAMPLE = 'မြန်မာ စာလုံး Aa'
 /** Same words, Zawgyi-encoded. */
-export const ZAWGYI_SAMPLE = 'ျမန္မာ ေဖာင့္စတိုင္ Aa'
+export const ZAWGYI_SAMPLE = 'ျမန္မာ စာလုံး Aa'
 export const LATIN_SAMPLE = 'The quick brown fox Aa'
 
+/** Faces that are Zawgyi-encoded without saying so in the file name. */
+const ZAWGYI_NAMES = [
+  'winuniinnwa',
+  'wininnwa',
+  'myanmar3',
+  'mm3h',
+  'mm3sh',
+  'panglong',
+  'parabaik',
+  'namkhon',
+  'yunghkio',
+  'thanlwin',
+]
+
 export function isZawgyiFontName(name: string) {
-  return /zawgyi|zawgy|\bzg\b|[_\-\s]zg[0-9_\-\s]|^zg/i.test(name)
+  const id = name.toLowerCase()
+  if (/zawgyi|zawgy|\bzg\b|[_\-\s]zg[0-9_\-\s]|^zg/i.test(id)) return true
+  return ZAWGYI_NAMES.some((n) => id.replace(/[^a-z0-9]/g, '').includes(n))
 }
 
 /** Pick the sample text that renders correctly for a given font. */
