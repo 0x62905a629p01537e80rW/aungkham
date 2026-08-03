@@ -424,12 +424,23 @@ export function Editor() {
           const size = { w: preset.w, h: preset.h }
           const bg = await resizeBackground(image, size).catch(() => image)
           setBatch({ image: bg, layers: resizeLayers(layers, naturalSize, size), size })
-          // let the offscreen canvas paint the new shape before capturing
-          await new Promise((r) => setTimeout(r, 120))
-          await new Promise((r) => requestAnimationFrame(() => r(null)))
+          // Decode the re-fitted background and let fonts settle before capture,
+          // otherwise html-to-image can snapshot a half-painted frame.
+          await new Promise<void>((r) => {
+            const probe = new Image()
+            probe.onload = () => r()
+            probe.onerror = () => r()
+            probe.src = bg
+          })
+          await document.fonts?.ready?.catch?.(() => undefined)
+          await new Promise((r) => setTimeout(r, 90))
+          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(null))))
+          // First pass warms the embedded resources, second one is the keeper.
+          await toPng(node, { width: size.w, height: size.h, pixelRatio: 1, cacheBust: true })
           const url = await toPng(node, { width: size.w, height: size.h, pixelRatio: 1, cacheBust: true })
           downloadDataUrl(url, `${stamp}_${preset.key}.png`)
         }
+
       } catch (err) {
         console.log('[batch export failed]', err)
       } finally {

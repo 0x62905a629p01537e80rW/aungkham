@@ -17,7 +17,7 @@ const BENEFITS = [
   'Liquid glass text and element effects',
   'PDF and high quality (4K) exports',
   'Background blur, square fit & pro effects',
-  'Unlimited saved projects',
+  'Smart resize & batch export in every size',
   'No ads and no watermark',
 ]
 
