@@ -54,7 +54,7 @@ function formatPromo(v?: string): string {
 
 export function pricingFromDoc(d: Record<string, unknown>): Pricing {
   return {
-    priceMmk: formatMmk(raw(d.price_mmk)) || DEFAULT_PRICING.priceMmk,
+    priceMmk: formatMmk(raw(d.price_mmk)),
     originalMmk: formatMmk(raw(d.original_price)),
     priceUsd: formatUsd(raw(d.usdt_price)),
     promoLabel: formatPromo(raw(d.promo_percent)),
