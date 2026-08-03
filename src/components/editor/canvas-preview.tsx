@@ -273,16 +273,26 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       if (pinch && pointers.current.size >= 2) {
         const [a, b] = [...pointers.current.values()]
         const dist = Math.hypot(a.x - b.x, a.y - b.y)
+        if (dist < 8) return
         const cx = (a.x + b.x) / 2
         const cy = (a.y + b.y) / 2
         const ratio = dist / pinch.dist
+        const nextScale = Math.max(0.2, Math.min(64, pinch.view.scale * ratio))
+        const k = nextScale / pinch.view.scale
+        // Anchor the zoom on the pinch midpoint so the content under the
+        // fingers stays put instead of drifting away from the gesture.
+        const host = containerRef.current?.parentElement
+        const rect = host?.getBoundingClientRect()
+        const ox = rect ? pinch.cx - (rect.left + rect.width / 2) : 0
+        const oy = rect ? pinch.cy - (rect.top + rect.height / 2) : 0
         commitView({
-          scale: pinch.view.scale * ratio,
-          tx: pinch.view.tx + (cx - pinch.cx),
-          ty: pinch.view.ty + (cy - pinch.cy),
+          scale: nextScale,
+          tx: ox - (ox - pinch.view.tx) * k + (cx - pinch.cx),
+          ty: oy - (oy - pinch.view.ty) * k + (cy - pinch.cy),
         })
         return
       }
+
       const pan = panRef.current
       if (pan && !dragState.current && pointers.current.size === 1) {
         commitView({
