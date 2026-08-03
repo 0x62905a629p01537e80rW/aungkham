@@ -944,13 +944,16 @@ function CropStage({
   ratio,
   onChange,
   hideHandles = false,
+  imageRef,
 }: {
   src: string
   rect: { x: number; y: number; w: number; h: number }
   ratio: number | null
   onChange: (r: { x: number; y: number; w: number; h: number }) => void
   hideHandles?: boolean
+  imageRef?: React.MutableRefObject<HTMLImageElement | null>
 }) {
+
   const wrapRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const rectRef = useRef(rect)
