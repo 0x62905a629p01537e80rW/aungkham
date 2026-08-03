@@ -33,8 +33,8 @@ function ProGem({ className = 'size-4' }: { className?: string }) {
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="pro-gem-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#8b7cf6" />
-          <stop offset="100%" stopColor="#5b4bd6" />
+          <stop offset="0%" stopColor="#22c3f0" />
+          <stop offset="100%" stopColor="#0b7fbf" />
         </linearGradient>
       </defs>
       <path d="M12 2 22 12 12 22 2 12z" fill="url(#pro-gem-grad)" />
