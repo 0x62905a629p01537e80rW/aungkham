@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Crown, Download, Loader2, Play, RefreshCw, Trash2, Upload, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { fontSampleText } from '@/lib/font-preview'
+import { BUNDLED_FONTS, BUNDLED_FREE_FONTS } from '@/lib/local-fonts'
 import { useAuth } from '@/components/auth-provider'
 import { PaymentPage } from './payment-page'
 import { GoogleFontsPanel } from './google-fonts-panel'
@@ -46,8 +48,8 @@ export function DownloadFontsSheet({
   onClose?: () => void
   inline?: boolean
 }) {
-  const [fonts, setFonts] = useState<RemoteFont[]>([])
-  const [freeFonts, setFreeFonts] = useState<RemoteFont[]>([])
+  const [fonts, setFonts] = useState<RemoteFont[]>(BUNDLED_FONTS)
+  const [freeFonts, setFreeFonts] = useState<RemoteFont[]>(BUNDLED_FREE_FONTS)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<'mm' | 'free' | 'en' | 'premium' | 'downloaded'>('mm')
@@ -392,7 +394,7 @@ export function DownloadFontsSheet({
                     className="block truncate text-[19px] leading-[1.9]"
                     style={{ fontFamily: ready ? `'${remoteCssFamily(f.name)}', sans-serif` : undefined }}
                   >
-                    မြန်မာ ဖောင့်စတိုင် Aa
+                    {fontSampleText(f)}
                   </span>
                   <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-muted-foreground">
                     {premium ? (
