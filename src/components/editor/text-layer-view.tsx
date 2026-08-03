@@ -134,9 +134,13 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
     WebkitTextFillColor: 'transparent',
   })
 
+  const fx = textEffectStyle(layer)
+  const finish = (st: CSSProperties): CSSProperties => (fx ? { ...st, ...fx } : st)
+
   if (fillType === 'gradient') {
-    return clipped(
+    return finish(clipped(
       `linear-gradient(${layer.gradientAngle ?? 90}deg, ${layer.gradientFrom ?? '#ff7a18'}, ${layer.gradientTo ?? '#af002d'})`,
+      ),
     )
   }
 
@@ -146,14 +150,13 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
       const sy = layer.textureScaleY ?? 100
       const px = layer.textureOffsetX ?? 50
       const py = layer.textureOffsetY ?? 50
-      return clipped(`url(${layer.textureImage})`, `${sx}% ${sy}%`, `${px}% ${py}%`)
+      return finish(clipped(`url(${layer.textureImage})`, `${sx}% ${sy}%`, `${px}% ${py}%`))
     }
-    if (texture.gradient) return clipped(texture.gradient)
+    if (texture.gradient) return finish(clipped(texture.gradient))
   }
 
 
-  const solid: CSSProperties = { ...base, color: layer.color }
-  return solid
+  return finish({ ...base, color: layer.color })
 }
 
 /** Wrapper transform shared by the editor canvas and the export canvas. */
