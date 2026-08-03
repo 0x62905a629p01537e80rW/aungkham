@@ -504,17 +504,20 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
             {cropTab === 'correct' && (
               <div className="space-y-2">
                 <div className="text-center text-sm font-bold tabular-nums text-primary">
-                  {angle > 0 ? `+${angle}` : angle}°
+                  <span ref={angleReadout}>{angle > 0 ? `+${angle}` : angle}</span>°
                 </div>
-                <SliderField
-                  label="Straighten"
+                <LiveSlider
                   value={angle}
                   min={-15}
                   max={15}
-                  step={1}
-                  suffix="°"
-                  hideLabel
-                  onChange={setAngle}
+                  step={0.5}
+                  onLive={(v) => {
+                    // 60fps: transform only, no bitmap work, no React re-render.
+                    applyStraighten(v)
+                    if (angleReadout.current)
+                      angleReadout.current.textContent = v > 0 ? `+${v}` : String(v)
+                  }}
+                  onCommit={setAngle}
                   {...sliderDrag('Straighten')}
                 />
                 <button
@@ -527,6 +530,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
                 </button>
               </div>
             )}
+
 
             {cropTab === 'rotate' && (
               <div className="grid grid-cols-4 gap-2">
