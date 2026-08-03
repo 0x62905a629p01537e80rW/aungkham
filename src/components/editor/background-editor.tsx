@@ -133,7 +133,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   const [fitShadowOpacity, setFitShadowOpacity] = useState(0.35)
   const [fitShadowOffset, setFitShadowOffset] = useState(10)
   const [fitAdvanced, setFitAdvanced] = useState(false)
-  const [fitAdvancedUnusedRemoved] = useState(false)
+  
   const backdropInput = useRef<HTMLInputElement | null>(null)
   const [draggingSlider, setDraggingSlider] = useState<string | null>(null)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
