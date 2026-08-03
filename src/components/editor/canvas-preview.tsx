@@ -149,6 +149,16 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }, [exporting])
 
+    // Keep the parent informed so newly added layers land in the visible area.
+    useEffect(() => {
+      if (!onViewChange || !boxSize.w || !boxSize.h) return
+      onViewChange({
+        scale: view.scale,
+        cx: 50 - (view.tx / view.scale / boxSize.w) * 100,
+        cy: 50 - (view.ty / view.scale / boxSize.h) * 100,
+      })
+    }, [view, boxSize.w, boxSize.h, onViewChange])
+
     const baseSize = useRef({ w: 0, h: 0 })
     const rafRef = useRef<number | null>(null)
     const pendingRef = useRef<{ scale: number; tx: number; ty: number } | null>(null)
