@@ -241,6 +241,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
     function stageDown(e: PointerEvent<HTMLDivElement>) {
       pulseInteraction(400)
+      // A primary pointer means no other finger is genuinely down. Any ids left
+      // in the map at that moment are stale (a pointerup/cancel we never saw,
+      // e.g. the captured element unmounted mid-gesture) and would otherwise
+      // fake a pinch on the very next tap — zooming wildly and eating taps.
+      if (e.isPrimary) pointers.current.clear()
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       measureBase()
       if (pointers.current.size >= 2) {
@@ -254,9 +259,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         panRef.current = null
         dragState.current = null
       } else if (pointers.current.size === 1) {
+        pinchRef.current = null
         panRef.current = { x: e.clientX, y: e.clientY, view: viewRef.current }
       }
     }
+
 
     function stageMove(e: PointerEvent<HTMLDivElement>) {
       if (!pointers.current.has(e.pointerId)) return
