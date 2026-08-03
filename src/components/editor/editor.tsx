@@ -8,6 +8,10 @@ import { BackgroundEditor, type BgTool } from './background-editor'
 import { AdjustEditor } from './adjust-editor'
 import { FilterEditor } from './filter-editor'
 import { SaveShare } from './save-share'
+import { HistoryPanel, type HistoryEntry } from './history-panel'
+import { BatchExportDialog } from './batch-export-dialog'
+import { SIZE_PRESETS, resizeBackground, resizeLayers } from '@/lib/smart-resize'
+import { defaultFilename, downloadDataUrl } from '@/lib/export-image'
 import { ReplaceBackground } from './replace-background'
 import { BgRemover } from './bg-remover'
 import { ExportCanvas } from './export-canvas'
@@ -379,6 +383,61 @@ export function Editor() {
     applySnapshot(next)
   }
 
+  /* ---- history timeline ---------------------------------------------- */
+  const [historyOpen, setHistoryOpen] = useState(false)
+
+  const describe = (snap: Snapshot): HistoryEntry => ({
+    label: snap.image ? (snap.layers.length ? `${snap.layers.length} element${snap.layers.length === 1 ? '' : 's'}` : 'Background') : 'Empty canvas',
+    detail: snap.naturalSize ? `${snap.naturalSize.w} × ${snap.naturalSize.h}` : 'no image',
+  })
+
+  const timeline = [...past.current, { image, layers, naturalSize }, ...future.current]
+  const historyEntries = timeline.map(describe)
+  const historyIndex = past.current.length
+
+  function jumpTo(index: number) {
+    if (index === historyIndex) return
+    const target = timeline[index]
+    if (!target) return
+    past.current = timeline.slice(0, index)
+    future.current = timeline.slice(index + 1)
+    applySnapshot(target)
+  }
+
+  /* ---- smart resize + batch export ------------------------------------ */
+  const [batchOpen, setBatchOpen] = useState(false)
+  const [batch, setBatch] = useState<{ image: string | null; layers: TextLayer[]; size: { w: number; h: number } } | null>(null)
+
+  const runBatchExport = useCallback(
+    async (keys: string[]) => {
+      const node = exportRef.current
+      if (!node || !naturalSize || !image) return
+      setSelectedId(null)
+      setExporting(true)
+      const stamp = defaultFilename()
+      try {
+        for (const key of keys) {
+          const preset = SIZE_PRESETS.find((p) => p.key === key)
+          if (!preset) continue
+          const size = { w: preset.w, h: preset.h }
+          const bg = await resizeBackground(image, size).catch(() => image)
+          setBatch({ image: bg, layers: resizeLayers(layers, naturalSize, size), size })
+          // let the offscreen canvas paint the new shape before capturing
+          await new Promise((r) => setTimeout(r, 120))
+          await new Promise((r) => requestAnimationFrame(() => r(null)))
+          const url = await toPng(node, { width: size.w, height: size.h, pixelRatio: 1, cacheBust: true })
+          downloadDataUrl(url, `${stamp}_${preset.key}.png`)
+        }
+      } catch (err) {
+        console.log('[batch export failed]', err)
+      } finally {
+        setBatch(null)
+        setExporting(false)
+      }
+    },
+    [image, layers, naturalSize],
+  )
+
   const renderPreview = useCallback(async () => {
     const node = exportRef.current
     if (!node || !naturalSize) return null
@@ -510,6 +569,7 @@ export function Editor() {
         canRedo={future.current.length > 0}
         onUndo={undo}
         onRedo={redo}
+        onHistory={() => setHistoryOpen(true)}
         layers={layers}
         selectedId={selectedId}
         onSelectLayer={setSelectedId}
@@ -676,6 +736,7 @@ export function Editor() {
             onMoveLayer={moveLayer}
             onReplaceImage={() => setReplacing(true)}
             onOpenTemplates={() => setTemplating(true)}
+            bgImage={image}
             onInsertElement={(tabId) => {
               if (tabId === 'overlay') {
                 overlayRef.current?.click()
@@ -769,8 +830,23 @@ export function Editor() {
               onBack={() => setShowSave(false)}
               onSaveImage={handleSaveImage}
               onSaveProject={handleSaveProject}
+              onBatchExport={() => setBatchOpen(true)}
             />
           )}
+
+          <HistoryPanel
+            open={historyOpen}
+            entries={historyEntries}
+            current={historyIndex}
+            onClose={() => setHistoryOpen(false)}
+            onJump={jumpTo}
+          />
+
+          <BatchExportDialog
+            open={batchOpen}
+            onClose={() => setBatchOpen(false)}
+            onExport={runBatchExport}
+          />
 
           <PremiumGate
             requested={nextRequested}
@@ -786,9 +862,9 @@ export function Editor() {
 
           <ExportCanvas
             ref={exportRef}
-            image={image}
-            layers={layers}
-            size={naturalSize}
+            image={batch?.image ?? image}
+            layers={batch?.layers ?? layers}
+            size={batch?.size ?? naturalSize}
             eraseMask={eraseMask}
             doodle={doodle}
           />

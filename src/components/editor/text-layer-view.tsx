@@ -2,6 +2,7 @@ import { memo } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { fontFamily, TEXTURES, type TextLayer } from '@/lib/text-layer'
 import { textEffectStyle } from '@/lib/text-effects'
+import { patternImage } from '@/lib/text-patterns'
 
 
 function hexToRgb(hex: string) {
@@ -155,6 +156,26 @@ export function layerTextStyle(layer: TextLayer): CSSProperties {
     if (texture.gradient) return finish(clipped(texture.gradient))
   }
 
+  if (fillType === 'pattern') {
+    const size = Math.max(5, layer.patternScale ?? 40)
+    return finish({
+      ...clipped(
+        patternImage(layer.patternKey ?? 'stripes', layer.color, layer.patternColor ?? '#ffffff'),
+        `${size}% auto`,
+        '50% 50%',
+      ),
+      backgroundRepeat: 'repeat',
+    })
+  }
+
+  if (fillType === 'photo' && layer.photoFill) {
+    const zoom = Math.max(50, layer.photoZoom ?? 100)
+    return finish({
+      ...clipped(`url(${layer.photoFill})`, `${zoom}cqw auto`, `${layer.x}% ${layer.y}%`),
+      backgroundRepeat: 'no-repeat',
+    })
+  }
+
 
   return finish({ ...base, color: layer.color })
 }
@@ -267,10 +288,13 @@ function LayerTextImpl({ layer }: { layer: TextLayer }) {
 
   if (bend !== 0 && !text.includes('\n')) {
     const chars = [...text]
+    // ±200 on the slider sweeps a full circle in either direction.
     const total = (bend / 100) * 180
     const step = chars.length > 1 ? total / (chars.length - 1) : 0
-    const radius = Math.max(1.2, (chars.length * 0.62) / Math.max(0.05, Math.abs((total * Math.PI) / 180)))
-    const up = bend > 0
+    const auto = Math.max(0.4, (chars.length * 0.62) / Math.max(0.05, Math.abs((total * Math.PI) / 180)))
+    const radius = auto * ((layer.bendRadius ?? 100) / 100)
+    const up = layer.bendFlip ? bend < 0 : bend > 0
+    const spin = layer.bendFlip ? -1 : 1
 
     return (
       <p style={{ ...style, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -279,7 +303,7 @@ function LayerTextImpl({ layer }: { layer: TextLayer }) {
             key={`${ch}-${i}`}
             style={{
               display: 'inline-block',
-              transform: `rotate(${-total / 2 + step * i}deg)`,
+              transform: `rotate(${spin * (-total / 2 + step * i)}deg)`,
               transformOrigin: up ? `50% ${radius}em` : `50% ${-radius}em`,
               whiteSpace: 'pre',
             }}

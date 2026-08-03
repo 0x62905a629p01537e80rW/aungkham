@@ -111,6 +111,7 @@ import { PaymentPage } from './payment-page'
 import { ColorPickerPanel, parseGradient } from './color-picker'
 import { DEFAULT_STROKE_WIDTH, OUTLINE_PRESETS, shapeDataUrl } from '@/lib/shapes'
 import { TEXT_EFFECTS, EFFECT_DEFAULTS, textEffectStyle, type TextEffectKey } from '@/lib/text-effects'
+import { PATTERNS, patternImage } from '@/lib/text-patterns'
 import { alignPatch, type AlignMode } from '@/lib/align-layer'
 import { copyLayerStyle, getCopiedStyle } from '@/lib/style-clipboard'
 import { cn } from '@/lib/utils'
@@ -143,6 +144,8 @@ interface ToolBarProps {
   onReplaceImage?: () => void
   onOpenTemplates?: () => void
   onInsertElement?: (tab: 'stickers' | 'shapes' | 'overlay') => void
+  /** Current background photo, used by the photo fill mode. */
+  bgImage?: string | null
   /** Opens freehand doodle drawing mode on the main canvas. */
   onDraw?: () => void
   onImageTool?: (
@@ -257,6 +260,7 @@ export function ToolBar({
   onOpenTemplates,
   onInsertElement,
   onImageTool,
+  bgImage,
   onDraw,
   autoOpenTool,
   onAutoOpenHandled,
@@ -538,6 +542,7 @@ export function ToolBar({
                   onDelete={onDelete}
                   onMoveLayer={onMoveLayer}
                   onCloseTool={() => setOpenTool(null)}
+                  bgImage={bgImage}
                 />
               </PopoverContent>
             </Popover>
@@ -582,6 +587,7 @@ interface ToolContentProps {
   onDelete: (id: string) => void
   onMoveLayer?: (id: string, dir: 'front' | 'back') => void
   onCloseTool?: () => void
+  bgImage?: string | null
 }
 
 const BLEND_MODES = [
@@ -1024,9 +1030,11 @@ type TextureSlider = 'rotate' | 'sx' | 'sy' | 'ox' | 'oy'
 function TexturePanel({
   layer,
   onChange,
+  bgImage,
 }: {
   layer: TextLayer
   onChange: (patch: Partial<TextLayer>) => void
+  bgImage?: string | null
 }) {
   const [dragging, setDragging] = useState<TextureSlider | null>(null)
   const [peek, setPeek] = useState(false)
@@ -1066,6 +1074,100 @@ function TexturePanel({
       onPointerUp={() => setDragging(null)}
       onPointerCancel={() => setDragging(null)}
     >
+      <div className={cn(fade, others, 'grid grid-cols-3 gap-2')}>
+        {(['texture', 'pattern', 'photo'] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => {
+              quickPeek()
+              if (m === 'photo') {
+                if (!bgImage) return
+                onChange({ fillType: 'photo', photoFill: bgImage })
+                return
+              }
+              if (m === 'pattern') {
+                onChange({
+                  fillType: 'pattern',
+                  patternKey: layer.patternKey ?? 'stripes',
+                  patternColor: layer.patternColor ?? '#ffffff',
+                  patternScale: layer.patternScale ?? 40,
+                })
+                return
+              }
+              onChange({ fillType: 'texture' })
+            }}
+            disabled={m === 'photo' && !bgImage}
+            className={cn(
+              'h-9 rounded-xl border text-[11px] font-semibold capitalize transition active:scale-95 disabled:opacity-40',
+              layer.fillType === m ? 'border-primary bg-primary/10 text-primary' : 'border-border',
+            )}
+          >
+            {m === 'texture' ? 'Image' : m}
+          </button>
+        ))}
+      </div>
+
+      {layer.fillType === 'pattern' && (
+        <div className="space-y-3">
+          <div className={cn(fade, others, 'grid grid-cols-5 gap-2')}>
+            {PATTERNS.map((p) => (
+              <button
+                key={p.key}
+                type="button"
+                aria-label={p.label}
+                onClick={() => onChange({ patternKey: p.key, fillType: 'pattern' })}
+                className={cn(
+                  'h-10 rounded-lg border bg-cover transition active:scale-95',
+                  layer.patternKey === p.key ? 'border-primary ring-2 ring-primary/40' : 'border-border',
+                )}
+                style={{
+                  backgroundImage: patternImage(p.key, layer.color, layer.patternColor ?? '#ffffff'),
+                  backgroundSize: '70%',
+                }}
+              />
+            ))}
+          </div>
+          <div className={cn(fade, hidden('sx'))}>
+            <SliderField
+              label="Pattern scale"
+              value={layer.patternScale ?? 40}
+              min={5}
+              max={120}
+              suffix="%"
+              onChange={(v) => onChange({ patternScale: v })}
+              {...drag('sx')}
+            />
+          </div>
+          <div className={cn(fade, others)}>
+            <ColorField
+              label="Pattern ink"
+              value={layer.patternColor ?? '#ffffff'}
+              onChange={(v) => onChange({ patternColor: v })}
+            />
+          </div>
+        </div>
+      )}
+
+      {layer.fillType === 'photo' && (
+        <div className={cn(fade, hidden('sy'))}>
+          <p className={cn(fade, others, 'text-[10px] leading-snug text-muted-foreground')}>
+            The background photo shows through the letters.
+          </p>
+          <SliderField
+            label="Photo zoom"
+            value={layer.photoZoom ?? 100}
+            min={50}
+            max={400}
+            suffix="%"
+            onChange={(v) => onChange({ photoZoom: v })}
+            {...drag('sy')}
+          />
+        </div>
+      )}
+
+      {layer.fillType !== 'pattern' && layer.fillType !== 'photo' && (
+      <>
       <div className={cn(fade, others)}>
         <ToolHeading>Texture from image</ToolHeading>
       </div>
@@ -1187,6 +1289,8 @@ function TexturePanel({
             Remove texture image
           </button>
         </>
+      )}
+      </>
       )}
 
       <div className={cn(fade, others)}>
@@ -1401,6 +1505,7 @@ function ToolContent({
   onDelete,
   onMoveLayer,
   onCloseTool,
+  bgImage,
 }: ToolContentProps) {
   if (!layer) return null
 
@@ -2001,7 +2106,7 @@ function ToolContent({
         </div>
       )
     case 'texture':
-      return <TexturePanel layer={layer} onChange={onChange} />
+      return <TexturePanel layer={layer} onChange={onChange} bgImage={bgImage} />
 
     case 'rotate3d':
       return (
@@ -2118,25 +2223,69 @@ function ToolContent({
             <ToolHeading>Bend</ToolHeading>
             <button
               type="button"
-              onClick={() => onChange({ bend: 0 })}
+              onClick={() => onChange({ bend: 0, bendRadius: 100, bendFlip: false })}
               className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
             >
               Reset
             </button>
           </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {BEND_PRESETS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => onChange(p.patch)}
+                className={cn(
+                  'h-9 rounded-xl border text-[11px] font-semibold transition active:scale-95',
+                  layer.bend === p.patch.bend ? 'border-primary bg-primary/10 text-primary' : 'border-border',
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
           <SliderField
             label="Arc"
             value={layer.bend ?? 0}
-            min={-100}
-            max={100}
+            min={-200}
+            max={200}
             onChange={(v) => onChange({ bend: v })}
           />
+
+          <SliderField
+            label="Radius"
+            value={layer.bendRadius ?? 100}
+            min={30}
+            max={400}
+            suffix="%"
+            onChange={(v) => onChange({ bendRadius: v })}
+          />
+
+          <button
+            type="button"
+            onClick={() => onChange({ bendFlip: !layer.bendFlip })}
+            className={cn(
+              'h-10 w-full rounded-xl border text-xs font-semibold transition active:scale-95',
+              layer.bendFlip ? 'border-primary bg-primary/10 text-primary' : 'border-border',
+            )}
+          >
+            Read from inside
+          </button>
         </div>
       )
     default:
       return null
   }
 }
+
+const BEND_PRESETS = [
+  { label: 'Flat', patch: { bend: 0, bendRadius: 100, bendFlip: false } },
+  { label: 'Arch', patch: { bend: 60, bendRadius: 100, bendFlip: false } },
+  { label: 'Valley', patch: { bend: -60, bendRadius: 100, bendFlip: false } },
+  { label: 'Circle', patch: { bend: 200, bendRadius: 100, bendFlip: false } },
+] satisfies { label: string; patch: Partial<TextLayer> }[]
 
 const PERSPECTIVE_PRESETS = [
   { label: 'Left', patch: { rotateY: -35, rotateX: 0 } },

@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, FileJson, Grid3x3, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, FileJson, Grid3x3, History, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PremiumBadge } from './premium-badge'
@@ -20,6 +20,7 @@ interface EditorHeaderProps {
   canRedo?: boolean
   onUndo?: () => void
   onRedo?: () => void
+  onHistory?: () => void
   layers?: TextLayer[]
   selectedId?: string | null
   onSelectLayer?: (id: string) => void
@@ -46,6 +47,7 @@ export function EditorHeader({
   canRedo = false,
   onUndo,
   onRedo,
+  onHistory,
   layers = [],
   selectedId = null,
   onSelectLayer,
@@ -124,6 +126,18 @@ export function EditorHeader({
             >
               <Redo2 className="size-5" />
             </Button>
+
+            {onHistory && (canUndo || canRedo) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="History"
+                onClick={onHistory}
+                className={iconBtn}
+              >
+                <History className="size-5" />
+              </Button>
+            )}
 
             <Popover>
               <PopoverTrigger asChild>
