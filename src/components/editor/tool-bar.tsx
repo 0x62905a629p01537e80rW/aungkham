@@ -19,6 +19,8 @@ import {
 } from '@/lib/custom-fonts'
 import { listRecentFonts, recordRecentFont, subscribeRecents } from '@/lib/recents'
 import { GoogleFontsPanel } from './google-fonts-panel'
+import { DownloadFontsSheet } from './download-fonts-sheet'
+
 import { preloadAllFontPreviews } from '@/lib/font-preload'
 import {
   ensureRemoteFontsLoaded,
@@ -34,7 +36,9 @@ import {
   subscribeGoogleFonts,
 } from '@/lib/google-fonts'
 import {
+  Download,
   AlignCenter,
+
   Circle,
   AlignLeft,
   AlignRight,
@@ -637,14 +641,26 @@ type FontGroup =
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'english', label: 'English' },
   { key: 'mm-free', label: 'Myanmar' },
-  { key: 'en-premium', label: 'Premium (Eng)' },
   { key: 'mm-premium', label: 'Premium (MM)' },
+  { key: 'en-premium', label: 'Premium (Eng)' },
   { key: 'google', label: 'Google Fonts' },
   { key: 'downloaded', label: 'Downloaded' },
   { key: 'favorites', label: 'Favorites' },
   { key: 'recent', label: 'Recent' },
   { key: 'custom', label: 'Upload' },
 ]
+
+/** Which store tab a "Download more fonts" tap should land on. */
+const STORE_TAB_FOR_GROUP: Partial<Record<FontGroup, 'mm' | 'free' | 'en' | 'premium'>> = {
+  english: 'en',
+  'mm-free': 'free',
+  'mm-premium': 'premium',
+  'en-premium': 'premium',
+  downloaded: 'mm',
+  favorites: 'mm',
+  recent: 'mm',
+}
+
 
 
 function groupOf(cat: FontOption['category']): FontGroup {
@@ -757,6 +773,8 @@ function FontPicker({
           : groupOf(current?.category ?? 'Sans'),
   )
   const [query, setQuery] = useState('')
+  const [storeTab, setStoreTab] = useState<'mm' | 'free' | 'en' | 'premium' | null>(null)
+
   const [, force] = useState(0)
   const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -808,6 +826,11 @@ function FontPicker({
     })),
   ]
 
+  // Downloaded premium fonts also belong in the premium groups.
+  const installedPremium = listInstalledRemoteFonts()
+    .filter((f) => f.tier === 'premium')
+    .map((f) => `rf:${f.name}`)
+
   const base =
     group === 'recent'
       ? (recents.map((k) => all.find((f) => f.key === k)).filter(Boolean) as FontEntry[])
@@ -817,13 +840,19 @@ function FontPicker({
           ? all.filter((f) => f.customId)
           : group === 'downloaded'
             ? all.filter((f) => f.key.startsWith('gf:') || f.key.startsWith('rf:'))
-            : all.filter(
-                (f) =>
-                  !f.customId &&
-                  !f.key.startsWith('gf:') &&
-                  !f.key.startsWith('rf:') &&
-                  groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
-              )
+            : [
+                ...all.filter(
+                  (f) =>
+                    !f.customId &&
+                    !f.key.startsWith('gf:') &&
+                    !f.key.startsWith('rf:') &&
+                    groupOf(FONTS.find((x) => x.key === f.key)!.category) === group,
+                ),
+                ...(group === 'mm-premium'
+                  ? all.filter((f) => installedPremium.includes(f.key))
+                  : []),
+              ]
+
 
   const q = query.trim().toLowerCase()
   const items = q ? base.filter((f) => f.label.toLowerCase().includes(q)) : base
@@ -1026,9 +1055,24 @@ function FontPicker({
                     : 'No uploaded fonts yet — upload one above.'}
           </p>
         )}
+
+        {group !== 'custom' && group !== 'google' && STORE_TAB_FOR_GROUP[group] && (
+          <button
+            type="button"
+            onClick={() => setStoreTab(STORE_TAB_FOR_GROUP[group]!)}
+            className="mt-1 flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/50 bg-primary/10 py-3 text-[12px] font-semibold text-foreground active:scale-[0.99]"
+          >
+            <Download className="size-4 text-primary" /> Download more fonts
+          </button>
+        )}
       </div>
       </div>
+
+      {storeTab && (
+        <DownloadFontsSheet open initialTab={storeTab} onClose={() => setStoreTab(null)} />
+      )}
     </div>
+
 
   )
 }

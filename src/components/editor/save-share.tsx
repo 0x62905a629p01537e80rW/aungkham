@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth-provider'
 import { requestAd } from '@/components/launch-ad'
 import { SaveImageDialog } from './save-image-dialog'
+import { PaymentPage } from './payment-page'
+
 import { ShareRow } from './share-row'
 import { defaultFilename, exportPdf } from '@/lib/export-image'
 
@@ -31,6 +33,7 @@ export function SaveShare({
   const { isPro } = useAuth()
   const [saving, setSaving] = useState(false)
   const [pdfBusy, setPdfBusy] = useState(false)
+  const [pay, setPay] = useState(false)
 
   // Show the (preloaded) ad once per app run when a free user hits Next.
   useEffect(() => {
@@ -38,7 +41,11 @@ export function SaveShare({
   }, [isPro])
 
   async function handlePdf() {
-    if (!preview || !isPro) return
+    if (!isPro) {
+      setPay(true)
+      return
+    }
+    if (!preview) return
     setPdfBusy(true)
     try {
       await exportPdf(preview, `${defaultFilename()}.pdf`)
@@ -48,6 +55,7 @@ export function SaveShare({
       setPdfBusy(false)
     }
   }
+
 
   return (
 
@@ -103,7 +111,7 @@ export function SaveShare({
                 variant="outline"
                 className="relative rounded-xl"
                 onClick={handlePdf}
-                disabled={!isPro || !preview || pdfBusy}
+                disabled={pdfBusy}
               >
                 {pdfBusy ? (
                   <Loader2 className="mr-1.5 size-4 animate-spin" />
@@ -120,8 +128,17 @@ export function SaveShare({
             </div>
 
             {onBatchExport && (
-              <Button variant="outline" className="mt-3 h-11 w-full rounded-xl" onClick={onBatchExport}>
+              <Button
+                variant="outline"
+                className="relative mt-3 h-11 w-full rounded-xl"
+                onClick={() => (isPro ? onBatchExport() : setPay(true))}
+              >
                 <Ratio className="mr-2 size-4" /> Smart resize &amp; batch export
+                {!isPro && (
+                  <span className="absolute -right-1 -top-2 rounded bg-[var(--primary)] px-1 text-[9px] font-bold text-white">
+                    PRO
+                  </span>
+                )}
               </Button>
             )}
           </section>
@@ -135,6 +152,8 @@ export function SaveShare({
       </div>
 
       <SaveImageDialog open={saving} preview={preview} onClose={() => setSaving(false)} />
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
+
     </div>
   )
 

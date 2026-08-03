@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { toPng } from 'html-to-image'
+import { Trash2 } from 'lucide-react'
+
 import { EditorHeader } from './editor-header'
 import { UploadZone } from './upload-zone'
 import { CanvasPreview } from './canvas-preview'
@@ -967,23 +969,26 @@ export function Editor() {
       </AlertDialog>
 
       <AlertDialog open={discardOpen} onOpenChange={setDiscardOpen}>
-        <AlertDialogContent className="glass-panel max-w-[min(92vw,340px)] rounded-3xl border-0 shadow-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-center text-base font-normal">
+        <AlertDialogContent className="max-w-[min(92vw,340px)] gap-0 overflow-hidden rounded-3xl border border-border/60 bg-card p-0 shadow-2xl">
+          <AlertDialogHeader className="px-6 pb-5 pt-7">
+            <div className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-destructive/15">
+              <Trash2 className="size-5 text-destructive" />
+            </div>
+            <AlertDialogTitle className="text-center text-[17px] font-semibold">
               {t('discard.title')}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-center">
+            <AlertDialogDescription className="text-center text-[13px] leading-snug">
               {t('discard.desc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+          <AlertDialogFooter className="flex-col gap-0 border-t border-border/60 sm:flex-col">
             <AlertDialogAction
               onClick={() => {
                 handleSaveProject()
                 setDiscardOpen(false)
                 resetAll()
               }}
-              className="glass-cta w-full rounded-xl border-0 font-normal hover:opacity-90"
+              className="h-12 w-full rounded-none border-0 bg-transparent text-[15px] font-semibold text-primary hover:bg-foreground/5"
             >
               Save project & exit
             </AlertDialogAction>
@@ -992,16 +997,17 @@ export function Editor() {
                 setDiscardOpen(false)
                 resetAll()
               }}
-              className="glass-tile mt-0 w-full rounded-xl border-0 font-normal text-destructive hover:opacity-90"
+              className="mt-0 h-12 w-full rounded-none border-0 border-t border-border/60 bg-transparent text-[15px] font-medium text-destructive hover:bg-destructive/10"
             >
               {t('discard.confirm')}
             </AlertDialogAction>
-            <AlertDialogCancel className="glass-tile mt-0 w-full rounded-full border-0 font-normal">
+            <AlertDialogCancel className="mt-0 h-12 w-full rounded-none border-0 border-t border-border/60 bg-transparent text-[15px] font-normal text-muted-foreground hover:bg-foreground/5">
               {t('discard.cancel')}
             </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
 
     </div>
     </AuthProvider>
