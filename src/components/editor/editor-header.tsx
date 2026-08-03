@@ -65,10 +65,10 @@ export function EditorHeader({
 }: EditorHeaderProps) {
   const { t } = useI18n()
   const iconBtn =
-    'size-9 rounded-full text-foreground/80 transition hover:text-foreground active:scale-95'
+    'size-9 rounded-lg text-foreground/75 transition-colors hover:bg-accent hover:text-foreground active:scale-95'
   return (
     <header
-      className="glass-bar sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/40 px-2"
+      className="glass-bar sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/70 px-2"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
       {hasImage ? (
@@ -78,13 +78,14 @@ export function EditorHeader({
             size="icon"
             aria-label="Back to home"
             onClick={onNewImage}
-            className={cn(iconBtn, 'glass-tile')}
+            className={iconBtn}
           >
             <ArrowLeft className="size-5" />
           </Button>
 
-          {/* Glass cluster of editing controls */}
-          <div className="glass-tile flex items-center gap-0.5 rounded-full px-1 py-1">
+          {/* Editing controls */}
+          <div className="flex items-center gap-0.5 rounded-xl bg-secondary/70 px-1 py-1">
+
             <Button
               variant="ghost"
               size="icon"
