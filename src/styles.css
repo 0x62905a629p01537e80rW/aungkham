@@ -19,6 +19,10 @@
 
 
 @theme inline {
+  /* UI chrome typography: Sora for headings/labels, Manrope for body */
+  --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-display: 'Sora', system-ui, -apple-system, sans-serif;
+
   --font-inter: 'Inter', system-ui, sans-serif;
   --font-poppins: 'Poppins', system-ui, sans-serif;
   --font-montserrat: 'Montserrat', system-ui, sans-serif;
