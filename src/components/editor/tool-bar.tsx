@@ -357,7 +357,7 @@ export function ToolBar({
                 ([
                   { id: 'stickers', label: 'Stickers', Icon: Smile },
                   { id: 'shapes', label: 'Shapes', Icon: Shapes },
-                  { id: 'overlay', label: 'Overlays', Icon: Layers2 },
+                  { id: 'overlay', label: 'Overlays', Icon: ImagePlus },
                 ] as const).map(({ id, label: elLabel, Icon: ElIcon }) => (
                   <button
                     key={id}
