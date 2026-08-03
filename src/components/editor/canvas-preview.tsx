@@ -241,6 +241,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
     function stageDown(e: PointerEvent<HTMLDivElement>) {
       pulseInteraction(400)
+      // A primary pointer means no other finger is genuinely down. Any ids left
+      // in the map at that moment are stale (a pointerup/cancel we never saw,
+      // e.g. the captured element unmounted mid-gesture) and would otherwise
+      // fake a pinch on the very next tap — zooming wildly and eating taps.
+      if (e.isPrimary) pointers.current.clear()
       pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
       measureBase()
       if (pointers.current.size >= 2) {
@@ -254,9 +259,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         panRef.current = null
         dragState.current = null
       } else if (pointers.current.size === 1) {
+        pinchRef.current = null
         panRef.current = { x: e.clientX, y: e.clientY, view: viewRef.current }
       }
     }
+
 
     function stageMove(e: PointerEvent<HTMLDivElement>) {
       if (!pointers.current.has(e.pointerId)) return
@@ -266,16 +273,26 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       if (pinch && pointers.current.size >= 2) {
         const [a, b] = [...pointers.current.values()]
         const dist = Math.hypot(a.x - b.x, a.y - b.y)
+        if (dist < 8) return
         const cx = (a.x + b.x) / 2
         const cy = (a.y + b.y) / 2
         const ratio = dist / pinch.dist
+        const nextScale = Math.max(0.2, Math.min(64, pinch.view.scale * ratio))
+        const k = nextScale / pinch.view.scale
+        // Anchor the zoom on the pinch midpoint so the content under the
+        // fingers stays put instead of drifting away from the gesture.
+        const host = containerRef.current?.parentElement
+        const rect = host?.getBoundingClientRect()
+        const ox = rect ? pinch.cx - (rect.left + rect.width / 2) : 0
+        const oy = rect ? pinch.cy - (rect.top + rect.height / 2) : 0
         commitView({
-          scale: pinch.view.scale * ratio,
-          tx: pinch.view.tx + (cx - pinch.cx),
-          ty: pinch.view.ty + (cy - pinch.cy),
+          scale: nextScale,
+          tx: ox - (ox - pinch.view.tx) * k + (cx - pinch.cx),
+          ty: oy - (oy - pinch.view.ty) * k + (cy - pinch.cy),
         })
         return
       }
+
       const pan = panRef.current
       if (pan && !dragState.current && pointers.current.size === 1) {
         commitView({
@@ -343,6 +360,24 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       host.addEventListener('wheel', onWheel, { passive: false })
       return () => host.removeEventListener('wheel', onWheel)
     }, [])
+
+    // Safety net: a pointer that ends outside the stage (or whose captured
+    // element unmounted) never reaches stageUp. Track releases on the window so
+    // the pointer map can't accumulate ghosts that later fake a pinch.
+    useEffect(() => {
+      const release = (e: globalThis.PointerEvent) => {
+        pointers.current.delete(e.pointerId)
+        if (pointers.current.size < 2) pinchRef.current = null
+        if (pointers.current.size === 0) panRef.current = null
+      }
+      window.addEventListener('pointerup', release)
+      window.addEventListener('pointercancel', release)
+      return () => {
+        window.removeEventListener('pointerup', release)
+        window.removeEventListener('pointercancel', release)
+      }
+    }, [])
+
 
 
 
@@ -429,7 +464,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       } catch {
         /* ignore */
       }
-      if (st && !st.moved) {
+      // A cancelled pointer (scroll takeover, system gesture) is not a tap.
+      if (st && !st.moved && e.type !== 'pointercancel') {
+
         const now = Date.now()
         const last = lastTapRef.current
         if (last && last.id === st.id && now - last.time < 350) {
@@ -677,6 +714,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           onPointerDown={(e) => handlePointerDown(e, layer.id)}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+
           onDoubleClick={(e) => {
             e.stopPropagation()
             if (layer.graphic) return
