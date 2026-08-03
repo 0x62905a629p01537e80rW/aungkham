@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 export type Pricing = {
-  /** e.g. "30,000 MMK" */
+  /** e.g. "30,000 MMK" — always comes from Firestore, empty until it loads */
   priceMmk: string
   /** e.g. "60,000 MMK" — empty when not configured */
   originalMmk: string
@@ -13,13 +13,15 @@ export type Pricing = {
   loaded: boolean
 }
 
+/** No hardcoded price — the real price always comes from Firestore. */
 export const DEFAULT_PRICING: Pricing = {
-  priceMmk: '30,000 MMK',
+  priceMmk: '',
   originalMmk: '',
   priceUsd: '',
   promoLabel: '',
   loaded: false,
 }
+
 
 
 function raw(v: unknown): string | undefined {
