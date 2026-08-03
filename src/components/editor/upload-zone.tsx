@@ -63,7 +63,7 @@ const FEATURED = UPLOADED_TEMPLATES
   }
 
   const TOOLS: { id: string; label: string; icon: typeof BackgroundIcon; run: () => void }[] = [
-    { id: 'gallery', label: t('home.chooseLibrary') ?? 'Gallery', icon: ImageIcon, run: () => galleryRef.current?.click() },
+    { id: 'gallery', label: 'Gallery', icon: ImageIcon, run: () => galleryRef.current?.click() },
     { id: 'templates', label: t('home.tab.templates'), icon: LayoutTemplate, run: () => setTab('templates') },
     { id: 'fonts', label: 'Fonts', icon: Type, run: () => setTab('fonts') },
     { id: 'store', label: 'Store', icon: Store, run: () => setTab('store') },
