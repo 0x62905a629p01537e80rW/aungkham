@@ -260,35 +260,8 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
     }
   }
 
-  // Live preview for Fit
-  useEffect(() => {
-    if (tool !== 'fit') return
-    let alive = true
-    const id = setTimeout(() => {
-      ratioFit(working, fitOptions()).then((url) => alive && setFitPreview(url))
-    }, 90)
-    return () => {
-      alive = false
-      clearTimeout(id)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    tool,
-    working,
-    fitRatio,
-    fitScale,
-    fitColor,
-    fitGradient,
-    fitX,
-    fitY,
-    fitBlur,
-    fitBgOpacity,
-    fitBackdrop,
-    fitBackdropBlur,
-    fitShadowBlur,
-    fitShadowOpacity,
-    fitShadowOffset,
-  ])
+  // Fit previews are drawn synchronously by <FitStage /> every frame.
+
 
 
   // Live preview for Frame
