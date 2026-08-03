@@ -12,20 +12,23 @@ interface GlassTabsProps {
   onChange: (key: string) => void
   /** Equal-width segments (default) vs. content-sized scrollable chips */
   variant?: 'segmented' | 'chips'
+  /** `underline` = flat rail with an accent bar (default). `solid` = filled chip. */
+  marker?: 'underline' | 'solid'
   className?: string
   itemClassName?: string
   size?: 'sm' | 'md'
 }
 
 /**
- * Liquid-glass tab strip with a sliding indicator that animates from the
- * previously active button to the newly selected one.
+ * Flat tab rail. The active tab is marked with a short accent underline that
+ * slides between tabs — no floating pill, no translucency.
  */
 export function GlassTabs({
   items,
   value,
   onChange,
   variant = 'segmented',
+  marker = 'underline',
   className,
   itemClassName,
   size = 'md',
@@ -58,14 +61,15 @@ export function GlassTabs({
     btnRefs.current[value]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
   }, [value, variant])
 
-  const pad = size === 'sm' ? 'p-0.5' : 'p-1'
+  const solid = marker === 'solid'
 
   return (
     <div
       className={cn(
-        'glass-panel relative rounded-full',
-        pad,
-        variant === 'chips' && 'overflow-x-auto perf-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+        'relative',
+        solid ? 'rounded-xl bg-secondary p-1' : 'border-b border-border/70',
+        variant === 'chips' &&
+          'overflow-x-auto perf-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         className,
       )}
     >
@@ -76,7 +80,10 @@ export function GlassTabs({
         {rect && (
           <span
             aria-hidden
-            className="glass-indicator pointer-events-none absolute inset-y-0 rounded-full"
+            className={cn(
+              'glass-indicator pointer-events-none absolute inset-y-0',
+              solid && 'indicator-solid rounded-lg',
+            )}
             style={{
               transform: `translateX(${rect.left}px)`,
               width: rect.width,
@@ -94,10 +101,14 @@ export function GlassTabs({
               type="button"
               onClick={() => onChange(it.key)}
               className={cn(
-                'relative z-10 flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full font-semibold transition-colors duration-300',
+                'relative z-10 flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap font-display font-semibold transition-colors duration-200',
+                solid ? 'rounded-lg' : 'rounded-none',
                 variant === 'segmented' && 'flex-1',
-                size === 'sm' ? 'px-3 py-1.5 text-[11px] leading-5' : 'px-3 py-2 text-xs leading-5',
-                active ? 'text-primary-foreground' : 'text-muted-foreground',
+                size === 'sm'
+                  ? 'px-3 py-1.5 text-[11px] leading-5'
+                  : 'px-3.5 py-2.5 text-xs leading-5',
+                !solid && 'pb-3',
+                active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80',
                 itemClassName,
               )}
             >
