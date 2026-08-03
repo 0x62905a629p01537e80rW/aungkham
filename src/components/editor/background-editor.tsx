@@ -436,29 +436,31 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
             compact={panel}
             onFocus={(f) => setFocus((p) => ({ ...p, ...f }))}
           />
-        ) : (
+        ) : tool === 'fit' ? (
           <div
             className={cn(
-              'max-h-full max-w-full overflow-hidden rounded-none',
-              tool === 'fit' && fitColor === 'transparent' && !fitGradient && 'checker-grid',
-              tool === 'fit' && 'touch-none select-none',
+              'max-h-full max-w-full touch-none select-none overflow-hidden',
+              fitColor === 'transparent' && !fitGradient && 'checker-grid',
             )}
-            {...(tool === 'fit' ? fitGestures : {})}
+            {...fitGestures}
           >
+            <FitStage
+              src={working}
+              opts={fitOptions()}
+              className={cn('max-w-full object-contain', panel ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
+            />
+          </div>
+        ) : (
+          <div className="max-h-full max-w-full overflow-hidden">
             <img
-              src={
-                tool === 'fit'
-                  ? (fitPreview ?? working)
-                  : tool === 'frame'
-                    ? (framePreview ?? working)
-                    : working
-              }
+              src={tool === 'frame' ? (framePreview ?? working) : working}
               alt="Preview"
               draggable={false}
               className={cn('max-w-full object-contain', panel ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
             />
           </div>
         )}
+
       </div>
 
 
