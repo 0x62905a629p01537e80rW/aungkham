@@ -100,10 +100,16 @@ const FEATURED = UPLOADED_TEMPLATES
       )}
 
       <div
+        onScroll={(e) =>
+          window.dispatchEvent(
+            new CustomEvent('home-scroll', { detail: e.currentTarget.scrollTop > 8 }),
+          )
+        }
         className={`flex min-h-0 w-full flex-1 flex-col overscroll-contain perf-scroll no-scrollbar ${
           tab === 'store' ? 'overflow-hidden' : 'overflow-y-auto'
         } ${tab === 'create' ? 'pb-6' : 'px-4 py-4'}`}
       >
+
         {tab === 'create' && (
           <div className="flex flex-col">
             {/* Hero banner */}
