@@ -584,6 +584,7 @@ export function Editor() {
         onUngroupLayer={ungroupLayer}
         onInsert={() => setInserting(true)}
         onExportTemplate={() => setExportingTpl(true)}
+        onSaveProject={handleSaveProject}
       />
 
       <ExportTemplateDialog
@@ -956,10 +957,20 @@ export function Editor() {
           <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
             <AlertDialogAction
               onClick={() => {
+                handleSaveProject()
                 setDiscardOpen(false)
                 resetAll()
               }}
               className="glass-cta w-full rounded-xl border-0 font-normal hover:opacity-90"
+            >
+              Save project & exit
+            </AlertDialogAction>
+            <AlertDialogAction
+              onClick={() => {
+                setDiscardOpen(false)
+                resetAll()
+              }}
+              className="glass-tile mt-0 w-full rounded-xl border-0 font-normal text-destructive hover:opacity-90"
             >
               {t('discard.confirm')}
             </AlertDialogAction>
