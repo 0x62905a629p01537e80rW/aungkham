@@ -104,6 +104,7 @@ import { BgRemover } from './bg-remover'
 import { PaymentPage } from './payment-page'
 import { ColorPickerPanel, parseGradient } from './color-picker'
 import { DEFAULT_STROKE_WIDTH, OUTLINE_PRESETS, shapeDataUrl } from '@/lib/shapes'
+import { TEXT_EFFECTS, EFFECT_DEFAULTS, textEffectStyle, type TextEffectKey } from '@/lib/text-effects'
 import { cn } from '@/lib/utils'
 import { rotateImage } from '@/lib/texture-image'
 import {
@@ -1675,6 +1676,95 @@ function ToolContent({
         </div>
       )
     }
+    case 'effects': {
+      const active = layer.effect ?? 'none'
+      const def = TEXT_EFFECTS.find((e) => e.key === active)
+      const has = (f: string) => !!def?.fields.includes(f as never)
+      return (
+        <div className="space-y-4">
+          <ToolHeading>Text effects</ToolHeading>
+          <div className="grid grid-cols-4 gap-2">
+            {TEXT_EFFECTS.map((e) => (
+              <button
+                key={e.key}
+                type="button"
+                onClick={() => onChange({ effect: e.key })}
+                className={cn(
+                  'relative flex h-14 flex-col items-center justify-center gap-1 rounded-xl border text-[10px] font-medium transition active:scale-95',
+                  active === e.key
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border/60 text-muted-foreground',
+                )}
+              >
+                <span
+                  className="text-base font-black leading-none"
+                  style={effectPreviewStyle(e.key)}
+                >
+                  Ag
+                </span>
+                {e.label}
+                {e.pro && (
+                  <Crown className="absolute right-1 top-1 size-3 text-amber-400" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          {has('intensity') && (
+            <SliderField
+              label="Intensity"
+              value={layer.effectIntensity ?? EFFECT_DEFAULTS.effectIntensity}
+              min={0}
+              max={100}
+              onChange={(v) => onChange({ effectIntensity: v })}
+            />
+          )}
+          {has('thickness') && (
+            <SliderField
+              label="Thickness"
+              value={layer.effectThickness ?? EFFECT_DEFAULTS.effectThickness}
+              min={0}
+              max={100}
+              onChange={(v) => onChange({ effectThickness: v })}
+            />
+          )}
+          {has('offset') && (
+            <SliderField
+              label="Offset"
+              value={layer.effectOffset ?? EFFECT_DEFAULTS.effectOffset}
+              min={0}
+              max={100}
+              onChange={(v) => onChange({ effectOffset: v })}
+            />
+          )}
+          {has('direction') && (
+            <SliderField
+              label="Direction"
+              value={layer.effectDirection ?? EFFECT_DEFAULTS.effectDirection}
+              min={0}
+              max={360}
+              onChange={(v) => onChange({ effectDirection: v })}
+            />
+          )}
+          {has('blur') && (
+            <SliderField
+              label="Blur"
+              value={layer.effectBlur ?? EFFECT_DEFAULTS.effectBlur}
+              min={0}
+              max={100}
+              onChange={(v) => onChange({ effectBlur: v })}
+            />
+          )}
+          {has('color') && (
+            <ColorField
+              label="Effect color"
+              value={layer.effectColor ?? EFFECT_DEFAULTS.effectColor}
+              onChange={(v) => onChange({ effectColor: v })}
+            />
+          )}
+        </div>
+      )
+    }
     case 'shadow':
       return (
         <div className="space-y-4">
@@ -2342,3 +2432,15 @@ function LiquidPanel({
   )
 }
 
+
+
+/** Tiny "Ag" swatch used in the effect picker. */
+function effectPreviewStyle(key: TextEffectKey) {
+  return (
+    textEffectStyle({
+      effect: key,
+      color: 'currentColor',
+      effectColor: key === 'neon' ? '#22d3ee' : '#000000',
+    }) ?? {}
+  )
+}
