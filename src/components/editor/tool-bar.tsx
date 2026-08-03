@@ -149,7 +149,7 @@ interface ToolBarProps {
   /** Opens freehand doodle drawing mode on the main canvas. */
   onDraw?: () => void
   onImageTool?: (
-    tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg',
+    tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg' | 'remove',
   ) => void
   autoOpenTool?: ToolKey | null
   onAutoOpenHandled?: () => void
@@ -163,6 +163,7 @@ const IMAGE_TOOLS = [
   { key: 'filter', label: 'Filters', icon: Wand2 },
   { key: 'adjust', label: 'Adjust', icon: SlidersHorizontal },
   { key: 'removebg', label: 'Remove BG', icon: Scissors },
+  { key: 'remove', label: 'Remover', icon: Eraser },
   { key: 'resize', label: 'Resize', icon: Maximize },
   { key: 'flip', label: 'Flip', icon: FlipHorizontal },
   { key: 'fit', label: 'Fit', icon: Square },
@@ -360,7 +361,8 @@ export function ToolBar({
                         | 'blur'
                         | 'adjust'
                         | 'filter'
-                        | 'removebg',
+                        | 'removebg'
+                        | 'remove',
                     )
               }
               className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium tracking-tight text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
