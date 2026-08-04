@@ -558,7 +558,7 @@ export function DoodleBar({
       <div className="flex items-center gap-1 rounded-2xl border border-border p-1">
         <button
           type="button"
-          onClick={() => setMenu('draw')}
+          onClick={() => { setMenu('draw'); onBrush({ shape: 'free' }) }}
           className={cn(menuTab, menu === 'draw' ? 'bg-primary text-primary-foreground' : 'text-foreground/70')}
         >
           <Pen className="size-4" />
@@ -566,7 +566,7 @@ export function DoodleBar({
         </button>
         <button
           type="button"
-          onClick={() => setMenu('mark')}
+          onClick={() => { setMenu('mark'); if (brush.shape === 'free') onBrush({ shape: 'line' }) }}
           className={cn(menuTab, menu === 'mark' ? 'bg-primary text-primary-foreground' : 'text-foreground/70')}
         >
           <ArrowUpRight className="size-4" />
