@@ -25,6 +25,7 @@ import {
 import { SliderField } from './control-fields'
 import { ColorPickerPopover } from './color-picker'
 import { cn } from '@/lib/utils'
+import { PanelMoveHandle, usePanelDrag } from './panel-drag'
 
 export type PenKind = 'pen' | 'marker' | 'neon' | 'dashed' | 'spray' | 'calligraphy' | 'eraser'
 
@@ -509,6 +510,7 @@ export function DoodleBar({
   onCancel,
   onApply,
 }: DoodleBarProps) {
+  const panel = usePanelDrag()
   const iconBtn =
     'flex size-10 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
 
@@ -516,17 +518,20 @@ export function DoodleBar({
   return (
     <div
       className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[62vh] space-y-2 overflow-y-auto perf-scroll px-4 pb-4 pt-2"
-      style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+      style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', ...panel.style }}
     >
       <div className="flex items-center justify-between gap-2">
-        <button
-          type="button"
-          className="flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-medium text-foreground/80 transition active:scale-95"
-          onClick={onCancel}
-        >
-          <X className="size-4" />
-          Cancel
-        </button>
+        <div className="flex items-center gap-1">
+          <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
+          <button
+            type="button"
+            className="flex items-center gap-1 rounded-xl px-2 py-2 text-sm font-medium text-foreground/80 transition active:scale-95"
+            onClick={onCancel}
+          >
+            <X className="size-4" />
+            Cancel
+          </button>
+        </div>
         <div className="flex items-center gap-1">
           <button
             type="button"

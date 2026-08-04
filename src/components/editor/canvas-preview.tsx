@@ -14,6 +14,8 @@ import {
 } from 'lucide-react'
 import { LayerText, layerTextStyle, layerTransform, chromeTransform } from './text-layer-view'
 import type { TextLayer } from '@/lib/text-layer'
+import type { Mark } from '@/lib/marks'
+import { MarksSvg } from './mark-layer'
 import { pulseInteraction, rafThrottle } from '@/lib/perf'
 
 interface CanvasPreviewProps {
@@ -27,6 +29,13 @@ interface CanvasPreviewProps {
   eraseMask?: string
   /** Flattened freehand drawing rendered above the image and layers. */
   doodle?: string
+  /** Vector markup objects rendered above the image and layers. */
+  marks?: Mark[]
+  /**
+   * Layers that existed when the erase mask was painted. Only these are masked
+   * so anything added afterwards sits on top of the erased area.
+   */
+  maskedIds?: string[]
   /** Extra content rendered inside the image box, e.g. the erase brush surface. */
   overlay?: ReactNode
   onSelect: (id: string | null) => void
@@ -52,6 +61,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       showGrid = false,
       eraseMask,
       doodle,
+      marks,
+      maskedIds,
       overlay,
       onSelect,
       onMove,
@@ -90,6 +101,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     const [guides, setGuides] = useState<{ v: number | null; h: number | null }>({ v: null, h: null })
     const editorRef = useRef<HTMLTextAreaElement | null>(null)
     const [frame, setFrame] = useState({ w: 0, h: 0 })
+
+    // With no explicit list every layer is masked (legacy behaviour).
+    const isMasked = (id: string) => (maskedIds ? maskedIds.includes(id) : true)
 
     const maskStyle: CSSProperties | undefined = eraseMask
       ? {
@@ -1061,8 +1075,13 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             />
           )}
 
-          <div className={`absolute inset-0 ${exporting ? 'overflow-hidden' : 'overflow-visible'}`} style={maskStyle}>
-          {layers.filter((l) => !l.hidden).map((layer) => {
+          {([true, false] as const).map((masked) => (
+          <div
+            key={masked ? 'masked' : 'fresh'}
+            className={`absolute inset-0 ${exporting ? 'overflow-hidden' : 'overflow-visible'}`}
+            style={masked ? maskStyle : undefined}
+          >
+          {layers.filter((l) => !l.hidden && isMasked(l.id) === masked).map((layer) => {
             const isEditing = editingId === layer.id && !exporting
             const inv = 1 / view.scale
             // Promote the layer being manipulated to its own GPU texture so
@@ -1146,6 +1165,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             )
           })}
           </div>
+          ))}
 
           {!exporting &&
             selectedId &&
@@ -1154,6 +1174,12 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
               const sel = layers.find((l) => l.id === selectedId && !l.hidden)
               return sel ? <div className="absolute inset-0">{renderChrome(sel)}</div> : null
             })()}
+
+          {marks && marks.length > 0 && (
+            <div className="pointer-events-none absolute inset-0 z-20">
+              <MarksSvg marks={marks} aspect={aspectRatio} />
+            </div>
+          )}
 
           {doodle && (
             <img

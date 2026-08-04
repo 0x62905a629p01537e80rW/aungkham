@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PanelMoveHandle, usePanelDrag } from './panel-drag'
 
 interface BottomSheetProps {
   open: boolean
@@ -10,6 +11,8 @@ interface BottomSheetProps {
 }
 
 export function BottomSheet({ open, title, onClose, children }: BottomSheetProps) {
+  const panel = usePanelDrag()
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
@@ -38,6 +41,7 @@ export function BottomSheet({ open, title, onClose, children }: BottomSheetProps
           open ? 'translate-y-0' : 'translate-y-full',
         )}
         style={{
+          ...(open ? panel.style : {}),
           paddingBottom: 'env(safe-area-inset-bottom)',
           backgroundColor: 'color-mix(in oklab, var(--card) 55%, transparent)',
           backdropFilter: 'blur(24px) saturate(180%)',
@@ -45,7 +49,10 @@ export function BottomSheet({ open, title, onClose, children }: BottomSheetProps
       >
         <div className="relative flex items-center justify-between border-b border-white/10 px-5 pb-3 pt-4">
           <div className="absolute left-1/2 top-1.5 h-1 w-10 -translate-x-1/2 rounded-full bg-foreground/30" />
-          <h2 className="text-base font-semibold">{title}</h2>
+          <div className="flex items-center gap-2">
+            <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
+            <h2 className="text-base font-semibold">{title}</h2>
+          </div>
           <button
             type="button"
             onClick={onClose}

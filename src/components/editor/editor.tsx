@@ -41,6 +41,9 @@ import {
   type DoodleBrush,
   type DoodleControls,
 } from './doodle-overlay'
+import { MarkBar } from './mark-bar'
+import { MarkOverlay, type MarkTool } from './mark-layer'
+import { DEFAULT_MARK, type Mark, type MarkStyle } from '@/lib/marks'
 import { useI18n } from '@/components/i18n'
 import { ensureGoogleFontsLoaded } from '@/lib/google-fonts'
 import { ensureRemoteFontsLoaded } from '@/lib/remote-fonts'
@@ -92,7 +95,16 @@ export function Editor() {
   const [eraseHistory, setEraseHistory] = useState({ canUndo: false, canRedo: false })
   const eraseControls = useRef<EraseControls | null>(null)
   const [doodling, setDoodling] = useState(false)
-  const [markMode, setMarkMode] = useState(false)
+  const [marking, setMarking] = useState(false)
+  const [marks, setMarks] = useState<Mark[]>([])
+  const [markStyle, setMarkStyle] = useState<MarkStyle>(DEFAULT_MARK)
+  const [markTool, setMarkTool] = useState<MarkTool>('draw')
+  const [selectedMark, setSelectedMark] = useState<string | null>(null)
+  const markPast = useRef<Mark[][]>([])
+  const markFuture = useRef<Mark[][]>([])
+  const [markHistory, setMarkHistory] = useState({ canUndo: false, canRedo: false })
+  /** Layers the current erase mask applies to (anything newer stays on top). */
+  const [maskedIds, setMaskedIds] = useState<string[]>([])
   const [doodle, setDoodle] = useState<string | undefined>(undefined)
   const [draftDoodle, setDraftDoodle] = useState<string | undefined>(undefined)
   const [pen, setPen] = useState<DoodleBrush>(DEFAULT_DOODLE)
@@ -303,8 +315,33 @@ export function Editor() {
   }
 
 
+  function commitMarks() {
+    markPast.current = [...markPast.current.slice(-24), marks]
+    markFuture.current = []
+    setMarkHistory({ canUndo: true, canRedo: false })
+  }
+
+  function undoMarks() {
+    const prev = markPast.current.pop()
+    if (!prev) return
+    markFuture.current.push(marks)
+    setMarks(prev)
+    setSelectedMark(null)
+    setMarkHistory({ canUndo: markPast.current.length > 0, canRedo: true })
+  }
+
+  function redoMarks() {
+    const next = markFuture.current.pop()
+    if (!next) return
+    markPast.current.push(marks)
+    setMarks(next)
+    setSelectedMark(null)
+    setMarkHistory({ canUndo: true, canRedo: markFuture.current.length > 0 })
+  }
+
   function clearErase() {
     setErasing(false)
+    setMaskedIds([])
     setEraseMask(undefined)
     setDraftMask(undefined)
     setEraseBypass(false)
@@ -690,6 +727,8 @@ export function Editor() {
                   }
                 }}
                 eraseMask={erasing ? (eraseBypass ? undefined : draftMask) : eraseMask}
+                maskedIds={maskedIds}
+                marks={marks}
                 doodle={doodling ? undefined : doodle}
                 overlay={
                   erasing ? (
@@ -699,6 +738,17 @@ export function Editor() {
                       onChange={setDraftMask}
                       controlsRef={eraseControls}
                       onHistory={setEraseHistory}
+                    />
+                  ) : marking ? (
+                    <MarkOverlay
+                      marks={marks}
+                      aspect={naturalSize ? naturalSize.w / naturalSize.h : 16 / 9}
+                      style={markStyle}
+                      tool={markTool}
+                      selectedId={selectedMark}
+                      onSelect={setSelectedMark}
+                      onChange={setMarks}
+                      onCommit={commitMarks}
                     />
                   ) : doodling ? (
                     <DoodleOverlay
@@ -712,7 +762,7 @@ export function Editor() {
                     />
                   ) : undefined
                 }
-                selectedId={erasing || doodling ? null : selectedId}
+                selectedId={erasing || doodling || marking ? null : selectedId}
                 onSelect={setSelectedId}
                 onMove={(id, x, y) => updateLayer(id, { x, y })}
                 onResize={(id, fontSize) => updateLayer(id, { fontSize })}
@@ -727,7 +777,41 @@ export function Editor() {
           </main>
 
 
-          {erasing ? (
+          {marking ? (
+            <MarkBar
+              style={markStyle}
+              onStyle={(patch) => {
+                setMarkStyle((v) => ({ ...v, ...patch }))
+                if (selectedMark) {
+                  commitMarks()
+                  setMarks((prev) =>
+                    prev.map((m) => (m.id === selectedMark ? { ...m, ...patch } : m)),
+                  )
+                }
+              }}
+              tool={markTool}
+              onTool={setMarkTool}
+              hasSelection={!!selectedMark}
+              canUndo={markHistory.canUndo}
+              canRedo={markHistory.canRedo}
+              onUndo={undoMarks}
+              onRedo={redoMarks}
+              onDeleteSelected={() => {
+                if (!selectedMark) return
+                commitMarks()
+                setMarks((prev) => prev.filter((m) => m.id !== selectedMark))
+                setSelectedMark(null)
+              }}
+              onCancel={() => {
+                setSelectedMark(null)
+                setMarking(false)
+              }}
+              onApply={() => {
+                setSelectedMark(null)
+                setMarking(false)
+              }}
+            />
+          ) : erasing ? (
             <EraseBar
               brush={brush}
               onBrush={(patch) => setBrush((b) => ({ ...b, ...patch }))}
@@ -744,6 +828,9 @@ export function Editor() {
               }}
               onApply={() => {
                 setEraseMask(draftMask)
+                // Only the layers that exist right now are erased; anything
+                // added later renders above the erased area.
+                setMaskedIds(layers.map((l) => l.id))
                 setDraftMask(undefined)
                 setErasing(false)
               }}
@@ -753,7 +840,7 @@ export function Editor() {
               <ShowToolsButton onShow={() => setToolsHidden(false)} />
             ) : (
             <DoodleBar
-              mode={markMode ? 'mark' : 'draw'}
+              mode="draw"
               brush={pen}
               onBrush={(patch) => setPen((b) => ({ ...b, ...patch }))}
               panMode={panMode}
@@ -819,18 +906,14 @@ export function Editor() {
               setDraftDoodle(doodle)
               setToolsHidden(false)
               setPanMode(false)
-              setMarkMode(false)
               setPen((b) => ({ ...b, shape: 'free' }))
               setDoodling(true)
             }}
             onMark={() => {
               setSelectedId(null)
-              setDraftDoodle(doodle)
-              setToolsHidden(false)
-              setPanMode(false)
-              setMarkMode(true)
-              setPen((b) => ({ ...b, shape: b.shape === 'free' ? 'arrow' : b.shape }))
-              setDoodling(true)
+              setMarkTool('draw')
+              setSelectedMark(null)
+              setMarking(true)
             }}
           />
           )}
@@ -930,6 +1013,8 @@ export function Editor() {
             layers={batch?.layers ?? layers}
             size={batch?.size ?? naturalSize}
             eraseMask={eraseMask}
+            maskedIds={maskedIds}
+            marks={marks}
             doodle={doodle}
           />
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, type MutableRefObject, type PointerEvent } from 'rea
 import { Brush, Check, Eraser, Eye, Redo2, RotateCcw, Undo2, X } from 'lucide-react'
 import { SliderField } from './control-fields'
 import { cn } from '@/lib/utils'
+import { PanelMoveHandle, usePanelDrag } from './panel-drag'
 
 export interface EraseBrush {
   size: number
@@ -243,23 +244,27 @@ export function EraseBar({
   onCancel,
   onApply,
 }: EraseBarProps) {
+  const panel = usePanelDrag()
   const iconBtn =
     'flex size-10 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
 
   return (
     <div
       className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[55vh] space-y-2 overflow-y-auto perf-scroll px-4 pb-4 pt-2"
-      style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+      style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', ...panel.style }}
     >
       <div className="flex items-center justify-between gap-2">
-        <button
-          type="button"
-          className="flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-medium text-foreground/80 transition active:scale-95"
-          onClick={onCancel}
-        >
-          <X className="size-4" />
-          Cancel
-        </button>
+        <div className="flex items-center gap-1">
+          <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
+          <button
+            type="button"
+            className="flex items-center gap-1 rounded-xl px-2 py-2 text-sm font-medium text-foreground/80 transition active:scale-95"
+            onClick={onCancel}
+          >
+            <X className="size-4" />
+            Cancel
+          </button>
+        </div>
         <div className="flex items-center gap-1">
           <button type="button" aria-label="Undo" disabled={!canUndo} className={iconBtn} onClick={onUndo}>
             <Undo2 className="size-5" />
