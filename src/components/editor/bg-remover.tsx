@@ -5,6 +5,7 @@ import {
   Brush,
   Check,
   Eraser,
+  Eye,
   HelpCircle,
   Maximize2,
   Redo2,
@@ -40,6 +41,15 @@ interface BgRemoverProps {
   title?: string
   onClose: () => void
   onApply: (dataUrl: string) => void
+}
+
+const TOOL_HINTS: Record<Tool, string> = {
+  auto: 'Removes the background touching the edges. Raise tolerance if some background stays.',
+  color: 'Tap a color on the photo to erase it everywhere.',
+  magic: 'Tap an area to erase the connected pixels around it.',
+  manual: 'Paint over anything you still want to remove.',
+  repair: 'Paint to bring back parts that were erased by mistake.',
+  zoom: 'Pinch or drag to inspect the cut-out edges closely.',
 }
 
 const MAX_DIM = 1600
