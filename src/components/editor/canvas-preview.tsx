@@ -757,6 +757,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
       return (
         <div
+          data-chrome
           style={{
             position: 'absolute',
             left: `${layer.x}%`,
@@ -769,8 +770,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             touchAction: 'none',
             outlineWidth: `${1 * inv}px`,
             outlineOffset: `${5 * inv}px`,
+            ...handleVars(layer, inv),
           }}
           className="outline-solid outline-foreground/60"
+
           onPointerDown={(e) => handlePointerDown(e, layer.id)}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
