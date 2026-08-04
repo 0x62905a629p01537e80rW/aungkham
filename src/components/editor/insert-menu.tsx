@@ -137,26 +137,6 @@ export function InsertMenu({ open, onClose, onInsert, initialTab, onFreeForm }: 
           </div>
         )}
 
-        {tab === 'shapes' && source === 'all' && onFreeForm && (
-          <button
-            type="button"
-            onClick={() => {
-              onClose()
-              onFreeForm()
-            }}
-            className="mt-1 flex w-full items-center gap-3 rounded-2xl border border-dashed border-primary/50 bg-primary/10 px-4 py-3 text-left transition active:scale-[0.99]"
-          >
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
-              <PenTool className="size-4" />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-[13px] font-bold text-foreground">Free form shape</span>
-              <span className="block text-[11px] text-muted-foreground">
-                Draw your own shape and drop it on the canvas
-              </span>
-            </span>
-          </button>
-        )}
 
         {tab === 'shapes' && source === 'all' && (
           <div className="grid grid-cols-5 gap-2 pt-1">
