@@ -14,6 +14,22 @@ import {
   Trash2,
   Gem,
   LayoutGrid,
+  Scissors,
+  Pencil,
+  PenTool,
+  SlidersHorizontal,
+  Wand2,
+  Maximize2,
+  Sparkles,
+  Download,
+  Droplets,
+  Box,
+  Grid2x2,
+  Layers,
+  MoveDiagonal,
+  Highlighter,
+  Eraser,
+  Stars,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'
@@ -62,6 +78,8 @@ const FEATURED = UPLOADED_TEMPLATES
   const [projects, setProjects] = useState<SavedProject[]>([])
   const [storeTab, setStoreTab] = useState<'templates' | 'fonts'>('fonts')
   const pendingAction = useRef<QuickAction | null>(null)
+  const solidRef = useRef<HTMLDivElement>(null)
+  const gradientRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setProjects(loadProjects())
@@ -87,13 +105,16 @@ const FEATURED = UPLOADED_TEMPLATES
     galleryRef.current?.click()
   }
 
+  /** Smoothly scroll the home page down to one of its sections. */
+  function scrollToSection(ref: { current: HTMLDivElement | null }) {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   const TOOLS: { id: string; label: string; icon: typeof BackgroundIcon; run: () => void }[] = [
-    { id: 'gallery', label: 'Gallery', icon: ImageIcon, run: () => galleryRef.current?.click() },
-    { id: 'templates', label: t('home.tab.templates'), icon: LayoutTemplate, run: () => setTab('templates') },
     { id: 'fonts', label: 'Fonts', icon: Type, run: () => setTab('fonts') },
     { id: 'store', label: 'Store', icon: Store, run: () => { setStoreTab('fonts'); setTab('store') } },
-    { id: 'solid', label: t('home.solidColors'), icon: Palette, run: () => setPicker('solid') },
-    { id: 'gradient', label: t('home.gradients'), icon: Blend, run: () => setPicker('gradient') },
+    { id: 'solid', label: t('home.solidColors'), icon: Palette, run: () => scrollToSection(solidRef) },
+    { id: 'gradient', label: t('home.gradients'), icon: Blend, run: () => scrollToSection(gradientRef) },
     { id: 'camera', label: t('home.takePhoto') ?? 'Camera', icon: Camera, run: () => cameraRef.current?.click() },
     { id: 'projects', label: t('home.tab.projects'), icon: FolderOpen, run: () => setTab('projects') },
     {
@@ -104,6 +125,25 @@ const FEATURED = UPLOADED_TEMPLATES
     },
     { id: 'more', label: 'More', icon: LayoutGrid, run: () => setTab('more') },
   ]
+
+  const ACTION_ICONS: Record<string, typeof BackgroundIcon> = {
+    removebg: Scissors,
+    draw: Pencil,
+    freeform: PenTool,
+    filter: Wand2,
+    adjust: SlidersHorizontal,
+    upscale: Maximize2,
+    sharpen: Sparkles,
+    hdexport: Download,
+    liquid: Droplets,
+    depth3d: Box,
+    texture: Grid2x2,
+    blend: Layers,
+    skew: MoveDiagonal,
+    highlight: Highlighter,
+    erase: Eraser,
+    fx: Stars,
+  }
 
   const SUB_TITLES: Record<string, string> = {
     fonts: 'Fonts',
@@ -289,12 +329,12 @@ const FEATURED = UPLOADED_TEMPLATES
             </div>
 
             {/* Colors */}
-            <div className="mt-8 px-4">
+            <div ref={solidRef} className="mt-8 scroll-mt-3 px-4">
               <h2 className="mb-3 text-lg font-bold text-foreground">{t('home.solidColors')}</h2>
               <SolidGrid onPick={(c) => setPendingCss(c)} onCustom={() => setPicker('solid')} />
             </div>
 
-            <div className="mt-6 px-4">
+            <div ref={gradientRef} className="mt-6 scroll-mt-3 px-4">
               <h2 className="mb-3 text-lg font-bold text-foreground">{t('home.gradients')}</h2>
               <GradientGrid
                 onPick={(stops) => setPendingCss(gradientCss(stops))}
@@ -309,38 +349,33 @@ const FEATURED = UPLOADED_TEMPLATES
         )}
 
         {tab === 'more' && (
-          <div className="space-y-5 pb-6">
+          <div className="space-y-7 pb-6">
             {[
               { title: 'Canvas', items: CANVAS_ACTIONS },
               { title: 'Ultra HD', items: ULTRA_ACTIONS },
               { title: 'Text', items: TEXT_ACTIONS },
             ].map(({ title, items }) => (
               <section key={title}>
-                <h3 className="pb-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                <h3 className="pb-3 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
                   {title}
                 </h3>
-                <div className="grid grid-cols-3 gap-2.5">
-                  {items.map((action) => (
-                    <button
-                      key={action.id}
-                      type="button"
-                      onClick={() => startAction(action)}
-                      className="glass-tile flex aspect-[4/3] flex-col items-center justify-center gap-1.5 rounded-2xl px-2 text-center transition active:scale-95"
-                    >
-                      <span className="grid size-8 place-items-center rounded-xl bg-primary/15 text-primary">
-                        {title === 'Text' ? (
-                          <Type className="size-4" />
-                        ) : title === 'Ultra HD' ? (
-                          <Gem className="size-4" />
-                        ) : (
-                          <ImageIcon className="size-4" />
-                        )}
-                      </span>
-                      <span className="text-[11px] font-semibold leading-tight text-foreground">
-                        {action.label}
-                      </span>
-                    </button>
-                  ))}
+                <div className="grid grid-cols-4 gap-y-6">
+                  {items.map((action) => {
+                    const Icon = ACTION_ICONS[action.id] ?? ImageIcon
+                    return (
+                      <button
+                        key={action.id}
+                        type="button"
+                        onClick={() => startAction(action)}
+                        className="flex flex-col items-center gap-2 transition active:scale-95"
+                      >
+                        <Icon className="size-6 text-foreground" strokeWidth={1.6} />
+                        <span className="w-full px-0.5 text-center text-[11px] font-medium leading-tight text-muted-foreground">
+                          {action.label}
+                        </span>
+                      </button>
+                    )
+                  })}
                 </div>
               </section>
             ))}
