@@ -1307,27 +1307,38 @@ function BlurStage({
   amount,
   mode,
   focus,
+  band,
   onFocus,
+  onBand,
   compact,
+  comparing,
 }: {
   src: string
   amount: number
-  mode: 'whole' | 'focus'
+  mode: 'whole' | 'focus' | 'linear'
   focus: { x: number; y: number; r: number }
+  band: { y: number; r: number; angle: number }
   onFocus: (f: { x: number; y: number }) => void
+  onBand: (b: { y: number }) => void
   compact?: boolean
+  comparing?: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
   function move(e: React.PointerEvent) {
-    if (mode !== 'focus' || e.buttons === 0) return
+    if (mode === 'whole' || e.buttons === 0) return
     const box = ref.current?.getBoundingClientRect()
     if (!box) return
-    onFocus({
-      x: Math.min(1, Math.max(0, (e.clientX - box.left) / box.width)),
-      y: Math.min(1, Math.max(0, (e.clientY - box.top) / box.height)),
-    })
+    const x = Math.min(1, Math.max(0, (e.clientX - box.left) / box.width))
+    const y = Math.min(1, Math.max(0, (e.clientY - box.top) / box.height))
+    if (mode === 'focus') onFocus({ x, y })
+    else onBand({ y })
   }
+
+  const sharpMask =
+    mode === 'focus'
+      ? `radial-gradient(circle at ${focus.x * 100}% ${focus.y * 100}%, black ${focus.r * 55}%, transparent ${focus.r * 100}%)`
+      : `linear-gradient(${band.angle + 180}deg, transparent ${(band.y - band.r * 1.6) * 100}%, black ${(band.y - band.r) * 100}%, black ${(band.y + band.r) * 100}%, transparent ${(band.y + band.r * 1.6) * 100}%)`
 
   return (
     <div
@@ -1339,36 +1350,49 @@ function BlurStage({
       <img
         src={src}
         alt="Blur preview"
-        className={cn('max-w-full select-none', compact ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
+        draggable={false}
+        className={cn('max-w-full select-none rounded-xl', compact ? 'max-h-[22dvh]' : 'max-h-[58dvh]')}
         style={{ filter: `blur(${amount / 4}px)` }}
       />
-      {mode === 'focus' && (
+      {mode !== 'whole' && !comparing && (
         <>
           <img
             src={src}
             alt=""
             aria-hidden
-            className="pointer-events-none absolute inset-0 size-full"
-            style={{
-              WebkitMaskImage: `radial-gradient(circle at ${focus.x * 100}% ${focus.y * 100}%, black ${focus.r * 55}%, transparent ${focus.r * 100}%)`,
-              maskImage: `radial-gradient(circle at ${focus.x * 100}% ${focus.y * 100}%, black ${focus.r * 55}%, transparent ${focus.r * 100}%)`,
-            }}
+            draggable={false}
+            className="pointer-events-none absolute inset-0 size-full rounded-xl"
+            style={{ WebkitMaskImage: sharpMask, maskImage: sharpMask }}
           />
-          <div
-            className="pointer-events-none absolute rounded-full border-2 border-white/80"
-            style={{
-              left: `${focus.x * 100}%`,
-              top: `${focus.y * 100}%`,
-              width: `${focus.r * 160}%`,
-              height: `${focus.r * 160}%`,
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
+          {mode === 'focus' ? (
+            <div
+              className="pointer-events-none absolute rounded-full border-2 border-white/85 shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
+              style={{
+                left: `${focus.x * 100}%`,
+                top: `${focus.y * 100}%`,
+                width: `${focus.r * 160}%`,
+                height: `${focus.r * 160}%`,
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+          ) : (
+            <div
+              className="pointer-events-none absolute inset-x-[-20%]"
+              style={{
+                top: `${band.y * 100}%`,
+                transform: `translateY(-50%) rotate(${band.angle}deg)`,
+              }}
+            >
+              <div
+                className="border-y-2 border-white/85"
+                style={{ height: `${band.r * 2 * 100}px` }}
+              />
+            </div>
+          )}
         </>
       )}
       <div className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-[10px] font-medium text-white">
-        {mode === 'focus' ? 'Drag to move focus' : `Blur ${amount}px`}
-        <Aperture className="ml-1 inline size-3" />
+        {comparing ? 'Original' : mode === 'whole' ? `Blur ${amount}px` : 'Drag to place the sharp area'}
       </div>
     </div>
   )
