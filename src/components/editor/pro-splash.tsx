@@ -189,7 +189,7 @@ export function ProSplash() {
           }}
           className="flex h-12 w-full items-center justify-center rounded-xl bg-[#22c3f0] text-sm font-bold text-[#04121a] transition active:scale-[0.98]"
         >
-          Continue
+          Get Pro features
         </button>
 
         <p className="text-center text-[9px] leading-relaxed text-white/40">
