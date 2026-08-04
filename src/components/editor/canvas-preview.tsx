@@ -515,7 +515,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       // stickers and shapes can always be scaled all the way back down.
       const v = centerVector(layer, e.clientX, e.clientY)
       const ratio = (v.x * st.startVec.x + v.y * st.startVec.y) / (st.startDist * st.startDist)
-      const next = Math.max(0.4, Math.min(120, st.startSize * Math.max(0.02, ratio)))
+      const next = Math.max(0.15, Math.min(360, st.startSize * Math.max(0.02, ratio)))
       onResize(st.id, Math.round(next * 2) / 2)
       // Keep the wrap box proportional so scaling doesn't re-flow the lines.
       if (st.startWrap) {

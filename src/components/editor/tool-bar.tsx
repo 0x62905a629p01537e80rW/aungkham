@@ -1412,8 +1412,8 @@ function FormatPanel({
         <SliderField
           label="Size"
           value={layer.fontSize}
-          min={0.5}
-          max={120}
+          min={0.2}
+          max={360}
           step={0.5}
           onChange={(v) => onChange({ fontSize: v })}
           {...drag('size')}
@@ -1428,7 +1428,7 @@ function FormatPanel({
             type="button"
             aria-label="Zoom out"
             className="flex size-9 items-center justify-center rounded-xl border border-border transition active:scale-95"
-            onClick={() => onChange({ fontSize: Math.max(0.5, Math.round((layer.fontSize - 0.5) * 2) / 2) })}
+            onClick={() => onChange({ fontSize: Math.max(0.2, Math.round((layer.fontSize - 0.5) * 2) / 2) })}
           >
             <Minus className="size-4" />
           </button>
@@ -1436,7 +1436,7 @@ function FormatPanel({
             type="button"
             aria-label="Zoom in"
             className="flex size-9 items-center justify-center rounded-xl border border-border transition active:scale-95"
-            onClick={() => onChange({ fontSize: Math.min(120, Math.round((layer.fontSize + 0.5) * 2) / 2) })}
+            onClick={() => onChange({ fontSize: Math.min(360, Math.round((layer.fontSize + 0.5) * 2) / 2) })}
           >
             <Plus className="size-4" />
           </button>
@@ -2509,7 +2509,7 @@ function PositionPanel({
                 type="button"
                 aria-label="Zoom out"
                 className={cn(iconBtn, 'w-9')}
-                onClick={() => { quickPeek(); onChange({ fontSize: Math.max(0.5, Math.round((layer.fontSize - 0.5) * 2) / 2) }) }}
+                onClick={() => { quickPeek(); onChange({ fontSize: Math.max(0.2, Math.round((layer.fontSize - 0.5) * 2) / 2) }) }}
               >
                 <Minus className="size-4" />
               </button>
@@ -2517,7 +2517,7 @@ function PositionPanel({
                 type="button"
                 aria-label="Zoom in"
                 className={cn(iconBtn, 'w-9')}
-                onClick={() => { quickPeek(); onChange({ fontSize: Math.min(120, Math.round((layer.fontSize + 0.5) * 2) / 2) }) }}
+                onClick={() => { quickPeek(); onChange({ fontSize: Math.min(360, Math.round((layer.fontSize + 0.5) * 2) / 2) }) }}
               >
                 <Plus className="size-4" />
               </button>
@@ -2527,8 +2527,8 @@ function PositionPanel({
             <SliderField
               label="Size"
               value={layer.fontSize}
-              min={0.5}
-              max={120}
+              min={0.2}
+              max={360}
               step={0.5}
               onChange={(v) => onChange({ fontSize: v })}
               {...drag('size')}

@@ -310,6 +310,7 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     strike: false,
     widthScale: 100,
     heightScale: 100,
+    aspectLock: true,
     hidden: false,
     locked: false,
     blendMode: 'normal',
