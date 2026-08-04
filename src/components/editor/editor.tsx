@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react'
 
 import { EditorHeader } from './editor-header'
 import { UploadZone } from './upload-zone'
+import type { QuickAction } from '@/lib/quick-actions'
 import { CanvasPreview } from './canvas-preview'
 import { ToolBar } from './tool-bar'
 import { BackgroundEditor, type BgTool } from './background-editor'
@@ -91,7 +92,7 @@ export function Editor() {
   const [preview, setPreview] = useState<string | null>(null)
   const [savedProject, setSavedProject] = useState(false)
   const [rating, setRating] = useState(false)
-  const [autoOpenTool, setAutoOpenTool] = useState<'outline' | null>(null)
+  const [autoOpenTool, setAutoOpenTool] = useState<string | null>(null)
   const [nextRequested, setNextRequested] = useState(false)
   const [erasing, setErasing] = useState(false)
   const [eraseMask, setEraseMask] = useState<string | undefined>(undefined)
@@ -187,7 +188,7 @@ export function Editor() {
 
   const selected = layers.find((l) => l.id === selectedId) ?? null
 
-  const handleImage = useCallback((dataUrl: string) => {
+  const handleImage = useCallback((dataUrl: string, after?: () => void) => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
@@ -200,9 +201,49 @@ export function Editor() {
       setImage(dataUrl)
       setLayers([])
       setSelectedId(null)
+      after?.()
     }
     img.src = dataUrl
   }, [])
+
+  /**
+   * Home-screen shortcut: load the picked photo, then jump straight into the
+   * requested tool. Text shortcuts drop a text layer first so the text-only
+   * tools are reachable.
+   */
+  function runQuickAction(dataUrl: string, action: QuickAction) {
+    handleImage(dataUrl, () => {
+      if (action.kind === 'text') {
+        addLayer()
+        setAutoOpenTool(action.target)
+        return
+      }
+      switch (action.target) {
+        case 'removebg':
+          setRemovingBg(true)
+          break
+        case 'draw':
+          setDraftDoodle(doodle)
+          setPen((b) => ({ ...b, shape: 'free' }))
+          setDoodling(true)
+          break
+        case 'freeform':
+          setFreeForm(true)
+          break
+        case 'filter':
+          setFiltering(true)
+          break
+        case 'adjust':
+          setAdjusting(true)
+          break
+        case 'export':
+          setShowSave(true)
+          break
+        default:
+          setBgTool(action.target as BgTool)
+      }
+    })
+  }
 
   function groupIdsOf(id: string): string[] {
     const target = layers.find((l) => l.id === id)
@@ -733,6 +774,7 @@ export function Editor() {
         <>
           <UploadZone
             onImage={handleImage}
+            onQuickAction={runQuickAction}
             onOpenProject={openProject}
             onStartTemplates={() => setTemplating(true)}
             onApplyTemplate={applyTemplate}
