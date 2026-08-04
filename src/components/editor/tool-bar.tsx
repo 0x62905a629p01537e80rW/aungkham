@@ -3,6 +3,7 @@ import {
   Keyboard,
   Layers,
   Lock,
+  Unlock,
   Star,
   Trash2,
   Upload,
