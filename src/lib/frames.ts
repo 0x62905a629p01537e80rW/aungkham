@@ -296,19 +296,33 @@ function motifUnit(
     }
     case 'kanote': {
       // Burmese kanote: paired flame leaves around a pearl.
+      const leafK = (dir: number) => {
+        ctx.beginPath()
+        ctx.moveTo(step * 0.5, 0)
+        ctx.bezierCurveTo(
+          step * (0.5 + dir * 0.34), size * 0.2,
+          step * (0.5 + dir * 0.4), size * 0.72,
+          step * (0.5 + dir * 0.16), size * 1.08,
+        )
+        ctx.bezierCurveTo(
+          step * (0.5 + dir * 0.14), size * 0.66,
+          step * (0.5 + dir * 0.08), size * 0.34,
+          step * 0.5, 0,
+        )
+        ctx.fill()
+      }
+      leafK(-1)
+      leafK(1)
+      ctx.strokeStyle = color
+      ctx.lineWidth = lw
       ctx.beginPath()
-      ctx.moveTo(step * 0.5, 0)
-      ctx.bezierCurveTo(step * 0.06, size * 0.35, step * 0.12, size * 0.9, step * 0.42, size)
-      ctx.bezierCurveTo(step * 0.38, size * 0.55, step * 0.46, size * 0.3, step * 0.5, 0)
-      ctx.fill()
-      ctx.beginPath()
-      ctx.moveTo(step * 0.5, 0)
-      ctx.bezierCurveTo(step * 0.94, size * 0.35, step * 0.88, size * 0.9, step * 0.58, size)
-      ctx.bezierCurveTo(step * 0.62, size * 0.55, step * 0.54, size * 0.3, step * 0.5, 0)
-      ctx.fill()
+      ctx.moveTo(step * 0.08, size * 0.06)
+      ctx.quadraticCurveTo(step * 0.28, size * 0.42, step * 0.5, size * 0.1)
+      ctx.quadraticCurveTo(step * 0.72, size * 0.42, step * 0.92, size * 0.06)
+      ctx.stroke()
       ctx.fillStyle = accent
       ctx.beginPath()
-      ctx.arc(step * 0.5, size * 0.46, size * 0.13, 0, Math.PI * 2)
+      ctx.arc(step * 0.5, size * 0.5, size * 0.12, 0, Math.PI * 2)
       ctx.fill()
       break
     }
