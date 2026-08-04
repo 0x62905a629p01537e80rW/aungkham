@@ -65,7 +65,6 @@ import {
   Crop,
   Smile,
   Shapes,
-  Highlighter,
   Layers2,
   Pencil,
   Droplet,
@@ -154,8 +153,6 @@ interface ToolBarProps {
   bgImage?: string | null
   /** Opens freehand doodle drawing mode on the main canvas. */
   onDraw?: () => void
-  /** Opens markup (shapes/arrows) mode on the main canvas. */
-  onMark?: () => void
   onImageTool?: (
     tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg' | 'remove',
   ) => void
@@ -271,7 +268,6 @@ export function ToolBar({
   onImageTool,
   bgImage,
   onDraw,
-  onMark,
   autoOpenTool,
   onAutoOpenHandled,
   onEraseAll,
@@ -411,17 +407,6 @@ export function ToolBar({
                 >
                   <Pencil className="size-[16px]" strokeWidth={1.9} />
                   Draw
-                </button>
-              )}
-              {onMark && (
-                <button
-                  type="button"
-                  disabled={!!selected}
-                  onClick={onMark}
-                  className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium tracking-tight text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
-                >
-                  <Highlighter className="size-[16px]" strokeWidth={1.9} />
-                  Mark
                 </button>
               )}
               <span className="mx-1 h-7 w-px shrink-0 bg-border" />

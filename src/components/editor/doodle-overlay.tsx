@@ -481,8 +481,6 @@ const SWATCHES = [
 interface DoodleBarProps {
   brush: DoodleBrush
   onBrush: (patch: Partial<DoodleBrush>) => void
-  /** 'draw' shows pens only, 'mark' shows markup shapes only. */
-  mode?: 'draw' | 'mark'
   panMode: boolean
   onPanMode: (v: boolean) => void
   canUndo: boolean
@@ -498,7 +496,6 @@ interface DoodleBarProps {
 export function DoodleBar({
   brush,
   onBrush,
-  mode = 'draw',
   panMode,
   onPanMode,
   canUndo,
@@ -555,7 +552,6 @@ export function DoodleBar({
         </button>
       </div>
 
-      {mode === 'draw' && (
       <div className="flex items-center gap-1 overflow-x-auto perf-scroll pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {PENS.map(({ kind, label, Icon }) => (
           <button
@@ -575,7 +571,6 @@ export function DoodleBar({
           </button>
         ))}
       </div>
-      )}
 
       <div className="flex items-center gap-1.5 overflow-x-auto perf-scroll pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ColorPickerPopover value={brush.color} onChange={(color) => onBrush({ color })}>
@@ -611,7 +606,6 @@ export function DoodleBar({
         onChange={(v) => onBrush({ opacity: v })}
       />
 
-      {mode === 'mark' && (
       <div className="space-y-1.5">
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           Mark
@@ -636,7 +630,6 @@ export function DoodleBar({
           ))}
         </div>
       </div>
-      )}
 
     </div>
   )
