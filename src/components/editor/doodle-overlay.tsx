@@ -24,7 +24,7 @@ import {
 import { SliderField } from './control-fields'
 import { ColorPickerPopover } from './color-picker'
 import { cn } from '@/lib/utils'
-import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 
 export type PenKind = 'pen' | 'marker' | 'neon' | 'dashed' | 'spray' | 'calligraphy' | 'eraser'
 
@@ -510,18 +510,23 @@ export function DoodleBar({
   onApply,
 }: DoodleBarProps) {
   const panel = usePanelDrag()
+  const collapse = usePanelCollapse()
   const iconBtn =
     'flex size-9 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
 
 
   return (
     <div
-      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[44dvh] space-y-1.5 overflow-y-auto perf-scroll px-3 pb-3 pt-1.5"
+      className={cn(
+        'glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[44dvh] space-y-1.5 overflow-y-auto perf-scroll px-3 pb-3 pt-1.5',
+        collapse.collapsed && '[&>*:not(:first-child)]:hidden',
+      )}
       style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', ...panel.style }}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
+          <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} />
           <PanelCloseButton onClick={onCancel} label="Discard and close" />
         </div>
         <div className="flex items-center gap-1">
