@@ -1351,7 +1351,7 @@ function BlurStage({
         src={src}
         alt="Blur preview"
         draggable={false}
-        className={cn('max-w-full select-none rounded-xl', compact ? 'max-h-[22dvh]' : 'max-h-[58dvh]')}
+        className={cn('max-w-full select-none rounded-xl', compact ? 'max-h-[22dvh]' : 'max-h-[44dvh]')}
         style={{ filter: `blur(${amount / 4}px)` }}
       />
       {mode !== 'whole' && !comparing && (
