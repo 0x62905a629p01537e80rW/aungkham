@@ -480,14 +480,27 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
+    /**
+     * Rect of the actual image box (not the outer container): layer
+     * percentages are relative to this box, so every gesture must measure
+     * against it — otherwise zoom / letterboxing skews the math.
+     */
+    function boxRect() {
+      const el =
+        containerRef.current?.querySelector<HTMLElement>('[data-canvas-box]') ??
+        containerRef.current
+      return el?.getBoundingClientRect() ?? null
+    }
+
     /** Pointer offset from the layer centre, in screen pixels. */
     function centerVector(layer: TextLayer, clientX: number, clientY: number) {
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       if (!rect) return { x: 0, y: 0 }
       const cx = rect.left + (layer.x / 100) * rect.width
       const cy = rect.top + (layer.y / 100) * rect.height
       return { x: clientX - cx, y: clientY - cy }
     }
+
 
     function handleResizeDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
       e.stopPropagation()
