@@ -20,6 +20,7 @@ import { ObjectRemover } from './object-remover'
 import { ExportCanvas } from './export-canvas'
 import { createGraphicLayer, createTextLayer, type GraphicContent, type TextLayer } from '@/lib/text-layer'
 import { InsertMenu } from './insert-menu'
+import { ShapeStudio } from './shape-studio'
 import { TemplatePicker } from './template-picker'
 import { ExportTemplateDialog } from './export-template-dialog'
 import { makeSolidDataUrl } from '@/lib/background'
@@ -83,6 +84,7 @@ export function Editor() {
   const [replacing, setReplacing] = useState(false)
   const [showSave, setShowSave] = useState(false)
   const [inserting, setInserting] = useState(false)
+  const [freeForm, setFreeForm] = useState(false)
   const [insertTab, setInsertTab] = useState<'stickers' | 'shapes' | 'overlay'>('shapes')
   const [templating, setTemplating] = useState(false)
   const [exportingTpl, setExportingTpl] = useState(false)
@@ -1020,7 +1022,18 @@ export function Editor() {
             initialTab={insertTab}
             onClose={() => setInserting(false)}
             onInsert={addGraphic}
+            onFreeForm={() => setFreeForm(true)}
           />
+
+          {freeForm && (
+            <ShapeStudio
+              onCancel={() => setFreeForm(false)}
+              onAdd={(graphic, name) => {
+                setFreeForm(false)
+                addGraphic(graphic, name)
+              }}
+            />
+          )}
 
           <ReplaceBackground
             open={replacing}

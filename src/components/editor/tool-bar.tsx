@@ -189,8 +189,6 @@ type ToolKey =
   | 'text'
   | 'font'
   | 'format'
-  | 'spacing'
-  | 'position'
   | 'align'
   | 'style'
   | 'color'
@@ -239,15 +237,13 @@ const TOOLS: ToolDef[] = [
   { key: 'gradient', label: 'Gradient', icon: Blend, needsLayer: true },
   { key: 'stroke', label: 'Stroke', icon: PenLine, needsLayer: true },
   { key: 'shadow', label: 'Shadow', icon: Sparkles, needsLayer: true },
-  { key: 'align', label: 'Align', icon: AlignCenter, needsLayer: true },
-  { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
+  { key: 'align', label: 'Position', icon: Move, needsLayer: true },
   { key: 'opacity', label: 'Opacity', icon: Droplet, needsLayer: true },
   { key: 'effects', label: 'Style', icon: SwatchBook, needsLayer: true, textOnly: true },
   { key: 'fx', label: 'Effects', icon: Stars, needsLayer: true, textOnly: true },
   { key: 'cropel', label: 'Crop', icon: Crop, needsLayer: true, graphicOnly: true },
   { key: 'cutout', label: 'Remove BG', icon: Scissors, needsLayer: true, imageOnly: true, pro: true },
   { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: false },
-  { key: 'position', label: 'Position', icon: Move, needsLayer: true },
   { key: 'style', label: 'Copy style', icon: Paintbrush, needsLayer: true },
   { key: 'texture', label: 'Texture', icon: Grid2x2, needsLayer: true, pro: true },
   { key: 'blend', label: 'Blend', icon: Layers, needsLayer: true },
@@ -716,25 +712,23 @@ function FontCard({
   return (
     <div
       className={cn(
-        'group relative flex shrink-0 items-center gap-2 overflow-hidden rounded-2xl border pr-1.5 transition',
-        active
-          ? 'border-primary bg-primary/15 shadow-[0_0_0_1px_var(--color-primary)]'
-          : 'border-border/60 bg-foreground/5 hover:bg-foreground/10',
+        'group relative flex shrink-0 items-center gap-2 overflow-hidden border-b border-border/40 pr-1.5 transition last:border-b-0',
+        active ? 'text-primary' : 'text-foreground',
       )}
     >
       <button
         type="button"
         onClick={onSelect}
-        className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-left"
+        className="flex min-w-0 flex-1 items-center gap-3 px-1 py-2 text-left"
       >
         {locked && (
-          <span className="absolute inset-0 z-10 grid place-items-center rounded-2xl bg-background/60 backdrop-blur-[2px]">
+          <span className="absolute inset-0 z-10 grid place-items-center bg-background/60 backdrop-blur-[2px]">
             <Lock className="size-4 text-[var(--primary)]" />
           </span>
         )}
         <span className="min-w-0 flex-1">
           <span
-            className="block overflow-hidden text-ellipsis whitespace-nowrap pb-0.5 text-[19px] text-foreground"
+            className="block overflow-hidden text-ellipsis whitespace-nowrap pb-0.5 text-[19px]"
             style={{ fontFamily: fontFamily(entry.key), lineHeight: entry.myanmar ? 1.9 : 1.3 }}
           >
             {entry.myanmar
@@ -1048,17 +1042,17 @@ function FontPicker({
               f.customId
                 ? () => {
                     removeCustomFont(f.customId!)
-                    if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
+                    if (layer.fontKey === f.key) onChange({ fontKey: 'roboto' })
                   }
                 : f.key.startsWith('gf:')
                   ? () => {
                       void removeGoogleFont(googleFamilyFromKey(f.key) ?? f.label)
-                      if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
+                      if (layer.fontKey === f.key) onChange({ fontKey: 'roboto' })
                     }
                   : f.key.startsWith('rf:')
                     ? () => {
                         void removeRemoteFont(f.key.slice(3))
-                        if (layer.fontKey === f.key) onChange({ fontKey: 'anton' })
+                        if (layer.fontKey === f.key) onChange({ fontKey: 'roboto' })
                       }
                     : undefined
             }
@@ -1521,6 +1515,27 @@ function FormatPanel({
       </div>
 
       <div className={cn(fade, others)}>
+        <SliderField
+          label="Letter spacing"
+          value={layer.letterSpacing}
+          min={-20}
+          max={80}
+          onChange={(v) => onChange({ letterSpacing: v })}
+        />
+      </div>
+
+      <div className={cn(fade, others)}>
+        <SliderField
+          label="Line height"
+          value={layer.lineHeight}
+          min={0.7}
+          max={2.5}
+          step={0.05}
+          onChange={(v) => onChange({ lineHeight: v })}
+        />
+      </div>
+
+      <div className={cn(fade, others)}>
         <ToggleGroup
           type="single"
           value={layer.align}
@@ -1599,27 +1614,6 @@ function ToolContent({
     case 'format':
       return <FormatPanel layer={layer} onChange={onChange} />
 
-    case 'spacing':
-      return (
-        <div className="space-y-4">
-          <ToolHeading>Spacing</ToolHeading>
-          <SliderField
-            label="Letter spacing"
-            value={layer.letterSpacing}
-            min={-20}
-            max={80}
-            onChange={(v) => onChange({ letterSpacing: v })}
-          />
-          <SliderField
-            label="Line height"
-            value={layer.lineHeight}
-            min={0.7}
-            max={2.5}
-            step={0.05}
-            onChange={(v) => onChange({ lineHeight: v })}
-          />
-        </div>
-      )
     case 'color': {
       const currentValue =
         layer.fillType === 'gradient'
@@ -2149,14 +2143,6 @@ function ToolContent({
             onChange={(v) => onChange({ skewY: v })}
           />
         </div>
-      )
-    case 'position':
-      return (
-        <PositionPanel
-          layer={layer}
-          onChange={onChange}
-          onMoveLayer={onMoveLayer}
-        />
       )
     case 'gradient':
       return (

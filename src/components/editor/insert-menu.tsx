@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
-import { ImageIcon, Shapes, Sticker, X } from 'lucide-react'
+import { ImageIcon, PenTool, Shapes, Sticker, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { GlassTabs } from '@/components/ui/glass-tabs'
@@ -18,6 +18,8 @@ interface InsertMenuProps {
   onClose: () => void
   onInsert: (graphic: GraphicContent, name: string) => void
   initialTab?: 'overlay' | 'shapes' | 'stickers'
+  /** opens the full-screen free-form shape designer */
+  onFreeForm?: () => void
 }
 
 type Tab = 'overlay' | 'shapes' | 'stickers'
@@ -28,7 +30,7 @@ const TABS: { key: Tab; label: string; icon: typeof ImageIcon }[] = [
   { key: 'overlay', label: 'Overlays', icon: ImageIcon },
 ]
 
-export function InsertMenu({ open, onClose, onInsert, initialTab }: InsertMenuProps) {
+export function InsertMenu({ open, onClose, onInsert, initialTab, onFreeForm }: InsertMenuProps) {
   const [tab, setTab] = useState<Tab>(initialTab ?? 'shapes')
 
   useEffect(() => {
@@ -162,6 +164,27 @@ export function InsertMenu({ open, onClose, onInsert, initialTab }: InsertMenuPr
               Choose from Library
             </button>
           </div>
+        )}
+
+        {tab === 'shapes' && onFreeForm && (
+          <button
+            type="button"
+            onClick={() => {
+              onClose()
+              onFreeForm()
+            }}
+            className="mt-1 flex w-full items-center gap-3 rounded-2xl border border-dashed border-primary/50 bg-primary/10 px-4 py-3 text-left transition active:scale-[0.99]"
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+              <PenTool className="size-4" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[13px] font-bold text-foreground">Free form shape</span>
+              <span className="block text-[11px] text-muted-foreground">
+                Draw your own shape and drop it on the canvas
+              </span>
+            </span>
+          </button>
         )}
 
         {tab === 'shapes' && (
