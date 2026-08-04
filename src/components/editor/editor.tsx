@@ -22,6 +22,7 @@ import { ExportCanvas } from './export-canvas'
 import { createGraphicLayer, createTextLayer, type GraphicContent, type TextLayer } from '@/lib/text-layer'
 import { InsertMenu } from './insert-menu'
 import { ShapeStudio } from './shape-studio'
+import { UltraHdPage } from './ultra-hd-page'
 import { TemplatePicker } from './template-picker'
 import { ExportTemplateDialog } from './export-template-dialog'
 import { makeSolidDataUrl } from '@/lib/background'
@@ -86,6 +87,7 @@ export function Editor() {
   const [showSave, setShowSave] = useState(false)
   const [inserting, setInserting] = useState(false)
   const [freeForm, setFreeForm] = useState(false)
+  const [ultraSrc, setUltraSrc] = useState<string | null>(null)
   const [insertTab, setInsertTab] = useState<'stickers' | 'shapes' | 'overlay'>('shapes')
   const [templating, setTemplating] = useState(false)
   const [exportingTpl, setExportingTpl] = useState(false)
@@ -774,6 +776,17 @@ export function Editor() {
         layers={layers}
         bg={image}
       />
+
+      {ultraSrc && (
+        <UltraHdPage
+          src={ultraSrc}
+          onClose={() => setUltraSrc(null)}
+          onUseInEditor={(out) => {
+            setUltraSrc(null)
+            handleImage(out)
+          }}
+        />
+      )}
 
       {!image ? (
         <>
