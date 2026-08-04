@@ -416,7 +416,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       if (!st.moved && Math.hypot(dx, dy) < 4) return
       st.moved = true
       markInteracting()
-      const rect = dragRectRef.current ?? containerRef.current?.getBoundingClientRect() ?? null
+      const rect = dragRectRef.current ?? boxRect()
       if (!rect || !rect.width || !rect.height) return
       dragRectRef.current = { width: rect.width, height: rect.height }
 
@@ -480,14 +480,27 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
+    /**
+     * Rect of the actual image box (not the outer container): layer
+     * percentages are relative to this box, so every gesture must measure
+     * against it — otherwise zoom / letterboxing skews the math.
+     */
+    function boxRect() {
+      const el =
+        containerRef.current?.querySelector<HTMLElement>('[data-canvas-box]') ??
+        containerRef.current
+      return el?.getBoundingClientRect() ?? null
+    }
+
     /** Pointer offset from the layer centre, in screen pixels. */
     function centerVector(layer: TextLayer, clientX: number, clientY: number) {
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       if (!rect) return { x: 0, y: 0 }
       const cx = rect.left + (layer.x / 100) * rect.width
       const cy = rect.top + (layer.y / 100) * rect.height
       return { x: clientX - cx, y: clientY - cy }
     }
+
 
     function handleResizeDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
       e.stopPropagation()
@@ -539,7 +552,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     const rotateState = useRef<{ id: string; startAngle: number; startRotation: number } | null>(null)
 
     function pointerAngle(layer: TextLayer, clientX: number, clientY: number) {
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       if (!rect) return 0
       const cx = rect.left + (layer.x / 100) * rect.width
       const cy = rect.top + (layer.y / 100) * rect.height
@@ -604,7 +617,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       let startValue = layer.wrapWidth ?? 0
       if (!startValue) {
         const box = e.currentTarget.parentElement?.getBoundingClientRect()
@@ -616,7 +629,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function handleWrapMove(e: PointerEvent<HTMLButtonElement>) {
       const st = wrapState.current
       if (!st) return
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       const span = rect?.width || 300
       const delta = ((e.clientX - st.start) / span) * 100
       const next = Math.max(5, Math.min(200, st.startValue + delta))
@@ -673,12 +686,13 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const st = stretchState.current
       if (!st) return
       markInteracting()
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       const span = (st.axis === 'x' ? rect?.width : rect?.height) || 300
       const delta = (st.axis === 'x' ? e.clientX : e.clientY) - st.start
-      // Dragging down / right shrinks the axis and keeps going past zero into
-      // negative (mirrored) territory, exactly like the on-canvas box.
-      const next = clampStretch(st.startValue - (delta * 220) / span)
+      // Dragging right / down grows the axis, dragging back past zero mirrors
+      // it — matching how the on-canvas box moves under the finger.
+      const next = clampStretch(st.startValue + (delta * 220) / span)
+
       if (next === st.value) return
       st.value = next
       const live: TextLayer =
