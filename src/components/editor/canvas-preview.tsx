@@ -689,9 +689,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const rect = boxRect()
       const span = (st.axis === 'x' ? rect?.width : rect?.height) || 300
       const delta = (st.axis === 'x' ? e.clientX : e.clientY) - st.start
-      // Dragging down / right shrinks the axis and keeps going past zero into
-      // negative (mirrored) territory, exactly like the on-canvas box.
-      const next = clampStretch(st.startValue - (delta * 220) / span)
+      // Dragging right / down grows the axis, dragging back past zero mirrors
+      // it — matching how the on-canvas box moves under the finger.
+      const next = clampStretch(st.startValue + (delta * 220) / span)
+
       if (next === st.value) return
       st.value = next
       const live: TextLayer =
