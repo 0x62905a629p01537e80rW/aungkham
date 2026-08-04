@@ -623,6 +623,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
+    /**
+     * Stretching writes straight to the DOM while the finger is down: React
+     * only sees the value once on release. That keeps the gesture at display
+     * refresh rate even with heavy text effects on the layer.
+     */
     function handleStretchDown(
       e: PointerEvent<HTMLButtonElement>,
       layer: TextLayer,
@@ -633,14 +638,26 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       e.currentTarget.setPointerCapture(e.pointerId)
       markInteracting()
       const raw = axis === 'x' ? (layer.widthScale ?? 100) : (layer.heightScale ?? 100)
-      const startValue = Math.max(10, Math.min(400, Math.abs(raw)))
+      const startValue = clampStretch(raw)
       stretchState.current = {
         id: layer.id,
+        layer,
         axis,
         start: axis === 'x' ? e.clientX : e.clientY,
         startValue,
+        value: startValue,
+        content: document.querySelector<HTMLElement>(`[data-layer-id="${layer.id}"]`),
+        chrome: document.querySelector<HTMLElement>('[data-chrome]'),
+        hud: document.querySelector<HTMLElement>('[data-stretch-hud]'),
       }
       setStretchHud({ id: layer.id, axis, value: Math.round(startValue) })
+    }
+
+    /** Keeps the value inside ±400% and skips the unusable band around zero. */
+    function clampStretch(v: number) {
+      const n = Math.round(v)
+      const sign = n < 0 ? -1 : 1
+      return sign * Math.max(8, Math.min(400, Math.abs(n) || 100))
     }
 
     function handleStretchMove(e: PointerEvent<HTMLButtonElement>) {
@@ -650,25 +667,37 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const rect = containerRef.current?.getBoundingClientRect()
       const span = (st.axis === 'x' ? rect?.width : rect?.height) || 300
       const delta = (st.axis === 'x' ? e.clientX : e.clientY) - st.start
-      // Dragging down / right decreases the value. Never crosses zero: mirroring
-      // is the job of the flip buttons, and negative scales used to turn the
-      // text inside-out mid-drag.
-      let next = st.startValue - (delta * 140) / span
-      next = Math.max(10, Math.min(400, Math.round(next)))
-      emitStretch(st.id, st.axis, next)
-      setStretchHud({ id: st.id, axis: st.axis, value: next })
+      // Dragging down / right shrinks the axis and keeps going past zero into
+      // negative (mirrored) territory, exactly like the on-canvas box.
+      const next = clampStretch(st.startValue - (delta * 220) / span)
+      if (next === st.value) return
+      st.value = next
+      const live: TextLayer =
+        st.axis === 'x'
+          ? { ...st.layer, widthScale: next }
+          : { ...st.layer, heightScale: next }
+      if (st.content) st.content.style.transform = `${layerTransform(live)} translateZ(0)`
+      if (st.chrome) {
+        st.chrome.style.transform = chromeTransform(live)
+        applyHandleVars(st.chrome, live, 1 / viewRef.current.scale)
+      }
+      if (st.hud) st.hud.textContent = `${st.axis === 'x' ? 'X' : 'Y'}: ${next}%`
     }
 
     function handleStretchUp(e: PointerEvent<HTMLButtonElement>) {
-      emitStretch.flush()
+      const st = stretchState.current
       stretchState.current = null
       setStretchHud(null)
+      if (st) {
+        onChange?.(st.id, st.axis === 'x' ? { widthScale: st.value } : { heightScale: st.value })
+      }
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
       } catch {
         /* ignore */
       }
     }
+
 
 
 
