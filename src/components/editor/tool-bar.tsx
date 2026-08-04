@@ -96,6 +96,7 @@ import {
   TypeOutline,
   WandSparkles,
   Crown,
+  PenTool,
   AlignStartHorizontal,
   AlignCenterHorizontal,
   AlignEndHorizontal,
@@ -162,6 +163,8 @@ interface ToolBarProps {
   onDraw?: () => void
   /** Opens markup (arrows, boxes, highlights) mode on the main canvas. */
   onMark?: () => void
+  /** Opens the full-screen Shape Lab (free-form shape designer). Pro only. */
+  onShapeLab?: () => void
   onImageTool?: (
     tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg' | 'remove',
   ) => void
@@ -275,6 +278,7 @@ export function ToolBar({
   bgImage,
   onDraw,
   onMark,
+  onShapeLab,
   autoOpenTool,
   onAutoOpenHandled,
   onEraseAll,
@@ -426,6 +430,24 @@ export function ToolBar({
                 >
                   <MoveUpRight className="size-[16px]" strokeWidth={1.9} />
                   Mark
+                </button>
+              )}
+              {onShapeLab && (
+                <button
+                  type="button"
+                  disabled={!!selected}
+                  onClick={() => (isPro ? onShapeLab() : setPayOpen(true))}
+                  className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium tracking-tight text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
+                >
+                  <span className="relative">
+                    <PenTool className="size-[16px]" strokeWidth={1.9} />
+                    {!isPro && (
+                      <span className="absolute -right-2 -top-1.5 grid size-3 place-items-center rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] text-[#3a2a05]">
+                        <Crown className="size-2" strokeWidth={3} />
+                      </span>
+                    )}
+                  </span>
+                  Shape Lab
                 </button>
               )}
               <span className="mx-1 h-7 w-px shrink-0 bg-border" />

@@ -33,6 +33,9 @@ import {
   Stars,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
+import { useAuth } from '@/components/auth-provider'
+import { PaymentPage } from './payment-page'
+import { Crown } from 'lucide-react'
 import { ColorPickerFullScreen } from './color-picker'
 import { GradientGrid, SolidGrid } from './color-grids'
 import { AspectPicker } from './aspect-picker'
@@ -71,6 +74,8 @@ export function UploadZone({
 }) {
   const FEATURED = useFloatingTemplates(UPLOADED_TEMPLATES)
   const { t } = useI18n()
+  const { isPro } = useAuth()
+  const [payOpen, setPayOpen] = useState(false)
   const galleryRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState<Tab>('create')
@@ -102,6 +107,10 @@ export function UploadZone({
 
   /** Pick a photo, then land the user directly inside the chosen tool. */
   function startAction(action: QuickAction) {
+    if (action.kind === 'ultrahd' && !isPro) {
+      setPayOpen(true)
+      return
+    }
     if (action.kind === 'ultrahd' && typeof navigator !== 'undefined' && navigator.onLine === false) {
       toast.error('No connection', { description: 'Ultra HD needs an internet connection.' })
       return
@@ -295,7 +304,14 @@ export function UploadZone({
                   onClick={run}
                   className="flex flex-col items-center gap-2 transition active:scale-95"
                 >
-                  <Icon className="size-6 text-foreground" strokeWidth={1.6} />
+                  <span className="relative">
+                    <Icon className="size-6 text-foreground" strokeWidth={1.6} />
+                    {id === 'ultrahd' && !isPro && (
+                      <span className="absolute -right-2 -top-1 grid size-3.5 place-items-center rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] text-[#3a2a05]">
+                        <Crown className="size-2.5" strokeWidth={2.8} />
+                      </span>
+                    )}
+                  </span>
                   <span className="w-full truncate px-0.5 text-center text-[11px] font-medium text-muted-foreground">
                     {label}
                   </span>
@@ -374,7 +390,14 @@ export function UploadZone({
                         onClick={() => startAction(action)}
                         className="flex flex-col items-center gap-2 transition active:scale-95"
                       >
-                        <Icon className="size-6 text-foreground" strokeWidth={1.6} />
+                        <span className="relative">
+                          <Icon className="size-6 text-foreground" strokeWidth={1.6} />
+                          {action.kind === 'ultrahd' && !isPro && (
+                            <span className="absolute -right-2 -top-1 grid size-3.5 place-items-center rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] text-[#3a2a05]">
+                              <Crown className="size-2.5" strokeWidth={2.8} />
+                            </span>
+                          )}
+                        </span>
                         <span className="w-full px-0.5 text-center text-[11px] font-medium leading-tight text-muted-foreground">
                           {action.label}
                         </span>
@@ -495,6 +518,8 @@ export function UploadZone({
           onImage(makeBackgroundDataUrl(css, 1200, ratio))
         }}
       />
+
+      <PaymentPage open={payOpen} onClose={() => setPayOpen(false)} />
     </div>
   )
 }
