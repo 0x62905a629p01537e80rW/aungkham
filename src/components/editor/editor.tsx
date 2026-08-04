@@ -1177,7 +1177,7 @@ export function Editor() {
             <BackgroundEditor
               tool={bgTool}
               image={image}
-              panel={bgTool === 'fit' || bgTool === 'flip' || bgTool === 'blur'}
+              panel={bgTool === 'flip'}
               onCancel={() => setBgTool(null)}
               onApply={applyBackground}
             />
