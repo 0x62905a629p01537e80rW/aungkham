@@ -190,7 +190,7 @@ export function EditorHeader({
                   onSaveProject={onSaveProject}
                   onExportJson={onExportTemplate}
                 />
-              </PopoverContent>
+              </DraggableLayersPanel>
             </Popover>
           </div>
 
