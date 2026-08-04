@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, ArrowRight, Grid3x3, History, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
 import { PremiumBadge } from './premium-badge'
 import { SettingsSheet } from './settings-sheet'
 import { ThemeToggle } from '@/components/theme-provider'
@@ -173,13 +174,7 @@ export function EditorHeader({
                   <Layers className="size-5" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent
-                side="bottom"
-                align="end"
-                sideOffset={10}
-                collisionPadding={12}
-                className="glass-panel max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto perf-scroll rounded-2xl p-0"
-              >
+              <DraggableLayersPanel>
                 <LayersList
                   layers={layers}
                   selectedId={selectedId}
@@ -196,7 +191,7 @@ export function EditorHeader({
                   onSaveProject={onSaveProject}
                   onExportJson={onExportTemplate}
                 />
-              </PopoverContent>
+              </DraggableLayersPanel>
             </Popover>
           </div>
 
@@ -235,3 +230,33 @@ export function EditorHeader({
   )
 }
 
+
+/** Layers popover with the shared move-drag handle + window-style close. */
+function DraggableLayersPanel({ children }: { children: React.ReactNode }) {
+  const panel = usePanelDrag()
+  return (
+    <PopoverContent
+      side="bottom"
+      align="end"
+      sideOffset={10}
+      collisionPadding={12}
+      style={panel.style}
+      className="glass-panel max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto perf-scroll rounded-2xl p-0"
+    >
+      <div className="flex items-center justify-between gap-2 px-2 pt-2">
+        <PanelMoveHandle
+          handleProps={panel.handleProps}
+          moved={panel.moved}
+          onReset={panel.reset}
+          className="size-7"
+        />
+        <PopoverClose asChild>
+          <span>
+            <PanelCloseButton onClick={() => {}} className="size-7" />
+          </span>
+        </PopoverClose>
+      </div>
+      {children}
+    </PopoverContent>
+  )
+}

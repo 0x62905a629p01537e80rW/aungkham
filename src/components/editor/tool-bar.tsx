@@ -124,6 +124,7 @@ import { TEXT_EFFECTS, EFFECT_DEFAULTS, textEffectStyle, type TextEffectKey } fr
 import { PATTERNS, patternImage } from '@/lib/text-patterns'
 import { alignPatch, type AlignMode } from '@/lib/align-layer'
 import { copyLayerStyle, getCopiedStyle } from '@/lib/style-clipboard'
+import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
 import { cn } from '@/lib/utils'
 import { fontSampleText } from '@/lib/font-preview'
 import { rotateImage } from '@/lib/texture-image'
@@ -547,15 +548,7 @@ export function ToolBar({
                   {tool.label}
                 </button>
               </PopoverTrigger>
-              <PopoverContent
-                side="top"
-                align="center"
-                sideOffset={10}
-                collisionPadding={12}
-                onOpenAutoFocus={(e) => e.preventDefault()}
-
-                className="glass-panel w-[min(86vw,296px)] rounded-2xl p-3 transition-[background-color,opacity] duration-200 has-[[data-dragging=true]]:!border-transparent has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-peek=true]]:!border-transparent has-[[data-peek=true]]:!bg-transparent has-[[data-peek=true]]:!shadow-none"
-              >
+              <DraggableToolPanel onClose={() => setOpenTool(null)}>
                 <ToolContent
                   tool={tool.key}
                   layer={selected}
@@ -572,7 +565,7 @@ export function ToolBar({
                   onCloseTool={() => setOpenTool(null)}
                   bgImage={bgImage}
                 />
-              </PopoverContent>
+              </DraggableToolPanel>
             </Popover>
           )
         })}
@@ -2802,5 +2795,42 @@ function effectPreviewStyle(key: TextEffectKey) {
       color: 'currentColor',
       effectColor: key === 'neon' ? '#22d3ee' : '#000000',
     }) ?? {}
+  )
+}
+
+/**
+ * Popover shell for every text tool panel (edit text, font, colors, format,
+ * gradient, ...). Adds the shared move-drag handle + window-style close so the
+ * panel can be pushed aside to reveal the canvas underneath.
+ */
+function DraggableToolPanel({
+  children,
+  onClose,
+}: {
+  children: React.ReactNode
+  onClose: () => void
+}) {
+  const panel = usePanelDrag()
+  return (
+    <PopoverContent
+      side="top"
+      align="center"
+      sideOffset={10}
+      collisionPadding={12}
+      onOpenAutoFocus={(e) => e.preventDefault()}
+      style={panel.style}
+      className="glass-panel w-[min(86vw,296px)] rounded-2xl p-3 transition-[background-color,opacity] duration-200 has-[[data-dragging=true]]:!border-transparent has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-peek=true]]:!border-transparent has-[[data-peek=true]]:!bg-transparent has-[[data-peek=true]]:!shadow-none"
+    >
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <PanelMoveHandle
+          handleProps={panel.handleProps}
+          moved={panel.moved}
+          onReset={panel.reset}
+          className="size-7"
+        />
+        <PanelCloseButton onClick={onClose} className="size-7" />
+      </div>
+      {children}
+    </PopoverContent>
   )
 }
