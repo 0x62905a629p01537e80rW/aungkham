@@ -1,6 +1,8 @@
 import { forwardRef } from 'react'
 import type { CSSProperties } from 'react'
 import type { TextLayer } from '@/lib/text-layer'
+import type { Mark } from '@/lib/marks'
+import { MarksSvg } from './mark-layer'
 import { LayerText, layerTransform } from './text-layer-view'
 
 interface ExportCanvasProps {
@@ -9,10 +11,13 @@ interface ExportCanvasProps {
   size: { w: number; h: number } | null
   eraseMask?: string
   doodle?: string
+  marks?: Mark[]
+  /** Layers the erase mask applies to; others render unmasked on top. */
+  maskedIds?: string[]
 }
 
 export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(function ExportCanvas(
-  { image, layers, size, eraseMask, doodle },
+  { image, layers, size, eraseMask, doodle, marks, maskedIds },
   ref,
 ) {
   const safeSize = size ?? { w: 1, h: 1 }
@@ -65,8 +70,11 @@ export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(functi
           draggable={false}
         />
 
-        <div className="absolute inset-0" style={maskStyle}>
-        {exportLayers.map((layer) => {
+        {([true, false] as const).map((masked) => (
+        <div key={masked ? 'm' : 'f'} className="absolute inset-0" style={masked ? maskStyle : undefined}>
+        {exportLayers
+          .filter((l) => (maskedIds ? maskedIds.includes(l.id) : true) === masked)
+          .map((layer) => {
           const wrapperStyle: CSSProperties = {
             position: 'absolute',
             left: `${layer.x}%`,
@@ -84,6 +92,11 @@ export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(functi
           )
         })}
         </div>
+        ))}
+
+        {marks && marks.length > 0 && (
+          <MarksSvg marks={marks} aspect={safeSize.w / safeSize.h} />
+        )}
 
         {doodle && (
           <img
