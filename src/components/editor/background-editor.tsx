@@ -1376,16 +1376,14 @@ function BlurStage({
               }}
             />
           ) : (
-            <div
-              className="pointer-events-none absolute inset-x-[-20%]"
-              style={{
-                top: `${band.y * 100}%`,
-                transform: `translateY(-50%) rotate(${band.angle}deg)`,
-              }}
-            >
+            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
               <div
-                className="border-y-2 border-white/85"
-                style={{ height: `${band.r * 2 * 100}px` }}
+                className="absolute inset-x-[-25%] border-y-2 border-white/85"
+                style={{
+                  top: `${(band.y - band.r) * 100}%`,
+                  height: `${band.r * 200}%`,
+                  transform: `rotate(${band.angle}deg)`,
+                }}
               />
             </div>
           )}
