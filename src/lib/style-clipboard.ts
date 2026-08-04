@@ -57,12 +57,17 @@ export type LayerStyle = Partial<Pick<TextLayer, (typeof STYLE_KEYS)[number]>>
 let clipboard: LayerStyle | null = null
 const listeners = new Set<() => void>()
 
-export function copyLayerStyle(layer: TextLayer) {
+/** Pulls every look property off a layer without touching the clipboard. */
+export function extractLayerStyle(layer: TextLayer): LayerStyle {
   const out: Record<string, unknown> = {}
   STYLE_KEYS.forEach((k) => {
     if (layer[k] !== undefined) out[k] = layer[k]
   })
-  clipboard = out as LayerStyle
+  return out as LayerStyle
+}
+
+export function copyLayerStyle(layer: TextLayer) {
+  clipboard = extractLayerStyle(layer)
   listeners.forEach((fn) => fn())
 }
 

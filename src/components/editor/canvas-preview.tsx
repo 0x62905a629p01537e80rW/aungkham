@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import {
+  Bookmark,
   CopyPlus,
   WrapText,
   MoveDiagonal2,
@@ -45,6 +46,8 @@ interface CanvasPreviewProps {
   onEditText: (id: string, text: string) => void
   onChange?: (id: string, patch: Partial<TextLayer>) => void
   onDuplicate?: (id: string) => void
+  /** Save this text layer's look into "My styles" (text layers only). */
+  onSaveStyle?: (id: string) => void
   onBringForward?: (id: string) => void
   /** Reports zoom level and the image-space centre of the visible area (%). */
   onViewChange?: (v: { scale: number; cx: number; cy: number }) => void
@@ -71,6 +74,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       onEditText,
       onChange,
       onDuplicate,
+      onSaveStyle,
       onBringForward,
       onViewChange,
     },
@@ -945,6 +949,25 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                     >
                       <CopyPlus className="size-4" strokeWidth={2.25} />
                     </button>
+
+                    {!layer.graphic && onSaveStyle && (
+                    <button
+                      type="button"
+                      aria-label="Save style"
+                      onPointerDown={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onSaveStyle(layer.id)
+                      }}
+                      style={{ left: hx('75%'), top: hy('100%'), transform: hTr(0, 1) }}
+                      className="glass-tile absolute flex size-9 touch-none select-none items-center justify-center rounded-full canvas-handle-icon transition active:scale-90"
+                    >
+                      <Bookmark className="size-4" strokeWidth={2.25} />
+                    </button>
+                    )}
 
                     {!layer.graphic && (
                     <button
