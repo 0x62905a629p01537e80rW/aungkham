@@ -705,6 +705,38 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
 
     /**
+     * Handle geometry is expressed with CSS variables so a live stretch can be
+     * pushed onto the node without a React render. The buttons undo the frame's
+     * scale/mirror exactly, which keeps them perfectly round and upright no
+     * matter how far the layer is stretched.
+     */
+    function applyHandleVars(node: HTMLElement, layer: TextLayer, inv: number) {
+      const wS = (layer.widthScale ?? 100) / 100
+      const hS = (layer.heightScale ?? 100) / 100
+      const sx = layer.flipH !== wS < 0 ? -1 : 1
+      const sy = layer.flipV !== hS < 0 ? -1 : 1
+      node.style.setProperty('--hx', String(sx))
+      node.style.setProperty('--hy', String(sy))
+      node.style.setProperty('--aw', String(Math.max(0.05, Math.abs(wS) || 1)))
+      node.style.setProperty('--ah', String(Math.max(0.05, Math.abs(hS) || 1)))
+      node.style.setProperty('--inv', String(inv))
+      node.style.setProperty('--off', `${22 * inv}px`)
+    }
+
+    const handleVars = (layer: TextLayer, inv: number): CSSProperties => {
+      const wS = (layer.widthScale ?? 100) / 100
+      const hS = (layer.heightScale ?? 100) / 100
+      return {
+        ['--hx' as string]: layer.flipH !== wS < 0 ? -1 : 1,
+        ['--hy' as string]: layer.flipV !== hS < 0 ? -1 : 1,
+        ['--aw' as string]: Math.max(0.05, Math.abs(wS) || 1),
+        ['--ah' as string]: Math.max(0.05, Math.abs(hS) || 1),
+        ['--inv' as string]: inv,
+        ['--off' as string]: `${22 * inv}px`,
+      }
+    }
+
+    /**
      * Selection frame + handles for the active layer. Rendered in an unmasked
      * container so the erase mask never hides the controls.
      */
@@ -713,22 +745,15 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const mirror = (v: number | string) => (v === 0 ? '100%' : v === '100%' ? 0 : v)
       const wS = (layer.widthScale ?? 100) / 100
       const hS = (layer.heightScale ?? 100) / 100
-      const negW = wS < 0
-      const negH = hS < 0
-      const flipX = layer.flipH !== negW
-      const flipY = layer.flipV !== negH
+      const flipX = layer.flipH !== wS < 0
+      const flipY = layer.flipV !== hS < 0
       const hx = (v: number | string) => (flipX ? mirror(v) : v)
       const hy = (v: number | string) => (flipY ? mirror(v) : v)
-      const sx = flipX ? -1 : 1
-      const sy = flipY ? -1 : 1
-      // Clamp the inverse-scale compensation: at extreme stretch values an exact
-      // inverse blew the handle buttons up into huge ellipses.
-      const clamp = (v: number) => Math.max(0.5, Math.min(2, v))
-      const aw = clamp(Math.abs(wS) || 1)
-      const ah = clamp(Math.abs(hS) || 1)
-      const OFF = 22 * inv
+      // Exact inverse of the frame transform, expressed in CSS variables so the
+      // icons stay circular and readable at any stretch value.
       const hTr = (ox: number, oy: number) =>
-        `translate(calc(-50% + ${(ox * sx * OFF) / aw}px), calc(-50% + ${(oy * sy * OFF) / ah}px)) scale(${(inv * sx) / aw}, ${(inv * sy) / ah})`
+        `translate(calc(-50% + ${ox} * var(--hx) * var(--off) / var(--aw)), calc(-50% + ${oy} * var(--hy) * var(--off) / var(--ah))) scale(calc(var(--inv) * var(--hx) / var(--aw)), calc(var(--inv) * var(--hy) / var(--ah)))`
+
 
       return (
         <div
