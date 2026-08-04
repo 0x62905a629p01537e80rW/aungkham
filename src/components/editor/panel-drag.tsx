@@ -1,6 +1,39 @@
 import { useCallback, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { Minus, Move } from 'lucide-react'
+import { ChevronDown, ChevronUp, Minus, Move } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+/** Collapse state for a panel: keeps the header bar, hides the body. */
+export function usePanelCollapse() {
+  const [collapsed, setCollapsed] = useState(false)
+  return { collapsed, toggle: () => setCollapsed((v) => !v), setCollapsed }
+}
+
+/** Chevron button that hides/shows the panel body, sits before the close button. */
+export function PanelHideButton({
+  collapsed,
+  onToggle,
+  className,
+}: {
+  collapsed: boolean
+  onToggle: () => void
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={collapsed ? 'Show panel' : 'Hide panel'}
+      aria-expanded={!collapsed}
+      title={collapsed ? 'Show panel' : 'Hide panel'}
+      className={cn(
+        'flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition active:scale-95',
+        className,
+      )}
+    >
+      {collapsed ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+    </button>
+  )
+}
 
 /**
  * Lets a floating panel (bottom sheet, tool bar, dialog) be dragged out of the
