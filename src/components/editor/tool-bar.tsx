@@ -2499,6 +2499,21 @@ function PositionPanel({
               <FlipVertical className="size-4" /> Flip V
             </button>
           </div>
+          <button
+            type="button"
+            onClick={() => { quickPeek(); onChange({ aspectLock: layer.aspectLock === false }) }}
+            className={cn(
+              fade,
+              others,
+              'flex h-10 w-full items-center justify-center gap-2 rounded-xl border text-xs font-semibold transition active:scale-95',
+              layer.aspectLock !== false
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-border text-foreground/75',
+            )}
+          >
+            {layer.aspectLock !== false ? <Lock className="size-4" /> : <Unlock className="size-4" />}
+            {layer.aspectLock !== false ? 'Aspect ratio locked' : 'Aspect ratio free'}
+          </button>
           <div className={cn(fade, others, 'flex items-center justify-between')}>
             <Label className="text-sm font-medium">Zoom</Label>
             <div className="flex items-center gap-2">
