@@ -429,7 +429,6 @@ export function ToolBar({
                 </button>
               )}
               <span className="mx-1 h-7 w-px shrink-0 bg-border" />
-              {button}
             </Fragment>
           )
         })}
