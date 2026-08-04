@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react'
 import {
   deleteSavedStyle,
   listSavedStyles,
+  serverSavedStyles,
   subscribeSavedStyles,
   type SavedStyle,
 } from '@/lib/saved-styles'
@@ -12,8 +13,9 @@ import { FONTS } from '@/lib/text-layer'
 import { textEffectStyle } from '@/lib/text-effects'
 
 function useSavedStyles(): SavedStyle[] {
-  return useSyncExternalStore(subscribeSavedStyles, listSavedStyles, () => [])
+  return useSyncExternalStore(subscribeSavedStyles, listSavedStyles, serverSavedStyles)
 }
+
 
 function tileStyle(s: LayerStyle) {
   const font = FONTS.find((f) => f.key === s.fontKey)
