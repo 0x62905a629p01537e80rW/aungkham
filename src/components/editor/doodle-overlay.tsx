@@ -481,6 +481,8 @@ const SWATCHES = [
 interface DoodleBarProps {
   brush: DoodleBrush
   onBrush: (patch: Partial<DoodleBrush>) => void
+  /** 'draw' shows pens only, 'mark' shows markup shapes only. */
+  mode?: 'draw' | 'mark'
   panMode: boolean
   onPanMode: (v: boolean) => void
   canUndo: boolean
