@@ -80,9 +80,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       id: string
       pointerId: number
       startDist: number
+      startVec: { x: number; y: number }
       startWrap?: number
       startSize: number
     } | null>(null)
+
     const lastTapRef = useRef<{ id: string; time: number } | null>(null)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [guides, setGuides] = useState<{ v: number | null; h: number | null }>({ v: null, h: null })
