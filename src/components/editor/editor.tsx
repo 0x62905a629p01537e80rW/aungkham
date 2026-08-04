@@ -92,6 +92,7 @@ export function Editor() {
   const [eraseHistory, setEraseHistory] = useState({ canUndo: false, canRedo: false })
   const eraseControls = useRef<EraseControls | null>(null)
   const [doodling, setDoodling] = useState(false)
+  const [doodleMode, setDoodleMode] = useState<'draw' | 'mark'>('draw')
   const [doodle, setDoodle] = useState<string | undefined>(undefined)
   const [draftDoodle, setDraftDoodle] = useState<string | undefined>(undefined)
   const [pen, setPen] = useState<DoodleBrush>(DEFAULT_DOODLE)
