@@ -480,22 +480,25 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
-    function centerDistance(layer: TextLayer, clientX: number, clientY: number) {
+    /** Pointer offset from the layer centre, in screen pixels. */
+    function centerVector(layer: TextLayer, clientX: number, clientY: number) {
       const rect = containerRef.current?.getBoundingClientRect()
-      if (!rect) return 0
+      if (!rect) return { x: 0, y: 0 }
       const cx = rect.left + (layer.x / 100) * rect.width
       const cy = rect.top + (layer.y / 100) * rect.height
-      return Math.hypot(clientX - cx, clientY - cy)
+      return { x: clientX - cx, y: clientY - cy }
     }
 
     function handleResizeDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
+      const v = centerVector(layer, e.clientX, e.clientY)
       resizeState.current = {
         id: layer.id,
         pointerId: e.pointerId,
-        startDist: centerDistance(layer, e.clientX, e.clientY) || 1,
+        startDist: Math.hypot(v.x, v.y) || 1,
+        startVec: v,
         startSize: layer.fontSize,
         startWrap: layer.wrapWidth,
       }
@@ -507,9 +510,12 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       markInteracting()
       const layer = layers.find((l) => l.id === st.id)
       if (!layer) return
-      const dist = centerDistance(layer, e.clientX, e.clientY)
-      const ratio = dist / st.startDist
-      const next = Math.max(0.5, Math.min(120, st.startSize * ratio))
+      // Project onto the grab direction instead of using raw distance: dragging
+      // through the centre keeps shrinking (raw distance would grow again), so
+      // stickers and shapes can always be scaled all the way back down.
+      const v = centerVector(layer, e.clientX, e.clientY)
+      const ratio = (v.x * st.startVec.x + v.y * st.startVec.y) / (st.startDist * st.startDist)
+      const next = Math.max(0.4, Math.min(120, st.startSize * Math.max(0.02, ratio)))
       onResize(st.id, Math.round(next * 2) / 2)
       // Keep the wrap box proportional so scaling doesn't re-flow the lines.
       if (st.startWrap) {
@@ -519,6 +525,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         })
       }
     }
+
 
     function handleResizeUp(e: PointerEvent<HTMLButtonElement>) {
       resizeState.current = null
