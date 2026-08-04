@@ -21,13 +21,25 @@ import { cn } from '@/lib/utils'
 
 export type PenKind = 'pen' | 'marker' | 'neon' | 'dashed' | 'spray' | 'calligraphy' | 'eraser'
 
+/** Markup shapes drawn by dragging (Samsung-style screenshot markup). */
+export type MarkShape =
+  | 'free'
+  | 'line'
+  | 'wave'
+  | 'dashed'
+  | 'arrow'
+  | 'rect'
+  | 'rectFill'
+  | 'ellipse'
+  | 'ellipseFill'
+
 export interface DoodleBrush {
   kind: PenKind
   color: string
   size: number
   opacity: number
-  /** Draw perfectly straight lines from press point to release point. */
-  straight: boolean
+  /** Markup shape; 'free' keeps freehand drawing. */
+  shape: MarkShape
 }
 
 export interface DoodleControls {
@@ -41,8 +53,9 @@ export const DEFAULT_DOODLE: DoodleBrush = {
   color: '#ff2d55',
   size: 12,
   opacity: 100,
-  straight: false,
+  shape: 'free',
 }
+
 
 const MAX_DIM = 1800
 
