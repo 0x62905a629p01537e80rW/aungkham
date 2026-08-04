@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import {
   ArrowLeft,
@@ -101,6 +102,10 @@ const FEATURED = UPLOADED_TEMPLATES
 
   /** Pick a photo, then land the user directly inside the chosen tool. */
   function startAction(action: QuickAction) {
+    if (action.kind === 'ultrahd' && typeof navigator !== 'undefined' && navigator.onLine === false) {
+      toast.error('No connection', { description: 'Ultra HD needs an internet connection.' })
+      return
+    }
     pendingAction.current = action
     galleryRef.current?.click()
   }
