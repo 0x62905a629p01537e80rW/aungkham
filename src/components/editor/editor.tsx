@@ -392,22 +392,62 @@ export function Editor() {
   const lastSnap = useRef<Snapshot>({ image: null, layers: [], naturalSize: null })
   const [historyTick, setHistoryTick] = useState(0)
 
+  /**
+   * Signature of the last recorded edit. Repeating the *same* kind of edit
+   * (e.g. tapping "nudge left" three times, or dragging a slider) coalesces
+   * into a single history step instead of one step per tick.
+   */
+  const lastEdit = useRef<{ sig: string; at: number } | null>(null)
+  const COALESCE_MS = 2500
+
+  /** Describes what changed so identical follow-up edits can be merged. */
+  function editSignature(prev: Snapshot, next: Snapshot): string | null {
+    if (prev.image !== next.image || prev.naturalSize !== next.naturalSize) return null
+    const prevIds = prev.layers.map((l) => l.id).join(',')
+    const nextIds = next.layers.map((l) => l.id).join(',')
+    // Adding, deleting or reordering layers is always its own history step.
+    if (prevIds !== nextIds) return null
+    const parts: string[] = []
+    next.layers.forEach((layer, i) => {
+      const before = prev.layers[i]
+      if (!before || before === layer) return
+      const keys = Object.keys({ ...before, ...layer }).filter(
+        (k) => (before as Record<string, unknown>)[k] !== (layer as Record<string, unknown>)[k],
+      )
+      if (keys.length) parts.push(`${layer.id}:${keys.sort().join('|')}`)
+    })
+    return parts.length ? parts.join(';') : null
+  }
+
   useEffect(() => {
     if (skipHistory.current) {
       skipHistory.current = false
       lastSnap.current = { image, layers, naturalSize }
+      lastEdit.current = null
       return
     }
     const prev = lastSnap.current
     if (prev.image === image && prev.layers === layers && prev.naturalSize === naturalSize) return
-    past.current = [...past.current, prev].slice(-50)
+    const next: Snapshot = { image, layers, naturalSize }
+    const sig = editSignature(prev, next)
+    const now = Date.now()
+    const merge =
+      sig !== null &&
+      lastEdit.current !== null &&
+      lastEdit.current.sig === sig &&
+      now - lastEdit.current.at < COALESCE_MS &&
+      past.current.length > 0
+
+    if (!merge) past.current = [...past.current, prev].slice(-50)
+    lastEdit.current = sig === null ? null : { sig, at: now }
     future.current = []
-    lastSnap.current = { image, layers, naturalSize }
+    lastSnap.current = next
     setHistoryTick((t) => t + 1)
   }, [image, layers, naturalSize])
 
   function applySnapshot(snap: Snapshot) {
     skipHistory.current = true
+    lastEdit.current = null
     setImage(snap.image)
     setLayers(snap.layers)
     setNaturalSize(snap.naturalSize)
