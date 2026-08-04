@@ -412,7 +412,9 @@ export function Editor() {
       const before = prev.layers[i]
       if (!before || before === layer) return
       const keys = Object.keys({ ...before, ...layer }).filter(
-        (k) => (before as Record<string, unknown>)[k] !== (layer as Record<string, unknown>)[k],
+        (k) =>
+          (before as unknown as Record<string, unknown>)[k] !==
+          (layer as unknown as Record<string, unknown>)[k],
       )
       if (keys.length) parts.push(`${layer.id}:${keys.sort().join('|')}`)
     })
