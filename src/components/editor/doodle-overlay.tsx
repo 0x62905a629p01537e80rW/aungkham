@@ -498,6 +498,7 @@ interface DoodleBarProps {
 export function DoodleBar({
   brush,
   onBrush,
+  mode = 'draw',
   panMode,
   onPanMode,
   canUndo,
