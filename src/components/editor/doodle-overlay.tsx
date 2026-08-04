@@ -555,6 +555,7 @@ export function DoodleBar({
         </button>
       </div>
 
+      {mode === 'draw' && (
       <div className="flex items-center gap-1 overflow-x-auto perf-scroll pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {PENS.map(({ kind, label, Icon }) => (
           <button
@@ -574,6 +575,7 @@ export function DoodleBar({
           </button>
         ))}
       </div>
+      )}
 
       <div className="flex items-center gap-1.5 overflow-x-auto perf-scroll pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ColorPickerPopover value={brush.color} onChange={(color) => onBrush({ color })}>
