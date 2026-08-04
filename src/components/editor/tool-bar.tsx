@@ -165,7 +165,7 @@ interface ToolBarProps {
   onImageTool?: (
     tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg' | 'remove',
   ) => void
-  autoOpenTool?: ToolKey | null
+  autoOpenTool?: ToolKey | (string & {}) | null
   onAutoOpenHandled?: () => void
   /** Opens brush-erase mode directly on the main canvas (all layers at once). */
   onEraseAll: () => void
@@ -312,7 +312,7 @@ export function ToolBar({
   useEffect(() => {
     if (!autoOpenTool) return
     if (autoOpenRef.current === autoOpenTool) return
-    const key = autoOpenTool
+    const key = autoOpenTool as ToolKey
     autoOpenRef.current = key
 
     let tries = 0
