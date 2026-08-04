@@ -14,6 +14,22 @@ import {
   Trash2,
   Gem,
   LayoutGrid,
+  Scissors,
+  Pencil,
+  PenTool,
+  SlidersHorizontal,
+  Wand2,
+  Maximize2,
+  Sparkles,
+  Download,
+  Droplets,
+  Box,
+  Grid2x2,
+  Layers,
+  MoveDiagonal,
+  Highlighter,
+  Eraser,
+  Stars,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'
@@ -109,6 +125,25 @@ const FEATURED = UPLOADED_TEMPLATES
     },
     { id: 'more', label: 'More', icon: LayoutGrid, run: () => setTab('more') },
   ]
+
+  const ACTION_ICONS: Record<string, typeof BackgroundIcon> = {
+    removebg: Scissors,
+    draw: Pencil,
+    freeform: PenTool,
+    filter: Wand2,
+    adjust: SlidersHorizontal,
+    upscale: Maximize2,
+    sharpen: Sparkles,
+    hdexport: Download,
+    liquid: Droplets,
+    depth3d: Box,
+    texture: Grid2x2,
+    blend: Layers,
+    skew: MoveDiagonal,
+    highlight: Highlighter,
+    erase: Eraser,
+    fx: Stars,
+  }
 
   const SUB_TITLES: Record<string, string> = {
     fonts: 'Fonts',
