@@ -65,6 +65,7 @@ import {
   Crop,
   Smile,
   Shapes,
+  Highlighter,
   Layers2,
   Pencil,
   Droplet,
@@ -153,6 +154,8 @@ interface ToolBarProps {
   bgImage?: string | null
   /** Opens freehand doodle drawing mode on the main canvas. */
   onDraw?: () => void
+  /** Opens markup (shapes/arrows) mode on the main canvas. */
+  onMark?: () => void
   onImageTool?: (
     tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg' | 'remove',
   ) => void
@@ -268,6 +271,7 @@ export function ToolBar({
   onImageTool,
   bgImage,
   onDraw,
+  onMark,
   autoOpenTool,
   onAutoOpenHandled,
   onEraseAll,
