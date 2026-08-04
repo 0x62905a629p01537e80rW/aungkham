@@ -362,7 +362,7 @@ export function DoodleOverlay({
     e.currentTarget.setPointerCapture(e.pointerId)
     const canvas = canvasRef.current
     const ctx = ctxOf()
-    if (brushRef.current.straight && canvas && ctx) {
+    if (brushRef.current.shape !== 'free' && canvas && ctx) {
       snapshot.current = ctx.getImageData(0, 0, canvas.width, canvas.height)
     } else {
       snapshot.current = null
