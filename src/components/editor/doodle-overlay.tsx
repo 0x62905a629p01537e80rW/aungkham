@@ -1,20 +1,27 @@
 import { useEffect, useRef, type MutableRefObject, type PointerEvent } from 'react'
 import {
+  ArrowUpRight,
   Check,
+  Circle,
   Eraser,
   Hand,
   Highlighter,
   Minus,
+  MoreHorizontal,
   Pen,
   PenLine,
   Redo2,
   RotateCcw,
+  Scribble,
   SlidersHorizontal,
   Sparkles,
   SprayCan,
+  Square,
   Undo2,
+  Waves,
   X,
 } from 'lucide-react'
+
 import { SliderField } from './control-fields'
 import { ColorPickerPopover } from './color-picker'
 import { cn } from '@/lib/utils'
