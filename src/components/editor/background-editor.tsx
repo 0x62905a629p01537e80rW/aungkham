@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Aperture,
   Check,
+  Circle as CircleIcon,
+  Eye,
+  Rows3,
   ChevronDown,
   Crop as CropIcon,
   FlipHorizontal,
@@ -887,23 +890,62 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
 
         {tool === 'blur' && (
           <div className="space-y-4">
-            <div className={cn('flex gap-2', dimWhenDragging)}>
-              {(['whole', 'focus'] as const).map((m) => (
+            {/* Mode — big tappable cards, one job each */}
+            <div className={cn('grid grid-cols-3 gap-2', dimWhenDragging)}>
+              {([
+                { key: 'whole', label: 'Full', icon: Aperture, hint: 'Blur everything' },
+                { key: 'focus', label: 'Radial', icon: CircleIcon, hint: 'Keep a circle sharp' },
+                { key: 'linear', label: 'Tilt', icon: Rows3, hint: 'Keep a band sharp' },
+              ] as const).map((m) => (
                 <button
-                  key={m}
+                  key={m.key}
                   type="button"
-                  onClick={() => setBlurMode(m)}
+                  onClick={() => setBlurMode(m.key)}
                   className={cn(
-                    'flex-1 rounded-full border px-4 py-2 text-xs font-semibold transition active:scale-95',
-                    blurMode === m
+                    'flex flex-col items-center gap-1 rounded-2xl border px-2 py-3 transition active:scale-95',
+                    blurMode === m.key
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border text-muted-foreground',
+                  )}
+                >
+                  <m.icon className="size-5" />
+                  <span className="text-[11px] font-semibold">{m.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <p className="text-center text-[10px] text-muted-foreground">
+              {blurMode === 'whole'
+                ? 'The whole photo is softened evenly.'
+                : blurMode === 'focus'
+                  ? 'Drag on the photo to move the sharp circle.'
+                  : 'Drag on the photo to move the sharp band.'}
+            </p>
+
+            {/* Strength presets */}
+            <div className={cn('flex gap-2', dimWhenDragging)}>
+              {[
+                { label: 'Soft', v: 6 },
+                { label: 'Medium', v: 14 },
+                { label: 'Strong', v: 26 },
+                { label: 'Max', v: 40 },
+              ].map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() => setBlurAmount(p.v)}
+                  className={cn(
+                    'flex-1 rounded-full border px-2 py-2 text-[11px] font-semibold transition active:scale-95',
+                    blurAmount === p.v
                       ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-border text-foreground/80',
                   )}
                 >
-                  {m === 'whole' ? 'Whole image' : 'Focus point'}
+                  {p.label}
                 </button>
               ))}
             </div>
+
             <div className={dimUnlessActive('Blur amount')}>
               <SliderField {...sliderDrag('Blur amount')}
                 label="Blur amount"
@@ -914,6 +956,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
                 onChange={setBlurAmount}
               />
             </div>
+
             {blurMode === 'focus' && (
               <div className={dimUnlessActive('Focus size')}>
                 <SliderField {...sliderDrag('Focus size')}
@@ -926,6 +969,61 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
                 />
               </div>
             )}
+
+            {blurMode === 'linear' && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className={dimUnlessActive('Band width')}>
+                  <SliderField {...sliderDrag('Band width')}
+                    label="Band width"
+                    value={band.r}
+                    min={0.05}
+                    max={0.5}
+                    step={0.01}
+                    onChange={(v) => setBand((p) => ({ ...p, r: v }))}
+                  />
+                </div>
+                <div className={dimUnlessActive('Tilt')}>
+                  <SliderField {...sliderDrag('Tilt')}
+                    label="Tilt"
+                    value={band.angle}
+                    min={-45}
+                    max={45}
+                    step={1}
+                    onChange={(v) => setBand((p) => ({ ...p, angle: v }))}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Compare + reset */}
+            <div className={cn('flex gap-2', dimWhenDragging)}>
+              <button
+                type="button"
+                onPointerDown={() => setCompare(true)}
+                onPointerUp={() => setCompare(false)}
+                onPointerLeave={() => setCompare(false)}
+                onPointerCancel={() => setCompare(false)}
+                className={cn(
+                  'flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-xs font-semibold transition active:scale-95',
+                  compare ? 'border-primary bg-primary/10 text-primary' : 'border-border text-foreground/80',
+                )}
+              >
+                <Eye className="size-4" />
+                Hold to compare
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setBlurAmount(12)
+                  setFocus({ x: 0.5, y: 0.5, r: 0.35 })
+                  setBand({ y: 0.5, r: 0.18, angle: 0 })
+                }}
+                className="flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-xs font-semibold text-foreground/80 transition active:scale-95"
+              >
+                <RotateCcw className="size-4" />
+                Reset
+              </button>
+            </div>
           </div>
         )}
         </div>
