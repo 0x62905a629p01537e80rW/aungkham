@@ -2,7 +2,7 @@ import { useEffect, useRef, type MutableRefObject, type PointerEvent } from 'rea
 import { Brush, Check, Eraser, Eye, Redo2, RotateCcw, Undo2, X } from 'lucide-react'
 import { SliderField } from './control-fields'
 import { cn } from '@/lib/utils'
-import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 
 export interface EraseBrush {
   size: number
@@ -254,12 +254,14 @@ export function EraseBar({
       className={cn(
         'glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[44dvh] space-y-1.5 overflow-y-auto perf-scroll px-3 pb-3 pt-1.5',
         collapse.collapsed && '[&>*:not(:first-child)]:hidden',
+        collapse.fullClass,
       )}
       style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', ...panel.style }}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
+          <PanelFullscreenButton full={collapse.full} onToggle={collapse.toggleFull} />
           <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} />
           <PanelCloseButton onClick={onCancel} label="Discard and close" />
         </div>
