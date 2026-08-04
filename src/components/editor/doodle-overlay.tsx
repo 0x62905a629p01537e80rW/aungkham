@@ -450,6 +450,19 @@ const PENS: { kind: PenKind; label: string; Icon: typeof Pen }[] = [
   { kind: 'eraser', label: 'Eraser', Icon: Eraser },
 ]
 
+const SHAPES: { shape: MarkShape; label: string; Icon: typeof Pen }[] = [
+  { shape: 'free', label: 'Freehand', Icon: Signature },
+  { shape: 'line', label: 'Straight line', Icon: Minus },
+  { shape: 'wave', label: 'Wavy line', Icon: Waves },
+  { shape: 'dashed', label: 'Dashed line', Icon: MoreHorizontal },
+  { shape: 'arrow', label: 'Arrow', Icon: ArrowUpRight },
+  { shape: 'rect', label: 'Rectangle', Icon: Square },
+  { shape: 'rectFill', label: 'Filled box', Icon: Square },
+  { shape: 'ellipse', label: 'Circle', Icon: Circle },
+  { shape: 'ellipseFill', label: 'Filled circle', Icon: Circle },
+]
+
+
 const SWATCHES = [
   '#ffffff',
   '#000000',
