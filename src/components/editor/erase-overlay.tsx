@@ -279,21 +279,23 @@ export function EraseBar({
         </button>
       </div>
 
-      <SliderField label="Size" value={brush.size} min={2} max={100} onChange={(v) => onBrush({ size: v })} />
-      <SliderField
-        label="Opacity"
-        value={brush.opacity}
-        min={5}
-        max={100}
-        onChange={(v) => onBrush({ opacity: v })}
-      />
-      <SliderField
-        label="Hardness"
-        value={brush.hardness}
-        min={0}
-        max={100}
-        onChange={(v) => onBrush({ hardness: v })}
-      />
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+        <SliderField label="Size" value={brush.size} min={2} max={100} onChange={(v) => onBrush({ size: v })} />
+        <SliderField
+          label="Opacity"
+          value={brush.opacity}
+          min={5}
+          max={100}
+          onChange={(v) => onBrush({ opacity: v })}
+        />
+        <SliderField
+          label="Hardness"
+          value={brush.hardness}
+          min={0}
+          max={100}
+          onChange={(v) => onBrush({ hardness: v })}
+        />
+      </div>
 
       <div className="flex items-center gap-2 pt-0.5">
         <button

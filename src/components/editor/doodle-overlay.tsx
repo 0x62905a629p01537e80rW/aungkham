@@ -622,14 +622,16 @@ export function DoodleBar({
         ))}
       </div>
 
-      <SliderField label="Size" value={brush.size} min={1} max={80} onChange={(v) => onBrush({ size: v })} />
-      <SliderField
-        label="Opacity"
-        value={brush.opacity}
-        min={5}
-        max={100}
-        onChange={(v) => onBrush({ opacity: v })}
-      />
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+        <SliderField label="Size" value={brush.size} min={1} max={80} onChange={(v) => onBrush({ size: v })} />
+        <SliderField
+          label="Opacity"
+          value={brush.opacity}
+          min={5}
+          max={100}
+          onChange={(v) => onBrush({ opacity: v })}
+        />
+      </div>
 
     </div>
   )

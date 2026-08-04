@@ -181,14 +181,16 @@ export function MarkBar({
         ))}
       </div>
 
-      <SliderField label="Size" value={style.size} min={1} max={80} onChange={(v) => onStyle({ size: v })} />
-      <SliderField
-        label="Opacity"
-        value={style.opacity}
-        min={5}
-        max={100}
-        onChange={(v) => onStyle({ opacity: v })}
-      />
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+        <SliderField label="Size" value={style.size} min={1} max={80} onChange={(v) => onStyle({ size: v })} />
+        <SliderField
+          label="Opacity"
+          value={style.opacity}
+          min={5}
+          max={100}
+          onChange={(v) => onStyle({ opacity: v })}
+        />
+      </div>
     </div>
   )
 }
