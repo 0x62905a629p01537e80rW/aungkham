@@ -58,7 +58,11 @@ const key = (v: string) => v.trim().toLowerCase()
  * jsDelivr branch ref can serve a cached copy for hours after an upload.
  */
 async function fetchMeta(kind: StoreKind, file: string): Promise<Response | null> {
-  const urls = [`${rawBase(folder(kind))}/${file}`, `${await base(kind)}/${file}`]
+  const urls = [
+    `${pagesBase(folder(kind))}/${encPath(file)}`,
+    `${rawBase(folder(kind))}/${encPath(file)}`,
+    `${await base(kind)}/${encPath(file)}`,
+  ]
   for (const url of urls) {
     try {
       const res = await cdnFetch(bust(url), noStore)
