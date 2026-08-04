@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
-import { ImageIcon, PenTool, Shapes, Sticker, X } from 'lucide-react'
+import { ImageIcon, Shapes, Sticker, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { GlassTabs } from '@/components/ui/glass-tabs'
@@ -14,8 +14,6 @@ interface InsertMenuProps {
   onClose: () => void
   onInsert: (graphic: GraphicContent, name: string) => void
   initialTab?: 'overlay' | 'shapes' | 'stickers'
-  /** opens the full-screen free-form shape designer */
-  onFreeForm?: () => void
 }
 
 type Tab = 'overlay' | 'shapes' | 'stickers'
@@ -26,7 +24,7 @@ const TABS: { key: Tab; label: string; icon: typeof ImageIcon }[] = [
   { key: 'overlay', label: 'Overlays', icon: ImageIcon },
 ]
 
-export function InsertMenu({ open, onClose, onInsert, initialTab, onFreeForm }: InsertMenuProps) {
+export function InsertMenu({ open, onClose, onInsert, initialTab }: InsertMenuProps) {
   const [tab, setTab] = useState<Tab>(initialTab ?? 'shapes')
 
   useEffect(() => {
