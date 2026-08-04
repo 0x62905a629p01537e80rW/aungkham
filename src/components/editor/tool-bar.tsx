@@ -83,6 +83,7 @@ import {
   Sparkles,
   SlidersHorizontal,
   Wand2,
+  SwatchBook,
   Square,
   Sun,
   Eraser,
