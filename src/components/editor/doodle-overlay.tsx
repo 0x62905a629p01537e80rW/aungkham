@@ -379,7 +379,7 @@ export function DoodleOverlay({
       const ctx = ctxOf()
       if (!ctx || !start.current) return
       ctx.putImageData(snapshot.current, 0, 0)
-      drawSegment(start.current, p)
+      drawShape(start.current, p)
       return
     }
     if (last.current) drawSegment(last.current, p)
