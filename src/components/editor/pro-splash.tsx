@@ -5,10 +5,11 @@ import { usePricing } from '@/lib/pricing'
 import { PaymentPage } from './payment-page'
 import { TemplateThumb } from './template-picker'
 import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
+import { useFloatingTemplates } from '@/lib/floating-templates'
 
 const SEEN_KEY = 'pro-splash-seen'
 
-const TILES = UPLOADED_TEMPLATES.slice(0, 12)
+const OFFLINE_TILES = UPLOADED_TEMPLATES
 
 const BENEFITS = [
   'Premium templates — Burmese & English designs',
@@ -48,6 +49,7 @@ export function ProSplash() {
   const [askLogin, setAskLogin] = useState(false)
   const { isPro, signIn, user } = useAuth()
   const pricing = usePricing(open)
+  const TILES = useFloatingTemplates(OFFLINE_TILES).slice(0, 12)
 
   async function handleRestore() {
     setRestoring(true)

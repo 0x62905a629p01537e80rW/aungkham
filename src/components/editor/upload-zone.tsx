@@ -42,6 +42,7 @@ import { TemplateGallery, TemplateThumb } from './template-picker'
 import { StorePanel } from './store-panel'
 import { DownloadFontsSheet } from './download-fonts-sheet'
 import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
+import { useFloatingTemplates } from '@/lib/floating-templates'
 import type { TextLayer } from '@/lib/text-layer'
 
 import { gradientCss, makeBackgroundDataUrl } from '@/lib/background'
@@ -68,8 +69,7 @@ export function UploadZone({
   onStartTemplates?: () => void
   onApplyTemplate?: (layers: TextLayer[], bg?: string) => void
 }) {
-const FEATURED = UPLOADED_TEMPLATES
-
+  const FEATURED = useFloatingTemplates(UPLOADED_TEMPLATES)
   const { t } = useI18n()
   const galleryRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
