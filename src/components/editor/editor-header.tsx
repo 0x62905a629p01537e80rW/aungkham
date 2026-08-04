@@ -173,13 +173,7 @@ export function EditorHeader({
                   <Layers className="size-5" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent
-                side="bottom"
-                align="end"
-                sideOffset={10}
-                collisionPadding={12}
-                className="glass-panel max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto perf-scroll rounded-2xl p-0"
-              >
+              <DraggableLayersPanel>
                 <LayersList
                   layers={layers}
                   selectedId={selectedId}
