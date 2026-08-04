@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Aperture,
   Check,
+  Circle as CircleIcon,
+  Eye,
+  Rows3,
   ChevronDown,
   Crop as CropIcon,
   FlipHorizontal,
@@ -26,6 +29,7 @@ import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import {
   blurImage,
+  blurLinear,
   blurOutside,
   cropImage,
   drawRatioFit,
@@ -222,8 +226,10 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   const [framePreview, setFramePreview] = useState<string | null>(null)
 
   // blur
-  const [blurMode, setBlurMode] = useState<'whole' | 'focus'>('whole')
+  const [blurMode, setBlurMode] = useState<'whole' | 'focus' | 'linear'>('whole')
   const [blurAmount, setBlurAmount] = useState(12)
+  const [band, setBand] = useState({ y: 0.5, r: 0.18, angle: 0 })
+  const [compare, setCompare] = useState(false)
   const [focus, setFocus] = useState({ x: 0.5, y: 0.5, r: 0.3 })
 
   useEffect(() => {
@@ -312,7 +318,9 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
         out =
           blurMode === 'whole'
             ? await blurImage(working, blurAmount)
-            : await blurOutside(working, blurAmount, focus)
+            : blurMode === 'linear'
+              ? await blurLinear(working, blurAmount, band)
+              : await blurOutside(working, blurAmount, focus)
       onApply(out)
     } finally {
       setBusy(false)
@@ -408,11 +416,14 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
         ) : tool === 'blur' ? (
           <BlurStage
             src={working}
-            amount={blurAmount}
+            amount={compare ? 0 : blurAmount}
             mode={blurMode}
             focus={focus}
+            band={band}
             compact={panel}
+            comparing={compare}
             onFocus={(f) => setFocus((p) => ({ ...p, ...f }))}
+            onBand={(b) => setBand((p) => ({ ...p, ...b }))}
           />
         ) : tool === 'fit' ? (
           <div
@@ -879,23 +890,62 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
 
         {tool === 'blur' && (
           <div className="space-y-4">
-            <div className={cn('flex gap-2', dimWhenDragging)}>
-              {(['whole', 'focus'] as const).map((m) => (
+            {/* Mode — big tappable cards, one job each */}
+            <div className={cn('grid grid-cols-3 gap-2', dimWhenDragging)}>
+              {([
+                { key: 'whole', label: 'Full', icon: Aperture, hint: 'Blur everything' },
+                { key: 'focus', label: 'Radial', icon: CircleIcon, hint: 'Keep a circle sharp' },
+                { key: 'linear', label: 'Tilt', icon: Rows3, hint: 'Keep a band sharp' },
+              ] as const).map((m) => (
                 <button
-                  key={m}
+                  key={m.key}
                   type="button"
-                  onClick={() => setBlurMode(m)}
+                  onClick={() => setBlurMode(m.key)}
                   className={cn(
-                    'flex-1 rounded-full border px-4 py-2 text-xs font-semibold transition active:scale-95',
-                    blurMode === m
+                    'flex flex-col items-center gap-1 rounded-2xl border px-2 py-3 transition active:scale-95',
+                    blurMode === m.key
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border text-muted-foreground',
+                  )}
+                >
+                  <m.icon className="size-5" />
+                  <span className="text-[11px] font-semibold">{m.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <p className="text-center text-[10px] text-muted-foreground">
+              {blurMode === 'whole'
+                ? 'The whole photo is softened evenly.'
+                : blurMode === 'focus'
+                  ? 'Drag on the photo to move the sharp circle.'
+                  : 'Drag on the photo to move the sharp band.'}
+            </p>
+
+            {/* Strength presets */}
+            <div className={cn('flex gap-2', dimWhenDragging)}>
+              {[
+                { label: 'Soft', v: 6 },
+                { label: 'Medium', v: 14 },
+                { label: 'Strong', v: 26 },
+                { label: 'Max', v: 40 },
+              ].map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() => setBlurAmount(p.v)}
+                  className={cn(
+                    'flex-1 rounded-full border px-2 py-2 text-[11px] font-semibold transition active:scale-95',
+                    blurAmount === p.v
                       ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-border text-foreground/80',
                   )}
                 >
-                  {m === 'whole' ? 'Whole image' : 'Focus point'}
+                  {p.label}
                 </button>
               ))}
             </div>
+
             <div className={dimUnlessActive('Blur amount')}>
               <SliderField {...sliderDrag('Blur amount')}
                 label="Blur amount"
@@ -906,6 +956,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
                 onChange={setBlurAmount}
               />
             </div>
+
             {blurMode === 'focus' && (
               <div className={dimUnlessActive('Focus size')}>
                 <SliderField {...sliderDrag('Focus size')}
@@ -918,6 +969,61 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
                 />
               </div>
             )}
+
+            {blurMode === 'linear' && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className={dimUnlessActive('Band width')}>
+                  <SliderField {...sliderDrag('Band width')}
+                    label="Band width"
+                    value={band.r}
+                    min={0.05}
+                    max={0.5}
+                    step={0.01}
+                    onChange={(v) => setBand((p) => ({ ...p, r: v }))}
+                  />
+                </div>
+                <div className={dimUnlessActive('Tilt')}>
+                  <SliderField {...sliderDrag('Tilt')}
+                    label="Tilt"
+                    value={band.angle}
+                    min={-45}
+                    max={45}
+                    step={1}
+                    onChange={(v) => setBand((p) => ({ ...p, angle: v }))}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Compare + reset */}
+            <div className={cn('flex gap-2', dimWhenDragging)}>
+              <button
+                type="button"
+                onPointerDown={() => setCompare(true)}
+                onPointerUp={() => setCompare(false)}
+                onPointerLeave={() => setCompare(false)}
+                onPointerCancel={() => setCompare(false)}
+                className={cn(
+                  'flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-xs font-semibold transition active:scale-95',
+                  compare ? 'border-primary bg-primary/10 text-primary' : 'border-border text-foreground/80',
+                )}
+              >
+                <Eye className="size-4" />
+                Hold to compare
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setBlurAmount(12)
+                  setFocus({ x: 0.5, y: 0.5, r: 0.35 })
+                  setBand({ y: 0.5, r: 0.18, angle: 0 })
+                }}
+                className="flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-xs font-semibold text-foreground/80 transition active:scale-95"
+              >
+                <RotateCcw className="size-4" />
+                Reset
+              </button>
+            </div>
           </div>
         )}
         </div>
@@ -1201,27 +1307,38 @@ function BlurStage({
   amount,
   mode,
   focus,
+  band,
   onFocus,
+  onBand,
   compact,
+  comparing,
 }: {
   src: string
   amount: number
-  mode: 'whole' | 'focus'
+  mode: 'whole' | 'focus' | 'linear'
   focus: { x: number; y: number; r: number }
+  band: { y: number; r: number; angle: number }
   onFocus: (f: { x: number; y: number }) => void
+  onBand: (b: { y: number }) => void
   compact?: boolean
+  comparing?: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
   function move(e: React.PointerEvent) {
-    if (mode !== 'focus' || e.buttons === 0) return
+    if (mode === 'whole' || e.buttons === 0) return
     const box = ref.current?.getBoundingClientRect()
     if (!box) return
-    onFocus({
-      x: Math.min(1, Math.max(0, (e.clientX - box.left) / box.width)),
-      y: Math.min(1, Math.max(0, (e.clientY - box.top) / box.height)),
-    })
+    const x = Math.min(1, Math.max(0, (e.clientX - box.left) / box.width))
+    const y = Math.min(1, Math.max(0, (e.clientY - box.top) / box.height))
+    if (mode === 'focus') onFocus({ x, y })
+    else onBand({ y })
   }
+
+  const sharpMask =
+    mode === 'focus'
+      ? `radial-gradient(circle at ${focus.x * 100}% ${focus.y * 100}%, black ${focus.r * 55}%, transparent ${focus.r * 100}%)`
+      : `linear-gradient(${band.angle + 180}deg, transparent ${(band.y - band.r * 1.6) * 100}%, black ${(band.y - band.r) * 100}%, black ${(band.y + band.r) * 100}%, transparent ${(band.y + band.r * 1.6) * 100}%)`
 
   return (
     <div
@@ -1233,36 +1350,47 @@ function BlurStage({
       <img
         src={src}
         alt="Blur preview"
-        className={cn('max-w-full select-none', compact ? 'max-h-[22dvh]' : 'max-h-[50dvh]')}
+        draggable={false}
+        className={cn('max-w-full select-none rounded-xl', compact ? 'max-h-[22dvh]' : 'max-h-[44dvh]')}
         style={{ filter: `blur(${amount / 4}px)` }}
       />
-      {mode === 'focus' && (
+      {mode !== 'whole' && !comparing && (
         <>
           <img
             src={src}
             alt=""
             aria-hidden
-            className="pointer-events-none absolute inset-0 size-full"
-            style={{
-              WebkitMaskImage: `radial-gradient(circle at ${focus.x * 100}% ${focus.y * 100}%, black ${focus.r * 55}%, transparent ${focus.r * 100}%)`,
-              maskImage: `radial-gradient(circle at ${focus.x * 100}% ${focus.y * 100}%, black ${focus.r * 55}%, transparent ${focus.r * 100}%)`,
-            }}
+            draggable={false}
+            className="pointer-events-none absolute inset-0 size-full rounded-xl"
+            style={{ WebkitMaskImage: sharpMask, maskImage: sharpMask }}
           />
-          <div
-            className="pointer-events-none absolute rounded-full border-2 border-white/80"
-            style={{
-              left: `${focus.x * 100}%`,
-              top: `${focus.y * 100}%`,
-              width: `${focus.r * 160}%`,
-              height: `${focus.r * 160}%`,
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
+          {mode === 'focus' ? (
+            <div
+              className="pointer-events-none absolute rounded-full border-2 border-white/85 shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
+              style={{
+                left: `${focus.x * 100}%`,
+                top: `${focus.y * 100}%`,
+                width: `${focus.r * 160}%`,
+                height: `${focus.r * 160}%`,
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+          ) : (
+            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
+              <div
+                className="absolute inset-x-[-25%] border-y-2 border-white/85"
+                style={{
+                  top: `${(band.y - band.r) * 100}%`,
+                  height: `${band.r * 200}%`,
+                  transform: `rotate(${band.angle}deg)`,
+                }}
+              />
+            </div>
+          )}
         </>
       )}
       <div className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-[10px] font-medium text-white">
-        {mode === 'focus' ? 'Drag to move focus' : `Blur ${amount}px`}
-        <Aperture className="ml-1 inline size-3" />
+        {comparing ? 'Original' : mode === 'whole' ? `Blur ${amount}px` : 'Drag to place the sharp area'}
       </div>
     </div>
   )
