@@ -43,7 +43,7 @@ import {
   type RatioFitOptions,
 } from '@/lib/image-ops'
 import { LiveSlider } from './live-slider'
-import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 
 import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
