@@ -254,6 +254,83 @@ export function DoodleOverlay({
     ctx.restore()
   }
 
+  /** Draw a markup shape from the press point to the current point. */
+  function drawShape(a: { x: number; y: number }, b: { x: number; y: number }) {
+    const ctx = ctxOf()
+    if (!ctx) return
+    const shape = brushRef.current.shape
+    const w = prepare(ctx)
+    const x = Math.min(a.x, b.x)
+    const y = Math.min(a.y, b.y)
+    const rw = Math.abs(b.x - a.x)
+    const rh = Math.abs(b.y - a.y)
+
+    ctx.beginPath()
+    switch (shape) {
+      case 'dashed':
+        ctx.setLineDash([w * 2.2, w * 1.8])
+        ctx.moveTo(a.x, a.y)
+        ctx.lineTo(b.x, b.y)
+        ctx.stroke()
+        break
+      case 'wave': {
+        const dx = b.x - a.x
+        const dy = b.y - a.y
+        const len = Math.hypot(dx, dy)
+        if (len < 1) break
+        const nx = -dy / len
+        const ny = dx / len
+        const amp = Math.max(w * 1.2, len * 0.045)
+        const waves = Math.max(2, Math.round(len / (amp * 4)))
+        const steps = Math.max(24, waves * 16)
+        for (let i = 0; i <= steps; i += 1) {
+          const t = i / steps
+          const off = Math.sin(t * waves * Math.PI * 2) * amp
+          const px = a.x + dx * t + nx * off
+          const py = a.y + dy * t + ny * off
+          if (i === 0) ctx.moveTo(px, py)
+          else ctx.lineTo(px, py)
+        }
+        ctx.stroke()
+        break
+      }
+      case 'arrow': {
+        const ang = Math.atan2(b.y - a.y, b.x - a.x)
+        const head = Math.max(w * 3, Math.hypot(b.x - a.x, b.y - a.y) * 0.22)
+        ctx.moveTo(a.x, a.y)
+        ctx.lineTo(b.x - Math.cos(ang) * head * 0.5, b.y - Math.sin(ang) * head * 0.5)
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(b.x, b.y)
+        ctx.lineTo(b.x - Math.cos(ang - 0.42) * head, b.y - Math.sin(ang - 0.42) * head)
+        ctx.lineTo(b.x - Math.cos(ang + 0.42) * head, b.y - Math.sin(ang + 0.42) * head)
+        ctx.closePath()
+        ctx.fill()
+        break
+      }
+      case 'rect':
+        ctx.rect(x, y, rw, rh)
+        ctx.stroke()
+        break
+      case 'rectFill':
+        ctx.rect(x, y, rw, rh)
+        ctx.fill()
+        break
+      case 'ellipse':
+      case 'ellipseFill':
+        ctx.ellipse(x + rw / 2, y + rh / 2, rw / 2, rh / 2, 0, 0, Math.PI * 2)
+        if (shape === 'ellipse') ctx.stroke()
+        else ctx.fill()
+        break
+      default:
+        ctx.moveTo(a.x, a.y)
+        ctx.lineTo(b.x, b.y)
+        ctx.stroke()
+    }
+    ctx.restore()
+  }
+
+
   function pointOf(clientX: number, clientY: number) {
     const host = hostRef.current
     const canvas = canvasRef.current
