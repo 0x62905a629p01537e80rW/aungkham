@@ -453,35 +453,103 @@ export function Editor() {
     [image, layers, naturalSize],
   )
 
-  const renderPreview = useCallback(async () => {
+  /* ---- background prerender ------------------------------------------- */
+  // While the user edits we quietly render the flattened image in the
+  // background (on an idle callback, from the GPU-composited hidden export
+  // node) so pressing Next can show the result instantly instead of waiting.
+  const prerender = useRef<{ sig: string; url: string } | null>(null)
+  const prerendering = useRef(false)
+
+  const exportSignature = useCallback(
+    () =>
+      [
+        image?.length ?? 0,
+        naturalSize ? `${naturalSize.w}x${naturalSize.h}` : '0',
+        eraseMask?.length ?? 0,
+        doodle?.length ?? 0,
+        JSON.stringify(layers),
+      ].join('|'),
+    [image, naturalSize, eraseMask, doodle, layers],
+  )
+
+  const capture = useCallback(async () => {
     const node = exportRef.current
     if (!node || !naturalSize) return null
+    return toPng(node, {
+      width: naturalSize.w,
+      height: naturalSize.h,
+      pixelRatio: 1,
+      cacheBust: true,
+    })
+  }, [naturalSize])
+
+  const busy =
+    exporting || erasing || doodling || removingBg || removingObject || adjusting || filtering
+
+  useEffect(() => {
+    if (!image || !naturalSize || busy || showSave) return
+    let cancelled = false
+    const sig = exportSignature()
+    if (prerender.current?.sig === sig) return
+
+    const run = async () => {
+      if (cancelled || prerendering.current) return
+      prerendering.current = true
+      try {
+        await document.fonts?.ready?.catch?.(() => undefined)
+        const url = await capture()
+        if (url && !cancelled) prerender.current = { sig, url }
+      } catch {
+        /* prerender is best effort */
+      } finally {
+        prerendering.current = false
+      }
+    }
+
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number })
+      .requestIdleCallback
+    const timer = window.setTimeout(() => {
+      if (idle) idle(() => void run())
+      else void run()
+    }, 600)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [image, naturalSize, busy, showSave, exportSignature, capture])
+
+  const renderPreview = useCallback(async () => {
+    if (!naturalSize) return null
     setExporting(true)
     setSelectedId(null)
     await new Promise((r) => requestAnimationFrame(() => r(null)))
     try {
-      return await toPng(node, {
-        width: naturalSize.w,
-        height: naturalSize.h,
-        pixelRatio: 1,
-        cacheBust: true,
-      })
+      return await capture()
     } catch (err) {
       console.log('[export failed]', err)
       return null
     } finally {
       setExporting(false)
     }
-  }, [naturalSize])
+  }, [naturalSize, capture])
 
   const handleNext = useCallback(async () => {
     setSavedProject(false)
-    setPreview(null)
     setShowSave(true)
+    const cached = prerender.current
+    if (cached && cached.sig === exportSignature()) {
+      setPreview(cached.url)
+      if (shouldAskForRating()) setRating(true)
+      return
+    }
+    setPreview(null)
     const url = await renderPreview()
     setPreview(url)
+    if (url) prerender.current = { sig: exportSignature(), url }
     if (shouldAskForRating()) setRating(true)
-  }, [renderPreview])
+  }, [renderPreview, exportSignature])
+
 
   const handleSaveImage = useCallback(() => {
     if (!preview) return
