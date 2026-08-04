@@ -44,6 +44,8 @@ import {
 import { MarkBar } from './mark-bar'
 import { MarkOverlay, type MarkTool } from './mark-layer'
 import { DEFAULT_MARK, type Mark, type MarkStyle } from '@/lib/marks'
+import { toast } from 'sonner'
+
 import { extractLayerStyle } from '@/lib/style-clipboard'
 import { saveStyle } from '@/lib/saved-styles'
 import { useI18n } from '@/components/i18n'
