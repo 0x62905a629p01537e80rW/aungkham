@@ -77,6 +77,8 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
   })
   const [view, setView] = useState({ scale: 1, tx: 0, ty: 0 })
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null)
+  const [originalUrl, setOriginalUrl] = useState<string | null>(null)
+  const [compare, setCompare] = useState(false)
   const lastPoint = useRef<{ x: number; y: number } | null>(null)
   /** Magic wand dwell: erase only after the finger rests ~0.5s on a spot. */
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -134,6 +136,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
       orig.height = h
       orig.getContext('2d')?.drawImage(canvas, 0, 0)
       originalRef.current = orig
+      setOriginalUrl(orig.toDataURL('image/png'))
       setReady(true)
     }
     img.src = src
@@ -516,7 +519,7 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
 
       <div className={cn('relative flex min-h-0 flex-1 items-center justify-center overflow-hidden', stageBg)}>
         <div
-          className="flex h-full w-full items-center justify-center p-3"
+          className="relative flex h-full w-full items-center justify-center p-3"
           style={{
             transform: `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.scale})`,
             transformOrigin: 'center center',
@@ -535,6 +538,14 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
               if (tool !== 'magic') setCursor(null)
             }}
           />
+          {compare && originalUrl ? (
+            <img
+              src={originalUrl}
+              alt="Original"
+              draggable={false}
+              className="pointer-events-none absolute inset-3 m-auto max-h-full max-w-full select-none object-contain"
+            />
+          ) : null}
         </div>
 
         {/* Brush cursor preview with offset crosshair */}
@@ -642,6 +653,20 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
             >
               <Maximize2 className="size-4" />
             </button>
+            <button
+              type="button"
+              onPointerDown={() => setCompare(true)}
+              onPointerUp={() => setCompare(false)}
+              onPointerLeave={() => setCompare(false)}
+              onPointerCancel={() => setCompare(false)}
+              className={cn(
+                'glass-tile flex size-9 items-center justify-center rounded-xl',
+                compare && 'text-primary',
+              )}
+              aria-label="Hold to compare with original"
+            >
+              <Eye className="size-4" />
+            </button>
           </div>
         ) : null}
       </div>
@@ -744,16 +769,9 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
               Remove background
             </button>
           ) : null}
-          {tool === 'color' ? (
-            <p className="text-center text-[10px] text-muted-foreground">
-              Tap a color on the image to erase it everywhere
-            </p>
-          ) : null}
-          {tool === 'magic' ? (
-            <p className="text-center text-[10px] text-muted-foreground">
-              Tap an area to erase connected pixels
-            </p>
-          ) : null}
+          <p className="rounded-full bg-muted/60 px-3 py-1.5 text-center text-[10px] text-muted-foreground">
+            {TOOL_HINTS[tool]}
+          </p>
 
           <div className="flex items-center gap-1 overflow-x-auto perf-scroll">
             {tools.map((t) => (
