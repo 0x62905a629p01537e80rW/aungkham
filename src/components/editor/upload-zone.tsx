@@ -518,6 +518,8 @@ export function UploadZone({
           onImage(makeBackgroundDataUrl(css, 1200, ratio))
         }}
       />
+
+      <PaymentPage open={payOpen} onClose={() => setPayOpen(false)} />
     </div>
   )
 }
