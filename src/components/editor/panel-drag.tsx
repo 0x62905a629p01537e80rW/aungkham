@@ -179,7 +179,10 @@ export function PanelCloseButton({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={() => {
+        resetAllPanels()
+        onClick()
+      }}
       aria-label={label}
       title={label}
       className={cn(
