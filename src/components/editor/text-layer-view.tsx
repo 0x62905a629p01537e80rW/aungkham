@@ -229,7 +229,12 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
   const box: CSSProperties = {
     width: `${w}cqh`,
     height: `${h}cqh`,
+    // Preflight sets `img { max-width: 100% }`, which silently squashes wide
+    // graphics once they grow past the canvas and breaks their aspect ratio.
+    maxWidth: 'none',
+    maxHeight: 'none',
     display: 'block',
+
     WebkitMaskImage: layer.eraseMask ? `url(${layer.eraseMask})` : undefined,
     maskImage: layer.eraseMask ? `url(${layer.eraseMask})` : undefined,
     WebkitMaskSize: layer.eraseMask ? '100% 100%' : undefined,

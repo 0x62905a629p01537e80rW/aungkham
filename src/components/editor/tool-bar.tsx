@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import {
+  MoveUpRight,
   Keyboard,
   Layers,
   Lock,
@@ -154,6 +155,8 @@ interface ToolBarProps {
   bgImage?: string | null
   /** Opens freehand doodle drawing mode on the main canvas. */
   onDraw?: () => void
+  /** Opens markup (arrows, boxes, highlights) mode on the main canvas. */
+  onMark?: () => void
   onImageTool?: (
     tool: 'crop' | 'resize' | 'flip' | 'fit' | 'frame' | 'blur' | 'adjust' | 'filter' | 'removebg' | 'remove',
   ) => void
@@ -269,6 +272,7 @@ export function ToolBar({
   onImageTool,
   bgImage,
   onDraw,
+  onMark,
   autoOpenTool,
   onAutoOpenHandled,
   onEraseAll,
@@ -408,6 +412,17 @@ export function ToolBar({
                 >
                   <Pencil className="size-[16px]" strokeWidth={1.9} />
                   Draw
+                </button>
+              )}
+              {onMark && (
+                <button
+                  type="button"
+                  disabled={!!selected}
+                  onClick={onMark}
+                  className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium tracking-tight text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
+                >
+                  <MoveUpRight className="size-[16px]" strokeWidth={1.9} />
+                  Mark
                 </button>
               )}
               <span className="mx-1 h-7 w-px shrink-0 bg-border" />
@@ -2502,18 +2517,19 @@ function PositionPanel({
           </div>
           <button
             type="button"
-            onClick={() => { quickPeek(); onChange({ aspectLock: layer.aspectLock === false }) }}
+            onClick={() => { quickPeek(); onChange({ aspectLock: layer.aspectLock !== true }) }}
             className={cn(
               fade,
               others,
               'flex h-10 w-full items-center justify-center gap-2 rounded-xl border text-xs font-semibold transition active:scale-95',
-              layer.aspectLock !== false
+              layer.aspectLock === true
                 ? 'border-primary bg-primary text-primary-foreground'
                 : 'border-border text-foreground/75',
             )}
           >
-            {layer.aspectLock !== false ? <Lock className="size-4" /> : <Unlock className="size-4" />}
-            {layer.aspectLock !== false ? 'Aspect ratio locked' : 'Aspect ratio free'}
+            {layer.aspectLock === true ? <Lock className="size-4" /> : <Unlock className="size-4" />}
+            {layer.aspectLock === true ? 'Aspect ratio locked' : 'Aspect ratio free'}
+
           </button>
           <div className={cn(fade, others, 'flex items-center justify-between')}>
             <Label className="text-sm font-medium">Zoom</Label>

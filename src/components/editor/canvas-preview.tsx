@@ -683,9 +683,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const next = clampStretch(st.startValue - (delta * 220) / span)
       if (next === st.value) return
       st.value = next
-      // Graphics (stickers / shapes / overlay images) keep their proportions
-      // unless the aspect lock was turned off for that layer.
-      const locked = Boolean(st.layer.graphic) && st.layer.aspectLock !== false
+      // Side handles are single-axis by design (the corner handle is the
+      // proportional one). Only an explicit aspect lock couples the two.
+      const locked = Boolean(st.layer.graphic) && st.layer.aspectLock === true
       const ratio = next / (st.startValue || 100)
       const other = locked
         ? clampStretch(
@@ -697,6 +697,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           ? { ...st.layer, widthScale: next, ...(other != null ? { heightScale: other } : {}) }
           : { ...st.layer, heightScale: next, ...(other != null ? { widthScale: other } : {}) }
       st.other = other
+
       if (st.content) st.content.style.transform = `${layerTransform(live)} translateZ(0)`
       if (st.chrome) {
         st.chrome.style.transform = chromeTransform(live)

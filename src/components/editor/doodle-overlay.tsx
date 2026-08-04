@@ -481,6 +481,8 @@ const SWATCHES = [
 interface DoodleBarProps {
   brush: DoodleBrush
   onBrush: (patch: Partial<DoodleBrush>) => void
+  /** 'draw' shows the pens, 'mark' shows the markup shapes. */
+  mode: 'draw' | 'mark'
   panMode: boolean
   onPanMode: (v: boolean) => void
   canUndo: boolean
@@ -496,6 +498,7 @@ interface DoodleBarProps {
 export function DoodleBar({
   brush,
   onBrush,
+  mode,
   panMode,
   onPanMode,
   canUndo,
@@ -506,11 +509,9 @@ export function DoodleBar({
   onCancel,
   onApply,
 }: DoodleBarProps) {
-  const [menu, setMenu] = useState<'draw' | 'mark'>('draw')
   const iconBtn =
     'flex size-10 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
-  const menuTab =
-    'flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition active:scale-95'
+
 
   return (
     <div
@@ -555,26 +556,8 @@ export function DoodleBar({
         </button>
       </div>
 
-      <div className="flex items-center gap-1 rounded-2xl border border-border p-1">
-        <button
-          type="button"
-          onClick={() => { setMenu('draw'); onBrush({ shape: 'free' }) }}
-          className={cn(menuTab, menu === 'draw' ? 'bg-primary text-primary-foreground' : 'text-foreground/70')}
-        >
-          <Pen className="size-4" />
-          Draw
-        </button>
-        <button
-          type="button"
-          onClick={() => { setMenu('mark'); if (brush.shape === 'free') onBrush({ shape: 'line' }) }}
-          className={cn(menuTab, menu === 'mark' ? 'bg-primary text-primary-foreground' : 'text-foreground/70')}
-        >
-          <ArrowUpRight className="size-4" />
-          Mark
-        </button>
-      </div>
+      {mode === 'mark' ? (
 
-      {menu === 'mark' ? (
         <div className="grid grid-cols-5 gap-1.5">
           {SHAPES.map(({ shape, label, Icon }) => (
             <button
