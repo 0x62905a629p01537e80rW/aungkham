@@ -14,6 +14,16 @@ export type FrameKind =
   | 'polaroid'
   | 'vignette'
   | 'inset'
+  | 'ornament'
+
+/** Asian ornamental motifs — Burmese kanote, Thai kranok, lotus, naga and vine. */
+export type OrnamentMotif =
+  | 'kanote'
+  | 'kranok'
+  | 'lotus'
+  | 'naga'
+  | 'vine'
+  | 'pyatthat'
 
 export interface FrameSpec {
   id: string
@@ -30,6 +40,9 @@ export interface FrameSpec {
   padBottom?: number
   radius?: number
   accent?: string
+  motif?: OrnamentMotif
+  /** motif repeat spacing, multiple of the band size */
+  density?: number
 }
 
 export const FRAMES: FrameSpec[] = [
@@ -65,6 +78,20 @@ export const FRAMES: FrameSpec[] = [
   { id: 'polaroid-dark', label: 'Polaroid Dark', kind: 'polaroid', color: '#101014', pad: 0.05, padBottom: 0.2 },
   { id: 'vignette', label: 'Vignette', kind: 'vignette', color: '#000000' },
   { id: 'inset-white', label: 'Inset', kind: 'inset', color: '#ffffff', width: 0.03, gap: 0.02 },
+
+  // ——— Burmese / Thai / Asian ornaments ———
+  { id: 'kanote-gold', label: 'Kanote Gold', kind: 'ornament', motif: 'kanote', color: '#d4a017', accent: '#7a1f1f', pad: 0.1, width: 0.006, density: 1.5 },
+  { id: 'kanote-ruby', label: 'Kanote Ruby', kind: 'ornament', motif: 'kanote', color: '#f4d58d', accent: '#8c1c13', pad: 0.11, width: 0.006, density: 1.5 },
+  { id: 'kranok-gold', label: 'Kranok Gold', kind: 'ornament', motif: 'kranok', color: '#e0b64a', accent: '#5b1a10', pad: 0.1, width: 0.006, density: 1.25 },
+  { id: 'kranok-jade', label: 'Kranok Jade', kind: 'ornament', motif: 'kranok', color: '#8fd6b4', accent: '#0d3b2e', pad: 0.1, width: 0.006, density: 1.25 },
+  { id: 'lotus-gold', label: 'Lotus Gold', kind: 'ornament', motif: 'lotus', color: '#e6c25c', accent: '#4a2d0b', pad: 0.1, width: 0.005, density: 1.4 },
+  { id: 'lotus-rose', label: 'Lotus Rose', kind: 'ornament', motif: 'lotus', color: '#f0a6b8', accent: '#5c1030', pad: 0.1, width: 0.005, density: 1.4 },
+  { id: 'naga-gold', label: 'Naga Wave', kind: 'ornament', motif: 'naga', color: '#dcb765', accent: '#2b1a08', pad: 0.095, width: 0.006, density: 1.6 },
+  { id: 'naga-ink', label: 'Naga Ink', kind: 'ornament', motif: 'naga', color: '#f5f0e4', accent: '#12100d', pad: 0.095, width: 0.006, density: 1.6 },
+  { id: 'vine-ivory', label: 'Floral Vine', kind: 'ornament', motif: 'vine', color: '#f4ecd8', accent: '#6b4a1b', pad: 0.09, width: 0.005, density: 1.7 },
+  { id: 'vine-emerald', label: 'Vine Emerald', kind: 'ornament', motif: 'vine', color: '#a7e0b6', accent: '#08301f', pad: 0.09, width: 0.005, density: 1.7 },
+  { id: 'pyatthat-gold', label: 'Pyatthat', kind: 'ornament', motif: 'pyatthat', color: '#e3bb55', accent: '#3b1408', pad: 0.115, width: 0.006, density: 1.5 },
+  { id: 'pyatthat-teak', label: 'Temple Teak', kind: 'ornament', motif: 'pyatthat', color: '#c98b48', accent: '#241207', pad: 0.115, width: 0.006, density: 1.5 },
 ]
 
 function roundRect(
@@ -166,6 +193,9 @@ export function paintFrame(
       ctx.strokeRect(g, g, w - 2 * g, h - 2 * g)
       break
     }
+    case 'ornament':
+      paintOrnament(ctx, w, h, spec)
+      break
     case 'vignette': {
       const grad = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.34, w / 2, h / 2, Math.max(w, h) * 0.72)
       grad.addColorStop(0, 'rgba(0,0,0,0)')
