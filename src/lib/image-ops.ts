@@ -194,6 +194,53 @@ export async function blurImage(src: string, amount: number) {
   return canvas.toDataURL('image/png')
 }
 
+/**
+ * Tilt-shift blur: keeps a straight band sharp and blurs above and below it.
+ * `y` is the band centre (0..1), `r` its half-height, `angle` its tilt in deg.
+ */
+export async function blurLinear(
+  src: string,
+  amount: number,
+  band: { y: number; r: number; angle: number },
+) {
+  const img = await loadImage(src)
+  const w = img.naturalWidth
+  const h = img.naturalHeight
+  const { canvas, ctx } = ctxOf(w, h)
+
+  ctx.filter = `blur(${amount}px)`
+  ctx.drawImage(img, 0, 0)
+  ctx.filter = 'none'
+
+  const sharp = ctxOf(w, h)
+  sharp.ctx.drawImage(img, 0, 0)
+  const rad = (band.angle * Math.PI) / 180
+  const cx = w / 2
+  const cy = band.y * h
+  const half = Math.max(1, band.r * h)
+  const feather = half * 0.6
+  const nx = Math.sin(rad)
+  const ny = Math.cos(rad)
+  const reach = half + feather
+  const grad = sharp.ctx.createLinearGradient(
+    cx - nx * reach,
+    cy - ny * reach,
+    cx + nx * reach,
+    cy + ny * reach,
+  )
+  const edge = half / reach / 2
+  grad.addColorStop(0, 'rgba(0,0,0,0)')
+  grad.addColorStop(Math.max(0.001, 0.5 - edge), 'rgba(0,0,0,1)')
+  grad.addColorStop(Math.min(0.999, 0.5 + edge), 'rgba(0,0,0,1)')
+  grad.addColorStop(1, 'rgba(0,0,0,0)')
+  sharp.ctx.globalCompositeOperation = 'destination-in'
+  sharp.ctx.fillStyle = grad
+  sharp.ctx.fillRect(0, 0, w, h)
+
+  ctx.drawImage(sharp.canvas, 0, 0)
+  return canvas.toDataURL('image/png')
+}
+
 /** Blur everything except a circular focus area (normalized center + radius). */
 export async function blurOutside(
   src: string,
