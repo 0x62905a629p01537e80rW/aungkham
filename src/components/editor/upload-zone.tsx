@@ -12,6 +12,8 @@ import {
   Store,
   Type,
   Trash2,
+  Gem,
+  LayoutGrid,
 } from 'lucide-react'
 import { useI18n } from '@/components/i18n'
 import { ColorPickerFullScreen } from './color-picker'
@@ -26,16 +28,25 @@ import { UPLOADED_TEMPLATES } from '@/lib/uploaded-templates'
 import type { TextLayer } from '@/lib/text-layer'
 
 import { gradientCss, makeBackgroundDataUrl } from '@/lib/background'
+import {
+  CANVAS_ACTIONS,
+  TEXT_ACTIONS,
+  ULTRA_ACTIONS,
+  type QuickAction,
+} from '@/lib/quick-actions'
 
-type Tab = 'create' | 'fonts' | 'templates' | 'store' | 'projects'
+type Tab = 'create' | 'fonts' | 'templates' | 'store' | 'projects' | 'more'
 
 export function UploadZone({
   onImage,
   onOpenProject,
   onStartTemplates,
   onApplyTemplate,
+  onQuickAction,
 }: {
   onImage: (dataUrl: string) => void
+  /** Photo picked for a "More" / "Ultra HD" shortcut — opens that tool directly. */
+  onQuickAction?: (dataUrl: string, action: QuickAction) => void
   onOpenProject?: (project: SavedProject) => void
   onStartTemplates?: () => void
   onApplyTemplate?: (layers: TextLayer[], bg?: string) => void
@@ -50,6 +61,7 @@ const FEATURED = UPLOADED_TEMPLATES
   const [pendingCss, setPendingCss] = useState<string | null>(null)
   const [projects, setProjects] = useState<SavedProject[]>([])
   const [storeTab, setStoreTab] = useState<'templates' | 'fonts'>('fonts')
+  const pendingAction = useRef<QuickAction | null>(null)
 
   useEffect(() => {
     setProjects(loadProjects())
@@ -58,9 +70,21 @@ const FEATURED = UPLOADED_TEMPLATES
   function readFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !file.type.startsWith('image/')) return
+    const action = pendingAction.current
+    pendingAction.current = null
     const reader = new FileReader()
-    reader.onload = () => onImage(reader.result as string)
+    reader.onload = () => {
+      const src = reader.result as string
+      if (action && onQuickAction) onQuickAction(src, action)
+      else onImage(src)
+    }
     reader.readAsDataURL(file)
+  }
+
+  /** Pick a photo, then land the user directly inside the chosen tool. */
+  function startAction(action: QuickAction) {
+    pendingAction.current = action
+    galleryRef.current?.click()
   }
 
   const TOOLS: { id: string; label: string; icon: typeof BackgroundIcon; run: () => void }[] = [
@@ -72,6 +96,13 @@ const FEATURED = UPLOADED_TEMPLATES
     { id: 'gradient', label: t('home.gradients'), icon: Blend, run: () => setPicker('gradient') },
     { id: 'camera', label: t('home.takePhoto') ?? 'Camera', icon: Camera, run: () => cameraRef.current?.click() },
     { id: 'projects', label: t('home.tab.projects'), icon: FolderOpen, run: () => setTab('projects') },
+    {
+      id: 'ultrahd',
+      label: 'Ultra HD',
+      icon: Gem,
+      run: () => startAction(ULTRA_ACTIONS[0]),
+    },
+    { id: 'more', label: 'More', icon: LayoutGrid, run: () => setTab('more') },
   ]
 
   const SUB_TITLES: Record<string, string> = {
@@ -79,6 +110,7 @@ const FEATURED = UPLOADED_TEMPLATES
     templates: t('home.tab.templates'),
     store: 'Store',
     projects: t('home.tab.projects'),
+    more: 'More',
   }
 
   useEffect(() => {
@@ -273,6 +305,45 @@ const FEATURED = UPLOADED_TEMPLATES
             <div className="mt-6 px-4">
               <DownloadedBackgrounds onPick={(src) => onImage(src)} />
             </div>
+          </div>
+        )}
+
+        {tab === 'more' && (
+          <div className="space-y-5 pb-6">
+            {[
+              { title: 'Canvas', items: CANVAS_ACTIONS },
+              { title: 'Ultra HD', items: ULTRA_ACTIONS },
+              { title: 'Text', items: TEXT_ACTIONS },
+            ].map(({ title, items }) => (
+              <section key={title}>
+                <h3 className="pb-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                  {title}
+                </h3>
+                <div className="grid grid-cols-3 gap-2.5">
+                  {items.map((action) => (
+                    <button
+                      key={action.id}
+                      type="button"
+                      onClick={() => startAction(action)}
+                      className="glass-tile flex aspect-[4/3] flex-col items-center justify-center gap-1.5 rounded-2xl px-2 text-center transition active:scale-95"
+                    >
+                      <span className="grid size-8 place-items-center rounded-xl bg-primary/15 text-primary">
+                        {title === 'Text' ? (
+                          <Type className="size-4" />
+                        ) : title === 'Ultra HD' ? (
+                          <Gem className="size-4" />
+                        ) : (
+                          <ImageIcon className="size-4" />
+                        )}
+                      </span>
+                      <span className="text-[11px] font-semibold leading-tight text-foreground">
+                        {action.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
         )}
 
