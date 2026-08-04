@@ -728,7 +728,7 @@ export function Editor() {
                 }}
                 eraseMask={erasing ? (eraseBypass ? undefined : draftMask) : eraseMask}
                 maskedIds={maskedIds}
-                marks={marking ? marks.filter((m) => m.id !== selectedMark || true) : marks}
+                marks={marks}
                 doodle={doodling ? undefined : doodle}
                 overlay={
                   erasing ? (
