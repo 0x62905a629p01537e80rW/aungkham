@@ -586,6 +586,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       start: number
       startValue: number
       value: number
+      /** Mirrored value on the other axis while the aspect lock is on. */
+      other?: number | null
       content: HTMLElement | null
       chrome: HTMLElement | null
       hud: HTMLElement | null
