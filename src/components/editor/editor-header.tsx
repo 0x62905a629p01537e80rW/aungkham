@@ -241,7 +241,7 @@ function DraggableLayersPanel({ children }: { children: React.ReactNode }) {
       align="end"
       sideOffset={10}
       collisionPadding={12}
-      style={panel.style}
+      style={collapse.full ? undefined : panel.style}
       className={cn('glass-panel max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto perf-scroll rounded-2xl p-0', collapse.fullClass)}
     >
       <div className="flex items-center justify-between gap-2 px-2 pt-2">

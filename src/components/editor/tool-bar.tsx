@@ -2840,7 +2840,7 @@ function DraggableToolPanel({
       sideOffset={10}
       collisionPadding={12}
       onOpenAutoFocus={(e) => e.preventDefault()}
-      style={panel.style}
+      style={collapse.full ? undefined : panel.style}
       className={cn(collapse.fullClass, 'glass-panel w-[min(86vw,296px)] rounded-2xl p-3 transition-[background-color,opacity] duration-200 has-[[data-dragging=true]]:!border-transparent has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-peek=true]]:!border-transparent has-[[data-peek=true]]:!bg-transparent has-[[data-peek=true]]:!shadow-none')}
     >
       <div className="mb-1.5 flex items-center justify-between gap-2">
