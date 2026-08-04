@@ -112,6 +112,8 @@ export interface TextLayer {
   strike?: boolean
   widthScale?: number
   heightScale?: number
+  /** Keep width/height in proportion while stretching (graphics default on). */
+  aspectLock?: boolean
 
   /* Image texture + eraser mask (data URLs) */
   textureImage?: string
@@ -308,6 +310,7 @@ export function createTextLayer(text = 'Your text'): TextLayer {
     strike: false,
     widthScale: 100,
     heightScale: 100,
+    aspectLock: true,
     hidden: false,
     locked: false,
     blendMode: 'normal',

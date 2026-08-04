@@ -1,4 +1,4 @@
-import { useEffect, useRef, type MutableRefObject, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type MutableRefObject, type PointerEvent } from 'react'
 import {
   ArrowUpRight,
   Check,
@@ -506,8 +506,11 @@ export function DoodleBar({
   onCancel,
   onApply,
 }: DoodleBarProps) {
+  const [menu, setMenu] = useState<'draw' | 'mark'>('draw')
   const iconBtn =
     'flex size-10 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
+  const menuTab =
+    'flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition active:scale-95'
 
   return (
     <div
@@ -552,6 +555,47 @@ export function DoodleBar({
         </button>
       </div>
 
+      <div className="flex items-center gap-1 rounded-2xl border border-border p-1">
+        <button
+          type="button"
+          onClick={() => { setMenu('draw'); onBrush({ shape: 'free' }) }}
+          className={cn(menuTab, menu === 'draw' ? 'bg-primary text-primary-foreground' : 'text-foreground/70')}
+        >
+          <Pen className="size-4" />
+          Draw
+        </button>
+        <button
+          type="button"
+          onClick={() => { setMenu('mark'); if (brush.shape === 'free') onBrush({ shape: 'line' }) }}
+          className={cn(menuTab, menu === 'mark' ? 'bg-primary text-primary-foreground' : 'text-foreground/70')}
+        >
+          <ArrowUpRight className="size-4" />
+          Mark
+        </button>
+      </div>
+
+      {menu === 'mark' ? (
+        <div className="grid grid-cols-5 gap-1.5">
+          {SHAPES.map(({ shape, label, Icon }) => (
+            <button
+              key={shape}
+              type="button"
+              aria-label={label}
+              title={label}
+              onClick={() => onBrush({ shape })}
+              className={cn(
+                'flex flex-col items-center gap-0.5 rounded-xl border px-1 py-1.5 text-[9px] font-medium leading-tight transition active:scale-95',
+                brush.shape === shape
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border text-foreground/75',
+              )}
+            >
+              <Icon className={cn('size-[18px]', shape.endsWith('Fill') && 'fill-current')} />
+              <span className="w-full truncate">{label}</span>
+            </button>
+          ))}
+        </div>
+      ) : (
       <div className="flex items-center gap-1 overflow-x-auto perf-scroll pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {PENS.map(({ kind, label, Icon }) => (
           <button
@@ -571,6 +615,7 @@ export function DoodleBar({
           </button>
         ))}
       </div>
+      )}
 
       <div className="flex items-center gap-1.5 overflow-x-auto perf-scroll pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ColorPickerPopover value={brush.color} onChange={(color) => onBrush({ color })}>
@@ -605,31 +650,6 @@ export function DoodleBar({
         max={100}
         onChange={(v) => onBrush({ opacity: v })}
       />
-
-      <div className="space-y-1.5">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          Mark
-        </span>
-        <div className="flex items-center gap-1.5 overflow-x-auto perf-scroll pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {SHAPES.map(({ shape, label, Icon }) => (
-            <button
-              key={shape}
-              type="button"
-              aria-label={label}
-              title={label}
-              onClick={() => onBrush({ shape })}
-              className={cn(
-                'grid size-10 shrink-0 place-items-center rounded-xl border transition active:scale-95',
-                brush.shape === shape
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border text-foreground/75',
-              )}
-            >
-              <Icon className={cn('size-[18px]', shape.endsWith('Fill') && 'fill-current')} />
-            </button>
-          ))}
-        </div>
-      </div>
 
     </div>
   )
