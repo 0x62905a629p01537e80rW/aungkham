@@ -37,14 +37,25 @@ export const ExportCanvas = forwardRef<HTMLDivElement, ExportCanvasProps>(functi
         containerType: 'size',
         lineHeight: 0,
         transform: 'translate3d(-200vw, -200vh, 0)',
+        // Keep the hidden export surface on its own GPU layer so background
+        // prerenders never repaint the visible editor.
+        willChange: 'transform',
+        backfaceVisibility: 'hidden',
       }}
       aria-hidden="true"
     >
       <div
         ref={ref}
         className="relative overflow-hidden"
-        style={{ width: safeSize.w, height: safeSize.h, containerType: 'size', lineHeight: 0 }}
+        style={{
+          width: safeSize.w,
+          height: safeSize.h,
+          containerType: 'size',
+          lineHeight: 0,
+          transform: 'translateZ(0)',
+        }}
       >
+
         <img
           src={image}
           alt=""
