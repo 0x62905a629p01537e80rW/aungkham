@@ -86,11 +86,13 @@ export async function fetchStoreTiers(
 }
 
 export function storeTier(
-  asset: { file: string; name: string },
+  asset: { file: string; name: string; pack?: string },
   tiers: Record<string, StoreTier> | null,
 ): StoreTier {
   if (!tiers) return 'free'
+  const pack = asset.pack ?? packOf(asset.file)
   return (
+    (pack ? tiers[key(pack)] : undefined) ??
     tiers[key(asset.file)] ??
     tiers[key(asset.name)] ??
     tiers[key(asset.file.replace(/\.[^.]+$/, ''))] ??
@@ -98,9 +100,49 @@ export function storeTier(
   )
 }
 
+/** Tier of a whole pack (falls back to its first member). */
+export function packTier(
+  pack: string,
+  members: StoreAsset[],
+  tiers: Record<string, StoreTier> | null,
+): StoreTier {
+  if (!tiers) return 'free'
+  return tiers[key(pack)] ?? (members[0] ? storeTier(members[0], tiers) : 'free')
+}
+
 /* ---------------- listing ---------------- */
 
 const catalog = new Map<StoreKind, StoreAsset[]>()
+
+/** Reads a jsDelivr directory page, returning image files and sub folders. */
+async function readFolderPage(
+  url: string,
+): Promise<{ files: string[]; folders: string[] }> {
+  const out = { files: [] as string[], folders: [] as string[] }
+  try {
+    const page = await fetch(bust(url), noStore)
+    if (!page.ok) return out
+    const html = await page.text()
+    const doc = new DOMParser().parseFromString(html, 'text/html')
+    const here = decodeURIComponent(new URL(url).pathname).replace(/\/*$/, '/')
+    for (const anchor of Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[href]'))) {
+      let pathname: string
+      try {
+        pathname = decodeURIComponent(new URL(anchor.href, url).pathname)
+      } catch {
+        continue
+      }
+      if (!pathname.startsWith(here) || pathname === here) continue
+      const rest = pathname.slice(here.length)
+      if (!rest || rest.includes('/') !== rest.endsWith('/')) continue
+      if (rest.endsWith('/')) out.folders.push(rest.slice(0, -1))
+      else if (IMG_RE.test(rest)) out.files.push(rest)
+    }
+  } catch {
+    /* offline */
+  }
+  return out
+}
 
 export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<StoreAsset[]> {
   const hit = catalog.get(kind)
@@ -109,13 +151,22 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   const prefix = listPrefix(kind)
   let list: StoreAsset[] = []
 
+  const make = (file: string, size?: number, name?: string): StoreAsset => ({
+    kind,
+    name: name ?? prettyName(file),
+    file,
+    pack: packOf(file),
+    url: `${BASE}/${encPath(file)}`,
+    size,
+  })
+
   const merge = (incoming: StoreAsset[]) => {
     const byFile = new Map(list.map((asset) => [key(asset.file), asset]))
     for (const asset of incoming) byFile.set(key(asset.file), asset)
     list = [...byFile.values()]
   }
 
-  // 1) optional hand-written index
+  // 1) optional hand-written index (entries may include a pack folder)
   try {
     const res = await cdnFetch(bust(`${BASE}/index.json`), noStore)
     if (res.ok) {
@@ -131,13 +182,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
                 '')
           if (!file) return null
           const o = it as { name?: string; size?: number }
-          return {
-            kind,
-            name: typeof it === 'string' ? prettyName(it) : (o.name ?? prettyName(file)),
-            file,
-            url: `${BASE}/${encodeURIComponent(file)}`,
-            size: o.size,
-          } satisfies StoreAsset
+          return make(file, o.size, typeof it === 'string' ? undefined : o.name)
         })
         .filter(Boolean) as StoreAsset[]
       merge(indexed)
@@ -146,7 +191,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
     /* fall through */
   }
 
-  // 2) jsDelivr flat listing
+  // 2) jsDelivr flat listing (already recursive)
   let files: { name: string; size?: number }[] = []
   try {
     const res = await fetch(bust(await cdnListUrl()), noStore)
@@ -157,47 +202,30 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   } catch {
     files = []
   }
-  merge(files
-    .filter((f) => f.name.startsWith(prefix) && IMG_RE.test(f.name))
-    .map((f) => {
-      const file = f.name.slice(prefix.length)
-      return { kind, name: prettyName(file), file, url: `${BASE}/${encodeURIComponent(file)}`, size: f.size }
-    }))
+  merge(
+    files
+      .filter((f) => f.name.startsWith(prefix) && IMG_RE.test(f.name))
+      .map((f) => make(f.name.slice(prefix.length), f.size)),
+  )
 
-  // 3) jsDelivr's browser-safe folder page. The data API can retain an old
+  // 3) jsDelivr's browser-safe folder pages. The data API can retain an old
   // flat index even after individual files and directory pages are current.
-  // A manual refresh checks and merges it even when an older source was non-empty.
+  // Sub folders are packs (e.g. `Stickers/iOS`) and are walked one level deep.
   {
-    try {
-      const page = await fetch(bust(`${BASE}/`), noStore)
-      if (page.ok) {
-        const html = await page.text()
-        const doc = new DOMParser().parseFromString(html, 'text/html')
-        const names = Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[href]'))
-          .map((anchor) => {
-            try {
-              const pathname = decodeURIComponent(new URL(anchor.href, `${BASE}/`).pathname)
-              return pathname.split('/').filter(Boolean).pop() ?? ''
-            } catch {
-              return ''
-            }
-          })
-          .filter((name) => IMG_RE.test(name))
-        merge([...new Set(names)].map((file) => ({
-          kind,
-          name: prettyName(file),
-          file,
-          url: `${BASE}/${encodeURIComponent(file)}`,
-          size: undefined,
-        })))
-      }
-    } catch {
-      /* fall through to the origin listing */
-    }
+    const root = await readFolderPage(`${BASE}/`)
+    merge(root.files.map((f) => make(f)))
+    const packs = await Promise.all(
+      root.folders.map(async (pack) => {
+        const sub = await readFolderPage(`${BASE}/${encPath(pack)}/`)
+        return sub.files.map((f) => make(`${pack}/${f}`))
+      }),
+    )
+    for (const p of packs) merge(p)
   }
 
   catalog.set(kind, list)
   return list
+
 }
 
 /* ---------------- offline storage ---------------- */
