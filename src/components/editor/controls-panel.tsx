@@ -64,8 +64,8 @@ export function ControlsPanel({ layer, category, onChange }: ControlsPanelProps)
           <SliderField
             label="Size"
             value={layer.fontSize}
-            min={0.5}
-            max={120}
+            min={0.2}
+            max={360}
             step={0.5}
             onChange={(v) => onChange({ fontSize: v })}
           />
