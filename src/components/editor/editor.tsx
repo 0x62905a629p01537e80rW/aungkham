@@ -92,6 +92,7 @@ export function Editor() {
   const [eraseHistory, setEraseHistory] = useState({ canUndo: false, canRedo: false })
   const eraseControls = useRef<EraseControls | null>(null)
   const [doodling, setDoodling] = useState(false)
+  const [doodleMode, setDoodleMode] = useState<'draw' | 'mark'>('draw')
   const [doodle, setDoodle] = useState<string | undefined>(undefined)
   const [draftDoodle, setDraftDoodle] = useState<string | undefined>(undefined)
   const [pen, setPen] = useState<DoodleBrush>(DEFAULT_DOODLE)
@@ -852,6 +853,17 @@ export function Editor() {
               setDraftDoodle(doodle)
               setToolsHidden(false)
               setPanMode(false)
+              setDoodleMode('draw')
+              setPen((b) => ({ ...b, shape: 'free' }))
+              setDoodling(true)
+            }}
+            onMark={() => {
+              setSelectedId(null)
+              setDraftDoodle(doodle)
+              setToolsHidden(false)
+              setPanMode(false)
+              setDoodleMode('mark')
+              setPen((b) => ({ ...b, kind: 'pen', shape: b.shape === 'free' ? 'arrow' : b.shape }))
               setDoodling(true)
             }}
           />
