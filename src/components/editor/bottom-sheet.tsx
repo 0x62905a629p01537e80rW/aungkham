@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import {
   PanelCloseButton,
+  PanelFullscreenButton,
   PanelHideButton,
   PanelMoveHandle,
   usePanelCollapse,
@@ -45,9 +46,10 @@ export function BottomSheet({ open, title, onClose, children }: BottomSheetProps
         className={cn(
           'fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[60dvh] w-full max-w-2xl flex-col rounded-t-3xl border border-white/20 shadow-2xl transition-transform duration-300 ease-out',
           open ? 'translate-y-0' : 'translate-y-full',
+          open && collapse.fullClass,
         )}
         style={{
-          ...(open ? panel.style : {}),
+          ...(open && !collapse.full ? panel.style : {}),
           paddingBottom: 'env(safe-area-inset-bottom)',
           backgroundColor: 'color-mix(in oklab, var(--card) 55%, transparent)',
           backdropFilter: 'blur(24px) saturate(180%)',
@@ -60,6 +62,7 @@ export function BottomSheet({ open, title, onClose, children }: BottomSheetProps
             <h2 className="text-base font-semibold">{title}</h2>
           </div>
           <div className="flex items-center gap-1.5">
+            <PanelFullscreenButton full={collapse.full} onToggle={collapse.toggleFull} />
             <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} />
             <PanelCloseButton onClick={onClose} />
           </div>

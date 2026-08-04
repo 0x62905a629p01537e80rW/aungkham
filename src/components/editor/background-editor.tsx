@@ -43,7 +43,7 @@ import {
   type RatioFitOptions,
 } from '@/lib/image-ops'
 import { LiveSlider } from './live-slider'
-import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 
 import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
@@ -361,13 +361,14 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
 
   return (
     <div
-      style={panel ? bgPanelDrag.style : undefined}
+      style={panel && !bgCollapse.full ? bgPanelDrag.style : undefined}
       className={cn(
         'fixed z-50 flex flex-col',
         panel
           ? 'inset-x-0 bottom-0 max-h-[86dvh] rounded-t-3xl border-t border-border bg-background/95 backdrop-blur-xl'
           : 'inset-0 bg-background',
         bgCollapse.collapsed && '[&>*:not(:first-child)]:hidden',
+        panel && bgCollapse.fullClass,
       )}
     >
       <header
@@ -384,6 +385,9 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
               moved={bgPanelDrag.moved}
               onReset={bgPanelDrag.reset}
             />
+          )}
+          {panel && (
+            <PanelFullscreenButton full={bgCollapse.full} onToggle={bgCollapse.toggleFull} />
           )}
           <PanelHideButton collapsed={bgCollapse.collapsed} onToggle={bgCollapse.toggle} />
           <PanelCloseButton onClick={onCancel} label="Close" />

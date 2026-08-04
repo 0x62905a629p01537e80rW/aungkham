@@ -125,7 +125,7 @@ import { TEXT_EFFECTS, EFFECT_DEFAULTS, textEffectStyle, type TextEffectKey } fr
 import { PATTERNS, patternImage } from '@/lib/text-patterns'
 import { alignPatch, type AlignMode } from '@/lib/align-layer'
 import { copyLayerStyle, getCopiedStyle } from '@/lib/style-clipboard'
-import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 import { cn } from '@/lib/utils'
 import { fontSampleText } from '@/lib/font-preview'
 import { rotateImage } from '@/lib/texture-image'
@@ -2840,8 +2840,8 @@ function DraggableToolPanel({
       sideOffset={10}
       collisionPadding={12}
       onOpenAutoFocus={(e) => e.preventDefault()}
-      style={panel.style}
-      className="glass-panel w-[min(86vw,296px)] rounded-2xl p-3 transition-[background-color,opacity] duration-200 has-[[data-dragging=true]]:!border-transparent has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-peek=true]]:!border-transparent has-[[data-peek=true]]:!bg-transparent has-[[data-peek=true]]:!shadow-none"
+      style={collapse.full ? undefined : panel.style}
+      className={cn(collapse.fullClass, 'glass-panel w-[min(86vw,296px)] rounded-2xl p-3 transition-[background-color,opacity] duration-200 has-[[data-dragging=true]]:!border-transparent has-[[data-dragging=true]]:!bg-transparent has-[[data-dragging=true]]:!shadow-none has-[[data-peek=true]]:!border-transparent has-[[data-peek=true]]:!bg-transparent has-[[data-peek=true]]:!shadow-none')}
     >
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <PanelMoveHandle
@@ -2851,6 +2851,7 @@ function DraggableToolPanel({
           className="size-7"
         />
         <div className="flex items-center gap-1.5">
+          <PanelFullscreenButton full={collapse.full} onToggle={collapse.toggleFull} className="size-7" />
           <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} className="size-7" />
           <PanelCloseButton onClick={onClose} className="size-7" />
         </div>
