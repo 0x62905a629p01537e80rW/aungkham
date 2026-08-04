@@ -625,7 +625,7 @@ export function DoodleBar({
                   : 'border-border text-foreground/75',
               )}
             >
-              <Icon className="size-[18px]" />
+              <Icon className={cn('size-[18px]', shape.endsWith('Fill') && 'fill-current')} />
             </button>
           ))}
         </div>
