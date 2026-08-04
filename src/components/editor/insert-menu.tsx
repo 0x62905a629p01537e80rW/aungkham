@@ -3,14 +3,10 @@ import { ImageIcon, PenTool, Shapes, Sticker, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { GlassTabs } from '@/components/ui/glass-tabs'
-import { DEFAULT_STROKE_WIDTH, SHAPES, SHAPE_GROUPS, shapeDataUrl, type ShapeGroup } from '@/lib/shapes'
-import { STICKERS, STICKER_GROUPS, stickerDataUrl } from '@/lib/stickers'
-import {
-  ensureStoreAssetsLoaded,
-  getStoreAssetSrc,
-  listInstalledStoreAssets,
-  subscribeStoreAssets,
-} from '@/lib/store-assets'
+import { DEFAULT_STROKE_WIDTH, SHAPES, shapeDataUrl } from '@/lib/shapes'
+import { STICKERS, stickerDataUrl } from '@/lib/stickers'
+import { StoreAssetsGrid } from './store-assets-grid'
+import { ensureStoreAssetsLoaded } from '@/lib/store-assets'
 import type { GraphicContent } from '@/lib/text-layer'
 
 interface InsertMenuProps {
@@ -36,25 +32,15 @@ export function InsertMenu({ open, onClose, onInsert, initialTab, onFreeForm }: 
   useEffect(() => {
     if (open && initialTab) setTab(initialTab)
   }, [open, initialTab])
-  const [shapeGroup, setShapeGroup] = useState<ShapeGroup>('Basic')
-  const [stickerGroup, setStickerGroup] = useState<string>(STICKER_GROUPS[0])
+  const [source, setSource] = useState<'all' | 'downloaded'>('all')
   const galleryRef = useRef<HTMLInputElement>(null)
-  const [, forceStore] = useState(0)
 
-  useEffect(() => subscribeStoreAssets(() => forceStore((n) => n + 1)), [])
   useEffect(() => {
     if (open) void ensureStoreAssetsLoaded()
   }, [open])
 
-  const downloaded = (tab === 'shapes' ? listInstalledStoreAssets('Shapes') : listInstalledStoreAssets('Stickers'))
-    .map((a) => ({ ...a, src: getStoreAssetSrc(a.kind, a.file) }))
-    .filter((a) => !!a.src)
-
-  const shapes = useMemo(() => SHAPES.filter((s) => s.group === shapeGroup), [shapeGroup])
-  const stickers = useMemo(
-    () => STICKERS.filter((s) => s.group === stickerGroup),
-    [stickerGroup],
-  )
+  const shapes = useMemo(() => SHAPES, [])
+  const stickers = useMemo(() => STICKERS, [])
 
   if (!open) return null
 
@@ -112,42 +98,27 @@ export function InsertMenu({ open, onClose, onInsert, initialTab, onFreeForm }: 
           <GlassTabs
             variant="chips"
             size="sm"
-            value={tab === 'shapes' ? shapeGroup : stickerGroup}
-            onChange={(g) =>
-              tab === 'shapes' ? setShapeGroup(g as ShapeGroup) : setStickerGroup(g)
-            }
-            items={(tab === 'shapes' ? SHAPE_GROUPS : STICKER_GROUPS).map((g) => ({
-              key: g,
-              label: g,
-            }))}
+            value={source}
+            onChange={(g) => setSource(g as 'all' | 'downloaded')}
+            items={[
+              { key: 'all', label: 'All' },
+              { key: 'downloaded', label: 'Downloaded' },
+            ]}
           />
         </div>
       )}
 
-
       <div className="min-h-0 flex-1 overflow-y-auto perf-scroll px-3 pb-8">
-        {tab !== 'overlay' && downloaded.length > 0 && (
-          <div className="pb-3">
-            <p className="pb-1.5 text-[11px] font-semibold text-muted-foreground">Downloaded</p>
-            <div className={cn('grid gap-2', tab === 'shapes' ? 'grid-cols-5' : 'grid-cols-4')}>
-              {downloaded.map((a) => (
-                <button
-                  key={`${a.kind}-${a.file}`}
-                  type="button"
-                  aria-label={a.name}
-                  onClick={() => {
-                    onInsert(
-                      { kind: 'sticker', src: a.src!, aspect: 1 },
-                      a.name,
-                    )
-                    onClose()
-                  }}
-                  className="glass-tile flex aspect-square items-center justify-center rounded-2xl p-2 transition active:scale-95"
-                >
-                  <img src={a.src} alt="" className="size-full object-contain" />
-                </button>
-              ))}
-            </div>
+        {tab !== 'overlay' && source === 'downloaded' && (
+          <div className="pt-1">
+            <StoreAssetsGrid
+              kind={tab === 'shapes' ? 'Shapes' : 'Stickers'}
+              emptyHint={`No ${tab} downloaded yet — grab some from the store.`}
+              onUse={(src, asset) => {
+                onInsert({ kind: 'sticker', src, aspect: 1 }, asset.name)
+                onClose()
+              }}
+            />
           </div>
         )}
         {tab === 'overlay' && (
@@ -166,7 +137,7 @@ export function InsertMenu({ open, onClose, onInsert, initialTab, onFreeForm }: 
           </div>
         )}
 
-        {tab === 'shapes' && onFreeForm && (
+        {tab === 'shapes' && source === 'all' && onFreeForm && (
           <button
             type="button"
             onClick={() => {
@@ -187,7 +158,7 @@ export function InsertMenu({ open, onClose, onInsert, initialTab, onFreeForm }: 
           </button>
         )}
 
-        {tab === 'shapes' && (
+        {tab === 'shapes' && source === 'all' && (
           <div className="grid grid-cols-5 gap-2 pt-1">
             {shapes.map((s) => (
               <button
@@ -226,7 +197,7 @@ export function InsertMenu({ open, onClose, onInsert, initialTab, onFreeForm }: 
           </div>
         )}
 
-        {tab === 'stickers' && (
+        {tab === 'stickers' && source === 'all' && (
           <div className="grid grid-cols-4 gap-2 pt-1">
             {stickers.map((s) => {
               const url = stickerDataUrl(s.svg)

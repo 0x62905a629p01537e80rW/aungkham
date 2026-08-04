@@ -174,12 +174,11 @@ interface ToolBarProps {
 const IMAGE_TOOLS = [
   { key: 'replace', label: 'Replace', icon: ImageUp },
   { key: 'crop', label: 'Crop', icon: Crop },
+  { key: 'resize', label: 'Resize', icon: Maximize },
+  { key: 'remove', label: 'Remover', icon: Eraser },
+  { key: 'removebg', label: 'Remove BG', icon: Scissors },
   { key: 'filter', label: 'Filters', icon: Wand2 },
   { key: 'adjust', label: 'Adjust', icon: SlidersHorizontal },
-  { key: 'removebg', label: 'Remove BG', icon: Scissors },
-  { key: 'remove', label: 'Remover', icon: Eraser },
-  { key: 'resize', label: 'Resize', icon: Maximize },
-  { key: 'flip', label: 'Flip', icon: FlipHorizontal },
   { key: 'fit', label: 'Fit', icon: Square },
   { key: 'blur', label: 'Blur', icon: Aperture },
   { key: 'frame', label: 'Frame', icon: Frame },
@@ -385,15 +384,16 @@ export function ToolBar({
             </button>
           )
 
-          // Sticker / shape / overlay shortcuts sit right before "Adjust".
-          if (key !== 'adjust') return button
+          // Overlay / shape / sticker shortcuts sit right after "Crop".
+          if (key !== 'crop') return button
           return (
-            <Fragment key="adjust-group">
+            <Fragment key="crop-group">
+              {button}
               {onInsertElement &&
                 ([
-                  { id: 'stickers', label: 'Stickers', Icon: Smile },
-                  { id: 'shapes', label: 'Shapes', Icon: Shapes },
                   { id: 'overlay', label: 'Overlays', Icon: ImagePlus },
+                  { id: 'shapes', label: 'Shapes', Icon: Shapes },
+                  { id: 'stickers', label: 'Stickers', Icon: Smile },
                 ] as const).map(({ id, label: elLabel, Icon: ElIcon }) => (
                   <button
                     key={id}
@@ -429,7 +429,6 @@ export function ToolBar({
                 </button>
               )}
               <span className="mx-1 h-7 w-px shrink-0 bg-border" />
-              {button}
             </Fragment>
           )
         })}
