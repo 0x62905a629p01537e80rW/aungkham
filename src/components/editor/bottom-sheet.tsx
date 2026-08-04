@@ -1,6 +1,12 @@
 import { useEffect, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
+import {
+  PanelCloseButton,
+  PanelHideButton,
+  PanelMoveHandle,
+  usePanelCollapse,
+  usePanelDrag,
+} from './panel-drag'
 
 interface BottomSheetProps {
   open: boolean
@@ -11,6 +17,7 @@ interface BottomSheetProps {
 
 export function BottomSheet({ open, title, onClose, children }: BottomSheetProps) {
   const panel = usePanelDrag()
+  const collapse = usePanelCollapse()
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
