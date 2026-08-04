@@ -246,11 +246,11 @@ export function EraseBar({
 }: EraseBarProps) {
   const panel = usePanelDrag()
   const iconBtn =
-    'flex size-10 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
+    'flex size-9 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
 
   return (
     <div
-      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[55vh] space-y-2 overflow-y-auto perf-scroll px-4 pb-4 pt-2"
+      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[44dvh] space-y-1.5 overflow-y-auto perf-scroll px-3 pb-3 pt-1.5"
       style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', ...panel.style }}
     >
       <div className="flex items-center justify-between gap-2">
@@ -260,13 +260,13 @@ export function EraseBar({
         </div>
         <div className="flex items-center gap-1">
           <button type="button" aria-label="Undo" disabled={!canUndo} className={iconBtn} onClick={onUndo}>
-            <Undo2 className="size-5" />
+            <Undo2 className="size-[18px]" />
           </button>
           <button type="button" aria-label="Reset erase" className={iconBtn} onClick={onReset}>
-            <RotateCcw className="size-5" />
+            <RotateCcw className="size-[18px]" />
           </button>
           <button type="button" aria-label="Redo" disabled={!canRedo} className={iconBtn} onClick={onRedo}>
-            <Redo2 className="size-5" />
+            <Redo2 className="size-[18px]" />
           </button>
         </div>
         <button
@@ -307,7 +307,7 @@ export function EraseBar({
             bypass && 'border-primary text-primary',
           )}
         >
-          <Eye className="size-5" />
+          <Eye className="size-[18px]" />
         </button>
         <div className="flex-1" />
         <button
@@ -321,7 +321,7 @@ export function EraseBar({
               : 'border-border text-foreground/80',
           )}
         >
-          <Brush className="size-5" />
+          <Brush className="size-[18px]" />
         </button>
         <button
           type="button"
@@ -334,7 +334,7 @@ export function EraseBar({
               : 'border-border text-foreground/80',
           )}
         >
-          <Eraser className="size-5" />
+          <Eraser className="size-[18px]" />
         </button>
       </div>
     </div>

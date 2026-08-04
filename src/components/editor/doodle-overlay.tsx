@@ -19,7 +19,6 @@ import {
   Square,
   Undo2,
   Waves,
-  X,
 } from 'lucide-react'
 
 import { SliderField } from './control-fields'
@@ -512,12 +511,12 @@ export function DoodleBar({
 }: DoodleBarProps) {
   const panel = usePanelDrag()
   const iconBtn =
-    'flex size-10 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
+    'flex size-9 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
 
 
   return (
     <div
-      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[62vh] space-y-2 overflow-y-auto perf-scroll px-4 pb-4 pt-2"
+      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[44dvh] space-y-1.5 overflow-y-auto perf-scroll px-3 pb-3 pt-1.5"
       style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', ...panel.style }}
     >
       <div className="flex items-center justify-between gap-2">
@@ -532,16 +531,16 @@ export function DoodleBar({
             className={cn(iconBtn, panMode && 'bg-primary text-primary-foreground')}
             onClick={() => onPanMode(!panMode)}
           >
-            <Hand className="size-5" />
+            <Hand className="size-[18px]" />
           </button>
           <button type="button" aria-label="Undo" disabled={!canUndo} className={iconBtn} onClick={onUndo}>
-            <Undo2 className="size-5" />
+            <Undo2 className="size-[18px]" />
           </button>
           <button type="button" aria-label="Clear drawing" className={iconBtn} onClick={onClear}>
-            <RotateCcw className="size-5" />
+            <RotateCcw className="size-[18px]" />
           </button>
           <button type="button" aria-label="Redo" disabled={!canRedo} className={iconBtn} onClick={onRedo}>
-            <Redo2 className="size-5" />
+            <Redo2 className="size-[18px]" />
           </button>
         </div>
         <button
