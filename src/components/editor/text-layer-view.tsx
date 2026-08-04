@@ -2,7 +2,22 @@ import { memo } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { fontFamily, TEXTURES, type TextLayer } from '@/lib/text-layer'
 import { textEffectStyle } from '@/lib/text-effects'
+import { labelRender } from '@/lib/text-labels'
 import { patternImage } from '@/lib/text-patterns'
+
+/** Ticket / banner / festival plate drawn behind the text. */
+function LabelPlate({ layer, children }: { layer: TextLayer; children: ReactNode }) {
+  const { plate, decor } = labelRender(layer.label!, layer.labelFill, layer.labelAccent)
+  return (
+    <span style={plate}>
+      {decor?.map((d, i) => (
+        <span key={i} aria-hidden style={d} />
+      ))}
+      <span style={{ position: 'relative', display: 'inline-block' }}>{children}</span>
+    </span>
+  )
+}
+
 
 
 function hexToRgb(hex: string) {
@@ -364,7 +379,16 @@ function LayerTextImpl({ layer }: { layer: TextLayer }) {
   }
 
 
+  if (layer.label) {
+    return (
+      <LabelPlate layer={layer}>
+        <span style={style}>{text}</span>
+      </LabelPlate>
+    )
+  }
+
   if (layer.highlight) {
+
     return (
       <span
         style={{

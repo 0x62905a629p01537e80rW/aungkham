@@ -50,6 +50,9 @@ const STYLE_KEYS = [
   'effectBlur',
   'effectThickness',
   'effectColor',
+  'label',
+  'labelFill',
+  'labelAccent',
 ] as const
 
 export type LayerStyle = Partial<Pick<TextLayer, (typeof STYLE_KEYS)[number]>>
