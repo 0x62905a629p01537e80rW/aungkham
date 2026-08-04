@@ -416,7 +416,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       if (!st.moved && Math.hypot(dx, dy) < 4) return
       st.moved = true
       markInteracting()
-      const rect = dragRectRef.current ?? containerRef.current?.getBoundingClientRect() ?? null
+      const rect = dragRectRef.current ?? boxRect()
       if (!rect || !rect.width || !rect.height) return
       dragRectRef.current = { width: rect.width, height: rect.height }
 
@@ -552,7 +552,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     const rotateState = useRef<{ id: string; startAngle: number; startRotation: number } | null>(null)
 
     function pointerAngle(layer: TextLayer, clientX: number, clientY: number) {
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       if (!rect) return 0
       const cx = rect.left + (layer.x / 100) * rect.width
       const cy = rect.top + (layer.y / 100) * rect.height
@@ -617,7 +617,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       let startValue = layer.wrapWidth ?? 0
       if (!startValue) {
         const box = e.currentTarget.parentElement?.getBoundingClientRect()
@@ -629,7 +629,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     function handleWrapMove(e: PointerEvent<HTMLButtonElement>) {
       const st = wrapState.current
       if (!st) return
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       const span = rect?.width || 300
       const delta = ((e.clientX - st.start) / span) * 100
       const next = Math.max(5, Math.min(200, st.startValue + delta))
@@ -686,7 +686,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const st = stretchState.current
       if (!st) return
       markInteracting()
-      const rect = containerRef.current?.getBoundingClientRect()
+      const rect = boxRect()
       const span = (st.axis === 'x' ? rect?.width : rect?.height) || 300
       const delta = (st.axis === 'x' ? e.clientX : e.clientY) - st.start
       // Dragging down / right shrinks the axis and keeps going past zero into
