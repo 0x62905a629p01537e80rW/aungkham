@@ -8,7 +8,7 @@ import {
   type SavedStyle,
 } from '@/lib/saved-styles'
 import type { LayerStyle } from '@/lib/style-clipboard'
-import { FONTS } from '@/lib/fonts'
+import { FONTS } from '@/lib/text-layer'
 import { textEffectStyle } from '@/lib/text-effects'
 
 function useSavedStyles(): SavedStyle[] {
@@ -18,18 +18,18 @@ function useSavedStyles(): SavedStyle[] {
 function tileStyle(s: LayerStyle) {
   const font = FONTS.find((f) => f.key === s.fontKey)
   return {
-    fontFamily: font?.stack,
+    fontFamily: font?.cssVar,
     fontWeight: s.fontWeight ?? 700,
     fontStyle: s.italic ? 'italic' : 'normal',
     color: s.color ?? 'currentColor',
     ...textEffectStyle({
       effect: s.effect,
       color: s.color ?? '#ffffff',
-      intensity: s.effectIntensity,
-      offset: s.effectOffset,
-      direction: s.effectDirection,
-      blur: s.effectBlur,
-      thickness: s.effectThickness,
+      effectIntensity: s.effectIntensity,
+      effectOffset: s.effectOffset,
+      effectDirection: s.effectDirection,
+      effectBlur: s.effectBlur,
+      effectThickness: s.effectThickness,
       effectColor: s.effectColor,
     }),
   } as React.CSSProperties
