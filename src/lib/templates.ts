@@ -82,6 +82,22 @@ const EN_FONT = { display: 'anton', body: 'montserrat', serif: 'playfair' }
 const MM_FONT = { display: 'myanmarsquare', body: 'layaungthit-k26', serif: 'myanmaryinmar' }
 type Fonts = typeof EN_FONT
 
+/**
+ * Per-language typographic utilities.
+ * Burmese glyphs carry stacked marks, so they need smaller type, taller line
+ * height and no letter-spacing to stay legible and inside the composition.
+ */
+const U = (mm: boolean) => ({
+  /** display / headline size */
+  d: (n: number) => (mm ? n * 0.64 : n),
+  /** supporting copy size */
+  s: (n: number) => (mm ? n * 0.88 : n),
+  /** tracking — Burmese never gets tracked out */
+  ls: (n: number) => (mm ? 0 : n),
+  lh: mm ? 1.46 : 1.05,
+})
+type Util = ReturnType<typeof U>
+
 interface Design {
   key: string
   label: string
@@ -89,11 +105,12 @@ interface Design {
   en: Copy
   mm: Copy
   c: Colors
-  make: (c: Copy, k: Colors, f: Fonts, mm: boolean) => Spec[]
+  make: (c: Copy, k: Colors, f: Fonts, mm: boolean, u: Util) => Spec[]
 }
 
-const lh = (mm: boolean) => (mm ? 1.5 : 1.05)
+const lh = (mm: boolean) => (mm ? 1.46 : 1.05)
 const one = (s: string) => s.replace(/\n/g, ' ')
+
 
 /* ---------- 32 unique designs ---------- */
 const DESIGNS: Design[] = [
