@@ -23,7 +23,11 @@ export function HistoryPanel({ open, entries, current, onClose, onJump }: Histor
   const collapse = usePanelCollapse()
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent side="bottom" style={panel.style} className="max-h-[70vh] rounded-t-2xl p-0">
+      <SheetContent
+        side="bottom"
+        style={collapse.full ? undefined : panel.style}
+        className={cn('max-h-[70vh] rounded-t-2xl p-0', collapse.fullClass)}
+      >
         <SheetHeader className="px-4 pb-2 pt-4">
           <SheetTitle className="flex items-center justify-between gap-2 text-base">
             <span className="flex items-center gap-2">
@@ -36,13 +40,17 @@ export function HistoryPanel({ open, entries, current, onClose, onJump }: Histor
                 onReset={panel.reset}
                 className="size-7"
               />
+              <PanelFullscreenButton full={collapse.full} onToggle={collapse.toggleFull} className="size-7" />
               <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} className="size-7" />
               <PanelCloseButton onClick={onClose} className="size-7" />
             </span>
           </SheetTitle>
         </SheetHeader>
 
-        <div hidden={collapse.collapsed} className="max-h-[52vh] overflow-y-auto perf-scroll px-3 pb-6">
+        <div
+          hidden={collapse.collapsed}
+          className={cn('overflow-y-auto perf-scroll px-3 pb-6', collapse.full ? 'max-h-none' : 'max-h-[52vh]')}
+        >
           {entries.map((e, i) => {
             const active = i === current
             return (
