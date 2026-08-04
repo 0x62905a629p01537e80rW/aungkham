@@ -1,11 +1,63 @@
-import { useCallback, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { ChevronDown, ChevronUp, Minus, Move } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { ChevronDown, ChevronUp, Maximize2, Minimize2, Minus, Move } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-/** Collapse state for a panel: keeps the header bar, hides the body. */
+/** Every mounted panel registers its reset so closing snaps panels home again. */
+const resetters = new Set<() => void>()
+function resetAllPanels() {
+  resetters.forEach((fn) => fn())
+}
+
+/**
+ * Collapse + fullscreen state for a panel: keeps the header bar, hides the body,
+ * or expands the whole panel to fill the screen.
+ */
 export function usePanelCollapse() {
   const [collapsed, setCollapsed] = useState(false)
-  return { collapsed, toggle: () => setCollapsed((v) => !v), setCollapsed }
+  const [full, setFull] = useState(false)
+  return {
+    collapsed,
+    toggle: () => setCollapsed((v) => !v),
+    setCollapsed,
+    full,
+    toggleFull: () =>
+      setFull((v) => {
+        if (!v) setCollapsed(false)
+        return !v
+      }),
+    setFull,
+    /** Apply to the panel container to make it cover the screen. */
+    fullClass: full
+      ? 'fixed inset-0 z-[70] !m-0 !h-auto !max-h-none !w-auto !max-w-none !translate-x-0 !translate-y-0 !rounded-none overflow-y-auto perf-scroll'
+      : '',
+  }
+}
+
+/** Expands the panel to fill the screen (and back again). */
+export function PanelFullscreenButton({
+  full,
+  onToggle,
+  className,
+}: {
+  full: boolean
+  onToggle: () => void
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={full ? 'Exit full screen' : 'Full screen'}
+      aria-pressed={full}
+      title={full ? 'Exit full screen' : 'Full screen'}
+      className={cn(
+        'flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition active:scale-95',
+        className,
+      )}
+    >
+      {full ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+    </button>
+  )
 }
 
 /** Chevron button that hides/shows the panel body, sits before the close button. */
