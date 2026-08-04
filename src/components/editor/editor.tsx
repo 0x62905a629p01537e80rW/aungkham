@@ -853,6 +853,17 @@ export function Editor() {
               setDraftDoodle(doodle)
               setToolsHidden(false)
               setPanMode(false)
+              setDoodleMode('draw')
+              setPen((b) => ({ ...b, shape: 'free' }))
+              setDoodling(true)
+            }}
+            onMark={() => {
+              setSelectedId(null)
+              setDraftDoodle(doodle)
+              setToolsHidden(false)
+              setPanMode(false)
+              setDoodleMode('mark')
+              setPen((b) => ({ ...b, kind: 'pen', shape: b.shape === 'free' ? 'arrow' : b.shape }))
               setDoodling(true)
             }}
           />
