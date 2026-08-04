@@ -39,6 +39,7 @@ async function getUpscaler(): Promise<UpscalerInstance> {
       return new UpscalerCtor({
         model: (model as { default: unknown }).default,
       })
+    })().catch((err) => {
       cached = null
       throw err
     })
