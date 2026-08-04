@@ -1,6 +1,6 @@
 import { Check, History } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 import { cn } from '@/lib/utils'
 
 export interface HistoryEntry {
