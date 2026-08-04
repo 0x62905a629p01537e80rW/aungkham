@@ -44,6 +44,8 @@ import {
 import { MarkBar } from './mark-bar'
 import { MarkOverlay, type MarkTool } from './mark-layer'
 import { DEFAULT_MARK, type Mark, type MarkStyle } from '@/lib/marks'
+import { extractLayerStyle } from '@/lib/style-clipboard'
+import { saveStyle } from '@/lib/saved-styles'
 import { useI18n } from '@/components/i18n'
 import { ensureGoogleFontsLoaded } from '@/lib/google-fonts'
 import { ensureRemoteFontsLoaded } from '@/lib/remote-fonts'
@@ -769,6 +771,13 @@ export function Editor() {
                 onDelete={deleteLayer}
                 onEditText={(id, text) => updateLayer(id, { text })}
                 onChange={updateLayer}
+                onSaveStyle={(id) => {
+                  const layer = layers.find((l) => l.id === id)
+                  if (!layer || layer.graphic) return
+                  const sample = (layer.text || 'Ag').trim().slice(0, 8) || 'Ag'
+                  saveStyle({ name: sample, sample, style: extractLayerStyle(layer) })
+                  toast.success('Style saved to My styles')
+                }}
                 onDuplicate={duplicateLayer}
                 onBringForward={(id) => moveLayer(id, 'front')}
 
