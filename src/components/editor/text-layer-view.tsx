@@ -307,32 +307,57 @@ function LayerTextImpl({ layer }: { layer: TextLayer }) {
 
   if (bend !== 0 && !text.includes('\n')) {
     const chars = [...text]
-    // ±200 on the slider sweeps a full circle in either direction.
-    const total = (bend / 100) * 180
-    const step = chars.length > 1 ? total / (chars.length - 1) : 0
-    const auto = Math.max(0.4, (chars.length * 0.62) / Math.max(0.05, Math.abs((total * Math.PI) / 180)))
+    // ±200 on the slider sweeps a full 360° circle in either direction.
+    const sweep = Math.min(360, Math.abs(bend) * 1.8)
+    const n = chars.length
+    // Angular step. A full sweep wraps around, so the last glyph must not land
+    // on top of the first one — divide by n instead of n-1 at 360°.
+    const step = sweep >= 359.5 ? sweep / n : n > 1 ? sweep / (n - 1) : 0
+    // Radius that makes the glyph run exactly fill the sweep: arc = r * θ.
+    const arc = n * 0.62
+    const auto = Math.max(0.4, arc / Math.max(0.05, (sweep * Math.PI) / 180))
     const radius = auto * ((layer.bendRadius ?? 100) / 100)
-    const up = layer.bendFlip ? bend < 0 : bend > 0
-    const spin = layer.bendFlip ? -1 : 1
+    // bend > 0 arches up (text outside the circle), bend < 0 dips down.
+    const down = layer.bendFlip ? bend > 0 : bend < 0
+    const size = 2 * radius + 2
 
     return (
-      <p style={{ ...style, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {chars.map((ch, i) => (
-          <span
-            key={`${ch}-${i}`}
-            style={{
-              display: 'inline-block',
-              transform: `rotate(${spin * (-total / 2 + step * i)}deg)`,
-              transformOrigin: up ? `50% ${radius}em` : `50% ${-radius}em`,
-              whiteSpace: 'pre',
-            }}
-          >
-            {ch}
-          </span>
-        ))}
+      <p
+        style={{
+          ...style,
+          position: 'relative',
+          display: 'block',
+          width: `${size}em`,
+          height: `${size}em`,
+          whiteSpace: 'pre',
+        }}
+      >
+        {chars.map((ch, i) => {
+          const angle = -sweep / 2 + step * i + (sweep >= 359.5 ? step / 2 : 0)
+          const a = down ? -angle : angle
+          return (
+            <span
+              key={`${ch}-${i}`}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                display: 'inline-block',
+                transformOrigin: '50% 50%',
+                transform: `translate(-50%, -50%) rotate(${a}deg) translateY(${
+                  down ? radius : -radius
+                }em)${down ? ' rotate(180deg)' : ''}`,
+                whiteSpace: 'pre',
+              }}
+            >
+              {ch}
+            </span>
+          )
+        })}
       </p>
     )
   }
+
 
   if (layer.highlight) {
     return (
