@@ -1,6 +1,6 @@
 import { Check, History } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 import { cn } from '@/lib/utils'
 
 export interface HistoryEntry {
@@ -20,6 +20,7 @@ interface HistoryPanelProps {
 /** Jump-to-any-state timeline built on the existing undo/redo stacks. */
 export function HistoryPanel({ open, entries, current, onClose, onJump }: HistoryPanelProps) {
   const panel = usePanelDrag()
+  const collapse = usePanelCollapse()
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent side="bottom" style={panel.style} className="max-h-[70vh] rounded-t-2xl p-0">
@@ -35,12 +36,13 @@ export function HistoryPanel({ open, entries, current, onClose, onJump }: Histor
                 onReset={panel.reset}
                 className="size-7"
               />
+              <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} className="size-7" />
               <PanelCloseButton onClick={onClose} className="size-7" />
             </span>
           </SheetTitle>
         </SheetHeader>
 
-        <div className="max-h-[52vh] overflow-y-auto perf-scroll px-3 pb-6">
+        <div hidden={collapse.collapsed} className="max-h-[52vh] overflow-y-auto perf-scroll px-3 pb-6">
           {entries.map((e, i) => {
             const active = i === current
             return (
