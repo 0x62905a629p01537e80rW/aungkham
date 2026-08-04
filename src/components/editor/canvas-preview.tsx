@@ -951,17 +951,19 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
                     {stretchHud && stretchHud.id === layer.id && (
                       <span
+                        data-stretch-hud
                         className="glass-tile pointer-events-none absolute rounded-full px-2 py-0.5 text-[11px] font-semibold canvas-handle-icon"
                         style={{
                           left: '50%',
                           top: 0,
-                          transform: `translate(-50%, -160%) scale(${inv})`,
+                          transform: `translate(-50%, -160%) scale(calc(var(--inv) * var(--hx) / var(--aw)), calc(var(--inv) * var(--hy) / var(--ah)))`,
                           whiteSpace: 'nowrap',
                         }}
                       >
                         {stretchHud.axis === 'x' ? 'X' : 'Y'}: {stretchHud.value}%
                       </span>
                     )}
+
         </div>
       )
     }
