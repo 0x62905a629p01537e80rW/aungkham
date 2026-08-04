@@ -84,6 +84,7 @@ import {
   SlidersHorizontal,
   Wand2,
   SwatchBook,
+  Stars,
   Square,
   Sun,
   Eraser,
@@ -113,6 +114,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
+import { FxPresets } from './fx-presets'
 import { BgRemover } from './bg-remover'
 import { PaymentPage } from './payment-page'
 import { ColorPickerPanel, parseGradient } from './color-picker'
@@ -200,6 +202,7 @@ type ToolKey =
   | 'stroke'
   | 'shadow'
   | 'effects'
+  | 'fx'
   | 'highlight'
   | 'rotate'
   | 'rotate3d'
@@ -240,6 +243,7 @@ const TOOLS: ToolDef[] = [
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
   { key: 'opacity', label: 'Opacity', icon: Droplet, needsLayer: true },
   { key: 'effects', label: 'Style', icon: SwatchBook, needsLayer: true, textOnly: true },
+  { key: 'fx', label: 'Effects', icon: Stars, needsLayer: true, textOnly: true },
   { key: 'cropel', label: 'Crop', icon: Crop, needsLayer: true, graphicOnly: true },
   { key: 'cutout', label: 'Remove BG', icon: Scissors, needsLayer: true, imageOnly: true, pro: true },
   { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: false },
@@ -1863,6 +1867,14 @@ function ToolContent({
         </div>
       )
     }
+    case 'fx':
+      return (
+        <FxPresets
+          layer={layer}
+          onApply={(patch) => onChange(patch)}
+        />
+      )
+
     case 'effects': {
       const active = layer.effect ?? 'none'
       const def = TEXT_EFFECTS.find((e) => e.key === active)

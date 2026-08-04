@@ -1,6 +1,8 @@
 export type TextAlign = 'left' | 'center' | 'right'
 
 import type { TextEffectKey } from '@/lib/text-effects'
+import type { LabelKey } from '@/lib/text-labels'
+
 
 export type TextureType = 'none' | 'ocean' | 'neon' | 'mono'
 
@@ -102,6 +104,12 @@ export interface TextLayer {
   effectBlur?: number
   effectThickness?: number
   effectColor?: string
+
+  /* Label / badge plate drawn behind the text (see lib/text-labels) */
+  label?: LabelKey
+  labelFill?: string
+  labelAccent?: string
+
 
   /* Flip */
   flipH: boolean
