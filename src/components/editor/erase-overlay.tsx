@@ -2,7 +2,7 @@ import { useEffect, useRef, type MutableRefObject, type PointerEvent } from 'rea
 import { Brush, Check, Eraser, Eye, Redo2, RotateCcw, Undo2, X } from 'lucide-react'
 import { SliderField } from './control-fields'
 import { cn } from '@/lib/utils'
-import { PanelMoveHandle, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
 
 export interface EraseBrush {
   size: number
@@ -256,14 +256,7 @@ export function EraseBar({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
-          <button
-            type="button"
-            className="flex items-center gap-1 rounded-xl px-2 py-2 text-sm font-medium text-foreground/80 transition active:scale-95"
-            onClick={onCancel}
-          >
-            <X className="size-4" />
-            Cancel
-          </button>
+          <PanelCloseButton onClick={onCancel} label="Discard and close" />
         </div>
         <div className="flex items-center gap-1">
           <button type="button" aria-label="Undo" disabled={!canUndo} className={iconBtn} onClick={onUndo}>

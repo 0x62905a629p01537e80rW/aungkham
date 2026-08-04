@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { Move } from 'lucide-react'
+import { Minus, Move } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 /**
@@ -66,6 +66,32 @@ export function PanelMoveHandle({ handleProps, moved, onReset, className }: Move
       )}
     >
       <Move className="size-4" />
+    </button>
+  )
+}
+
+/** Window-style close control (a minus bar) used on every floating panel. */
+export function PanelCloseButton({
+  onClick,
+  label = 'Close',
+  className,
+}: {
+  onClick: () => void
+  label?: string
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={cn(
+        'flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition active:scale-95',
+        className,
+      )}
+    >
+      <Minus className="size-4" />
     </button>
   )
 }
