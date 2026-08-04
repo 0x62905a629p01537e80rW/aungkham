@@ -112,6 +112,8 @@ export interface TextLayer {
   strike?: boolean
   widthScale?: number
   heightScale?: number
+  /** Keep width/height in proportion while stretching (graphics default on). */
+  aspectLock?: boolean
 
   /* Image texture + eraser mask (data URLs) */
   textureImage?: string
