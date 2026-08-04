@@ -805,6 +805,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       <X className="size-4" strokeWidth={2.25} />
                     </button>
 
+                    {!layer.graphic && (
                     <button
                       type="button"
                       aria-label="Edit text"
@@ -821,6 +822,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                     >
                       <Pencil className="size-4" strokeWidth={2.25} />
                     </button>
+                    )}
+
 
                     <button
                       type="button"
