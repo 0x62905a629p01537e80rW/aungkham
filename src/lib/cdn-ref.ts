@@ -16,6 +16,14 @@ export function rawBase(folder: string): string {
   return `https://raw.githubusercontent.com/${REPO}/${REF}/${folder}`
 }
 
+/**
+ * GitHub Pages base — serves the repo itself, always fresh, CORS-enabled and
+ * without the API rate limit. Best source for small metadata files.
+ */
+export function pagesBase(folder: string): string {
+  return `https://${REPO.split('/')[0]}.github.io/${folder}`
+}
+
 /** GitHub tree listing (single request, recursive, never stale). */
 export function ghTreeUrl(): string {
   return `https://api.github.com/repos/${REPO}/git/trees/${REF}?recursive=1`
