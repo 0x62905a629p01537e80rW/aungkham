@@ -1,33 +1,52 @@
 import { useEffect, useRef, type MutableRefObject, type PointerEvent } from 'react'
 import {
+  ArrowUpRight,
   Check,
+  Circle,
   Eraser,
   Hand,
   Highlighter,
   Minus,
+  MoreHorizontal,
   Pen,
   PenLine,
   Redo2,
   RotateCcw,
+  Signature,
   SlidersHorizontal,
   Sparkles,
   SprayCan,
+  Square,
   Undo2,
+  Waves,
   X,
 } from 'lucide-react'
+
 import { SliderField } from './control-fields'
 import { ColorPickerPopover } from './color-picker'
 import { cn } from '@/lib/utils'
 
 export type PenKind = 'pen' | 'marker' | 'neon' | 'dashed' | 'spray' | 'calligraphy' | 'eraser'
 
+/** Markup shapes drawn by dragging (Samsung-style screenshot markup). */
+export type MarkShape =
+  | 'free'
+  | 'line'
+  | 'wave'
+  | 'dashed'
+  | 'arrow'
+  | 'rect'
+  | 'rectFill'
+  | 'ellipse'
+  | 'ellipseFill'
+
 export interface DoodleBrush {
   kind: PenKind
   color: string
   size: number
   opacity: number
-  /** Draw perfectly straight lines from press point to release point. */
-  straight: boolean
+  /** Markup shape; 'free' keeps freehand drawing. */
+  shape: MarkShape
 }
 
 export interface DoodleControls {
@@ -41,8 +60,9 @@ export const DEFAULT_DOODLE: DoodleBrush = {
   color: '#ff2d55',
   size: 12,
   opacity: 100,
-  straight: false,
+  shape: 'free',
 }
+
 
 const MAX_DIM = 1800
 
@@ -241,6 +261,83 @@ export function DoodleOverlay({
     ctx.restore()
   }
 
+  /** Draw a markup shape from the press point to the current point. */
+  function drawShape(a: { x: number; y: number }, b: { x: number; y: number }) {
+    const ctx = ctxOf()
+    if (!ctx) return
+    const shape = brushRef.current.shape
+    const w = prepare(ctx)
+    const x = Math.min(a.x, b.x)
+    const y = Math.min(a.y, b.y)
+    const rw = Math.abs(b.x - a.x)
+    const rh = Math.abs(b.y - a.y)
+
+    ctx.beginPath()
+    switch (shape) {
+      case 'dashed':
+        ctx.setLineDash([w * 2.2, w * 1.8])
+        ctx.moveTo(a.x, a.y)
+        ctx.lineTo(b.x, b.y)
+        ctx.stroke()
+        break
+      case 'wave': {
+        const dx = b.x - a.x
+        const dy = b.y - a.y
+        const len = Math.hypot(dx, dy)
+        if (len < 1) break
+        const nx = -dy / len
+        const ny = dx / len
+        const amp = Math.max(w * 1.2, len * 0.045)
+        const waves = Math.max(2, Math.round(len / (amp * 4)))
+        const steps = Math.max(24, waves * 16)
+        for (let i = 0; i <= steps; i += 1) {
+          const t = i / steps
+          const off = Math.sin(t * waves * Math.PI * 2) * amp
+          const px = a.x + dx * t + nx * off
+          const py = a.y + dy * t + ny * off
+          if (i === 0) ctx.moveTo(px, py)
+          else ctx.lineTo(px, py)
+        }
+        ctx.stroke()
+        break
+      }
+      case 'arrow': {
+        const ang = Math.atan2(b.y - a.y, b.x - a.x)
+        const head = Math.max(w * 3, Math.hypot(b.x - a.x, b.y - a.y) * 0.22)
+        ctx.moveTo(a.x, a.y)
+        ctx.lineTo(b.x - Math.cos(ang) * head * 0.5, b.y - Math.sin(ang) * head * 0.5)
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(b.x, b.y)
+        ctx.lineTo(b.x - Math.cos(ang - 0.42) * head, b.y - Math.sin(ang - 0.42) * head)
+        ctx.lineTo(b.x - Math.cos(ang + 0.42) * head, b.y - Math.sin(ang + 0.42) * head)
+        ctx.closePath()
+        ctx.fill()
+        break
+      }
+      case 'rect':
+        ctx.rect(x, y, rw, rh)
+        ctx.stroke()
+        break
+      case 'rectFill':
+        ctx.rect(x, y, rw, rh)
+        ctx.fill()
+        break
+      case 'ellipse':
+      case 'ellipseFill':
+        ctx.ellipse(x + rw / 2, y + rh / 2, rw / 2, rh / 2, 0, 0, Math.PI * 2)
+        if (shape === 'ellipse') ctx.stroke()
+        else ctx.fill()
+        break
+      default:
+        ctx.moveTo(a.x, a.y)
+        ctx.lineTo(b.x, b.y)
+        ctx.stroke()
+    }
+    ctx.restore()
+  }
+
+
   function pointOf(clientX: number, clientY: number) {
     const host = hostRef.current
     const canvas = canvasRef.current
@@ -272,7 +369,7 @@ export function DoodleOverlay({
     e.currentTarget.setPointerCapture(e.pointerId)
     const canvas = canvasRef.current
     const ctx = ctxOf()
-    if (brushRef.current.straight && canvas && ctx) {
+    if (brushRef.current.shape !== 'free' && canvas && ctx) {
       snapshot.current = ctx.getImageData(0, 0, canvas.width, canvas.height)
     } else {
       snapshot.current = null
@@ -289,7 +386,7 @@ export function DoodleOverlay({
       const ctx = ctxOf()
       if (!ctx || !start.current) return
       ctx.putImageData(snapshot.current, 0, 0)
-      drawSegment(start.current, p)
+      drawShape(start.current, p)
       return
     }
     if (last.current) drawSegment(last.current, p)
@@ -352,6 +449,19 @@ const PENS: { kind: PenKind; label: string; Icon: typeof Pen }[] = [
   { kind: 'calligraphy', label: 'Calligraphy', Icon: Minus },
   { kind: 'eraser', label: 'Eraser', Icon: Eraser },
 ]
+
+const SHAPES: { shape: MarkShape; label: string; Icon: typeof Pen }[] = [
+  { shape: 'free', label: 'Freehand', Icon: Signature },
+  { shape: 'line', label: 'Straight line', Icon: Minus },
+  { shape: 'wave', label: 'Wavy line', Icon: Waves },
+  { shape: 'dashed', label: 'Dashed line', Icon: MoreHorizontal },
+  { shape: 'arrow', label: 'Arrow', Icon: ArrowUpRight },
+  { shape: 'rect', label: 'Rectangle', Icon: Square },
+  { shape: 'rectFill', label: 'Filled box', Icon: Square },
+  { shape: 'ellipse', label: 'Circle', Icon: Circle },
+  { shape: 'ellipseFill', label: 'Filled circle', Icon: Circle },
+]
+
 
 const SWATCHES = [
   '#ffffff',
@@ -496,17 +606,31 @@ export function DoodleBar({
         onChange={(v) => onBrush({ opacity: v })}
       />
 
-      <button
-        type="button"
-        onClick={() => onBrush({ straight: !brush.straight })}
-        className={cn(
-          'flex w-full items-center justify-center gap-2 rounded-xl border py-2 text-xs font-medium transition active:scale-[0.98]',
-          brush.straight ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-foreground/80',
-        )}
-      >
-        <Minus className="size-4" />
-        Straight line {brush.straight ? 'on' : 'off'}
-      </button>
+      <div className="space-y-1.5">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Mark
+        </span>
+        <div className="flex items-center gap-1.5 overflow-x-auto perf-scroll pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {SHAPES.map(({ shape, label, Icon }) => (
+            <button
+              key={shape}
+              type="button"
+              aria-label={label}
+              title={label}
+              onClick={() => onBrush({ shape })}
+              className={cn(
+                'grid size-10 shrink-0 place-items-center rounded-xl border transition active:scale-95',
+                brush.shape === shape
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border text-foreground/75',
+              )}
+            >
+              <Icon className={cn('size-[18px]', shape.endsWith('Fill') && 'fill-current')} />
+            </button>
+          ))}
+        </div>
+      </div>
+
     </div>
   )
 }
