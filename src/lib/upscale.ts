@@ -35,10 +35,10 @@ async function getUpscaler(): Promise<UpscalerInstance> {
         import('upscaler'),
         import('@upscalerjs/esrgan-slim/2x'),
       ])
-      return new Upscaler({
+      const UpscalerCtor = Upscaler as unknown as new (opts: { model: unknown }) => UpscalerInstance
+      return new UpscalerCtor({
         model: (model as { default: unknown }).default,
-      }) as unknown as UpscalerInstance
-    })().catch((err) => {
+      })
       cached = null
       throw err
     })
