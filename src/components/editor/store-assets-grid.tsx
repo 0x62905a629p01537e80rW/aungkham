@@ -161,8 +161,8 @@ export function StoreAssetsGrid({
   let budget = visible
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-center gap-2 pb-2">
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 pb-2">
         <h3 className="text-sm font-semibold text-foreground">{kind}</h3>
         <button
           type="button"
@@ -186,7 +186,7 @@ export function StoreAssetsGrid({
         </p>
       )}
 
-      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain perf-scroll no-scrollbar pb-6">
+      <div className="space-y-5 pb-6">
         {groups.map((group) => {
           if (budget <= 0) return null
           const items = group.items.slice(0, budget)

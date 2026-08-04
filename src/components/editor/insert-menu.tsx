@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ChangeEvent,
+} from 'react'
 import { ImageIcon, Shapes, Sticker, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -7,6 +14,12 @@ import { DEFAULT_STROKE_WIDTH, SHAPES, shapeDataUrl } from '@/lib/shapes'
 import { STICKERS, stickerDataUrl } from '@/lib/stickers'
 import { StoreAssetsGrid } from './store-assets-grid'
 import { ensureStoreAssetsLoaded } from '@/lib/store-assets'
+import {
+  deleteSavedShape,
+  listSavedShapes,
+  serverSavedShapes,
+  subscribeSavedShapes,
+} from '@/lib/saved-shapes'
 import type { GraphicContent } from '@/lib/text-layer'
 
 interface InsertMenuProps {
@@ -37,6 +50,11 @@ export function InsertMenu({ open, onClose, onInsert, initialTab }: InsertMenuPr
     if (open) void ensureStoreAssetsLoaded()
   }, [open])
 
+  const savedShapes = useSyncExternalStore(
+    subscribeSavedShapes,
+    listSavedShapes,
+    serverSavedShapes,
+  )
   const shapes = useMemo(() => SHAPES, [])
   const stickers = useMemo(() => STICKERS, [])
 
@@ -136,8 +154,59 @@ export function InsertMenu({ open, onClose, onInsert, initialTab }: InsertMenuPr
         )}
 
 
+        {tab === 'shapes' && source === 'all' && savedShapes.length > 0 && (
+          <section className="pt-1">
+            <h3 className="pb-2 text-sm font-semibold">My shapes</h3>
+            <div className="grid grid-cols-5 gap-2">
+              {savedShapes.map((s) => (
+                <div key={s.id} className="relative">
+                  <button
+                    type="button"
+                    aria-label={s.name}
+                    onClick={() => {
+                      onInsert(
+                        {
+                          kind: 'shape',
+                          src: shapeDataUrl(s.path, s.color, s.outline, s.strokeWidth),
+                          aspect: 1,
+                          path: s.path,
+                          outline: s.outline,
+                          strokeWidth: s.strokeWidth,
+                        },
+                        s.name,
+                      )
+                      onClose()
+                    }}
+                    className="glass-tile flex aspect-square w-full items-center justify-center rounded-2xl p-2 transition active:scale-95"
+                  >
+                    <svg viewBox="0 0 100 100" className="size-full">
+                      <path
+                        d={s.path}
+                        fill={s.outline ? 'none' : s.color}
+                        stroke={s.outline ? s.color : 'none'}
+                        strokeWidth={s.strokeWidth}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fillRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Delete ${s.name}`}
+                    onClick={() => deleteSavedShape(s.id)}
+                    className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-background text-muted-foreground shadow active:scale-90"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {tab === 'shapes' && source === 'all' && (
-          <div className="grid grid-cols-5 gap-2 pt-1">
+          <div className="grid grid-cols-5 gap-2 pt-3">
             {shapes.map((s) => (
               <button
                 key={s.id}

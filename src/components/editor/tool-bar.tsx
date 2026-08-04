@@ -436,7 +436,7 @@ export function ToolBar({
                 <button
                   type="button"
                   disabled={!!selected}
-                  onClick={() => (isPro ? onShapeLab() : setPayOpen(true))}
+                  onClick={onShapeLab}
                   className="flex shrink-0 flex-col items-center gap-1 rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium tracking-tight text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:scale-95"
                 >
                   <span className="relative">

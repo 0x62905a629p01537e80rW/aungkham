@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import {
   Check,
   CornerUpLeft,
@@ -10,10 +10,22 @@ import {
   Plus,
   Signature,
   Spline,
+  Bookmark,
+  Crown,
   Trash2,
   X,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/components/auth-provider'
+import { PaymentPage } from './payment-page'
+import {
+  deleteSavedShape,
+  listSavedShapes,
+  saveShape,
+  serverSavedShapes,
+  subscribeSavedShapes,
+} from '@/lib/saved-shapes'
 import { SliderField } from './control-fields'
 import {
   FREE_PRESETS,
@@ -63,6 +75,9 @@ export function ShapeStudio({ onCancel, onAdd }: Props) {
   const [strokeWidth, setStrokeWidth] = useState(8)
   const [grid, setGrid] = useState(true)
   const [snap, setSnap] = useState(false)
+  const { isPro } = useAuth()
+  const [pay, setPay] = useState(false)
+  const saved = useSyncExternalStore(subscribeSavedShapes, listSavedShapes, serverSavedShapes)
 
   const past = useRef<ShapeNode[][]>([])
   const future = useRef<ShapeNode[][]>([])
@@ -174,20 +189,66 @@ export function ShapeStudio({ onCancel, onAdd }: Props) {
 
   const canAdd = nodes.length >= (closed ? 3 : 2)
 
-  function addToCanvas() {
-    if (!canAdd) return
+  /** Geometry of the current drawing, ready for the canvas or the library. */
+  function build() {
     const normalized = normalizeNodes(nodes, outline ? Math.max(4, strokeWidth) : 4)
     const d = buildFreePath(normalized, closed, smooth)
+    return { d, stroked: outline || !closed }
+  }
+
+  function addToCanvas() {
+    if (!canAdd) return
+    // Designing is free — taking the shape out of the lab is a Pro feature.
+    if (!isPro) {
+      setPay(true)
+      return
+    }
+    const { d, stroked } = build()
     onAdd(
       {
         kind: 'shape',
-        src: shapeDataUrl(d, color, outline || !closed, strokeWidth),
+        src: shapeDataUrl(d, color, stroked, strokeWidth),
         aspect: 1,
         path: d,
-        outline: outline || !closed,
+        outline: stroked,
         strokeWidth,
       },
       'Free form',
+    )
+  }
+
+  function saveToLibrary() {
+    if (!canAdd) return
+    if (!isPro) {
+      setPay(true)
+      return
+    }
+    const { d, stroked } = build()
+    saveShape({
+      name: `My shape ${saved.length + 1}`,
+      path: d,
+      color,
+      outline: stroked,
+      strokeWidth,
+    })
+    toast.success('Shape saved to My shapes')
+  }
+
+  function useSaved(s: (typeof saved)[number]) {
+    if (!isPro) {
+      setPay(true)
+      return
+    }
+    onAdd(
+      {
+        kind: 'shape',
+        src: shapeDataUrl(s.path, s.color, s.outline, s.strokeWidth),
+        aspect: 1,
+        path: s.path,
+        outline: s.outline,
+        strokeWidth: s.strokeWidth,
+      },
+      s.name,
     )
   }
 
@@ -232,11 +293,21 @@ export function ShapeStudio({ onCancel, onAdd }: Props) {
         </button>
         <button
           type="button"
+          onClick={saveToLibrary}
+          disabled={!canAdd}
+          aria-label="Save shape"
+          className="grid size-9 place-items-center rounded-full text-muted-foreground active:scale-95 disabled:opacity-30"
+        >
+          <Bookmark className="size-4" />
+        </button>
+        <button
+          type="button"
           onClick={addToCanvas}
           disabled={!canAdd}
           className="flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground transition active:scale-95 disabled:opacity-40"
         >
           <Check className="size-4" /> Add
+          {!isPro && <Crown className="size-3.5" />}
         </button>
       </header>
 
@@ -393,6 +464,42 @@ export function ShapeStudio({ onCancel, onAdd }: Props) {
           ))}
         </div>
 
+        {saved.length > 0 && (
+          <div className="-mx-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar px-1">
+            <span className="shrink-0 text-[10px] font-semibold text-muted-foreground">Mine</span>
+            {saved.map((s) => (
+              <div key={s.id} className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => useSaved(s)}
+                  aria-label={s.name}
+                  className="flex size-12 items-center justify-center rounded-2xl border border-border/60 bg-foreground/5 p-1.5 active:scale-95"
+                >
+                  <svg viewBox="0 0 100 100" className="size-full">
+                    <path
+                      d={s.path}
+                      fill={s.outline ? 'none' : s.color}
+                      stroke={s.outline ? s.color : 'none'}
+                      strokeWidth={s.strokeWidth}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fillRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Delete ${s.name}`}
+                  onClick={() => deleteSavedShape(s.id)}
+                  className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-background text-muted-foreground shadow active:scale-90"
+                >
+                  <X className="size-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="-mx-1 flex gap-1.5 overflow-x-auto no-scrollbar px-1">
           {SWATCHES.map((c) => (
             <button
@@ -419,6 +526,8 @@ export function ShapeStudio({ onCancel, onAdd }: Props) {
           />
         )}
       </div>
+
+      <PaymentPage open={pay} onClose={() => setPay(false)} />
     </div>
   )
 }
