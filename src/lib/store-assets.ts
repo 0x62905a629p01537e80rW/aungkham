@@ -222,7 +222,9 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
               : ((it as { file?: string; url?: string }).file ??
                 (it as { url?: string }).url?.split('/').pop() ??
                 '')
-          if (!file) return null
+          // Folder entries (e.g. "iOS") are packs — their files come from the
+          // repo tree listing, so skip anything that is not an image file.
+          if (!file || !IMG_RE.test(file)) return null
           const o = it as { name?: string; size?: number }
           return make(file, o.size, typeof it === 'string' ? undefined : o.name)
         })
