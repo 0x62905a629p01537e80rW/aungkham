@@ -26,6 +26,7 @@ import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import {
   blurImage,
+  blurLinear,
   blurOutside,
   cropImage,
   drawRatioFit,
@@ -222,8 +223,10 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
   const [framePreview, setFramePreview] = useState<string | null>(null)
 
   // blur
-  const [blurMode, setBlurMode] = useState<'whole' | 'focus'>('whole')
+  const [blurMode, setBlurMode] = useState<'whole' | 'focus' | 'linear'>('whole')
   const [blurAmount, setBlurAmount] = useState(12)
+  const [band, setBand] = useState({ y: 0.5, r: 0.18, angle: 0 })
+  const [compare, setCompare] = useState(false)
   const [focus, setFocus] = useState({ x: 0.5, y: 0.5, r: 0.3 })
 
   useEffect(() => {
@@ -312,7 +315,9 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
         out =
           blurMode === 'whole'
             ? await blurImage(working, blurAmount)
-            : await blurOutside(working, blurAmount, focus)
+            : blurMode === 'linear'
+              ? await blurLinear(working, blurAmount, band)
+              : await blurOutside(working, blurAmount, focus)
       onApply(out)
     } finally {
       setBusy(false)
@@ -408,11 +413,14 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
         ) : tool === 'blur' ? (
           <BlurStage
             src={working}
-            amount={blurAmount}
+            amount={compare ? 0 : blurAmount}
             mode={blurMode}
             focus={focus}
+            band={band}
             compact={panel}
+            comparing={compare}
             onFocus={(f) => setFocus((p) => ({ ...p, ...f }))}
+            onBand={(b) => setBand((p) => ({ ...p, ...b }))}
           />
         ) : tool === 'fit' ? (
           <div
