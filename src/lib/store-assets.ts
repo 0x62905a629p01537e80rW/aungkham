@@ -15,8 +15,10 @@ export interface StoreAsset {
   kind: StoreKind
   /** display name (file name without extension) */
   name: string
-  /** file name */
+  /** file path relative to the section root — may include a pack folder */
   file: string
+  /** pack (sub folder) this asset belongs to, if any */
+  pack?: string
   /** absolute download url */
   url: string
   size?: number
@@ -31,14 +33,26 @@ const folder = (kind: StoreKind) => `${encodeURIComponent(ROOT)}/${kind}`
 const listPrefix = (kind: StoreKind) => `/${ROOT}/${kind}/`
 const base = (kind: StoreKind) => cdnBase(folder(kind))
 
+/** Encodes each path segment so pack folders survive in the URL. */
+const encPath = (p: string) => p.split('/').map(encodeURIComponent).join('/')
+
+/** `iOS/foo.png` → `iOS` */
+export function packOf(file: string): string | undefined {
+  const i = file.lastIndexOf('/')
+  return i > 0 ? file.slice(0, i) : undefined
+}
+
 function prettyName(file: string) {
   return file
+    .split('/')
+    .pop()!
     .replace(/\.[^.]+$/, '')
     .replace(/[_-]+/g, ' ')
     .trim()
 }
 
 const key = (v: string) => v.trim().toLowerCase()
+
 
 /* ---------------- tiers ---------------- */
 
