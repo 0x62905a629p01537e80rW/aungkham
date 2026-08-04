@@ -207,6 +207,40 @@ export function Editor() {
   }, [])
 
   /**
+   * Ultra HD: run the UpscalerJS super-resolution model on the current photo.
+   * Requires a network connection (model weights are fetched on first use).
+   */
+  const runUltraHd = useCallback(
+    async (src: string, then?: () => void) => {
+      const { enhanceUltraHd, isOnline, NoConnectionError } = await import('@/lib/upscale')
+      if (!isOnline()) {
+        toast.error('No connection', { description: 'Ultra HD needs an internet connection.' })
+        return
+      }
+      const id = toast.loading('Ultra HD — enhancing…', { description: 'Preparing model' })
+      try {
+        const out = await enhanceUltraHd(src, (pct) => {
+          toast.loading('Ultra HD — enhancing…', { id, description: `${pct}%` })
+        })
+        handleImage(out, () => {
+          toast.success('Ultra HD applied', { id })
+          then?.()
+        })
+      } catch (err) {
+        if (err instanceof NoConnectionError) {
+          toast.error('No connection', { id, description: 'Ultra HD needs an internet connection.' })
+        } else {
+          toast.error('Ultra HD failed', {
+            id,
+            description: err instanceof Error ? err.message : 'Please try again.',
+          })
+        }
+      }
+    },
+    [handleImage],
+  )
+
+  /**
    * Home-screen shortcut: load the picked photo, then jump straight into the
    * requested tool. Text shortcuts drop a text layer first so the text-only
    * tools are reachable.
@@ -216,6 +250,10 @@ export function Editor() {
       if (action.kind === 'text') {
         addLayer()
         setAutoOpenTool(action.target)
+        return
+      }
+      if (action.kind === 'ultrahd') {
+        void runUltraHd(dataUrl, action.target === 'export' ? () => setShowSave(true) : undefined)
         return
       }
       switch (action.target) {
@@ -244,6 +282,7 @@ export function Editor() {
       }
     })
   }
+
 
   function groupIdsOf(id: string): string[] {
     const target = layers.find((l) => l.id === id)
