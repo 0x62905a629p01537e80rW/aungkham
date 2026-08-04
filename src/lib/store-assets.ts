@@ -4,7 +4,7 @@
  * Each folder carries its own check.json describing free/premium tiers.
  * Downloaded assets are kept offline in IndexedDB.
  */
-import { bust, cdnBase, cdnFetch, cdnListUrl, noStore } from './cdn-ref'
+import { bust, cdnBase, cdnFetch, cdnListUrl, ghTreeUrl, noStore, rawBase } from './cdn-ref'
 
 export type StoreKind = 'Background' | 'Shapes' | 'Stickers'
 export const STORE_KINDS: StoreKind[] = ['Background', 'Shapes', 'Stickers']
@@ -53,6 +53,48 @@ function prettyName(file: string) {
 
 const key = (v: string) => v.trim().toLowerCase()
 
+/**
+ * Metadata (check.json / index.json) read straight from GitHub first — the
+ * jsDelivr branch ref can serve a cached copy for hours after an upload.
+ */
+async function fetchMeta(kind: StoreKind, file: string): Promise<Response | null> {
+  const urls = [`${rawBase(folder(kind))}/${file}`, `${await base(kind)}/${file}`]
+  for (const url of urls) {
+    try {
+      const res = await cdnFetch(bust(url), noStore)
+      if (res.ok) return res
+    } catch {
+      /* try next */
+    }
+  }
+  return null
+}
+
+/**
+ * Full repo file list via the GitHub tree API. jsDelivr's data API and folder
+ * pages can lag behind a fresh push (new pack folders simply do not appear),
+ * so this is the authoritative listing when the device is online.
+ */
+let treePromise: Promise<string[]> | null = null
+async function fetchRepoTree(force = false): Promise<string[]> {
+  if (force) treePromise = null
+  if (!treePromise) {
+    treePromise = (async () => {
+      try {
+        const res = await fetch(bust(ghTreeUrl()), noStore)
+        if (!res.ok) return []
+        const json = (await res.json()) as {
+          tree?: { path: string; type: string; size?: number }[]
+        }
+        return (json.tree ?? []).filter((t) => t.type === 'blob').map((t) => t.path)
+      } catch {
+        return []
+      }
+    })()
+  }
+  return treePromise
+}
+
 
 /* ---------------- tiers ---------------- */
 
@@ -68,7 +110,7 @@ export async function fetchStoreTiers(
   const map: Record<string, StoreTier> = {}
   try {
     // Metadata is always fetched fresh so newly purged tiers show up at once.
-    const res = await cdnFetch(bust(`${await base(kind)}/check.json`), noStore)
+    const res = await fetchMeta(kind, 'check.json')
     if (res?.ok) {
       const json = (await res.json()) as Record<string, unknown>
       const section = (json[kind.toLowerCase()] ?? json['assets'] ?? json) as {
@@ -168,8 +210,8 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
 
   // 1) optional hand-written index (entries may include a pack folder)
   try {
-    const res = await cdnFetch(bust(`${BASE}/index.json`), noStore)
-    if (res.ok) {
+    const res = await fetchMeta(kind, 'index.json')
+    if (res?.ok) {
       const raw = (await res.json()) as unknown
       const arr = Array.isArray(raw) ? raw : ((raw as { files?: unknown[] })?.files ?? [])
       const indexed = (arr as unknown[])
@@ -180,7 +222,9 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
               : ((it as { file?: string; url?: string }).file ??
                 (it as { url?: string }).url?.split('/').pop() ??
                 '')
-          if (!file) return null
+          // Folder entries (e.g. "iOS") are packs — their files come from the
+          // repo tree listing, so skip anything that is not an image file.
+          if (!file || !IMG_RE.test(file)) return null
           const o = it as { name?: string; size?: number }
           return make(file, o.size, typeof it === 'string' ? undefined : o.name)
         })
@@ -189,6 +233,17 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
     }
   } catch {
     /* fall through */
+  }
+
+  // 1b) GitHub tree listing — authoritative and never stale.
+  {
+    const treePrefix = `${ROOT}/${kind}/`
+    const tree = await fetchRepoTree(force)
+    merge(
+      tree
+        .filter((path) => path.startsWith(treePrefix) && IMG_RE.test(path))
+        .map((path) => make(path.slice(treePrefix.length))),
+    )
   }
 
   // 2) jsDelivr flat listing (already recursive)

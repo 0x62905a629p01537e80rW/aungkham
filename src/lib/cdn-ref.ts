@@ -11,6 +11,16 @@ export async function cdnBase(folder: string): Promise<string> {
   return `https://cdn.jsdelivr.net/gh/${REPO}@${REF}/${folder}`
 }
 
+/** Raw GitHub base — always current, unlike jsDelivr's cached branch ref. */
+export function rawBase(folder: string): string {
+  return `https://raw.githubusercontent.com/${REPO}/${REF}/${folder}`
+}
+
+/** GitHub tree listing (single request, recursive, never stale). */
+export function ghTreeUrl(): string {
+  return `https://api.github.com/repos/${REPO}/git/trees/${REF}?recursive=1`
+}
+
 /** jsDelivr flat file listing. */
 export async function cdnListUrl(): Promise<string> {
   return `https://data.jsdelivr.com/v1/packages/gh/${REPO}@${REF}?structure=flat`
