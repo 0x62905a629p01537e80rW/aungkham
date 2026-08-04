@@ -116,6 +116,7 @@ import { BgRemover } from './bg-remover'
 import { PaymentPage } from './payment-page'
 import { ColorPickerPanel, parseGradient } from './color-picker'
 import { DEFAULT_STROKE_WIDTH, OUTLINE_PRESETS, shapeDataUrl } from '@/lib/shapes'
+import { MyStyles } from './my-styles'
 import { TEXT_EFFECTS, EFFECT_DEFAULTS, textEffectStyle, type TextEffectKey } from '@/lib/text-effects'
 import { PATTERNS, patternImage } from '@/lib/text-patterns'
 import { alignPatch, type AlignMode } from '@/lib/align-layer'
@@ -237,7 +238,7 @@ const TOOLS: ToolDef[] = [
   { key: 'align', label: 'Align', icon: AlignCenter, needsLayer: true },
   { key: 'spacing', label: 'Spacing', icon: TypeOutline, needsLayer: true },
   { key: 'opacity', label: 'Opacity', icon: Droplet, needsLayer: true },
-  { key: 'effects', label: 'Effects', icon: Wand2, needsLayer: true, textOnly: true },
+  { key: 'effects', label: 'Style', icon: SwatchBook, needsLayer: true, textOnly: true },
   { key: 'cropel', label: 'Crop', icon: Crop, needsLayer: true, graphicOnly: true },
   { key: 'cutout', label: 'Remove BG', icon: Scissors, needsLayer: true, imageOnly: true, pro: true },
   { key: 'erase', label: 'Erase', icon: Eraser, needsLayer: false },
@@ -1867,7 +1868,9 @@ function ToolContent({
       const has = (f: string) => !!def?.fields.includes(f as never)
       return (
         <div className="space-y-4">
-          <ToolHeading>Text effects</ToolHeading>
+          <ToolHeading>My styles</ToolHeading>
+          <MyStyles onApply={(st) => onChange(st)} />
+          <ToolHeading>Style presets</ToolHeading>
           <div className="grid grid-cols-4 gap-2">
             {TEXT_EFFECTS.map((e) => (
               <button
