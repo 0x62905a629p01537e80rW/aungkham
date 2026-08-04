@@ -16,20 +16,31 @@ export interface SavedStyle {
 const KEY = 'editor.myStyles.v1'
 const listeners = new Set<() => void>()
 
+const EMPTY: SavedStyle[] = []
+/**
+ * Cached snapshot. useSyncExternalStore requires a stable reference between
+ * reads — parsing localStorage on every call returns a new array and throws
+ * "getSnapshot should be cached", which crashes the Style panel.
+ */
+let cache: SavedStyle[] | null = null
+
 function read(): SavedStyle[] {
-  if (typeof localStorage === 'undefined') return []
+  if (typeof localStorage === 'undefined') return EMPTY
+  if (cache) return cache
   try {
     const raw = localStorage.getItem(KEY)
     const parsed = raw ? (JSON.parse(raw) as SavedStyle[]) : []
-    return Array.isArray(parsed) ? parsed : []
+    cache = Array.isArray(parsed) ? parsed : EMPTY
   } catch {
-    return []
+    cache = EMPTY
   }
+  return cache
 }
 
 function write(list: SavedStyle[]) {
+  cache = list.slice(0, 60)
   try {
-    localStorage.setItem(KEY, JSON.stringify(list.slice(0, 60)))
+    localStorage.setItem(KEY, JSON.stringify(cache))
   } catch {
     /* quota / private mode — styles simply won't persist */
   }
@@ -39,6 +50,11 @@ function write(list: SavedStyle[]) {
 export function listSavedStyles(): SavedStyle[] {
   return read()
 }
+
+export function serverSavedStyles(): SavedStyle[] {
+  return EMPTY
+}
+
 
 export function saveStyle(entry: Omit<SavedStyle, 'id' | 'createdAt'>): SavedStyle {
   const item: SavedStyle = {
