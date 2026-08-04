@@ -43,7 +43,7 @@ import {
   type RatioFitOptions,
 } from '@/lib/image-ops'
 import { LiveSlider } from './live-slider'
-import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 
 import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
@@ -103,6 +103,7 @@ interface Props {
 
 export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply }: Props) {
   const bgPanelDrag = usePanelDrag()
+  const bgCollapse = usePanelCollapse()
   const [busy, setBusy] = useState(false)
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null)
 
@@ -366,6 +367,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
         panel
           ? 'inset-x-0 bottom-0 max-h-[86dvh] rounded-t-3xl border-t border-border bg-background/95 backdrop-blur-xl'
           : 'inset-0 bg-background',
+        bgCollapse.collapsed && '[&>*:not(:first-child)]:hidden',
       )}
     >
       <header
@@ -383,6 +385,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
               onReset={bgPanelDrag.reset}
             />
           )}
+          <PanelHideButton collapsed={bgCollapse.collapsed} onToggle={bgCollapse.toggle} />
           <PanelCloseButton onClick={onCancel} label="Close" />
         </div>
         <p className="text-sm font-bold">{title}</p>
