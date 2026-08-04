@@ -221,6 +221,9 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
     list = [...byFile.values()]
   }
 
+  /** Folder names seen in manifests / listings — each may hold its own index. */
+  const packNames = new Set<string>()
+
   // 1) optional hand-written index (entries may include a pack folder)
   try {
     const res = await fetchMeta(kind, 'index.json')
@@ -235,9 +238,12 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
               : ((it as { file?: string; url?: string }).file ??
                 (it as { url?: string }).url?.split('/').pop() ??
                 '')
-          // Folder entries (e.g. "iOS") are packs — their files come from the
-          // repo tree listing, so skip anything that is not an image file.
-          if (!file || !IMG_RE.test(file)) return null
+          if (!file) return null
+          // Entries without a file extension (e.g. "iOS") are pack folders.
+          if (!IMG_RE.test(file)) {
+            if (!/\.[a-z0-9]+$/i.test(file)) packNames.add(file.replace(/\/+$/, ''))
+            return null
+          }
           const o = it as { name?: string; size?: number }
           return make(file, o.size, typeof it === 'string' ? undefined : o.name)
         })
@@ -248,16 +254,45 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
     /* fall through */
   }
 
-  // 1b) GitHub tree listing — authoritative and never stale.
+  // 1b) GitHub tree listing — authoritative, but rate limited per IP.
   {
     const treePrefix = `${ROOT}/${kind}/`
     const tree = await fetchRepoTree(force)
+    for (const path of tree) {
+      if (!path.startsWith(treePrefix)) continue
+      const rest = path.slice(treePrefix.length)
+      const p = packOf(rest)
+      if (p) packNames.add(p)
+    }
     merge(
       tree
         .filter((path) => path.startsWith(treePrefix) && IMG_RE.test(path))
         .map((path) => make(path.slice(treePrefix.length))),
     )
   }
+
+  // 1c) Per-pack index.json — the reliable way to read a folder's contents
+  // without the GitHub API (jsDelivr listings lag behind new folders).
+  if (packNames.size) {
+    const packs = await Promise.all(
+      [...packNames].map(async (pack) => {
+        try {
+          const res = await fetchMeta(kind, `${pack}/index.json`)
+          if (!res?.ok) return []
+          const raw = (await res.json()) as unknown
+          const arr = Array.isArray(raw) ? raw : ((raw as { files?: unknown[] })?.files ?? [])
+          return (arr as unknown[])
+            .map((it) => (typeof it === 'string' ? it : ((it as { file?: string }).file ?? '')))
+            .filter((f) => f && IMG_RE.test(f))
+            .map((f) => make(`${pack}/${f}`))
+        } catch {
+          return []
+        }
+      }),
+    )
+    for (const p of packs) merge(p)
+  }
+
 
   // 2) jsDelivr flat listing (already recursive)
   let files: { name: string; size?: number }[] = []
