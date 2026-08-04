@@ -27,7 +27,7 @@ function applyThemeClass(theme: Theme, animate = false) {
   if (animate) {
     root.classList.add('theme-anim')
     clearTimeout(animTimer)
-    animTimer = setTimeout(() => root.classList.remove('theme-anim'), 500)
+    animTimer = setTimeout(() => root.classList.remove('theme-anim'), 700)
   }
   if (theme === 'dark') root.classList.add('dark')
   else root.classList.remove('dark')
