@@ -586,17 +586,31 @@ export function DoodleBar({
         onChange={(v) => onBrush({ opacity: v })}
       />
 
-      <button
-        type="button"
-        onClick={() => onBrush({ straight: !brush.straight })}
-        className={cn(
-          'flex w-full items-center justify-center gap-2 rounded-xl border py-2 text-xs font-medium transition active:scale-[0.98]',
-          brush.straight ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-foreground/80',
-        )}
-      >
-        <Minus className="size-4" />
-        Straight line {brush.straight ? 'on' : 'off'}
-      </button>
+      <div className="space-y-1.5">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Mark
+        </span>
+        <div className="flex items-center gap-1.5 overflow-x-auto perf-scroll pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {SHAPES.map(({ shape, label, Icon }) => (
+            <button
+              key={shape}
+              type="button"
+              aria-label={label}
+              title={label}
+              onClick={() => onBrush({ shape })}
+              className={cn(
+                'grid size-10 shrink-0 place-items-center rounded-xl border transition active:scale-95',
+                brush.shape === shape
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border text-foreground/75',
+              )}
+            >
+              <Icon className="size-[18px]" />
+            </button>
+          ))}
+        </div>
+      </div>
+
     </div>
   )
 }
