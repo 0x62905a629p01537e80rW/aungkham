@@ -12,7 +12,7 @@ import {
   PenLine,
   Redo2,
   RotateCcw,
-  Scribble,
+  Signature,
   SlidersHorizontal,
   Sparkles,
   SprayCan,
