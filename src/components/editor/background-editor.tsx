@@ -39,6 +39,7 @@ import {
   type RatioFitOptions,
 } from '@/lib/image-ops'
 import { LiveSlider } from './live-slider'
+import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
 
 import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
@@ -97,6 +98,7 @@ interface Props {
 }
 
 export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply }: Props) {
+  const bgPanelDrag = usePanelDrag()
   const [busy, setBusy] = useState(false)
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null)
 
