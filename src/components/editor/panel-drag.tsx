@@ -125,7 +125,18 @@ export function usePanelDrag() {
 
   const handleProps = { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp }
 
-  return { style, handleProps, moved: !!(offset.x || offset.y), reset: () => setOffset({ x: 0, y: 0 }) }
+  const reset = useCallback(() => setOffset({ x: 0, y: 0 }), [])
+
+  // Register so any panel close snaps every panel back to its home position.
+  useEffect(() => {
+    resetters.add(reset)
+    return () => {
+      resetters.delete(reset)
+      reset()
+    }
+  }, [reset])
+
+  return { style, handleProps, moved: !!(offset.x || offset.y), reset }
 }
 
 interface MoveHandleProps {
