@@ -125,7 +125,7 @@ import { TEXT_EFFECTS, EFFECT_DEFAULTS, textEffectStyle, type TextEffectKey } fr
 import { PATTERNS, patternImage } from '@/lib/text-patterns'
 import { alignPatch, type AlignMode } from '@/lib/align-layer'
 import { copyLayerStyle, getCopiedStyle } from '@/lib/style-clipboard'
-import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 import { cn } from '@/lib/utils'
 import { fontSampleText } from '@/lib/font-preview'
 import { rotateImage } from '@/lib/texture-image'
@@ -2832,6 +2832,7 @@ function DraggableToolPanel({
   onClose: () => void
 }) {
   const panel = usePanelDrag()
+  const collapse = usePanelCollapse()
   return (
     <PopoverContent
       side="top"
@@ -2849,9 +2850,12 @@ function DraggableToolPanel({
           onReset={panel.reset}
           className="size-7"
         />
-        <PanelCloseButton onClick={onClose} className="size-7" />
+        <div className="flex items-center gap-1.5">
+          <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} className="size-7" />
+          <PanelCloseButton onClick={onClose} className="size-7" />
+        </div>
       </div>
-      {children}
+      {!collapse.collapsed && children}
     </PopoverContent>
   )
 }

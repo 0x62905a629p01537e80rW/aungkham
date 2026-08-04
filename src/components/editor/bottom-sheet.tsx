@@ -1,6 +1,12 @@
 import { useEffect, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
+import {
+  PanelCloseButton,
+  PanelHideButton,
+  PanelMoveHandle,
+  usePanelCollapse,
+  usePanelDrag,
+} from './panel-drag'
 
 interface BottomSheetProps {
   open: boolean
@@ -11,6 +17,7 @@ interface BottomSheetProps {
 
 export function BottomSheet({ open, title, onClose, children }: BottomSheetProps) {
   const panel = usePanelDrag()
+  const collapse = usePanelCollapse()
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -52,9 +59,14 @@ export function BottomSheet({ open, title, onClose, children }: BottomSheetProps
             <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
             <h2 className="text-base font-semibold">{title}</h2>
           </div>
-          <PanelCloseButton onClick={onClose} />
+          <div className="flex items-center gap-1.5">
+            <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} />
+            <PanelCloseButton onClick={onClose} />
+          </div>
         </div>
-        <div className="overflow-y-auto perf-scroll overscroll-contain">{children}</div>
+        {!collapse.collapsed && (
+          <div className="overflow-y-auto perf-scroll overscroll-contain">{children}</div>
+        )}
       </div>
     </>
   )

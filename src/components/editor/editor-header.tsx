@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, Grid3x3, History, Layers, Plus, Redo2, Undo2 } f
 
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 import { PremiumBadge } from './premium-badge'
 import { SettingsSheet } from './settings-sheet'
 import { ThemeToggle } from '@/components/theme-provider'
@@ -234,6 +234,7 @@ export function EditorHeader({
 /** Layers popover with the shared move-drag handle + window-style close. */
 function DraggableLayersPanel({ children }: { children: React.ReactNode }) {
   const panel = usePanelDrag()
+  const collapse = usePanelCollapse()
   return (
     <PopoverContent
       side="bottom"
@@ -250,13 +251,16 @@ function DraggableLayersPanel({ children }: { children: React.ReactNode }) {
           onReset={panel.reset}
           className="size-7"
         />
-        <PopoverClose asChild>
-          <span>
-            <PanelCloseButton onClick={() => {}} className="size-7" />
-          </span>
-        </PopoverClose>
+        <div className="flex items-center gap-1.5">
+          <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} className="size-7" />
+          <PopoverClose asChild>
+            <span>
+              <PanelCloseButton onClick={() => {}} className="size-7" />
+            </span>
+          </PopoverClose>
+        </div>
       </div>
-      {children}
+      {!collapse.collapsed && children}
     </PopoverContent>
   )
 }
