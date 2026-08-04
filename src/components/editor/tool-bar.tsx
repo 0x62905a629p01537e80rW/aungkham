@@ -2256,7 +2256,24 @@ function ToolContent({
               </button>
             ))}
           </div>
+          <SliderField
+            label="Tilt X (degrees)"
+            value={layer.rotateX ?? 0}
+            min={-90}
+            max={90}
+            suffix="°"
+            onChange={(v) => onChange({ rotateX: v })}
+          />
+          <SliderField
+            label="Tilt Y (degrees)"
+            value={layer.rotateY ?? 0}
+            min={-90}
+            max={90}
+            suffix="°"
+            onChange={(v) => onChange({ rotateY: v })}
+          />
           {(!!layer.rotateX || !!layer.rotateY) && (
+
             <SliderField
               label="Depth of field"
               value={layer.perspective ?? 600}

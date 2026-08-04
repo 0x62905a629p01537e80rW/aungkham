@@ -80,9 +80,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       id: string
       pointerId: number
       startDist: number
+      startVec: { x: number; y: number }
       startWrap?: number
       startSize: number
     } | null>(null)
+
     const lastTapRef = useRef<{ id: string; time: number } | null>(null)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [guides, setGuides] = useState<{ v: number | null; h: number | null }>({ v: null, h: null })
@@ -478,22 +480,25 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
-    function centerDistance(layer: TextLayer, clientX: number, clientY: number) {
+    /** Pointer offset from the layer centre, in screen pixels. */
+    function centerVector(layer: TextLayer, clientX: number, clientY: number) {
       const rect = containerRef.current?.getBoundingClientRect()
-      if (!rect) return 0
+      if (!rect) return { x: 0, y: 0 }
       const cx = rect.left + (layer.x / 100) * rect.width
       const cy = rect.top + (layer.y / 100) * rect.height
-      return Math.hypot(clientX - cx, clientY - cy)
+      return { x: clientX - cx, y: clientY - cy }
     }
 
     function handleResizeDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
+      const v = centerVector(layer, e.clientX, e.clientY)
       resizeState.current = {
         id: layer.id,
         pointerId: e.pointerId,
-        startDist: centerDistance(layer, e.clientX, e.clientY) || 1,
+        startDist: Math.hypot(v.x, v.y) || 1,
+        startVec: v,
         startSize: layer.fontSize,
         startWrap: layer.wrapWidth,
       }
@@ -505,9 +510,12 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       markInteracting()
       const layer = layers.find((l) => l.id === st.id)
       if (!layer) return
-      const dist = centerDistance(layer, e.clientX, e.clientY)
-      const ratio = dist / st.startDist
-      const next = Math.max(0.5, Math.min(120, st.startSize * ratio))
+      // Project onto the grab direction instead of using raw distance: dragging
+      // through the centre keeps shrinking (raw distance would grow again), so
+      // stickers and shapes can always be scaled all the way back down.
+      const v = centerVector(layer, e.clientX, e.clientY)
+      const ratio = (v.x * st.startVec.x + v.y * st.startVec.y) / (st.startDist * st.startDist)
+      const next = Math.max(0.4, Math.min(120, st.startSize * Math.max(0.02, ratio)))
       onResize(st.id, Math.round(next * 2) / 2)
       // Keep the wrap box proportional so scaling doesn't re-flow the lines.
       if (st.startWrap) {
@@ -517,6 +525,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         })
       }
     }
+
 
     function handleResizeUp(e: PointerEvent<HTMLButtonElement>) {
       resizeState.current = null
@@ -572,15 +581,21 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     /* --- Horizontal / vertical stretch (X% / Y%) --- */
     const stretchState = useRef<{
       id: string
+      layer: TextLayer
       axis: 'x' | 'y'
       start: number
       startValue: number
+      value: number
+      content: HTMLElement | null
+      chrome: HTMLElement | null
+      hud: HTMLElement | null
     } | null>(null)
     const [stretchHud, setStretchHud] = useState<{
       id: string
       axis: 'x' | 'y'
       value: number
     } | null>(null)
+
 
     const wrapState = useRef<{ id: string; start: number; startValue: number } | null>(null)
 
@@ -617,6 +632,11 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
+    /**
+     * Stretching writes straight to the DOM while the finger is down: React
+     * only sees the value once on release. That keeps the gesture at display
+     * refresh rate even with heavy text effects on the layer.
+     */
     function handleStretchDown(
       e: PointerEvent<HTMLButtonElement>,
       layer: TextLayer,
@@ -627,14 +647,26 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       e.currentTarget.setPointerCapture(e.pointerId)
       markInteracting()
       const raw = axis === 'x' ? (layer.widthScale ?? 100) : (layer.heightScale ?? 100)
-      const startValue = Math.max(10, Math.min(400, Math.abs(raw)))
+      const startValue = clampStretch(raw)
       stretchState.current = {
         id: layer.id,
+        layer,
         axis,
         start: axis === 'x' ? e.clientX : e.clientY,
         startValue,
+        value: startValue,
+        content: document.querySelector<HTMLElement>(`[data-layer-id="${layer.id}"]`),
+        chrome: document.querySelector<HTMLElement>('[data-chrome]'),
+        hud: document.querySelector<HTMLElement>('[data-stretch-hud]'),
       }
       setStretchHud({ id: layer.id, axis, value: Math.round(startValue) })
+    }
+
+    /** Keeps the value inside ±400% and skips the unusable band around zero. */
+    function clampStretch(v: number) {
+      const n = Math.round(v)
+      const sign = n < 0 ? -1 : 1
+      return sign * Math.max(8, Math.min(400, Math.abs(n) || 100))
     }
 
     function handleStretchMove(e: PointerEvent<HTMLButtonElement>) {
@@ -644,19 +676,32 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const rect = containerRef.current?.getBoundingClientRect()
       const span = (st.axis === 'x' ? rect?.width : rect?.height) || 300
       const delta = (st.axis === 'x' ? e.clientX : e.clientY) - st.start
-      // Dragging down / right decreases the value. Never crosses zero: mirroring
-      // is the job of the flip buttons, and negative scales used to turn the
-      // text inside-out mid-drag.
-      let next = st.startValue - (delta * 140) / span
-      next = Math.max(10, Math.min(400, Math.round(next)))
-      emitStretch(st.id, st.axis, next)
-      setStretchHud({ id: st.id, axis: st.axis, value: next })
+      // Dragging down / right shrinks the axis and keeps going past zero into
+      // negative (mirrored) territory, exactly like the on-canvas box.
+      const next = clampStretch(st.startValue - (delta * 220) / span)
+      if (next === st.value) return
+      st.value = next
+      const live: TextLayer =
+        st.axis === 'x'
+          ? { ...st.layer, widthScale: next }
+          : { ...st.layer, heightScale: next }
+      if (st.content) st.content.style.transform = `${layerTransform(live)} translateZ(0)`
+      if (st.chrome) {
+        st.chrome.style.transform = chromeTransform(live)
+        applyHandleVars(st.chrome, live, 1 / viewRef.current.scale)
+      }
+      if (!st.hud) st.hud = document.querySelector<HTMLElement>('[data-stretch-hud]')
+      if (st.hud) st.hud.textContent = `${st.axis === 'x' ? 'X' : 'Y'}: ${next}%`
+
     }
 
     function handleStretchUp(e: PointerEvent<HTMLButtonElement>) {
-      emitStretch.flush()
+      const st = stretchState.current
       stretchState.current = null
       setStretchHud(null)
+      if (st) {
+        onChange?.(st.id, st.axis === 'x' ? { widthScale: st.value } : { heightScale: st.value })
+      }
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
       } catch {
@@ -669,6 +714,39 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
 
 
+
+    /**
+     * Handle geometry is expressed with CSS variables so a live stretch can be
+     * pushed onto the node without a React render. The buttons undo the frame's
+     * scale/mirror exactly, which keeps them perfectly round and upright no
+     * matter how far the layer is stretched.
+     */
+    function applyHandleVars(node: HTMLElement, layer: TextLayer, inv: number) {
+      const wS = (layer.widthScale ?? 100) / 100
+      const hS = (layer.heightScale ?? 100) / 100
+      const sx = layer.flipH !== wS < 0 ? -1 : 1
+      const sy = layer.flipV !== hS < 0 ? -1 : 1
+      node.style.setProperty('--hx', String(sx))
+      node.style.setProperty('--hy', String(sy))
+      node.style.setProperty('--aw', String(Math.max(0.05, Math.abs(wS) || 1)))
+      node.style.setProperty('--ah', String(Math.max(0.05, Math.abs(hS) || 1)))
+      node.style.setProperty('--inv', String(inv))
+      node.style.setProperty('--off', `${22 * inv}px`)
+    }
+
+    const handleVars = (layer: TextLayer, inv: number): CSSProperties => {
+      const wS = (layer.widthScale ?? 100) / 100
+      const hS = (layer.heightScale ?? 100) / 100
+      return {
+        ['--hx' as string]: layer.flipH !== wS < 0 ? -1 : 1,
+        ['--hy' as string]: layer.flipV !== hS < 0 ? -1 : 1,
+        ['--aw' as string]: Math.max(0.05, Math.abs(wS) || 1),
+        ['--ah' as string]: Math.max(0.05, Math.abs(hS) || 1),
+        ['--inv' as string]: inv,
+        ['--off' as string]: `${22 * inv}px`,
+      }
+    }
+
     /**
      * Selection frame + handles for the active layer. Rendered in an unmasked
      * container so the erase mask never hides the controls.
@@ -678,25 +756,19 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const mirror = (v: number | string) => (v === 0 ? '100%' : v === '100%' ? 0 : v)
       const wS = (layer.widthScale ?? 100) / 100
       const hS = (layer.heightScale ?? 100) / 100
-      const negW = wS < 0
-      const negH = hS < 0
-      const flipX = layer.flipH !== negW
-      const flipY = layer.flipV !== negH
+      const flipX = layer.flipH !== wS < 0
+      const flipY = layer.flipV !== hS < 0
       const hx = (v: number | string) => (flipX ? mirror(v) : v)
       const hy = (v: number | string) => (flipY ? mirror(v) : v)
-      const sx = flipX ? -1 : 1
-      const sy = flipY ? -1 : 1
-      // Clamp the inverse-scale compensation: at extreme stretch values an exact
-      // inverse blew the handle buttons up into huge ellipses.
-      const clamp = (v: number) => Math.max(0.5, Math.min(2, v))
-      const aw = clamp(Math.abs(wS) || 1)
-      const ah = clamp(Math.abs(hS) || 1)
-      const OFF = 22 * inv
+      // Exact inverse of the frame transform, expressed in CSS variables so the
+      // icons stay circular and readable at any stretch value.
       const hTr = (ox: number, oy: number) =>
-        `translate(calc(-50% + ${(ox * sx * OFF) / aw}px), calc(-50% + ${(oy * sy * OFF) / ah}px)) scale(${(inv * sx) / aw}, ${(inv * sy) / ah})`
+        `translate(calc(-50% + ${ox} * var(--hx) * var(--off) / var(--aw)), calc(-50% + ${oy} * var(--hy) * var(--off) / var(--ah))) scale(calc(var(--inv) * var(--hx) / var(--aw)), calc(var(--inv) * var(--hy) / var(--ah)))`
+
 
       return (
         <div
+          data-chrome
           style={{
             position: 'absolute',
             left: `${layer.x}%`,
@@ -709,8 +781,10 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             touchAction: 'none',
             outlineWidth: `${1 * inv}px`,
             outlineOffset: `${5 * inv}px`,
+            ...handleVars(layer, inv),
           }}
           className="outline-solid outline-foreground/60"
+
           onPointerDown={(e) => handlePointerDown(e, layer.id)}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -742,6 +816,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       <X className="size-4" strokeWidth={2.25} />
                     </button>
 
+                    {!layer.graphic && (
                     <button
                       type="button"
                       aria-label="Edit text"
@@ -758,6 +833,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                     >
                       <Pencil className="size-4" strokeWidth={2.25} />
                     </button>
+                    )}
+
 
                     <button
                       type="button"
@@ -885,17 +962,19 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
                     {stretchHud && stretchHud.id === layer.id && (
                       <span
+                        data-stretch-hud
                         className="glass-tile pointer-events-none absolute rounded-full px-2 py-0.5 text-[11px] font-semibold canvas-handle-icon"
                         style={{
                           left: '50%',
                           top: 0,
-                          transform: `translate(-50%, -160%) scale(${inv})`,
+                          transform: `translate(-50%, -160%) scale(calc(var(--inv) * var(--hx) / var(--aw)), calc(var(--inv) * var(--hy) / var(--ah)))`,
                           whiteSpace: 'nowrap',
                         }}
                       >
                         {stretchHud.axis === 'x' ? 'X' : 'Y'}: {stretchHud.value}%
                       </span>
                     )}
+
         </div>
       )
     }
