@@ -103,7 +103,7 @@ export function TemplateGallery({
 }) {
   const [lang, setLang] = useState<TemplateLang>('EN')
   const [group, setGroup] = useState('All')
-  const [view, setView] = useState<'single' | 'grid'>('single')
+  const [view, setView] = useState<'single' | 'grid'>('grid')
   const [selectMode, setSelectMode] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const [tick, force] = useState(0)
