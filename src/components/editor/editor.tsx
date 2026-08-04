@@ -104,6 +104,7 @@ export function Editor() {
   const [markStyle, setMarkStyle] = useState<MarkStyle>(DEFAULT_MARK)
   const [markTool, setMarkTool] = useState<MarkTool>('draw')
   const [selectedMark, setSelectedMark] = useState<string | null>(null)
+  const marksAtOpen = useRef<Mark[]>([])
   const markPast = useRef<Mark[][]>([])
   const markFuture = useRef<Mark[][]>([])
   const [markHistory, setMarkHistory] = useState({ canUndo: false, canRedo: false })
@@ -856,6 +857,11 @@ export function Editor() {
                 setSelectedMark(null)
               }}
               onCancel={() => {
+                /* discard: drop every mark drawn in this session */
+                setMarks(marksAtOpen.current)
+                markPast.current = []
+                markFuture.current = []
+                setMarkHistory({ canUndo: false, canRedo: false })
                 setSelectedMark(null)
                 setMarking(false)
               }}
@@ -966,6 +972,10 @@ export function Editor() {
               setSelectedId(null)
               setMarkTool('draw')
               setSelectedMark(null)
+              marksAtOpen.current = marks
+              markPast.current = []
+              markFuture.current = []
+              setMarkHistory({ canUndo: false, canRedo: false })
               setMarking(true)
             }}
           />

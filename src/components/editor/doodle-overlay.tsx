@@ -19,13 +19,12 @@ import {
   Square,
   Undo2,
   Waves,
-  X,
 } from 'lucide-react'
 
 import { SliderField } from './control-fields'
 import { ColorPickerPopover } from './color-picker'
 import { cn } from '@/lib/utils'
-import { PanelMoveHandle, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
 
 export type PenKind = 'pen' | 'marker' | 'neon' | 'dashed' | 'spray' | 'calligraphy' | 'eraser'
 
@@ -512,25 +511,18 @@ export function DoodleBar({
 }: DoodleBarProps) {
   const panel = usePanelDrag()
   const iconBtn =
-    'flex size-10 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
+    'flex size-9 items-center justify-center rounded-xl transition active:scale-95 disabled:opacity-35'
 
 
   return (
     <div
-      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[62vh] space-y-2 overflow-y-auto perf-scroll px-4 pb-4 pt-2"
+      className="glass-bar fixed inset-x-0 bottom-0 z-50 max-h-[44dvh] space-y-1.5 overflow-y-auto perf-scroll px-3 pb-3 pt-1.5"
       style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', ...panel.style }}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
-          <button
-            type="button"
-            className="flex items-center gap-1 rounded-xl px-2 py-2 text-sm font-medium text-foreground/80 transition active:scale-95"
-            onClick={onCancel}
-          >
-            <X className="size-4" />
-            Cancel
-          </button>
+          <PanelCloseButton onClick={onCancel} label="Discard and close" />
         </div>
         <div className="flex items-center gap-1">
           <button
@@ -539,16 +531,16 @@ export function DoodleBar({
             className={cn(iconBtn, panMode && 'bg-primary text-primary-foreground')}
             onClick={() => onPanMode(!panMode)}
           >
-            <Hand className="size-5" />
+            <Hand className="size-[18px]" />
           </button>
           <button type="button" aria-label="Undo" disabled={!canUndo} className={iconBtn} onClick={onUndo}>
-            <Undo2 className="size-5" />
+            <Undo2 className="size-[18px]" />
           </button>
           <button type="button" aria-label="Clear drawing" className={iconBtn} onClick={onClear}>
-            <RotateCcw className="size-5" />
+            <RotateCcw className="size-[18px]" />
           </button>
           <button type="button" aria-label="Redo" disabled={!canRedo} className={iconBtn} onClick={onRedo}>
-            <Redo2 className="size-5" />
+            <Redo2 className="size-[18px]" />
           </button>
         </div>
         <button
@@ -630,14 +622,16 @@ export function DoodleBar({
         ))}
       </div>
 
-      <SliderField label="Size" value={brush.size} min={1} max={80} onChange={(v) => onBrush({ size: v })} />
-      <SliderField
-        label="Opacity"
-        value={brush.opacity}
-        min={5}
-        max={100}
-        onChange={(v) => onBrush({ opacity: v })}
-      />
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+        <SliderField label="Size" value={brush.size} min={1} max={80} onChange={(v) => onBrush({ size: v })} />
+        <SliderField
+          label="Opacity"
+          value={brush.opacity}
+          min={5}
+          max={100}
+          onChange={(v) => onBrush({ opacity: v })}
+        />
+      </div>
 
     </div>
   )

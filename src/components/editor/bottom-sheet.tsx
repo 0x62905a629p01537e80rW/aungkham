@@ -1,7 +1,6 @@
 import { useEffect, type ReactNode } from 'react'
-import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { PanelMoveHandle, usePanelDrag } from './panel-drag'
+import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
 
 interface BottomSheetProps {
   open: boolean
@@ -53,14 +52,7 @@ export function BottomSheet({ open, title, onClose, children }: BottomSheetProps
             <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
             <h2 className="text-base font-semibold">{title}</h2>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground transition active:scale-95"
-          >
-            <X className="size-4" />
-          </button>
+          <PanelCloseButton onClick={onClose} />
         </div>
         <div className="overflow-y-auto perf-scroll overscroll-contain">{children}</div>
       </div>

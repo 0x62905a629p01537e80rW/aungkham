@@ -39,6 +39,7 @@ import {
   type RatioFitOptions,
 } from '@/lib/image-ops'
 import { LiveSlider } from './live-slider'
+import { PanelCloseButton, PanelMoveHandle, usePanelDrag } from './panel-drag'
 
 import { FRAMES, applyFrame, paintFrame, type FrameSpec } from '@/lib/frames'
 
@@ -97,6 +98,7 @@ interface Props {
 }
 
 export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply }: Props) {
+  const bgPanelDrag = usePanelDrag()
   const [busy, setBusy] = useState(false)
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null)
 
@@ -350,6 +352,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
 
   return (
     <div
+      style={panel ? bgPanelDrag.style : undefined}
       className={cn(
         'fixed z-50 flex flex-col',
         panel
@@ -364,14 +367,16 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
         )}
         style={panel ? undefined : { paddingTop: 'env(safe-area-inset-top)' }}
       >
-        <button
-          type="button"
-          onClick={onCancel}
-          className="grid size-10 place-items-center rounded-full text-muted-foreground active:scale-95"
-          aria-label="Cancel"
-        >
-          <X className="size-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          {panel && (
+            <PanelMoveHandle
+              handleProps={bgPanelDrag.handleProps}
+              moved={bgPanelDrag.moved}
+              onReset={bgPanelDrag.reset}
+            />
+          )}
+          <PanelCloseButton onClick={onCancel} label="Close" />
+        </div>
         <p className="text-sm font-bold">{title}</p>
         <button
           type="button"
