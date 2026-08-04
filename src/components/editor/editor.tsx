@@ -1030,6 +1030,10 @@ export function Editor() {
               setPen((b) => ({ ...b, shape: 'free' }))
               setDoodling(true)
             }}
+            onShapeLab={() => {
+              setSelectedId(null)
+              setFreeForm(true)
+            }}
             onMark={() => {
               setSelectedId(null)
               setMarkTool('draw')
@@ -1082,7 +1086,6 @@ export function Editor() {
             initialTab={insertTab}
             onClose={() => setInserting(false)}
             onInsert={addGraphic}
-            onFreeForm={() => setFreeForm(true)}
           />
 
           {freeForm && (
