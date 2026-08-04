@@ -92,6 +92,7 @@ export function Editor() {
   const [eraseHistory, setEraseHistory] = useState({ canUndo: false, canRedo: false })
   const eraseControls = useRef<EraseControls | null>(null)
   const [doodling, setDoodling] = useState(false)
+  const [markMode, setMarkMode] = useState(false)
   const [doodle, setDoodle] = useState<string | undefined>(undefined)
   const [draftDoodle, setDraftDoodle] = useState<string | undefined>(undefined)
   const [pen, setPen] = useState<DoodleBrush>(DEFAULT_DOODLE)
@@ -453,12 +454,11 @@ export function Editor() {
     [image, layers, naturalSize],
   )
 
-  /* ---- background prerender ------------------------------------------- */
-  // While the user edits we quietly render the flattened image in the
-  // background (on an idle callback, from the GPU-composited hidden export
-  // node) so pressing Next can show the result instantly instead of waiting.
+  /* ---- export cache ----------------------------------------------------- */
+  // The flattened PNG is only rendered on demand (pressing Next). Rendering it
+  // in the background while editing pinned the main thread and made the whole
+  // editor stutter, so it is cached after an export instead.
   const prerender = useRef<{ sig: string; url: string } | null>(null)
-  const prerendering = useRef(false)
 
   const exportSignature = useCallback(
     () =>
@@ -483,41 +483,7 @@ export function Editor() {
     })
   }, [naturalSize])
 
-  const busy =
-    exporting || erasing || doodling || removingBg || removingObject || adjusting || filtering
 
-  useEffect(() => {
-    if (!image || !naturalSize || busy || showSave) return
-    let cancelled = false
-    const sig = exportSignature()
-    if (prerender.current?.sig === sig) return
-
-    const run = async () => {
-      if (cancelled || prerendering.current) return
-      prerendering.current = true
-      try {
-        await document.fonts?.ready?.catch?.(() => undefined)
-        const url = await capture()
-        if (url && !cancelled) prerender.current = { sig, url }
-      } catch {
-        /* prerender is best effort */
-      } finally {
-        prerendering.current = false
-      }
-    }
-
-    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number })
-      .requestIdleCallback
-    const timer = window.setTimeout(() => {
-      if (idle) idle(() => void run())
-      else void run()
-    }, 600)
-
-    return () => {
-      cancelled = true
-      window.clearTimeout(timer)
-    }
-  }, [image, naturalSize, busy, showSave, exportSignature, capture])
 
   const renderPreview = useCallback(async () => {
     if (!naturalSize) return null
@@ -787,6 +753,7 @@ export function Editor() {
               <ShowToolsButton onShow={() => setToolsHidden(false)} />
             ) : (
             <DoodleBar
+              mode={markMode ? 'mark' : 'draw'}
               brush={pen}
               onBrush={(patch) => setPen((b) => ({ ...b, ...patch }))}
               panMode={panMode}
@@ -852,6 +819,17 @@ export function Editor() {
               setDraftDoodle(doodle)
               setToolsHidden(false)
               setPanMode(false)
+              setMarkMode(false)
+              setPen((b) => ({ ...b, shape: 'free' }))
+              setDoodling(true)
+            }}
+            onMark={() => {
+              setSelectedId(null)
+              setDraftDoodle(doodle)
+              setToolsHidden(false)
+              setPanMode(false)
+              setMarkMode(true)
+              setPen((b) => ({ ...b, shape: b.shape === 'free' ? 'arrow' : b.shape }))
               setDoodling(true)
             }}
           />
