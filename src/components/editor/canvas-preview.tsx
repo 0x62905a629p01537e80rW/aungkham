@@ -681,7 +681,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
         st.chrome.style.transform = chromeTransform(live)
         applyHandleVars(st.chrome, live, 1 / viewRef.current.scale)
       }
+      if (!st.hud) st.hud = document.querySelector<HTMLElement>('[data-stretch-hud]')
       if (st.hud) st.hud.textContent = `${st.axis === 'x' ? 'X' : 'Y'}: ${next}%`
+
     }
 
     function handleStretchUp(e: PointerEvent<HTMLButtonElement>) {
