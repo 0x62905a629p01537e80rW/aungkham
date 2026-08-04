@@ -164,6 +164,7 @@ export interface FontOption {
 }
 
 export const FONTS: FontOption[] = [
+  { key: 'roboto', label: 'Roboto', cssVar: 'var(--font-roboto)', category: 'Sans' },
   { key: 'inter', label: 'Inter', cssVar: 'var(--font-inter)', category: 'Sans' },
   { key: 'poppins', label: 'Poppins', cssVar: 'var(--font-poppins)', category: 'Sans' },
   { key: 'montserrat', label: 'Montserrat', cssVar: 'var(--font-montserrat)', category: 'Sans' },
@@ -264,7 +265,7 @@ export function createTextLayer(text = 'Your text'): TextLayer {
   return {
     id: `layer-${Date.now()}-${counter}`,
     text,
-    fontKey: 'anton',
+    fontKey: 'roboto',
     fontSize: 12,
     fontWeight: 700,
     italic: false,
