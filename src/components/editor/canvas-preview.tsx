@@ -572,15 +572,21 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     /* --- Horizontal / vertical stretch (X% / Y%) --- */
     const stretchState = useRef<{
       id: string
+      layer: TextLayer
       axis: 'x' | 'y'
       start: number
       startValue: number
+      value: number
+      content: HTMLElement | null
+      chrome: HTMLElement | null
+      hud: HTMLElement | null
     } | null>(null)
     const [stretchHud, setStretchHud] = useState<{
       id: string
       axis: 'x' | 'y'
       value: number
     } | null>(null)
+
 
     const wrapState = useRef<{ id: string; start: number; startValue: number } | null>(null)
 
