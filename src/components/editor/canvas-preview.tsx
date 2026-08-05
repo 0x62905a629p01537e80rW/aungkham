@@ -64,6 +64,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       selectedId,
       exporting,
       showGrid = false,
+      showZoom = true,
       eraseMask,
       doodle,
       marks,
