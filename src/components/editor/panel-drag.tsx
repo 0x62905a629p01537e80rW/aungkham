@@ -12,9 +12,28 @@ function resetAllPanels() {
  * Collapse + fullscreen state for a panel: keeps the header bar, hides the body,
  * or expands the whole panel to fill the screen.
  */
-export function usePanelCollapse() {
+export function usePanelCollapse(open?: boolean) {
   const [collapsed, setCollapsed] = useState(false)
   const [full, setFull] = useState(false)
+
+  const reset = useCallback(() => {
+    setCollapsed(false)
+    setFull(false)
+  }, [])
+
+  // Any panel closing (including a tap outside) snaps every panel back.
+  useEffect(() => {
+    resetters.add(reset)
+    return () => {
+      resetters.delete(reset)
+      reset()
+    }
+  }, [reset])
+
+  useEffect(() => {
+    if (open === false) reset()
+  }, [open, reset])
+
   return {
     collapsed,
     toggle: () => setCollapsed((v) => !v),
