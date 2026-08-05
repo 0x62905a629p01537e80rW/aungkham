@@ -110,7 +110,7 @@ export function PanelHideButton({
  * Lets a floating panel (bottom sheet, tool bar, dialog) be dragged out of the
  * way so the user can see the part of the canvas it covers while editing.
  */
-export function usePanelDrag() {
+export function usePanelDrag(open?: boolean) {
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const start = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null)
 
