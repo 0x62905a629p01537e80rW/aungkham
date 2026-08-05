@@ -155,6 +155,11 @@ export function usePanelDrag(open?: boolean) {
     }
   }, [reset])
 
+  // Closing by tapping outside (or any other route) also snaps it home.
+  useEffect(() => {
+    if (open === false) reset()
+  }, [open, reset])
+
   return { style, handleProps, moved: !!(offset.x || offset.y), reset }
 }
 
