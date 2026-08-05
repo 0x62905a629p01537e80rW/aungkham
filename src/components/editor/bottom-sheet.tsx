@@ -44,8 +44,8 @@ export function BottomSheet({ open, title, onClose, children }: BottomSheetProps
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[60dvh] w-full max-w-2xl flex-col rounded-t-3xl border border-white/20 shadow-2xl transition-transform duration-300 ease-out',
-          open ? 'translate-y-0' : 'translate-y-full',
+          'fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[60dvh] w-full max-w-2xl flex-col rounded-t-3xl border border-white/20 shadow-2xl transition-[transform,opacity] duration-300 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]',
+          open ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-full scale-[0.96] opacity-0',
           open && collapse.fullClass,
         )}
         style={{
