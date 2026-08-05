@@ -49,6 +49,8 @@ interface CanvasPreviewProps {
   /** Save this text layer's look into "My styles" (text layers only). */
   onSaveStyle?: (id: string) => void
   onBringForward?: (id: string) => void
+  /** Show the floating zoom in / out / fit buttons on the canvas. */
+  showZoom?: boolean
   /** Reports zoom level and the image-space centre of the visible area (%). */
   onViewChange?: (v: { scale: number; cx: number; cy: number }) => void
 }
