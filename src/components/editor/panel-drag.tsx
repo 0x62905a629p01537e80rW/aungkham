@@ -12,9 +12,28 @@ function resetAllPanels() {
  * Collapse + fullscreen state for a panel: keeps the header bar, hides the body,
  * or expands the whole panel to fill the screen.
  */
-export function usePanelCollapse() {
+export function usePanelCollapse(open?: boolean) {
   const [collapsed, setCollapsed] = useState(false)
   const [full, setFull] = useState(false)
+
+  const reset = useCallback(() => {
+    setCollapsed(false)
+    setFull(false)
+  }, [])
+
+  // Any panel closing (including a tap outside) snaps every panel back.
+  useEffect(() => {
+    resetters.add(reset)
+    return () => {
+      resetters.delete(reset)
+      reset()
+    }
+  }, [reset])
+
+  useEffect(() => {
+    if (open === false) reset()
+  }, [open, reset])
+
   return {
     collapsed,
     toggle: () => setCollapsed((v) => !v),
@@ -28,7 +47,7 @@ export function usePanelCollapse() {
     setFull,
     /** Apply to the panel container to make it cover the screen. */
     fullClass: full
-      ? 'fixed inset-0 z-[70] !m-0 !h-auto !max-h-none !w-auto !max-w-none !translate-x-0 !translate-y-0 !rounded-none overflow-y-auto perf-scroll'
+      ? 'panel-fullscreen !fixed !inset-0 !left-0 !top-0 z-[70] !m-0 !h-[100dvh] !max-h-none !w-screen !max-w-none !translate-x-0 !translate-y-0 !rounded-none overflow-y-auto perf-scroll'
       : '',
   }
 }
@@ -91,7 +110,7 @@ export function PanelHideButton({
  * Lets a floating panel (bottom sheet, tool bar, dialog) be dragged out of the
  * way so the user can see the part of the canvas it covers while editing.
  */
-export function usePanelDrag() {
+export function usePanelDrag(open?: boolean) {
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const start = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null)
 
@@ -135,6 +154,11 @@ export function usePanelDrag() {
       reset()
     }
   }, [reset])
+
+  // Closing by tapping outside (or any other route) also snaps it home.
+  useEffect(() => {
+    if (open === false) reset()
+  }, [open, reset])
 
   return { style, handleProps, moved: !!(offset.x || offset.y), reset }
 }

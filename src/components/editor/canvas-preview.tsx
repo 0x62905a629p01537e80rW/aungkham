@@ -49,6 +49,8 @@ interface CanvasPreviewProps {
   /** Save this text layer's look into "My styles" (text layers only). */
   onSaveStyle?: (id: string) => void
   onBringForward?: (id: string) => void
+  /** Show the floating zoom in / out / fit buttons on the canvas. */
+  showZoom?: boolean
   /** Reports zoom level and the image-space centre of the visible area (%). */
   onViewChange?: (v: { scale: number; cx: number; cy: number }) => void
 }
@@ -62,6 +64,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       selectedId,
       exporting,
       showGrid = false,
+      showZoom = true,
       eraseMask,
       doodle,
       marks,
@@ -1240,7 +1243,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
 
 
-        {!exporting && (
+        {!exporting && showZoom && (
           <div
             className="absolute bottom-5 right-2 flex flex-col gap-1"
             onPointerDown={(e) => e.stopPropagation()}

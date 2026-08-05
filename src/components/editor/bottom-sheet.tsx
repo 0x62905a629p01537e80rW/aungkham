@@ -17,8 +17,8 @@ interface BottomSheetProps {
 }
 
 export function BottomSheet({ open, title, onClose, children }: BottomSheetProps) {
-  const panel = usePanelDrag()
-  const collapse = usePanelCollapse()
+  const panel = usePanelDrag(open)
+  const collapse = usePanelCollapse(open)
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {

@@ -19,8 +19,8 @@ interface HistoryPanelProps {
 
 /** Jump-to-any-state timeline built on the existing undo/redo stacks. */
 export function HistoryPanel({ open, entries, current, onClose, onJump }: HistoryPanelProps) {
-  const panel = usePanelDrag()
-  const collapse = usePanelCollapse()
+  const panel = usePanelDrag(open)
+  const collapse = usePanelCollapse(open)
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent
