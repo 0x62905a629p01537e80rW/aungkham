@@ -1240,7 +1240,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
 
 
-        {!exporting && (
+        {!exporting && showZoom && (
           <div
             className="absolute bottom-5 right-2 flex flex-col gap-1"
             onPointerDown={(e) => e.stopPropagation()}
