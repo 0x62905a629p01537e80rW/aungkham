@@ -47,7 +47,7 @@ export function usePanelCollapse(open?: boolean) {
     setFull,
     /** Apply to the panel container to make it cover the screen. */
     fullClass: full
-      ? 'fixed inset-0 z-[70] !m-0 !h-auto !max-h-none !w-auto !max-w-none !translate-x-0 !translate-y-0 !rounded-none overflow-y-auto perf-scroll'
+      ? 'panel-fullscreen !fixed !inset-0 !left-0 !top-0 z-[70] !m-0 !h-[100dvh] !max-h-none !w-screen !max-w-none !translate-x-0 !translate-y-0 !rounded-none overflow-y-auto perf-scroll'
       : '',
   }
 }
