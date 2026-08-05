@@ -83,6 +83,23 @@ export function Editor() {
   const [removingObject, setRemovingObject] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [showGrid, setShowGrid] = useState(false)
+  const [showZoom, setShowZoom] = useState(true)
+  useEffect(() => {
+    try {
+      setShowZoom(localStorage.getItem('canvas-zoom-buttons') !== '0')
+    } catch {
+      /* ignore */
+    }
+  }, [])
+  const toggleZoomButtons = () =>
+    setShowZoom((v) => {
+      try {
+        localStorage.setItem('canvas-zoom-buttons', v ? '0' : '1')
+      } catch {
+        /* ignore */
+      }
+      return !v
+    })
   const [replacing, setReplacing] = useState(false)
   const [showSave, setShowSave] = useState(false)
   const [inserting, setInserting] = useState(false)
@@ -748,6 +765,8 @@ export function Editor() {
         onNext={() => setNextRequested(true)}
         showGrid={showGrid}
         onToggleGrid={() => setShowGrid((v) => !v)}
+        showZoom={showZoom}
+        onToggleZoom={toggleZoomButtons}
         canUndo={past.current.length > 0}
         canRedo={future.current.length > 0}
         onUndo={undo}
@@ -828,6 +847,7 @@ export function Editor() {
                 layers={layers}
                 exporting={exporting}
                 showGrid={showGrid}
+                showZoom={showZoom}
                 onViewChange={(v) => {
                   viewRef.current = {
                     scale: v.scale,
