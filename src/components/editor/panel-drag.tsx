@@ -125,7 +125,7 @@ export function PanelHideButton({
     [],
   )
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     if (!collapsed) {
       // Freeze where the header currently sits so collapsing doesn't slide the
       // bar down to the bottom of the panel's old box.
