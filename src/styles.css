@@ -732,3 +732,17 @@ html.perf-interact .checker-grid {
 @media (prefers-reduced-motion: reduce) {
   .ultra-blob, .ultra-scan, .ultra-glow, .ultra-rim { animation-duration: 8s; }
 }
+
+/* Full-screen panels: Radix positions popovers inside a transformed wrapper,
+   which would trap `position: fixed`. Neutralise the wrapper while a panel
+   inside it is expanded to full screen. */
+[data-radix-popper-content-wrapper]:has(.panel-fullscreen) {
+  position: fixed !important;
+  inset: 0 !important;
+  transform: none !important;
+  min-width: 0 !important;
+  z-index: 70;
+}
+.panel-fullscreen {
+  animation: none !important;
+}
