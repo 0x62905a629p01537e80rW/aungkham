@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, ArrowRight, Grid3x3, History, Layers, Plus, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Grid3x3, History, Layers, Plus, Redo2, SlidersHorizontal, Undo2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 import { PremiumBadge } from './premium-badge'
