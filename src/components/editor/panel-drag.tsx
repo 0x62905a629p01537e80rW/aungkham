@@ -79,6 +79,17 @@ export function PanelFullscreenButton({
   )
 }
 
+/** Nearest floating panel container above a header button. */
+function findPanelEl(el: HTMLElement | null): HTMLElement | null {
+  let node: HTMLElement | null = el?.parentElement ?? null
+  while (node && node !== document.body) {
+    const pos = getComputedStyle(node).position
+    if (pos === 'fixed' || pos === 'absolute') return node
+    node = node.parentElement
+  }
+  return null
+}
+
 /** Chevron button that hides/shows the panel body, sits before the close button. */
 export function PanelHideButton({
   collapsed,
@@ -89,10 +100,54 @@ export function PanelHideButton({
   onToggle: () => void
   className?: string
 }) {
+  const pinned = useRef<HTMLElement | null>(null)
+
+  // Expanding again (or the panel closing) releases the pinned position.
+  useEffect(() => {
+    if (collapsed) return
+    const el = pinned.current
+    if (!el) return
+    el.style.top = ''
+    el.style.bottom = ''
+    el.style.height = ''
+    pinned.current = null
+  }, [collapsed])
+
+  useEffect(
+    () => () => {
+      const el = pinned.current
+      if (el) {
+        el.style.top = ''
+        el.style.bottom = ''
+        el.style.height = ''
+      }
+    },
+    [],
+  )
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!collapsed) {
+      // Freeze where the header currently sits so collapsing doesn't slide the
+      // bar down to the bottom of the panel's old box.
+      const el = findPanelEl(e.currentTarget)
+      if (el) {
+        const top = el.getBoundingClientRect().top
+        pinned.current = el
+        requestAnimationFrame(() => {
+          if (pinned.current !== el) return
+          el.style.top = `${top}px`
+          el.style.bottom = 'auto'
+          el.style.height = 'auto'
+        })
+      }
+    }
+    onToggle()
+  }
+
   return (
     <button
       type="button"
-      onClick={onToggle}
+      onClick={handleClick}
       aria-label={collapsed ? 'Show panel' : 'Hide panel'}
       aria-expanded={!collapsed}
       title={collapsed ? 'Show panel' : 'Hide panel'}
