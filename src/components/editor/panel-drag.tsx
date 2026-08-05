@@ -168,6 +168,8 @@ export function PanelHideButton({
 export function usePanelDrag(open?: boolean) {
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const start = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null)
+  /** Where the drag handle sits with a zero offset — used to clamp on screen. */
+  const home = useRef<{ x: number; y: number; w: number; h: number } | null>(null)
 
   const onPointerDown = useCallback(
     (e: PointerEvent<HTMLElement>) => {
@@ -175,6 +177,8 @@ export function usePanelDrag(open?: boolean) {
       e.stopPropagation()
       e.currentTarget.setPointerCapture(e.pointerId)
       start.current = { px: e.clientX, py: e.clientY, ox: offset.x, oy: offset.y }
+      const r = e.currentTarget.getBoundingClientRect()
+      home.current = { x: r.left - offset.x, y: r.top - offset.y, w: r.width, h: r.height }
     },
     [offset.x, offset.y],
   )
@@ -182,8 +186,18 @@ export function usePanelDrag(open?: boolean) {
   const onPointerMove = useCallback((e: PointerEvent<HTMLElement>) => {
     const s = start.current
     if (!s) return
-    setOffset({ x: s.ox + (e.clientX - s.px), y: s.oy + (e.clientY - s.py) })
+    let x = s.ox + (e.clientX - s.px)
+    let y = s.oy + (e.clientY - s.py)
+    // Keep the handle itself fully on screen so the panel can always be dragged back.
+    const h = home.current
+    if (h) {
+      const pad = 4
+      x = Math.min(Math.max(x, pad - h.x), window.innerWidth - h.w - pad - h.x)
+      y = Math.min(Math.max(y, pad - h.y), window.innerHeight - h.h - pad - h.y)
+    }
+    setOffset({ x, y })
   }, [])
+
 
   const onPointerUp = useCallback((e: PointerEvent<HTMLElement>) => {
     start.current = null
