@@ -20,6 +20,8 @@ interface EditorHeaderProps {
   onNext?: () => void
   showGrid?: boolean
   onToggleGrid?: () => void
+  showZoom?: boolean
+  onToggleZoom?: () => void
   canUndo?: boolean
   canRedo?: boolean
   onUndo?: () => void
@@ -48,6 +50,8 @@ export function EditorHeader({
   onNext,
   showGrid = false,
   onToggleGrid,
+  showZoom = true,
+  onToggleZoom,
   canUndo = false,
   canRedo = false,
   onUndo,
