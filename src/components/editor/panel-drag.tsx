@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react'
 import { ChevronDown, ChevronUp, Maximize2, Minimize2, Minus, Move } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
