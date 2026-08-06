@@ -46,7 +46,7 @@ function solve(A: number[][], b: number[]): number[] | null {
       for (let k = c; k <= n; k += 1) m[r][k] -= f * m[c][k]
     }
   }
-  return m.map((row, i) => row[n] / row[i][i] * 1)
+  return m.map((row, i) => row[n] / row[i])
 }
 
 /**
