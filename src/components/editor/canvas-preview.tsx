@@ -885,6 +885,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
           <span style={{ visibility: 'hidden' }}>
             <LayerText layer={layer} />
           </span>
+          {!warpMode && (
+            <>
                     <button
                       type="button"
                       aria-label="Delete text"
@@ -1079,6 +1081,9 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                         {stretchHud.axis === 'x' ? 'X' : 'Y'}: {stretchHud.value}%
                       </span>
                     )}
+
+            </>
+          )}
 
                     {warpMode && layer.warp &&
                       ([[0, 0], [1, 0], [1, 1], [0, 1]] as const).map(([bx, by], i) => {
