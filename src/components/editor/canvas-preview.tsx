@@ -823,8 +823,8 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       const dx = (e.clientX - st.startX) / st.w
       const dy = (e.clientY - st.startY) / st.h
       const next = st.corners.map((c) => [c[0], c[1]]) as [number, number][]
-      const clamp = (v: number) => Math.max(-0.9, Math.min(0.9, v))
-      next[st.index] = [clamp(st.corners[st.index][0] + dx), clamp(st.corners[st.index][1] + dy)]
+      // No clamping: corners are free to travel anywhere on (and off) the canvas.
+      next[st.index] = [st.corners[st.index][0] + dx, st.corners[st.index][1] + dy]
       onChange?.(st.id, { warp: next })
     }
 
@@ -1080,7 +1080,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       </span>
                     )}
 
-                    {layer.warp &&
+                    {warpMode && layer.warp &&
                       ([[0, 0], [1, 0], [1, 1], [0, 1]] as const).map(([bx, by], i) => {
                         const cx = bx + (layer.warp?.[i]?.[0] ?? 0)
                         const cy = by + (layer.warp?.[i]?.[1] ?? 0)
