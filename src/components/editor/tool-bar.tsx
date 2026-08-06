@@ -116,6 +116,8 @@ import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
 import { IDENTITY_WARP, WARP_PRESETS, warpPoints, type WarpCorners } from '@/lib/perspective'
+import { setWarpMode } from '@/lib/warp-mode'
+
 import { FxPresets } from './fx-presets'
 import { BgRemover } from './bg-remover'
 import { PaymentPage } from './payment-page'
@@ -309,6 +311,13 @@ export function ToolBar({
     measure()
     return () => cancelAnimationFrame(raf)
   }, [openTool])
+
+  // Corner warp handles only exist while the Perspective panel is open.
+  useEffect(() => {
+    setWarpMode(openTool === 'perspective')
+    return () => setWarpMode(false)
+  }, [openTool])
+
 
   const autoOpenRef = useRef<string | null>(null)
   const handledCbRef = useRef(onAutoOpenHandled)
