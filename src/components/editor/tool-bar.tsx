@@ -310,6 +310,13 @@ export function ToolBar({
     return () => cancelAnimationFrame(raf)
   }, [openTool])
 
+  // Corner warp handles only exist while the Perspective panel is open.
+  useEffect(() => {
+    setWarpMode(openTool === 'perspective')
+    return () => setWarpMode(false)
+  }, [openTool])
+
+
   const autoOpenRef = useRef<string | null>(null)
   const handledCbRef = useRef(onAutoOpenHandled)
   handledCbRef.current = onAutoOpenHandled
