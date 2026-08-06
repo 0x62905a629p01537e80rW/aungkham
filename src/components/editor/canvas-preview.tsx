@@ -18,6 +18,7 @@ import type { TextLayer } from '@/lib/text-layer'
 import type { Mark } from '@/lib/marks'
 import { MarksSvg } from './mark-layer'
 import { pulseInteraction, rafThrottle } from '@/lib/perf'
+import { useWarpMode } from '@/lib/warp-mode'
 
 interface CanvasPreviewProps {
   image: string
@@ -787,6 +788,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     /* --- Free 4-corner perspective warp handles --- */
+    const warpMode = useWarpMode()
     const warpState = useRef<{
       id: string
       pointerId: number
