@@ -1087,7 +1087,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
             </>
           )}
 
-                    {warpMode && layer.warp &&
+                    {warpMode &&
                       ([[0, 0], [1, 0], [1, 1], [0, 1]] as const).map(([bx, by], i) => {
                         const cx = bx + (layer.warp?.[i]?.[0] ?? 0)
                         const cy = by + (layer.warp?.[i]?.[1] ?? 0)
