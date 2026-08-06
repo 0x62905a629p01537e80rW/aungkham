@@ -79,6 +79,8 @@ export interface TextLayer {
   rotateX: number
   rotateY: number
   perspective: number
+  /** Free 4-corner perspective warp: [dx,dy] offsets (box fractions), TL TR BR BL. */
+  warp?: [number, number][]
 
   /* Liquid glass */
   liquidOn?: boolean
