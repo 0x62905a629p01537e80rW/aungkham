@@ -786,6 +786,53 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       }
     }
 
+    /* --- Free 4-corner perspective warp handles --- */
+    const warpState = useRef<{
+      id: string
+      pointerId: number
+      index: number
+      startX: number
+      startY: number
+      w: number
+      h: number
+      corners: [number, number][]
+    } | null>(null)
+
+    function handleWarpDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer, index: number) {
+      e.stopPropagation()
+      e.preventDefault()
+      const frameEl = e.currentTarget.parentElement
+      const rect = frameEl?.getBoundingClientRect()
+      if (!rect || !rect.width || !rect.height) return
+      e.currentTarget.setPointerCapture(e.pointerId)
+      warpState.current = {
+        id: layer.id,
+        pointerId: e.pointerId,
+        index,
+        startX: e.clientX,
+        startY: e.clientY,
+        w: rect.width,
+        h: rect.height,
+        corners: (layer.warp ?? [[0, 0], [0, 0], [0, 0], [0, 0]]).map((c) => [c[0], c[1]]) as [number, number][],
+      }
+    }
+
+    function handleWarpMove(e: PointerEvent<HTMLButtonElement>) {
+      const st = warpState.current
+      if (!st || st.pointerId !== e.pointerId) return
+      const dx = (e.clientX - st.startX) / st.w
+      const dy = (e.clientY - st.startY) / st.h
+      const next = st.corners.map((c) => [c[0], c[1]]) as [number, number][]
+      const clamp = (v: number) => Math.max(-0.9, Math.min(0.9, v))
+      next[st.index] = [clamp(st.corners[st.index][0] + dx), clamp(st.corners[st.index][1] + dy)]
+      onChange?.(st.id, { warp: next })
+    }
+
+    function handleWarpUp(e: PointerEvent<HTMLButtonElement>) {
+      if (warpState.current?.pointerId === e.pointerId) warpState.current = null
+    }
+
+
     /**
      * Selection frame + handles for the active layer. Rendered in an unmasked
      * container so the erase mask never hides the controls.
