@@ -358,6 +358,18 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
 }
 
 function LayerTextImpl({ layer }: { layer: TextLayer }) {
+  const warp = layer.warp as WarpCorners | undefined
+  if (warp && !isIdentityWarp(warp)) {
+    return (
+      <WarpBox warp={warp}>
+        <LayerBody layer={layer} />
+      </WarpBox>
+    )
+  }
+  return <LayerBody layer={layer} />
+}
+
+function LayerBody({ layer }: { layer: TextLayer }) {
   if (layer.graphic) return <LayerGraphic layer={layer} />
   const style = layer.liquidOn
     ? { ...layerTextStyle(layer), ...liquidStyle(layer) }
