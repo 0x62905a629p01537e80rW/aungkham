@@ -115,6 +115,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SliderField, ColorField } from './control-fields'
+import { IDENTITY_WARP, WARP_PRESETS, warpPoints, type WarpCorners } from '@/lib/perspective'
 import { FxPresets } from './fx-presets'
 import { BgRemover } from './bg-remover'
 import { PaymentPage } from './payment-page'
@@ -2264,59 +2265,8 @@ function ToolContent({
         </div>
       )
     case 'perspective':
-      return (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <ToolHeading>Perspective</ToolHeading>
-            <button
-              type="button"
-              onClick={() => onChange({ rotateX: 0, rotateY: 0, skewX: 0, skewY: 0 })}
-              className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
-            >
-              Reset
-            </button>
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {PERSPECTIVE_PRESETS.map((p) => (
-              <button
-                key={p.label}
-                type="button"
-                onClick={() => onChange(p.patch)}
-                className="flex h-11 items-center justify-center rounded-xl border border-border text-[10px] font-semibold transition active:scale-95"
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <SliderField
-            label="Tilt X (degrees)"
-            value={layer.rotateX ?? 0}
-            min={-90}
-            max={90}
-            suffix="°"
-            onChange={(v) => onChange({ rotateX: v })}
-          />
-          <SliderField
-            label="Tilt Y (degrees)"
-            value={layer.rotateY ?? 0}
-            min={-90}
-            max={90}
-            suffix="°"
-            onChange={(v) => onChange({ rotateY: v })}
-          />
-          {(!!layer.rotateX || !!layer.rotateY) && (
+      return <PerspectivePanel layer={layer} onChange={onChange} />
 
-            <SliderField
-              label="Depth of field"
-              value={layer.perspective ?? 600}
-              min={200}
-              max={2000}
-              step={20}
-              onChange={(v) => onChange({ perspective: v })}
-            />
-          )}
-        </div>
-      )
     case 'bend':
       return (
         <div className="space-y-4">
@@ -2388,12 +2338,77 @@ const BEND_PRESETS = [
   { label: 'Circle', patch: { bend: 200, bendRadius: 100, bendFlip: false } },
 ] satisfies { label: string; patch: Partial<TextLayer> }[]
 
-const PERSPECTIVE_PRESETS = [
-  { label: 'Left', patch: { rotateY: -35, rotateX: 0 } },
-  { label: 'Right', patch: { rotateY: 35, rotateX: 0 } },
-  { label: 'Top', patch: { rotateX: 35, rotateY: 0 } },
-  { label: 'Bottom', patch: { rotateX: -35, rotateY: 0 } },
-] satisfies { label: string; patch: Partial<TextLayer> }[]
+/** Small trapezoid thumbnail drawn from a warp preset. */
+function WarpThumb({ corners }: { corners: WarpCorners }) {
+  const pts = warpPoints(corners)
+    .map(([x, y]) => `${(8 + x * 32).toFixed(1)},${(8 + y * 24).toFixed(1)}`)
+    .join(' ')
+  return (
+    <svg viewBox="0 0 48 40" className="h-7 w-9" aria-hidden>
+      <polygon points={pts} fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round" />
+      {warpPoints(corners).map(([x, y], i) => (
+        <circle key={i} cx={8 + x * 32} cy={8 + y * 24} r={2} fill="currentColor" />
+      ))}
+    </svg>
+  )
+}
+
+function PerspectivePanel({
+  layer,
+  onChange,
+}: {
+  layer: TextLayer
+  onChange: (patch: Partial<TextLayer>) => void
+}) {
+  const active = !!layer.warp
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <ToolHeading>Perspective</ToolHeading>
+        <button
+          type="button"
+          onClick={() =>
+            onChange({ warp: undefined, rotateX: 0, rotateY: 0, skewX: 0, skewY: 0 })
+          }
+          className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+        >
+          Reset
+        </button>
+      </div>
+
+      <div className="grid grid-cols-4 gap-2">
+        {WARP_PRESETS.map((p) => (
+          <button
+            key={p.key}
+            type="button"
+            onClick={() => onChange({ warp: p.corners.map((c) => [...c]) as WarpCorners })}
+            className="flex h-14 items-center justify-center rounded-xl border border-border text-foreground transition active:scale-95"
+          >
+            <WarpThumb corners={p.corners} />
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={() =>
+          onChange({ warp: active ? undefined : (IDENTITY_WARP.map((c) => [...c]) as WarpCorners) })
+        }
+        className={cn(
+          'h-10 w-full rounded-xl border text-xs font-semibold transition active:scale-95',
+          active ? 'border-primary bg-primary/10 text-primary' : 'border-border',
+        )}
+      >
+        {active ? 'Corner handles on' : 'Drag corners on canvas'}
+      </button>
+
+      <p className="text-center text-[11px] text-muted-foreground">
+        Drag the four circles around the layer to bend it into any plane.
+      </p>
+    </div>
+  )
+}
+
 
 const POSITION_TABS = ['Move', 'Zoom', 'Rotate', 'Layer Order'] as const
 

@@ -1,9 +1,49 @@
-import { memo } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { fontFamily, TEXTURES, type TextLayer } from '@/lib/text-layer'
 import { textEffectStyle } from '@/lib/text-effects'
 import { labelRender } from '@/lib/text-labels'
 import { patternImage } from '@/lib/text-patterns'
+import { isIdentityWarp, warpMatrix, type WarpCorners } from '@/lib/perspective'
+
+/**
+ * Applies the free 4-corner perspective warp. The element measures itself so
+ * the homography can be built in real pixels, then keeps its top-left anchor.
+ */
+function WarpBox({ warp, children }: { warp: WarpCorners; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  const [size, setSize] = useState({ w: 0, h: 0 })
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    const measure = () => {
+      const r = node.getBoundingClientRect()
+      const sx = node.offsetWidth || r.width
+      const sy = node.offsetHeight || r.height
+      setSize((prev) => (Math.abs(prev.w - sx) < 0.5 && Math.abs(prev.h - sy) < 0.5 ? prev : { w: sx, h: sy }))
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(node)
+    return () => ro.disconnect()
+  }, [])
+
+  const matrix = warpMatrix(warp, size.w, size.h)
+  return (
+    <div
+      ref={ref}
+      style={{
+        display: 'inline-block',
+        transform: matrix ?? undefined,
+        transformOrigin: '0 0',
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
 
 /** Ticket / banner / festival plate drawn behind the text. */
 function LabelPlate({ layer, children }: { layer: TextLayer; children: ReactNode }) {
@@ -318,6 +358,18 @@ function LayerGraphic({ layer }: { layer: TextLayer }) {
 }
 
 function LayerTextImpl({ layer }: { layer: TextLayer }) {
+  const warp = layer.warp as WarpCorners | undefined
+  if (warp && !isIdentityWarp(warp)) {
+    return (
+      <WarpBox warp={warp}>
+        <LayerBody layer={layer} />
+      </WarpBox>
+    )
+  }
+  return <LayerBody layer={layer} />
+}
+
+function LayerBody({ layer }: { layer: TextLayer }) {
   if (layer.graphic) return <LayerGraphic layer={layer} />
   const style = layer.liquidOn
     ? { ...layerTextStyle(layer), ...liquidStyle(layer) }
