@@ -2264,59 +2264,8 @@ function ToolContent({
         </div>
       )
     case 'perspective':
-      return (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <ToolHeading>Perspective</ToolHeading>
-            <button
-              type="button"
-              onClick={() => onChange({ rotateX: 0, rotateY: 0, skewX: 0, skewY: 0 })}
-              className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
-            >
-              Reset
-            </button>
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {PERSPECTIVE_PRESETS.map((p) => (
-              <button
-                key={p.label}
-                type="button"
-                onClick={() => onChange(p.patch)}
-                className="flex h-11 items-center justify-center rounded-xl border border-border text-[10px] font-semibold transition active:scale-95"
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <SliderField
-            label="Tilt X (degrees)"
-            value={layer.rotateX ?? 0}
-            min={-90}
-            max={90}
-            suffix="°"
-            onChange={(v) => onChange({ rotateX: v })}
-          />
-          <SliderField
-            label="Tilt Y (degrees)"
-            value={layer.rotateY ?? 0}
-            min={-90}
-            max={90}
-            suffix="°"
-            onChange={(v) => onChange({ rotateY: v })}
-          />
-          {(!!layer.rotateX || !!layer.rotateY) && (
+      return <PerspectivePanel layer={layer} onChange={onChange} />
 
-            <SliderField
-              label="Depth of field"
-              value={layer.perspective ?? 600}
-              min={200}
-              max={2000}
-              step={20}
-              onChange={(v) => onChange({ perspective: v })}
-            />
-          )}
-        </div>
-      )
     case 'bend':
       return (
         <div className="space-y-4">
