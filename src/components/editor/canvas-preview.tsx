@@ -1080,6 +1080,34 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
                       </span>
                     )}
 
+                    {layer.warp &&
+                      ([[0, 0], [1, 0], [1, 1], [0, 1]] as const).map(([bx, by], i) => {
+                        const cx = bx + (layer.warp?.[i]?.[0] ?? 0)
+                        const cy = by + (layer.warp?.[i]?.[1] ?? 0)
+                        return (
+                          <button
+                            key={`warp-${i}`}
+                            type="button"
+                            aria-label={`Perspective corner ${i + 1}`}
+                            onPointerDown={(e) => handleWarpDown(e, layer, i)}
+                            onPointerMove={handleWarpMove}
+                            onPointerUp={handleWarpUp}
+                            onPointerCancel={handleWarpUp}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              position: 'absolute',
+                              left: `${cx * 100}%`,
+                              top: `${cy * 100}%`,
+                              touchAction: 'none',
+                              transform: `translate(-50%, -50%) scale(calc(var(--inv) * var(--hx) / var(--aw)), calc(var(--inv) * var(--hy) / var(--ah)))`,
+                            }}
+                            className="size-7 rounded-full border-2 border-foreground/80 bg-background/40 shadow-sm transition active:scale-90"
+                          />
+                        )
+                      })}
+
+
+
         </div>
       )
     }
