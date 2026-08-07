@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, ArrowRight, Grid3x3, History, Layers, LayoutPanelTop, PanelBottom, Plus, Redo2, SlidersHorizontal, Undo2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Grid3x3, History, Layers, Plus, Redo2, SlidersHorizontal, Undo2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -9,7 +9,6 @@ import { PremiumBadge } from './premium-badge'
 import { SettingsSheet } from './settings-sheet'
 import { ThemeToggle } from '@/components/theme-provider'
 import { useI18n } from '@/components/i18n'
-import { setPanelMode, usePanelMode } from '@/lib/panel-mode'
 import { LayersList } from './layers-list'
 import { cn } from '@/lib/utils'
 import type { TextLayer } from '@/lib/text-layer'
@@ -75,7 +74,6 @@ export function EditorHeader({
   onSaveProject,
 }: EditorHeaderProps) {
   const { t } = useI18n()
-  const { mode: panelMode } = usePanelMode()
   const [scrolled, setScrolled] = useState(false)
   const [subview, setSubview] = useState(false)
   useEffect(() => {
@@ -145,32 +143,6 @@ export function EditorHeader({
                   <span>Zoom buttons</span>
                   <Switch checked={showZoom} onCheckedChange={() => onToggleZoom?.()} />
                 </label>
-                <p className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Menu style
-                </p>
-                <div className="grid grid-cols-2 gap-1.5 px-1 pb-1">
-                  {(
-                    [
-                      { m: 'docked' as const, label: 'Bottom bar', Icon: PanelBottom },
-                      { m: 'floating' as const, label: 'Floating', Icon: LayoutPanelTop },
-                    ]
-                  ).map(({ m, label, Icon }) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setPanelMode(m)}
-                      className={cn(
-                        'flex flex-col items-center gap-1 rounded-xl border px-2 py-2 text-[11px] font-medium transition active:scale-95',
-                        panelMode === m
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border text-foreground/75 hover:bg-muted',
-                      )}
-                    >
-                      <Icon className="size-4" />
-                      {label}
-                    </button>
-                  ))}
-                </div>
               </PopoverContent>
             </Popover>
 

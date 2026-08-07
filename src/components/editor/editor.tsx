@@ -32,8 +32,6 @@ import { saveProject, type SavedProject } from '@/lib/projects'
 import { RateDialog } from './rate-dialog'
 import { PremiumGate, stripPremiumFonts } from './premium-gate'
 import { ProSplash } from './pro-splash'
-import { PanelModeDialog } from './panel-mode-dialog'
-import { applyPanelMode, getPanelMode } from '@/lib/panel-mode'
 import { shouldAskForRating } from '@/lib/rate-us'
 import { AuthProvider } from '@/components/auth-provider'
 import { ScreenGuard } from './screen-guard'
@@ -72,10 +70,6 @@ import {
 
 export function Editor() {
   const { t } = useI18n()
-  // Apply the saved menu style (docked bottom bar vs floating panels) on load.
-  useEffect(() => {
-    applyPanelMode(getPanelMode() ?? 'floating')
-  }, [])
   const [image, setImage] = useState<string | null>(null)
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null)
   const [layers, setLayers] = useState<TextLayer[]>([])
@@ -764,7 +758,6 @@ export function Editor() {
     <div className="relative flex h-[100dvh] min-h-[100dvh] flex-col overflow-hidden bg-background">
       <ScreenGuard layers={layers} />
       <ProSplash />
-      {!!image && <PanelModeDialog />}
 
       <EditorHeader
         hasImage={!!image}
