@@ -342,6 +342,21 @@ export function Editor() {
     if (graphic.path) setAutoOpenTool('outline')
   }
 
+  /**
+   * A finished drawing becomes a normal layer: it sits in the layer stack (so
+   * anything added later renders above it), shows up in the layers panel and
+   * can be selected, moved, resized and deleted like any other element.
+   */
+  function addDrawing(src: string) {
+    const aspect = naturalSize ? naturalSize.w / naturalSize.h : 16 / 9
+    const layer = createGraphicLayer({ kind: 'image', src, aspect }, 'Drawing')
+    setLayers((prev) => [
+      ...prev,
+      { ...layer, x: 50, y: 50, fontSize: 50, aspectLock: true },
+    ])
+    setSelectedId(layer.id)
+  }
+
   /** Overlays skip the picker sheet and open the photo library straight away. */
   function onOverlayFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
