@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import sampleThumb from '@/assets/thumbs/thumb01.jpg.asset.json'
 
 interface PhotoSize {
   label: string
@@ -29,7 +30,6 @@ function ratioLabel(w: number, h: number) {
 
 export function AspectPicker({
   open,
-  preview,
   onClose,
   onPick,
 }: {
