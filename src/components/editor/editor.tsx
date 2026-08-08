@@ -246,7 +246,7 @@ export function Editor() {
           setRemovingBg(true)
           break
         case 'draw':
-          setDraftDoodle(doodle)
+          setDraftDoodle(undefined)
           setPen((b) => ({ ...b, shape: 'free' }))
           setDoodling(true)
           break
@@ -896,7 +896,7 @@ export function Editor() {
                     />
                   ) : doodling ? (
                     <DoodleOverlay
-                      initial={doodle}
+                      initial={undefined}
                       brush={pen}
                       panMode={panMode}
                       onDrawStart={() => setToolsHidden(true)}
@@ -1011,7 +1011,7 @@ export function Editor() {
                 else setDoodling(false)
               }}
               onApply={() => {
-                setDoodle(draftDoodle)
+                if (draftDoodle) addDrawing(draftDoodle)
                 setDraftDoodle(undefined)
                 setDoodling(false)
               }}
@@ -1059,7 +1059,7 @@ export function Editor() {
             }}
             onDraw={() => {
               setSelectedId(null)
-              setDraftDoodle(doodle)
+              setDraftDoodle(undefined)
               setToolsHidden(false)
               setPanMode(false)
               setPen((b) => ({ ...b, shape: 'free' }))
