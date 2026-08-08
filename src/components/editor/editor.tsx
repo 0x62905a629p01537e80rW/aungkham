@@ -343,19 +343,73 @@ export function Editor() {
   }
 
   /**
-   * A finished drawing becomes a normal layer: it sits in the layer stack (so
-   * anything added later renders above it), shows up in the layers panel and
-   * can be selected, moved, resized and deleted like any other element.
+   * A finished drawing becomes a normal layer. The full-canvas stroke image is
+   * cropped to the ink bounding box (with a hairline padding) so the selection
+   * box hugs the drawing instead of covering the whole canvas.
    */
   function addDrawing(src: string) {
-    const aspect = naturalSize ? naturalSize.w / naturalSize.h : 16 / 9
-    const layer = createGraphicLayer({ kind: 'image', src, aspect }, 'Drawing')
-    setLayers((prev) => [
-      ...prev,
-      { ...layer, x: 50, y: 50, fontSize: 50, aspectLock: true },
-    ])
-    setSelectedId(layer.id)
+    const img = new Image()
+    img.onload = () => {
+      const w = img.naturalWidth
+      const h = img.naturalHeight
+      const c = document.createElement('canvas')
+      c.width = w
+      c.height = h
+      const ctx = c.getContext('2d', { willReadFrequently: true })
+      if (!ctx) return
+      ctx.drawImage(img, 0, 0)
+      let minX = w
+      let minY = h
+      let maxX = -1
+      let maxY = -1
+      try {
+        const { data } = ctx.getImageData(0, 0, w, h)
+        for (let y = 0; y < h; y += 1) {
+          for (let x = 0; x < w; x += 1) {
+            if (data[(y * w + x) * 4 + 3] > 4) {
+              if (x < minX) minX = x
+              if (x > maxX) maxX = x
+              if (y < minY) minY = y
+              if (y > maxY) maxY = y
+            }
+          }
+        }
+      } catch {
+        /* tainted canvas: fall back to full frame */
+      }
+      if (maxX < 0) {
+        minX = 0
+        minY = 0
+        maxX = w - 1
+        maxY = h - 1
+      }
+      const pad = 1
+      const cx0 = Math.max(0, minX - pad)
+      const cy0 = Math.max(0, minY - pad)
+      const cw = Math.min(w, maxX + 1 + pad) - cx0
+      const ch = Math.min(h, maxY + 1 + pad) - cy0
+      const out = document.createElement('canvas')
+      out.width = cw
+      out.height = ch
+      out.getContext('2d')?.drawImage(img, cx0, cy0, cw, ch, 0, 0, cw, ch)
+      const cropped = out.toDataURL('image/png')
+
+      const layer = createGraphicLayer({ kind: 'image', src: cropped, aspect: cw / ch }, 'Drawing')
+      setLayers((prev) => [
+        ...prev,
+        {
+          ...layer,
+          x: ((cx0 + cw / 2) / w) * 100,
+          y: ((cy0 + ch / 2) / h) * 100,
+          fontSize: (ch / h) * 100,
+          aspectLock: true,
+        },
+      ])
+      setSelectedId(layer.id)
+    }
+    img.src = src
   }
+
 
   /** Overlays skip the picker sheet and open the photo library straight away. */
   function onOverlayFile(e: ChangeEvent<HTMLInputElement>) {

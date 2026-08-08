@@ -120,7 +120,7 @@ export function AspectPicker({
               <span className="grid h-[46px] w-full place-items-center">
                 <span
                   className={cn(
-                    'rounded-md shadow-sm ring-1 ring-border/70 transition group-hover:ring-primary/60',
+                    'rounded-none shadow-sm ring-1 ring-border/70 transition group-hover:ring-primary/60',
                   )}
                   style={{
                     background: preview ?? 'var(--primary)',
@@ -128,6 +128,7 @@ export function AspectPicker({
                     width: s.ratio >= 1 ? '40px' : `${Math.round(40 * s.ratio)}px`,
                   }}
                 />
+
               </span>
               <span className="w-full truncate text-[10px] font-semibold leading-tight text-foreground">
                 {s.label}
