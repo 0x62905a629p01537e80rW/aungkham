@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import sampleThumb from '@/assets/thumbs/thumb01.jpg.asset.json'
 
 interface PhotoSize {
   label: string
@@ -29,7 +30,6 @@ function ratioLabel(w: number, h: number) {
 
 export function AspectPicker({
   open,
-  preview,
   onClose,
   onPick,
 }: {
@@ -118,16 +118,19 @@ export function AspectPicker({
               className="group flex flex-col items-center gap-1 rounded-xl border border-border/60 bg-secondary/30 p-1.5 text-center transition hover:border-primary/50 hover:bg-primary/10 active:scale-95"
             >
               <span className="grid h-[46px] w-full place-items-center">
-                <span
+                <img
+                  src={sampleThumb.url}
+                  alt=""
+                  aria-hidden
                   className={cn(
-                    'rounded-none shadow-sm ring-1 ring-border/70 transition group-hover:ring-primary/60',
+                    'rounded-none object-cover shadow-sm ring-1 ring-border/70 transition group-hover:ring-primary/60',
                   )}
                   style={{
-                    background: preview ?? 'var(--primary)',
                     height: s.ratio >= 1 ? `${Math.round(40 / s.ratio)}px` : '40px',
                     width: s.ratio >= 1 ? '40px' : `${Math.round(40 * s.ratio)}px`,
                   }}
                 />
+
 
               </span>
               <span className="w-full truncate text-[10px] font-semibold leading-tight text-foreground">
