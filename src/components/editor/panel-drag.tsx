@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react'
-import { ChevronDown, ChevronUp, Maximize2, Minimize2, Minus, Move } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { createPortal } from 'react-dom'
+import { ChevronDown, ChevronUp, Maximize2, Minimize2, Minus, Move, SlidersHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
 
 /** Every mounted panel registers its reset so closing snaps panels home again. */
 const resetters = new Set<() => void>()
@@ -45,12 +47,15 @@ export function usePanelCollapse(open?: boolean) {
         return !v
       }),
     setFull,
-    /** Apply to the panel container to make it cover the screen. */
-    fullClass: full
-      ? 'panel-fullscreen !fixed !inset-0 !left-0 !top-0 z-[70] !m-0 !h-[100dvh] !max-h-none !w-screen !max-w-none !translate-x-0 !translate-y-0 !rounded-none overflow-y-auto perf-scroll'
-      : '',
+    /** Apply to the panel container: fullscreen, or fully hidden when collapsed. */
+    fullClass: collapsed
+      ? 'pointer-events-none !opacity-0'
+      : full
+        ? 'panel-fullscreen !fixed !inset-0 !left-0 !top-0 z-[70] !m-0 !h-[100dvh] !max-h-none !w-screen !max-w-none !translate-x-0 !translate-y-0 !rounded-none overflow-y-auto perf-scroll'
+        : '',
   }
 }
+
 
 /** Expands the panel to fill the screen (and back again). */
 export function PanelFullscreenButton({
@@ -79,18 +84,11 @@ export function PanelFullscreenButton({
   )
 }
 
-/** Nearest floating panel container above a header button. */
-function findPanelEl(el: HTMLElement | null): HTMLElement | null {
-  let node: HTMLElement | null = el?.parentElement ?? null
-  while (node && node !== document.body) {
-    const pos = getComputedStyle(node).position
-    if (pos === 'fixed' || pos === 'absolute') return node
-    node = node.parentElement
-  }
-  return null
-}
 
-/** Chevron button that hides/shows the panel body, sits before the close button. */
+/**
+ * "Hide tools" button: tucks the whole panel away and drops a floating
+ * "Show tools" pill at the bottom of the screen to bring it back.
+ */
 export function PanelHideButton({
   collapsed,
   onToggle,
@@ -100,66 +98,43 @@ export function PanelHideButton({
   onToggle: () => void
   className?: string
 }) {
-  const pinned = useRef<HTMLElement | null>(null)
-
-  // Expanding again (or the panel closing) releases the pinned position.
-  useEffect(() => {
-    if (collapsed) return
-    const el = pinned.current
-    if (!el) return
-    el.style.top = ''
-    el.style.bottom = ''
-    el.style.height = ''
-    pinned.current = null
-  }, [collapsed])
-
-  useEffect(
-    () => () => {
-      const el = pinned.current
-      if (el) {
-        el.style.top = ''
-        el.style.bottom = ''
-        el.style.height = ''
-      }
-    },
-    [],
-  )
-
-  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (!collapsed) {
-      // Freeze where the header currently sits so collapsing doesn't slide the
-      // bar down to the bottom of the panel's old box.
-      const el = findPanelEl(e.currentTarget)
-      if (el) {
-        const top = el.getBoundingClientRect().top
-        pinned.current = el
-        requestAnimationFrame(() => {
-          if (pinned.current !== el) return
-          el.style.top = `${top}px`
-          el.style.bottom = 'auto'
-          el.style.height = 'auto'
-        })
-      }
-    }
-    onToggle()
-  }
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      aria-label={collapsed ? 'Show panel' : 'Hide panel'}
-      aria-expanded={!collapsed}
-      title={collapsed ? 'Show panel' : 'Hide panel'}
-      className={cn(
-        'flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition active:scale-95',
-        className,
-      )}
-    >
-      {collapsed ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label={collapsed ? 'Show tools' : 'Hide tools'}
+        aria-expanded={!collapsed}
+        title={collapsed ? 'Show tools' : 'Hide tools'}
+        className={cn(
+          'flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition active:scale-95',
+          className,
+        )}
+      >
+        {collapsed ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+      </button>
+
+      {mounted && collapsed
+        ? createPortal(
+            <button
+              type="button"
+              onClick={onToggle}
+              className="fixed inset-x-3 bottom-3 z-[80] flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-card/90 px-4 py-3 text-sm font-semibold text-foreground shadow-2xl backdrop-blur-xl transition active:scale-[0.98]"
+              style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+            >
+              <SlidersHorizontal className="size-4" />
+              Show tools
+            </button>,
+            document.body,
+          )
+        : null}
+    </>
   )
 }
+
 
 /**
  * Lets a floating panel (bottom sheet, tool bar, dialog) be dragged out of the
@@ -208,8 +183,12 @@ export function usePanelDrag(open?: boolean) {
     }
   }, [])
 
+  // Use the standalone `translate` property (not `transform`): panel entrance
+  // animations and Tailwind translate utilities animate `transform`, which
+  // would otherwise override the inline drag offset and make dragging look dead.
   const style: CSSProperties =
-    offset.x || offset.y ? { transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` } : {}
+    offset.x || offset.y ? ({ translate: `${offset.x}px ${offset.y}px` } as CSSProperties) : {}
+
 
   const handleProps = { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp }
 
