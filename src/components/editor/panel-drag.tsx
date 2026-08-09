@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react'
-import { ChevronDown, ChevronUp, Maximize2, Minimize2, Minus, Move } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { createPortal } from 'react-dom'
+import { ChevronDown, ChevronUp, Maximize2, Minimize2, Minus, Move, SlidersHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
 
 /** Every mounted panel registers its reset so closing snaps panels home again. */
 const resetters = new Set<() => void>()
