@@ -193,8 +193,12 @@ export function usePanelDrag(open?: boolean) {
     }
   }, [])
 
+  // Use the standalone `translate` property (not `transform`): panel entrance
+  // animations and Tailwind translate utilities animate `transform`, which
+  // would otherwise override the inline drag offset and make dragging look dead.
   const style: CSSProperties =
-    offset.x || offset.y ? { transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` } : {}
+    offset.x || offset.y ? ({ translate: `${offset.x}px ${offset.y}px` } as CSSProperties) : {}
+
 
   const handleProps = { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp }
 
