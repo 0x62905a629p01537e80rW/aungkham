@@ -84,16 +84,6 @@ export function PanelFullscreenButton({
   )
 }
 
-/** Nearest floating panel container above a header button. */
-function findPanelEl(el: HTMLElement | null): HTMLElement | null {
-  let node: HTMLElement | null = el?.parentElement ?? null
-  while (node && node !== document.body) {
-    const pos = getComputedStyle(node).position
-    if (pos === 'fixed' || pos === 'absolute') return node
-    node = node.parentElement
-  }
-  return null
-}
 
 /**
  * "Hide tools" button: tucks the whole panel away and drops a floating
