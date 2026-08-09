@@ -43,13 +43,29 @@ export function EraseOverlay({ initialMask, brush, onChange, controlsRef, onHist
   const redoStack = useRef<ImageData[]>([])
   const brushRef = useRef(brush)
   brushRef.current = brush
+  const emitRaf = useRef<number | null>(null)
 
   const ctxOf = () => canvasRef.current?.getContext('2d', { willReadFrequently: true }) ?? null
 
+  /**
+   * Publish the mask. The data URL is decoded before it reaches React so the
+   * very first stroke paints immediately — an undecoded CSS mask image would
+   * otherwise leave the layers unmasked (or fully hidden) for a frame.
+   */
   const emit = () => {
     const canvas = canvasRef.current
     if (!canvas) return
-    onChange(canvas.toDataURL('image/png'))
+    if (emitRaf.current) cancelAnimationFrame(emitRaf.current)
+    emitRaf.current = requestAnimationFrame(() => {
+      emitRaf.current = null
+      const url = canvas.toDataURL('image/png')
+      const img = new Image()
+      const push = () => onChange(url)
+      img.onload = push
+      img.onerror = push
+      img.src = url
+      if (img.decode) img.decode().then(push).catch(() => {})
+    })
   }
 
   const syncHistory = () => {
@@ -64,30 +80,48 @@ export function EraseOverlay({ initialMask, brush, onChange, controlsRef, onHist
   }
 
   // Size the mask canvas to the rendered image box so strokes land 1:1.
+  // A ResizeObserver re-runs this if the box was not laid out on first mount.
   useEffect(() => {
     const host = hostRef.current
     const canvas = canvasRef.current
     if (!host || !canvas) return
-    const rect = host.getBoundingClientRect()
-    const scale = Math.min(2, MAX_DIM / Math.max(1, Math.max(rect.width, rect.height)))
-    canvas.width = Math.max(1, Math.round(rect.width * scale))
-    canvas.height = Math.max(1, Math.round(rect.height * scale))
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    if (!ctx) return
-    fillWhite(ctx, canvas)
-    undoStack.current = []
-    redoStack.current = []
-    syncHistory()
-    if (initialMask) {
-      const img = new Image()
-      img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+    let lastKey = ''
+
+    const size = () => {
+      const rect = host.getBoundingClientRect()
+      if (!rect.width || !rect.height) return
+      const key = `${Math.round(rect.width)}x${Math.round(rect.height)}`
+      if (key === lastKey) return
+      lastKey = key
+      const scale = Math.min(2, MAX_DIM / Math.max(1, Math.max(rect.width, rect.height)))
+      canvas.width = Math.max(1, Math.round(rect.width * scale))
+      canvas.height = Math.max(1, Math.round(rect.height * scale))
+      const ctx = canvas.getContext('2d', { willReadFrequently: true })
+      if (!ctx) return
+      fillWhite(ctx, canvas)
+      undoStack.current = []
+      redoStack.current = []
+      syncHistory()
+      if (initialMask) {
+        const img = new Image()
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        }
+        img.src = initialMask
       }
-      img.src = initialMask
+    }
+
+    size()
+    const ro = new ResizeObserver(size)
+    ro.observe(host)
+    return () => {
+      ro.disconnect()
+      if (emitRaf.current) cancelAnimationFrame(emitRaf.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
 
   useEffect(() => {
     controlsRef.current = {
