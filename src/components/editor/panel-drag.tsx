@@ -93,7 +93,10 @@ function findPanelEl(el: HTMLElement | null): HTMLElement | null {
   return null
 }
 
-/** Chevron button that hides/shows the panel body, sits before the close button. */
+/**
+ * "Hide tools" button: tucks the whole panel away and drops a floating
+ * "Show tools" pill at the bottom of the screen to bring it back.
+ */
 export function PanelHideButton({
   collapsed,
   onToggle,
@@ -103,66 +106,43 @@ export function PanelHideButton({
   onToggle: () => void
   className?: string
 }) {
-  const pinned = useRef<HTMLElement | null>(null)
-
-  // Expanding again (or the panel closing) releases the pinned position.
-  useEffect(() => {
-    if (collapsed) return
-    const el = pinned.current
-    if (!el) return
-    el.style.top = ''
-    el.style.bottom = ''
-    el.style.height = ''
-    pinned.current = null
-  }, [collapsed])
-
-  useEffect(
-    () => () => {
-      const el = pinned.current
-      if (el) {
-        el.style.top = ''
-        el.style.bottom = ''
-        el.style.height = ''
-      }
-    },
-    [],
-  )
-
-  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (!collapsed) {
-      // Freeze where the header currently sits so collapsing doesn't slide the
-      // bar down to the bottom of the panel's old box.
-      const el = findPanelEl(e.currentTarget)
-      if (el) {
-        const top = el.getBoundingClientRect().top
-        pinned.current = el
-        requestAnimationFrame(() => {
-          if (pinned.current !== el) return
-          el.style.top = `${top}px`
-          el.style.bottom = 'auto'
-          el.style.height = 'auto'
-        })
-      }
-    }
-    onToggle()
-  }
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      aria-label={collapsed ? 'Show panel' : 'Hide panel'}
-      aria-expanded={!collapsed}
-      title={collapsed ? 'Show panel' : 'Hide panel'}
-      className={cn(
-        'flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition active:scale-95',
-        className,
-      )}
-    >
-      {collapsed ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label={collapsed ? 'Show tools' : 'Hide tools'}
+        aria-expanded={!collapsed}
+        title={collapsed ? 'Show tools' : 'Hide tools'}
+        className={cn(
+          'flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition active:scale-95',
+          className,
+        )}
+      >
+        {collapsed ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+      </button>
+
+      {mounted && collapsed
+        ? createPortal(
+            <button
+              type="button"
+              onClick={onToggle}
+              className="fixed inset-x-3 bottom-3 z-[80] flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-card/90 px-4 py-3 text-sm font-semibold text-foreground shadow-2xl backdrop-blur-xl transition active:scale-[0.98]"
+              style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+            >
+              <SlidersHorizontal className="size-4" />
+              Show tools
+            </button>,
+            document.body,
+          )
+        : null}
+    </>
   )
 }
+
 
 /**
  * Lets a floating panel (bottom sheet, tool bar, dialog) be dragged out of the
