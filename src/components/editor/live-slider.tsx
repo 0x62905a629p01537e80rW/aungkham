@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { beginInteraction, endInteraction, rafThrottle } from '@/lib/perf'
+import { beginGesture, endGesture } from '@/lib/history-gate'
 
 /**
  * A slider that owns its value while the user is dragging.
@@ -59,6 +60,7 @@ export const LiveSlider = memo(function LiveSlider({
       if (dragging.current) {
         dragging.current = false
         endInteraction()
+        endGesture('slider')
       }
     },
     [emit],
@@ -69,6 +71,7 @@ export const LiveSlider = memo(function LiveSlider({
       if (!dragging.current) {
         dragging.current = true
         beginInteraction()
+        beginGesture('slider')
         onDragStart?.()
       }
       setLocal(v[0])
@@ -83,6 +86,7 @@ export const LiveSlider = memo(function LiveSlider({
       if (dragging.current) {
         dragging.current = false
         endInteraction()
+        endGesture('slider')
       }
       onCommit(v)
       onDragEnd?.()
