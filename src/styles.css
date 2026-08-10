@@ -768,3 +768,17 @@ html.perf-interact .checker-grid {
 .panel-fullscreen[data-state='closed'] {
   animation: none !important;
 }
+
+/* Quick Peek Slider: fade floating tool panels while scrubbing a slider. */
+.glass-panel,
+.glass-bar,
+[data-radix-popper-content-wrapper] {
+  transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.quick-peek .glass-panel,
+html.quick-peek .glass-bar,
+html.quick-peek [data-radix-popper-content-wrapper],
+html.quick-peek [data-bottom-sheet] {
+  opacity: 0;
+}
