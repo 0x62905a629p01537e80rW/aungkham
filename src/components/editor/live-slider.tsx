@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { beginInteraction, endInteraction, rafThrottle } from '@/lib/perf'
 import { beginGesture, endGesture } from '@/lib/history-gate'
+import { beginPeek, endPeek } from '@/lib/quick-peek'
 
 /**
  * A slider that owns its value while the user is dragging.
