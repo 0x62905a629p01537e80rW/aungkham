@@ -42,7 +42,9 @@ export function isGestureActive() {
 /** Subscribe to "all gestures finished" events. */
 export function onGestureEnd(fn: () => void) {
   listeners.add(fn)
-  return () => listeners.delete(fn)
+  return () => {
+    listeners.delete(fn)
+  }
 }
 
 if (typeof window !== 'undefined') {
