@@ -143,6 +143,21 @@ export function EditorHeader({
                   <span>Zoom buttons</span>
                   <Switch checked={showZoom} onCheckedChange={() => onToggleZoom?.()} />
                 </label>
+                <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2 py-2 text-sm hover:bg-muted">
+                  <span className="leading-tight">
+                    Quick Peek Slider
+                    <span className="block text-[10px] text-muted-foreground">
+                      Hide panels while sliding
+                    </span>
+                  </span>
+                  <Switch
+                    checked={quickPeek}
+                    onCheckedChange={(v) => {
+                      setQuickPeekEnabled(v)
+                      setQuickPeek(v)
+                    }}
+                  />
+                </label>
               </PopoverContent>
             </Popover>
 
