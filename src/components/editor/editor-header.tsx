@@ -11,6 +11,7 @@ import { ThemeToggle } from '@/components/theme-provider'
 import { useI18n } from '@/components/i18n'
 import { LayersList } from './layers-list'
 import { cn } from '@/lib/utils'
+import { isQuickPeekEnabled, setQuickPeekEnabled } from '@/lib/quick-peek'
 import type { TextLayer } from '@/lib/text-layer'
 import appLogo from '@/assets/logo.png.asset.json'
 
@@ -76,6 +77,8 @@ export function EditorHeader({
   const { t } = useI18n()
   const [scrolled, setScrolled] = useState(false)
   const [subview, setSubview] = useState(false)
+  const [quickPeek, setQuickPeek] = useState(false)
+  useEffect(() => setQuickPeek(isQuickPeekEnabled()), [])
   useEffect(() => {
     const onScroll = (e: Event) => setScrolled(!!(e as CustomEvent<boolean>).detail)
     const onSub = (e: Event) => setSubview(!!(e as CustomEvent<boolean>).detail)
@@ -142,6 +145,21 @@ export function EditorHeader({
                 <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2 py-2 text-sm hover:bg-muted">
                   <span>Zoom buttons</span>
                   <Switch checked={showZoom} onCheckedChange={() => onToggleZoom?.()} />
+                </label>
+                <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2 py-2 text-sm hover:bg-muted">
+                  <span className="leading-tight">
+                    Quick Peek Slider
+                    <span className="block text-[10px] text-muted-foreground">
+                      Hide panels while sliding
+                    </span>
+                  </span>
+                  <Switch
+                    checked={quickPeek}
+                    onCheckedChange={(v) => {
+                      setQuickPeekEnabled(v)
+                      setQuickPeek(v)
+                    }}
+                  />
                 </label>
               </PopoverContent>
             </Popover>

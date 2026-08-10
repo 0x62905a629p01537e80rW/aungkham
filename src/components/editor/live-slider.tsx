@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { beginInteraction, endInteraction, rafThrottle } from '@/lib/perf'
 import { beginGesture, endGesture } from '@/lib/history-gate'
+import { beginPeek, endPeek } from '@/lib/quick-peek'
 
 /**
  * A slider that owns its value while the user is dragging.
@@ -61,6 +62,7 @@ export const LiveSlider = memo(function LiveSlider({
         dragging.current = false
         endInteraction()
         endGesture('slider')
+        endPeek(true)
       }
     },
     [emit],
@@ -72,6 +74,7 @@ export const LiveSlider = memo(function LiveSlider({
         dragging.current = true
         beginInteraction()
         beginGesture('slider')
+        beginPeek()
         onDragStart?.()
       }
       setLocal(v[0])
@@ -88,6 +91,7 @@ export const LiveSlider = memo(function LiveSlider({
         endInteraction()
         endGesture('slider')
       }
+      endPeek()
       onCommit(v)
       onDragEnd?.()
     },
