@@ -18,6 +18,7 @@ import type { TextLayer } from '@/lib/text-layer'
 import type { Mark } from '@/lib/marks'
 import { MarksSvg } from './mark-layer'
 import { pulseInteraction, rafThrottle } from '@/lib/perf'
+import { beginGesture, endGesture } from '@/lib/history-gate'
 import { useWarpMode } from '@/lib/warp-mode'
 
 interface CanvasPreviewProps {
@@ -412,6 +413,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       if (pointers.current.size > 1) return
       onSelect(id)
       if (layers.find((l) => l.id === id)?.locked) return
+      beginGesture('layer-drag')
       const el = e.currentTarget
       el.setPointerCapture(e.pointerId)
       const layer = layers.find((l) => l.id === id)
@@ -476,6 +478,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
 
     function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
+      endGesture('layer-drag')
       stageUp(e)
       emitMove.flush()
       dragRectRef.current = null
@@ -512,6 +515,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handleResizeDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
+      beginGesture('layer-resize')
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -550,6 +554,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
 
     function handleResizeUp(e: PointerEvent<HTMLButtonElement>) {
+      endGesture('layer-resize')
       resizeState.current = null
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
@@ -569,6 +574,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handleRotateDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
+      beginGesture('layer-rotate')
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -592,6 +598,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handleRotateUp(e: PointerEvent<HTMLButtonElement>) {
+      endGesture('layer-rotate')
       rotateState.current = null
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
@@ -625,6 +632,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
 
     /** Drag the right-edge handle to set the text box width so the text wraps. */
     function handleWrapDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer) {
+      beginGesture('layer-wrap')
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -648,6 +656,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handleWrapUp(e: PointerEvent<HTMLButtonElement>) {
+      endGesture('layer-wrap')
       wrapState.current = null
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
@@ -666,6 +675,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
       layer: TextLayer,
       axis: 'x' | 'y',
     ) {
+      beginGesture('layer-stretch')
       e.stopPropagation()
       e.preventDefault()
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -731,6 +741,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handleStretchUp(e: PointerEvent<HTMLButtonElement>) {
+      endGesture('layer-stretch')
       const st = stretchState.current
       stretchState.current = null
       setStretchHud(null)
@@ -801,6 +812,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     } | null>(null)
 
     function handleWarpDown(e: PointerEvent<HTMLButtonElement>, layer: TextLayer, index: number) {
+      beginGesture('layer-warp')
       e.stopPropagation()
       e.preventDefault()
       const frameEl = e.currentTarget.parentElement
@@ -831,6 +843,7 @@ export const CanvasPreview = forwardRef<HTMLDivElement, CanvasPreviewProps>(
     }
 
     function handleWarpUp(e: PointerEvent<HTMLButtonElement>) {
+      endGesture('layer-warp')
       if (warpState.current?.pointerId === e.pointerId) warpState.current = null
     }
 

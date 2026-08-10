@@ -12,6 +12,7 @@ import { AdjustEditor } from './adjust-editor'
 import { FilterEditor } from './filter-editor'
 import { SaveShare } from './save-share'
 import { HistoryPanel, type HistoryEntry } from './history-panel'
+import { isGestureActive, onGestureEnd } from '@/lib/history-gate'
 import { BatchExportDialog } from './batch-export-dialog'
 import { SIZE_PRESETS, resizeBackground, resizeLayers } from '@/lib/smart-resize'
 import { defaultFilename, downloadDataUrl } from '@/lib/export-image'
@@ -558,6 +559,13 @@ export function Editor() {
     return parts.length ? parts.join(';') : null
   }
 
+  /**
+   * Bumped when a gesture (drag, resize, rotate, slider…) finishes so the
+   * recorder below runs once more and stores the completed action.
+   */
+  const [gestureTick, setGestureTick] = useState(0)
+  useEffect(() => onGestureEnd(() => setGestureTick((t) => t + 1)), [])
+
   useEffect(() => {
     if (skipHistory.current) {
       skipHistory.current = false
@@ -567,6 +575,9 @@ export function Editor() {
     }
     const prev = lastSnap.current
     if (prev.image === image && prev.layers === layers && prev.naturalSize === naturalSize) return
+    // Mid-gesture: keep the pre-gesture snapshot untouched so the whole
+    // gesture collapses into a single step once the finger lifts.
+    if (isGestureActive()) return
     const next: Snapshot = { image, layers, naturalSize }
     const sig = editSignature(prev, next)
     const now = Date.now()
@@ -582,7 +593,8 @@ export function Editor() {
     future.current = []
     lastSnap.current = next
     setHistoryTick((t) => t + 1)
-  }, [image, layers, naturalSize])
+  }, [image, layers, naturalSize, gestureTick])
+
 
   function applySnapshot(snap: Snapshot) {
     skipHistory.current = true
