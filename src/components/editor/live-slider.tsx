@@ -62,6 +62,7 @@ export const LiveSlider = memo(function LiveSlider({
         dragging.current = false
         endInteraction()
         endGesture('slider')
+        endPeek(true)
       }
     },
     [emit],
@@ -73,6 +74,7 @@ export const LiveSlider = memo(function LiveSlider({
         dragging.current = true
         beginInteraction()
         beginGesture('slider')
+        beginPeek()
         onDragStart?.()
       }
       setLocal(v[0])
@@ -89,6 +91,7 @@ export const LiveSlider = memo(function LiveSlider({
         endInteraction()
         endGesture('slider')
       }
+      endPeek()
       onCommit(v)
       onDragEnd?.()
     },
