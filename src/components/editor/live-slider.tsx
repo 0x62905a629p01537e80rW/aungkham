@@ -45,6 +45,7 @@ export const LiveSlider = memo(function LiveSlider({
 }: LiveSliderProps) {
   const [local, setLocal] = useState(value)
   const dragging = useRef(false)
+  const rootRef = useRef<HTMLDivElement | null>(null)
 
   // Follow the parent only while idle — never fight the finger.
   useEffect(() => {
@@ -74,7 +75,7 @@ export const LiveSlider = memo(function LiveSlider({
         dragging.current = true
         beginInteraction()
         beginGesture('slider')
-        beginPeek()
+        beginPeek(rootRef.current)
         onDragStart?.()
       }
       setLocal(v[0])
@@ -99,6 +100,7 @@ export const LiveSlider = memo(function LiveSlider({
   )
 
   return (
+    <div ref={rootRef}>
     <Slider
       className={className}
       value={[local]}
@@ -110,5 +112,6 @@ export const LiveSlider = memo(function LiveSlider({
       onValueChange={handleChange}
       onValueCommit={(v) => finish(v[0])}
     />
+    </div>
   )
 })
