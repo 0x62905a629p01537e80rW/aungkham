@@ -5,7 +5,7 @@
  */
 const KEY = 'quick-peek-slider'
 const CLASS = 'quick-peek'
-const HOLD_MS = 800
+const HOLD_MS = 100
 
 let timer: ReturnType<typeof setTimeout> | null = null
 
@@ -26,12 +26,38 @@ export function setQuickPeekEnabled(on: boolean) {
   if (!on) endPeek(true)
 }
 
-/** Fade the panels out (call on every live slider frame). */
-export function beginPeek() {
+const HOST_SEL = '.glass-panel, .glass-bar, [data-radix-popper-content-wrapper], [data-bottom-sheet]'
+let host: HTMLElement | null = null
+let keep: HTMLElement | null = null
+
+function clearHost() {
+  host?.classList.remove('peek-host')
+  keep?.classList.remove('peek-keep')
+  host = null
+  keep = null
+}
+
+/**
+ * Fade the panels out (call on every live slider frame).
+ * `el` is the slider being dragged — its own panel stays visible.
+ */
+export function beginPeek(el?: HTMLElement | null) {
   if (typeof document === 'undefined' || !isQuickPeekEnabled()) return
   if (timer) {
     clearTimeout(timer)
     timer = null
+  }
+  if (el) {
+    const nextHost = el.closest<HTMLElement>(HOST_SEL)
+    if (nextHost !== host) clearHost()
+    if (nextHost) {
+      host = nextHost
+      nextHost.classList.add('peek-host')
+      let child: HTMLElement | null = el
+      while (child && child.parentElement !== nextHost) child = child.parentElement
+      keep = child
+      child?.classList.add('peek-keep')
+    }
   }
   document.documentElement.classList.add(CLASS)
 }
@@ -45,10 +71,12 @@ export function endPeek(immediate = false) {
   }
   if (immediate) {
     document.documentElement.classList.remove(CLASS)
+    clearHost()
     return
   }
   timer = setTimeout(() => {
     timer = null
     document.documentElement.classList.remove(CLASS)
+    setTimeout(clearHost, 340)
   }, HOLD_MS)
 }
