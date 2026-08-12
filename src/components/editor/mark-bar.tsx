@@ -16,7 +16,7 @@ import {
 
 import { SliderField } from './control-fields'
 import { ColorPickerPopover } from './color-picker'
-import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
+import { PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 import type { MarkShape, MarkStyle } from '@/lib/marks'
 import type { MarkTool } from './mark-layer'
 import { cn } from '@/lib/utils'
@@ -93,9 +93,7 @@ export function MarkBar({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
-          <PanelFullscreenButton full={collapse.full} onToggle={collapse.toggleFull} />
           <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} />
-          <PanelCloseButton onClick={onCancel} label="Discard and close" />
         </div>
         <div className="flex items-center gap-1">
           <button
