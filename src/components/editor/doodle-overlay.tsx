@@ -24,7 +24,7 @@ import {
 import { SliderField } from './control-fields'
 import { ColorPickerPopover } from './color-picker'
 import { cn } from '@/lib/utils'
-import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
+import { PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 
 export type PenKind = 'pen' | 'marker' | 'neon' | 'dashed' | 'spray' | 'calligraphy' | 'eraser'
 
@@ -527,9 +527,7 @@ export function DoodleBar({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <PanelMoveHandle handleProps={panel.handleProps} moved={panel.moved} onReset={panel.reset} />
-          <PanelFullscreenButton full={collapse.full} onToggle={collapse.toggleFull} />
           <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} />
-          <PanelCloseButton onClick={onCancel} label="Discard and close" />
         </div>
         <div className="flex items-center gap-1">
           <button
