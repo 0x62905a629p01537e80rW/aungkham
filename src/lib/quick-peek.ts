@@ -11,9 +11,9 @@ let timer: ReturnType<typeof setTimeout> | null = null
 
 export function isQuickPeekEnabled(): boolean {
   try {
-    return localStorage.getItem(KEY) === '1'
+    return localStorage.getItem(KEY) !== '0'
   } catch {
-    return false
+    return true
   }
 }
 

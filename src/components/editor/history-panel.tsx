@@ -1,6 +1,5 @@
 import { Check, History } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
 import { cn } from '@/lib/utils'
 
 export interface HistoryEntry {
@@ -19,38 +18,17 @@ interface HistoryPanelProps {
 
 /** Jump-to-any-state timeline built on the existing undo/redo stacks. */
 export function HistoryPanel({ open, entries, current, onClose, onJump }: HistoryPanelProps) {
-  const panel = usePanelDrag(open)
-  const collapse = usePanelCollapse(open)
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent
-        side="bottom"
-        style={collapse.full ? undefined : panel.style}
-        className={cn('max-h-[70vh] rounded-t-2xl p-0', collapse.fullClass)}
-      >
+      <SheetContent side="bottom" className="max-h-[70vh] rounded-t-2xl p-0">
         <SheetHeader className="px-4 pb-2 pt-4">
-          <SheetTitle className="flex items-center justify-between gap-2 text-base">
-            <span className="flex items-center gap-2">
-              <History className="size-4" /> History
-            </span>
-            <span className="flex items-center gap-1.5">
-              <PanelMoveHandle
-                handleProps={panel.handleProps}
-                moved={panel.moved}
-                onReset={panel.reset}
-                className="size-7"
-              />
-              <PanelFullscreenButton full={collapse.full} onToggle={collapse.toggleFull} className="size-7" />
-              <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} className="size-7" />
-              <PanelCloseButton onClick={onClose} className="size-7" />
-            </span>
+          <SheetTitle className="flex items-center gap-2 text-base">
+            <History className="size-4" /> History
           </SheetTitle>
         </SheetHeader>
 
-        <div
-          hidden={collapse.collapsed}
-          className={cn('overflow-y-auto perf-scroll px-3 pb-6', collapse.full ? 'max-h-none' : 'max-h-[52vh]')}
-        >
+        <div className="max-h-[52vh] overflow-y-auto perf-scroll px-3 pb-6">
+
           {entries.map((e, i) => {
             const active = i === current
             return (
