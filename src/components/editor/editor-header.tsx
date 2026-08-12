@@ -3,8 +3,7 @@ import { ArrowLeft, ArrowRight, Grid3x3, History, Layers, Plus, Redo2, SlidersHo
 
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { PanelCloseButton, PanelFullscreenButton, PanelHideButton, PanelMoveHandle, usePanelCollapse, usePanelDrag } from './panel-drag'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PremiumBadge } from './premium-badge'
 import { SettingsSheet } from './settings-sheet'
 import { ThemeToggle } from '@/components/theme-provider'
