@@ -281,37 +281,17 @@ export function EditorHeader({
 }
 
 
-/** Layers popover with the shared move-drag handle + window-style close. */
+/** Layers popover. */
 function DraggableLayersPanel({ children }: { children: React.ReactNode }) {
-  const panel = usePanelDrag()
-  const collapse = usePanelCollapse()
   return (
     <PopoverContent
       side="bottom"
       align="end"
       sideOffset={10}
       collisionPadding={12}
-      style={collapse.full ? undefined : panel.style}
-      className={cn('glass-panel max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto perf-scroll rounded-2xl p-0', collapse.fullClass)}
+      className="glass-panel max-h-[65dvh] w-[min(92vw,320px)] overflow-y-auto perf-scroll rounded-2xl p-0"
     >
-      <div className="flex items-center justify-between gap-2 px-2 pt-2">
-        <PanelMoveHandle
-          handleProps={panel.handleProps}
-          moved={panel.moved}
-          onReset={panel.reset}
-          className="size-7"
-        />
-        <div className="flex items-center gap-1.5">
-          <PanelFullscreenButton full={collapse.full} onToggle={collapse.toggleFull} className="size-7" />
-          <PanelHideButton collapsed={collapse.collapsed} onToggle={collapse.toggle} className="size-7" />
-          <PopoverClose asChild>
-            <span>
-              <PanelCloseButton onClick={() => {}} className="size-7" />
-            </span>
-          </PopoverClose>
-        </div>
-      </div>
-      {!collapse.collapsed && children}
+      {children}
     </PopoverContent>
   )
 }
