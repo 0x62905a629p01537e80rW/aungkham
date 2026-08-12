@@ -77,7 +77,7 @@ export function EditorHeader({
   const { t } = useI18n()
   const [scrolled, setScrolled] = useState(false)
   const [subview, setSubview] = useState(false)
-  const [quickPeek, setQuickPeek] = useState(false)
+  const [quickPeek, setQuickPeek] = useState(true)
   useEffect(() => setQuickPeek(isQuickPeekEnabled()), [])
   useEffect(() => {
     const onScroll = (e: Event) => setScrolled(!!(e as CustomEvent<boolean>).detail)
