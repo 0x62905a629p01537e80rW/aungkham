@@ -20,6 +20,34 @@ interface SaveShareProps {
   onBatchExport?: () => void
 }
 
+/** Determinate-feeling progress while the full-resolution preview renders. */
+function RenderProgress() {
+  const [pct, setPct] = useState(4)
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setPct((p) => (p >= 96 ? p : p + Math.max(0.6, (96 - p) * 0.08)))
+    }, 120)
+    return () => window.clearInterval(id)
+  }, [])
+
+  const value = Math.min(96, Math.round(pct))
+  const stage = value < 35 ? 'Preparing layers' : value < 70 ? 'Rendering canvas' : 'Finishing up'
+
+  return (
+    <div className="flex aspect-square flex-col items-center justify-center gap-3 px-8">
+      <span className="text-3xl font-semibold tabular-nums text-foreground">{value}%</span>
+      <div className="h-1.5 w-full max-w-[220px] overflow-hidden rounded-full bg-foreground/10">
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-200 ease-out"
+          style={{ width: `${value}%` }}
+        />
+      </div>
+      <span className="text-xs text-muted-foreground">{stage}…</span>
+    </div>
+  )
+}
+
 
 export function SaveShare({
   preview,
@@ -75,13 +103,12 @@ export function SaveShare({
         <div className="mx-auto w-full max-w-md">
           <div className="overflow-hidden rounded-2xl bg-muted ring-1 ring-border">
             {busy || !preview ? (
-              <div className="flex aspect-square items-center justify-center">
-                <Loader2 className="size-6 animate-spin text-muted-foreground" />
-              </div>
+              <RenderProgress />
             ) : (
               <img src={preview} alt="Edited result preview" className="block w-full" />
             )}
           </div>
+
           {size && (
             <p className="mt-2 text-center text-sm text-muted-foreground">
               {size.w} x {size.h}
