@@ -75,13 +75,12 @@ export function SaveShare({
         <div className="mx-auto w-full max-w-md">
           <div className="overflow-hidden rounded-2xl bg-muted ring-1 ring-border">
             {busy || !preview ? (
-              <div className="flex aspect-square items-center justify-center">
-                <Loader2 className="size-6 animate-spin text-muted-foreground" />
-              </div>
+              <RenderProgress />
             ) : (
               <img src={preview} alt="Edited result preview" className="block w-full" />
             )}
           </div>
+
           {size && (
             <p className="mt-2 text-center text-sm text-muted-foreground">
               {size.w} x {size.h}
