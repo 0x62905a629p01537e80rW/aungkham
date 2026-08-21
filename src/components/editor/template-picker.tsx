@@ -379,7 +379,10 @@ export function TemplatePicker({ open, onClose, onApply, hasBackground = false }
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background/85 backdrop-blur-xl">
-      <header className="glass-bar flex h-14 shrink-0 items-center gap-2 border-b border-border/40 px-3">
+      <header
+        className="glass-bar flex shrink-0 items-center gap-2 border-b border-border/40 px-3 pb-2"
+        style={{ paddingTop: 'calc(0.5rem + var(--safe-top))' }}
+      >
         <span className="text-sm font-semibold">Templates</span>
         <button
           type="button"

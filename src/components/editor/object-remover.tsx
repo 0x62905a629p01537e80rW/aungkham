@@ -269,7 +269,10 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
   return (
     <div className="fixed inset-0 z-[80] flex flex-col bg-background">
       {/* top bar */}
-      <div className="flex items-center justify-between px-3 py-2">
+      <div
+        className="flex items-center justify-between px-3 pb-2"
+        style={{ paddingTop: 'calc(0.5rem + var(--safe-top))' }}
+      >
         <div className="flex items-center gap-1">
           <button type="button" aria-label="Undo" className={iconBtn} disabled={!hist.undo} onClick={undo}>
             <Undo2 className="size-[18px]" />
