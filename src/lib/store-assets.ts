@@ -199,9 +199,21 @@ async function readFolderPage(
   return out
 }
 
-export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<StoreAsset[]> {
+/** Progress reporter for the multi-source catalog scan. */
+export type StoreProgress = (p: { percent: number; label: string; found: number }) => void
+
+export async function fetchStoreAssets(
+  kind: StoreKind,
+  force = false,
+  onProgress?: StoreProgress,
+): Promise<StoreAsset[]> {
   const hit = catalog.get(kind)
-  if (hit && !force) return hit
+  if (hit && !force) {
+    onProgress?.({ percent: 100, label: 'Ready', found: hit.length })
+    return hit
+  }
+  const step = (percent: number, label: string) =>
+    onProgress?.({ percent, label, found: list.length })
   const BASE = await base(kind)
   const prefix = listPrefix(kind)
   let list: StoreAsset[] = []
