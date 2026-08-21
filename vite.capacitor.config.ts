@@ -26,12 +26,6 @@ export default defineConfig({
     chunkSizeWarningLimit: 4000,
     rollupOptions: {
       input: resolve(process.cwd(), 'index.native.html'),
-      output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
-        },
-      },
     },
   },
 })
