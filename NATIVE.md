@@ -69,3 +69,28 @@ Helpers live in `src/lib/native.ts` (`isNative`, `saveToDevice`, `shareFile`,
   gracefully and the bundled content keeps working offline.
 - The Lovable-only bits (SSR entry, MCP routes, server functions) are not part
   of the native bundle at all.
+
+## App identity & version
+
+| Field | Value |
+| --- | --- |
+| Package / bundle id | `com.nextlevelcreator.burmesetalk` |
+| App name | Myan Add Text |
+| versionName | `4.1` |
+| versionCode | `410000000` |
+
+Set the version in `android/app/build.gradle`:
+
+```gradle
+defaultConfig {
+    applicationId "com.nextlevelcreator.burmesetalk"
+    versionCode 410000000
+    versionName "4.1"
+}
+```
+
+iOS (`ios/App/App.xcodeproj` → General): Bundle Identifier
+`com.nextlevelcreator.burmesetalk`, Version `4.1`, Build `410000000`.
+
+If `android/` was already generated with the old id, delete the folder and run
+`npx cap add android` again (or rename the package in Android Studio).
