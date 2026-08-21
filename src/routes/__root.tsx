@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { themeInitScript, ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/components/i18n";
 import { LaunchAd } from "@/components/launch-ad";
+import { PromoAd } from "@/components/promo-ad";
 import { Toaster } from "@/components/ui/sonner";
 
 
@@ -143,6 +144,7 @@ function RootComponent() {
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <LaunchAd />
+          <PromoAd />
           <Toaster position="top-center" richColors closeButton />
 
         </LanguageProvider>
