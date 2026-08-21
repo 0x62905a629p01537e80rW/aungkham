@@ -215,7 +215,8 @@ export function UploadZone({
               {/* Animated template band — starts below the header */}
               <div
                 aria-hidden
-                className="absolute inset-x-0 bottom-0 top-14 flex flex-col justify-start gap-2.5 overflow-hidden pt-3 opacity-80"
+                className="absolute inset-x-0 bottom-0 flex flex-col justify-start gap-2.5 overflow-hidden pt-3 opacity-80"
+                style={{ top: 'calc(3.5rem + var(--safe-top))' }}
               >
                 {[0, 1].map((row) => (
                   <div
