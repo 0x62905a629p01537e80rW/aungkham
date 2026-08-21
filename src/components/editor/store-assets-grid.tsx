@@ -62,6 +62,7 @@ export function StoreAssetsGrid({
   const [pay, setPay] = useState(false)
   const [, force] = useState(0)
   const [visible, setVisible] = useState(24)
+  const [loadProgress, setLoadProgress] = useState<{ percent: number; label: string } | null>(null)
   const { isPro } = useAuth()
 
   useEffect(() => subscribeStoreAssets(() => force((n) => n + 1)), [])
@@ -69,9 +70,12 @@ export function StoreAssetsGrid({
   async function load(refresh = false) {
     setLoading(true)
     setError(null)
+    setLoadProgress({ percent: 2, label: 'Contacting store…' })
     try {
       void ensureStoreAssetsLoaded()
-      const list = await fetchStoreAssets(kind, refresh)
+      const list = await fetchStoreAssets(kind, refresh, (p) =>
+        setLoadProgress({ percent: p.percent, label: p.label }),
+      )
       setAssets(list)
       setTiers(await fetchStoreTiers(kind, true).catch(() => ({})))
       // warm the first screenful of previews
@@ -80,6 +84,7 @@ export function StoreAssetsGrid({
       setError("Couldn't load this store section. Check your connection and try again.")
     }
     setLoading(false)
+    setLoadProgress(null)
   }
 
   useEffect(() => {
