@@ -27,11 +27,25 @@ npx cap sync
 ## Every time you change the app
 
 ```bash
-npm run native      # vendor fonts+assets -> build -> cap sync
-npm run open:android    # or: npm run open:ios
+npm run native:fast   # build + cap sync (no re-downloads, fast)
+npm run open:android  # or: npm run open:ios
 ```
 
 Then press Run in Android Studio / Xcode.
+
+**Only re-download offline assets when you add new fonts/images or after a fresh clone:**
+
+```bash
+npm run native:full   # vendor fonts + assets -> build -> cap sync
+```
+
+The vendor scripts cache everything in `public/`, so running them again is instant.
+Use `--force` if you ever want to force a re-download:
+
+```bash
+npm run vendor:fonts -- --force
+npm run vendor:assets -- --force https://aungkham.lovable.app
+```
 
 ## Firebase native login
 
