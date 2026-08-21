@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Myan Add Text</string>
+    <string name="title_activity_main">Myan Add Text</string>
+    <string name="package_name">com.nextlevelcreator.burmesetalk</string>
+    <string name="custom_url_scheme">com.nextlevelcreator.burmesetalk</string>
+</resources>
