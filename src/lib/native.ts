@@ -51,18 +51,22 @@ export async function initNativeShell() {
   }
 }
 
-/** Save a data URL / blob URL into the device gallery-visible Documents dir. */
+/**
+ * Save a data URL into the app folder inside the device Documents directory
+ * (visible through the native file browser) and return its display path.
+ */
 export async function saveToDevice(dataUrl: string, fileName: string): Promise<string | null> {
   if (!isNative()) return null
   const { Filesystem, Directory } = await import('@capacitor/filesystem')
   const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl
-  const res = await Filesystem.writeFile({
-    path: fileName,
+  const path = `Myan Add Text/${fileName}`
+  await Filesystem.writeFile({
+    path,
     data: base64,
     directory: Directory.Documents,
     recursive: true,
   })
-  return res.uri
+  return `Myan Add Text/${fileName}`
 }
 
 /** Native share sheet for an already-saved file URI. */
