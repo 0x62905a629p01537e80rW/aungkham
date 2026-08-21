@@ -6,9 +6,6 @@ import { cn } from '@/lib/utils'
 
 import { LayerText, layerTransform } from './text-layer-view'
 import { TEMPLATES, TEMPLATE_GROUPS, type TemplateDef, type TemplateLang } from '@/lib/templates'
-import { LOGO_FONT_KEYS } from '@/lib/logo-templates'
-import { THUMB_FONT_KEYS } from '@/lib/thumbnail-templates'
-import { FBAD_FONT_KEYS } from '@/lib/fbad-templates'
 import { ensureRemoteFontsForKeys } from '@/lib/remote-fonts'
 import type { TextLayer } from '@/lib/text-layer'
 import { exportTemplatesJson } from '@/lib/export-templates'
@@ -112,7 +109,6 @@ export function TemplateGallery({
 
   useEffect(() => {
     void ensureTemplatePacksLoaded().then(() => force((n) => n + 1))
-    void ensureRemoteFontsForKeys([...LOGO_FONT_KEYS, ...THUMB_FONT_KEYS, ...FBAD_FONT_KEYS])
       .then(() => force((n) => n + 1))
       .catch(() => {})
     return subscribeRemoteTemplates(() => force((n) => n + 1))

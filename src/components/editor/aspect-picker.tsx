@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import sampleThumb from '@/assets/thumbs/thumb01.jpg.asset.json'
 
 interface PhotoSize {
   label: string
@@ -118,12 +117,10 @@ export function AspectPicker({
               className="group flex flex-col items-center gap-1 rounded-xl border border-border/60 bg-secondary/30 p-1.5 text-center transition hover:border-primary/50 hover:bg-primary/10 active:scale-95"
             >
               <span className="grid h-[46px] w-full place-items-center">
-                <img
-                  src={sampleThumb.url}
-                  alt=""
+                <span
                   aria-hidden
                   className={cn(
-                    'rounded-none object-cover shadow-sm ring-1 ring-border/70 transition group-hover:ring-primary/60',
+                    'block rounded-none bg-gradient-to-br from-primary/40 to-primary/10 shadow-sm ring-1 ring-border/70 transition group-hover:ring-primary/60',
                   )}
                   style={{
                     height: s.ratio >= 1 ? `${Math.round(40 / s.ratio)}px` : '40px',
