@@ -143,6 +143,7 @@ function RootComponent() {
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <LaunchAd />
+          <PromoAd />
           <Toaster position="top-center" richColors closeButton />
 
         </LanguageProvider>
