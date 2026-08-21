@@ -181,9 +181,19 @@ export function StoreAssetsGrid({
 
       {error && <p className="shrink-0 pb-2 text-xs text-destructive">{error}</p>}
       {loading && !all.length && (
-        <p className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground">
-          <Loader2 className="size-3.5 animate-spin" /> Loading…
-        </p>
+        <div className="flex flex-col items-center gap-2 py-6">
+          <div className="flex w-full max-w-[220px] items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="size-3.5 shrink-0 animate-spin" />
+            <span className="truncate">{loadProgress?.label ?? 'Loading store…'}</span>
+            <span className="ml-auto shrink-0 tabular-nums">{loadProgress?.percent ?? 0}%</span>
+          </div>
+          <div className="h-1.5 w-full max-w-[220px] overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary transition-[width] duration-300"
+              style={{ width: `${loadProgress?.percent ?? 0}%` }}
+            />
+          </div>
+        </div>
       )}
       {!all.length && !loading && !error && (
         <p className="py-6 text-center text-xs text-muted-foreground">
