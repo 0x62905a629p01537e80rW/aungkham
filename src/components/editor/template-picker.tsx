@@ -121,9 +121,7 @@ export function TemplateGallery({
 
   const groups = useMemo(
     () => [
-      ...TEMPLATE_GROUPS.filter(
-        (g) => !(lang === 'EN' && (g === 'New' || g === 'Logo' || g === 'Thumbnail' || g === 'Facebook Ad')),
-      ),
+      ...TEMPLATE_GROUPS.filter((g) => !(lang === 'EN' && g === 'New')),
       'Free',
       'Downloaded',
     ],
