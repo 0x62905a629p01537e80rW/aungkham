@@ -73,6 +73,18 @@ export function defaultFilename() {
   return `AddText_${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}.${p(d.getMinutes())}.${p(d.getSeconds())}`
 }
 
+/** On native, save into the Documents folder and return its display path. */
+export async function saveRenderedImage(
+  dataUrl: string,
+  filename: string,
+): Promise<{ location: string; native: boolean }> {
+  const { saveToDevice } = await import('./native')
+  const location = await saveToDevice(dataUrl, filename)
+  if (location) return { location, native: true }
+  downloadDataUrl(dataUrl, filename)
+  return { location: filename, native: false }
+}
+
 export function downloadDataUrl(dataUrl: string, filename: string) {
   const link = document.createElement('a')
   link.download = filename
