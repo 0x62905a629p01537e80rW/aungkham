@@ -49,9 +49,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false
     let unsub: (() => void) | undefined
+    // The auth SDK can silently hang inside the native WebView (no
+    // onAuthStateChanged event). Never leave the app stuck on "loading…".
+    const bail = setTimeout(() => {
+      if (!cancelled) setLoading(false)
+    }, 9000)
     ;(async () => {
       const { getFirebaseAuth } = await import('@/lib/firebase')
+      const { isNative } = await import('@/lib/native')
       const { onAuthStateChanged } = await import('firebase/auth')
+      if (isNative()) {
+        try {
+          const { setPersistence, browserLocalPersistence, indexedDBLocalPersistence } =
+            await import('firebase/auth')
+          const p = typeof indexedDB === 'undefined' ? browserLocalPersistence : indexedDBLocalPersistence
+          await setPersistence(getFirebaseAuth(), p)
+        } catch {
+          /* non-fatal */
+        }
+      }
       if (cancelled) return
       unsub = onAuthStateChanged(getFirebaseAuth(), (u) => {
         setUser(u)
@@ -63,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
     return () => {
       cancelled = true
+      clearTimeout(bail)
       unsub?.()
     }
   }, [])
@@ -178,12 +195,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isNative()) {
       // Native Google sign-in (no popup / no browser redirect)
       const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication')
-      const { GoogleAuthProvider, signInWithCredential } = await import('firebase/auth')
-      const result = await FirebaseAuthentication.signInWithGoogle()
-      const idToken = result.credential?.idToken
-      const accessToken = result.credential?.accessToken
-      const credential = GoogleAuthProvider.credential(idToken ?? null, accessToken ?? undefined)
-      await signInWithCredential(getFirebaseAuth(), credential)
+      const { GoogleAuthProvider, signInWithCredential, getRedirectResult } =
+        await import('firebase/auth')
+      const auth = getFirebaseAuth()
+      try {
+        const result = await FirebaseAuthentication.signInWithGoogle()
+        const idToken = result.credential?.idToken
+        const accessToken = result.credential?.accessToken
+        if (!idToken) throw new Error('Google sign-in returned no ID token')
+        const credential = GoogleAuthProvider.credential(idToken, accessToken ?? undefined)
+        await signInWithCredential(auth, credential)
+      } catch (err) {
+        // Sometimes the plugin signs the user in natively but the credential
+        // exchange above fails. If there is already a signed-in session, treat
+        // it as success rather than leaving the user stuck at "loading…".
+        try {
+          const u = auth.currentUser
+          if (u) return
+          await getRedirectResult(auth)
+          if (auth.currentUser) return
+        } catch {
+          /* fall through to the original error */
+        }
+        throw err
+      }
       return
     }
 
