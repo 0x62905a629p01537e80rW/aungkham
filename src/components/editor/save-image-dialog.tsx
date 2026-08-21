@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Crown, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAuth } from '@/components/auth-provider'
 import { PaymentPage } from './payment-page'
 import { Button } from '@/components/ui/button'
@@ -9,7 +10,7 @@ import {
   FORMAT_LABEL,
   dataUrlSize,
   defaultFilename,
-  downloadDataUrl,
+  saveRenderedImage,
   encodeImage,
   formatBytes,
   supportsQuality,
@@ -88,7 +89,14 @@ export function SaveImageDialog({ open, preview, onClose }: SaveImageDialogProps
   async function handleSave() {
     if (!preview) return
     const url = await encodeImage(preview, format, quality, isPro ? scale : 1)
-    downloadDataUrl(url, filename)
+    try {
+      const { location, native } = await saveRenderedImage(url, filename)
+      toast.success('Saved successfully', {
+        description: native ? `Saved at "${location}"` : `Saved as "${location}"`,
+      })
+    } catch {
+      toast.error("Couldn't save the image.")
+    }
     onClose()
   }
 
