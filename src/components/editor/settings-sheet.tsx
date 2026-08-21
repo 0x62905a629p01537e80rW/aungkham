@@ -395,7 +395,11 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                           }
                           void signIn()
                             .then(() => setRestore(false))
-                            .catch(() => {})
+                            .catch((err) => {
+                              const msg = err instanceof Error ? err.message : 'Sign-in failed'
+                              if (!/cancel|closed|popup/i.test(msg))
+                                void import('sonner').then((m) => m.toast.error(msg))
+                            })
                         }}
                         className="premium-glass mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-base font-bold transition active:scale-[0.98]"
                       >
