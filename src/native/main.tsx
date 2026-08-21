@@ -14,6 +14,7 @@ import '../styles.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { LanguageProvider } from '@/components/i18n'
 import { LaunchAd } from '@/components/launch-ad'
+import { PromoAd } from '@/components/promo-ad'
 import { Toaster } from '@/components/ui/sonner'
 import { Editor } from '@/components/editor/editor'
 import { initNativeShell } from '@/lib/native'
@@ -29,6 +30,7 @@ function NativeApp() {
         <LanguageProvider>
           <Editor />
           <LaunchAd />
+          <PromoAd />
           <Toaster position="top-center" richColors closeButton />
         </LanguageProvider>
       </ThemeProvider>
