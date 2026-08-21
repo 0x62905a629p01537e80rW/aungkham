@@ -804,3 +804,13 @@ html.quick-peek .peek-host {
 html.quick-peek .peek-host > *:not(.peek-keep) {
   opacity: 0;
 }
+
+/* ------------------------------------------------------------------
+   Native shell (Capacitor): the status bar sits above the webview, so
+   env() insets report 0 on Android. Give every page a measured inset
+   (set from JS in src/lib/native.ts) plus a little breathing room.
+   ------------------------------------------------------------------ */
+html.is-native {
+  --safe-top: calc(max(env(safe-area-inset-top, 0px), var(--status-bar-h, 0px)) + 6px);
+  --safe-bottom: calc(max(env(safe-area-inset-bottom, 0px), 0px) + 6px);
+}
