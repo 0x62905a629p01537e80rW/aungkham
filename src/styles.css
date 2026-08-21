@@ -817,7 +817,7 @@ html.is-native {
      edge-to-edge, so the WebView can start *behind* the status bar even with
      overlay:false — always reserve at least the real status-bar height. */
   --status-bar-h: 0px;
-  --safe-top: calc(max(env(safe-area-inset-top, 0px), var(--status-bar-h), 30px) + 8px);
+  --safe-top: calc(max(env(safe-area-inset-top, 0px), var(--status-bar-h), 44px) + 10px);
   --safe-bottom: calc(max(env(safe-area-inset-bottom, 0px), 8px) + 6px);
 }
 
