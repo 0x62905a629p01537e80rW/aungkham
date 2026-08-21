@@ -1,6 +1,10 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
 import { getAuth, type Auth } from 'firebase/auth'
-import { getFirestore, type Firestore } from 'firebase/firestore'
+import {
+  getFirestore,
+  initializeFirestore,
+  type Firestore,
+} from 'firebase/firestore'
 
 export const FIREBASE_CONFIG = {
   apiKey: 'AIzaSyBHkt7MX6ZI-6zBoEA6WHEFUtBMB36Npl0',
@@ -13,6 +17,13 @@ export const FIREBASE_CONFIG = {
 }
 
 let app: FirebaseApp | null = null
+let db: Firestore | null = null
+
+function isNativeShell(): boolean {
+  if (typeof window === 'undefined') return false
+  const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
+  return cap?.isNativePlatform?.() === true
+}
 
 /** Browser-only Firebase accessors — never call during SSR. */
 export function getFirebaseApp(): FirebaseApp {
@@ -25,5 +36,19 @@ export function getFirebaseAuth(): Auth {
 }
 
 export function getDb(): Firestore {
-  return getFirestore(getFirebaseApp())
+  if (db) return db
+  const a = getFirebaseApp()
+  try {
+    // Inside the Android/iOS WebView the Firestore WebChannel stream is often
+    // silently blocked, which makes every listener hang forever ("loading…"
+    // that never ends). Long polling is the supported workaround.
+    db = initializeFirestore(a, {
+      experimentalForceLongPolling: isNativeShell(),
+      experimentalAutoDetectLongPolling: !isNativeShell(),
+    })
+  } catch {
+    // Already initialised elsewhere.
+    db = getFirestore(a)
+  }
+  return db
 }

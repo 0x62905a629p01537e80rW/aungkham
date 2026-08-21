@@ -58,7 +58,8 @@ Required native config:
 1. In the Firebase console (`myan-photo-editor`) add an **Android app** with
    applicationId `com.nextlevelcreator.burmesetalk` and your debug + release SHA-1/SHA-256
    fingerprints, then download `google-services.json` into
-   `android/app/google-services.json`.
+   `android/app/google-services.json`. The **SHA-1 that Gradle uses must be
+   registered** — run `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android` for debug, and match the release keystore. If the SHA-1 isn't there, Google sign-in silently fails / hangs.
 2. For iOS add an **iOS app** with bundle id `com.nextlevelcreator.burmesetalk` and put
    `GoogleService-Info.plist` into `ios/App/App/`.
 3. Android — in `android/variables.gradle` make sure
@@ -68,6 +69,23 @@ Required native config:
    `android/app/build.gradle`. `npx cap sync` normally does this for you.
 4. iOS — add the reversed client id from `GoogleService-Info.plist` as a URL
    scheme in `ios/App/App/Info.plist`.
+
+### If sign-in or restore is stuck on "loading…"
+
+- **Google sign-in hangs** → almost always the SHA-1 fingerprint for your
+  build keystore is not registered in the Firebase console Android app (or the
+  `google-services.json` doesn't match `com.nextlevelcreator.burmesetalk`).
+  Re-run step 1 and `npx cap sync` after adding it.
+- **Restore / pro stays loading after a successful login** → the Firestore
+  listener was being blocked by the WebView. The app now forces long-polling
+  on native (`src/lib/firebase.ts`). If it still hangs, it's a Firebase
+  **Firestore** rule or network-block issue, not the login itself — the user
+  doc `users/{uid}` must be readable.
+- **Gradle `ext` errors** (`firebaseAuthenticationVersion` missing, etc.) →
+  the plugin's version block was dropped. Run `npx cap update @capacitor-firebase/authentication`
+  then `npx cap sync` to regenerate `android/variables.gradle` and the
+  `google-services` plugin lines. If that fails, uninstall then reinstall the
+  plugin: `npm i @capacitor-firebase/authentication && npx cap sync`.
 
 ## Installed plugins
 

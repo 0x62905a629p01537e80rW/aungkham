@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Loader2, X, Check, LogIn } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAuth } from '@/components/auth-provider'
 import { usePricing } from '@/lib/pricing'
 import { PaymentPage } from './payment-page'
@@ -54,10 +55,16 @@ export function ProSplash() {
   async function handleRestore() {
     setRestoring(true)
     try {
-      await signIn()
+      await Promise.race([
+        signIn(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Sign-in timed out. Check your connection.')), 45000),
+        ),
+      ])
       setAskLogin(false)
-    } catch {
-      /* ignore */
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Sign-in failed'
+      if (!/cancel|closed|popup/i.test(msg)) toast.error(msg)
     } finally {
       setRestoring(false)
     }
