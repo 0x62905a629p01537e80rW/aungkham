@@ -173,15 +173,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async () => {
     const { getFirebaseAuth } = await import('@/lib/firebase')
+    const { isNative } = await import('@/lib/native')
+
+    if (isNative()) {
+      // Native Google sign-in (no popup / no browser redirect)
+      const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication')
+      const { GoogleAuthProvider, signInWithCredential } = await import('firebase/auth')
+      const result = await FirebaseAuthentication.signInWithGoogle()
+      const idToken = result.credential?.idToken
+      const accessToken = result.credential?.accessToken
+      const credential = GoogleAuthProvider.credential(idToken ?? null, accessToken ?? undefined)
+      await signInWithCredential(getFirebaseAuth(), credential)
+      return
+    }
+
     const { GoogleAuthProvider, signInWithPopup } = await import('firebase/auth')
     await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider())
   }, [])
 
   const signOutUser = useCallback(async () => {
     const { getFirebaseAuth } = await import('@/lib/firebase')
+    const { isNative } = await import('@/lib/native')
     const { signOut } = await import('firebase/auth')
+    if (isNative()) {
+      try {
+        const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication')
+        await FirebaseAuthentication.signOut()
+      } catch {
+        /* ignore */
+      }
+    }
     await signOut(getFirebaseAuth())
   }, [])
+
 
   const value = useMemo(
     () => ({ user, loading, isPro, proPending, proExpiresAt, proSince, signIn, signOutUser }),
