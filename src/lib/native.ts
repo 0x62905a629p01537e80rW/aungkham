@@ -93,3 +93,19 @@ export async function tapHaptic() {
     /* ignore */
   }
 }
+
+/** Re-apply status bar colours after a light/dark theme change. */
+export async function syncStatusBarTheme(dark: boolean) {
+  if (!isNative()) return
+  try {
+    const { StatusBar, Style } = await import('@capacitor/status-bar')
+    await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light })
+    try {
+      await StatusBar.setBackgroundColor({ color: dark ? '#070a0d' : '#ffffff' })
+    } catch {
+      /* iOS */
+    }
+  } catch {
+    /* no plugin */
+  }
+}
