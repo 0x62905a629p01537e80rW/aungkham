@@ -13,7 +13,9 @@
     "vendor:assets": "node scripts/vendor-assets.mjs",
     "vendor:fonts": "node scripts/vendor-fonts.mjs",
     "build:native": "vite build --config vite.capacitor.config.ts && node -e \"require('fs').renameSync('dist/index.native.html','dist/index.html')\"",
-    "native": "npm run vendor:fonts && npm run vendor:assets && npm run build:native && npx cap sync",
+    "native:full": "npm run vendor:fonts && npm run vendor:assets && npm run build:native && npx cap sync",
+    "native:fast": "npm run build:native && npx cap sync",
+    "native": "npm run native:full",
     "open:android": "npx cap open android",
     "open:ios": "npx cap open ios"
   },

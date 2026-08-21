@@ -2,13 +2,17 @@
  * Downloads every Lovable-hosted asset (`/__l5e/assets-v1/...`) into public/
  * so the Capacitor build is 100% offline.
  *
- * Usage:  node scripts/vendor-assets.mjs [https://your-published-url]
+ * Usage:
+ *   node scripts/vendor-assets.mjs [https://your-published-url]        # once
+ *   node scripts/vendor-assets.mjs --force [https://your-published-url] # re-download
  */
 import { readdir, readFile, writeFile, mkdir, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
-const ORIGIN = (process.argv[2] || 'https://aungkham.lovable.app').replace(/\/$/, '')
+const FORCE = process.argv.includes('--force')
+const ORIGIN_ARG = process.argv.find((a, i) => i > 1 && !a.startsWith('--'))
+const ORIGIN = (ORIGIN_ARG || 'https://aungkham.lovable.app').replace(/\/$/, '')
 const ROOT = process.cwd()
 const OUT = join(ROOT, 'public')
 
@@ -39,17 +43,23 @@ if (existsSync(join(ROOT, 'public'))) await walk(join(ROOT, 'public'))
 console.log(`Found ${urls.size} assets. Downloading from ${ORIGIN} ...`)
 
 let ok = 0
+let skipped = 0
 let fail = 0
 const list = [...urls]
 const CONCURRENCY = 12
 
 async function fetchOne(url) {
   const dest = join(OUT, url.replace(/^\//, ''))
-  try {
-    const s = await stat(dest)
-    if (s.size > 0) return { skipped: true }
-  } catch {
-    /* not cached */
+  if (!FORCE) {
+    try {
+      const s = await stat(dest)
+      if (s.size > 0) {
+        skipped++
+        return { skipped: true }
+      }
+    } catch {
+      /* not cached */
+    }
   }
   const res = await fetch(ORIGIN + url)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -64,8 +74,8 @@ for (let i = 0; i < list.length; i += CONCURRENCY) {
   await Promise.all(
     batch.map(async (url) => {
       try {
-        await fetchOne(url)
-        ok++
+        const r = await fetchOne(url)
+        if (!r.skipped) ok++
       } catch (err) {
         fail++
         console.warn(`  ! ${url} — ${err.message}`)
@@ -75,5 +85,5 @@ for (let i = 0; i < list.length; i += CONCURRENCY) {
   process.stdout.write(`\r  ${Math.min(i + CONCURRENCY, list.length)}/${list.length}`)
 }
 
-console.log(`\nDone. ${ok} assets available, ${fail} failed.`)
+console.log(`\nDone. ${ok} downloaded, ${skipped} cached, ${fail} failed.`)
 if (fail) process.exitCode = 1
