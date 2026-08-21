@@ -199,9 +199,21 @@ async function readFolderPage(
   return out
 }
 
-export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<StoreAsset[]> {
+/** Progress reporter for the multi-source catalog scan. */
+export type StoreProgress = (p: { percent: number; label: string; found: number }) => void
+
+export async function fetchStoreAssets(
+  kind: StoreKind,
+  force = false,
+  onProgress?: StoreProgress,
+): Promise<StoreAsset[]> {
   const hit = catalog.get(kind)
-  if (hit && !force) return hit
+  if (hit && !force) {
+    onProgress?.({ percent: 100, label: 'Ready', found: hit.length })
+    return hit
+  }
+  const step = (percent: number, label: string) =>
+    onProgress?.({ percent, label, found: list.length })
   const BASE = await base(kind)
   const prefix = listPrefix(kind)
   let list: StoreAsset[] = []
@@ -223,6 +235,8 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
 
   /** Folder names seen in manifests / listings — each may hold its own index. */
   const packNames = new Set<string>()
+
+  step(8, 'Reading index…')
 
   // 1) optional hand-written index (entries may include a pack folder)
   try {
@@ -254,6 +268,8 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
     /* fall through */
   }
 
+  step(24, 'Scanning packs…')
+
   // 1b) GitHub tree listing — authoritative, but rate limited per IP.
   {
     const treePrefix = `${ROOT}/${kind}/`
@@ -270,6 +286,8 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
         .map((path) => make(path.slice(treePrefix.length))),
     )
   }
+
+  step(46, 'Reading pack contents…')
 
   // 1c) Per-pack index.json — the reliable way to read a folder's contents
   // without the GitHub API (jsDelivr listings lag behind new folders).
@@ -294,6 +312,8 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   }
 
 
+  step(68, 'Checking CDN listing…')
+
   // 2) jsDelivr flat listing (already recursive)
   let files: { name: string; size?: number }[] = []
   try {
@@ -311,6 +331,8 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
       .map((f) => make(f.name.slice(prefix.length), f.size)),
   )
 
+  step(84, 'Finishing up…')
+
   // 3) jsDelivr's browser-safe folder pages. The data API can retain an old
   // flat index even after individual files and directory pages are current.
   // Sub folders are packs (e.g. `Stickers/iOS`) and are walked one level deep.
@@ -327,6 +349,7 @@ export async function fetchStoreAssets(kind: StoreKind, force = false): Promise<
   }
 
   catalog.set(kind, list)
+  step(100, 'Ready')
   return list
 
 }

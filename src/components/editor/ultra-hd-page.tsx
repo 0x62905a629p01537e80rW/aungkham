@@ -3,7 +3,7 @@ import { ArrowLeft, Download, Gem, RefreshCw, WifiOff } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { defaultFilename, downloadDataUrl } from '@/lib/export-image'
+import { defaultFilename, saveRenderedImage } from '@/lib/export-image'
 
 type Phase = 'working' | 'done' | 'error'
 
@@ -82,7 +82,17 @@ export function UltraHdPage({ src, onClose, onUseInEditor }: Props) {
 
   function save() {
     if (!result) return
-    downloadDataUrl(result, defaultFilename().replace(/(\.\w+)?$/, '-ultrahd.png'))
+    void (async () => {
+      const name = defaultFilename().replace(/(\.\w+)?$/, '-ultrahd.png')
+      try {
+        const { location, native } = await saveRenderedImage(result, name)
+        toast.success('Saved successfully', {
+          description: native ? `Saved at "${location}"` : `Saved as "${location}"`,
+        })
+      } catch {
+        toast.error("Couldn't save the image.")
+      }
+    })()
     toast.success('Saved Ultra HD photo')
   }
 
