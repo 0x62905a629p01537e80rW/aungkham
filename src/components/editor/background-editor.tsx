@@ -376,7 +376,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
           'flex shrink-0 items-center justify-between px-3',
           panel ? 'h-12 border-b border-border/60' : 'h-14 border-b border-border',
         )}
-        style={panel ? undefined : { paddingTop: 'env(safe-area-inset-top)' }}
+        style={panel ? undefined : { paddingTop: 'var(--safe-top)' }}
       >
         <div className="flex items-center gap-1">
           {panel && (
@@ -472,7 +472,7 @@ export function BackgroundEditor({ tool, image, panel = false, onCancel, onApply
             ? 'border-transparent bg-transparent/0 backdrop-blur-none'
             : 'border-border bg-background/95 backdrop-blur-xl',
         )}
-        style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+        style={{ paddingBottom: 'max(1rem, var(--safe-bottom))' }}
       >
 
         <div className="space-y-4">

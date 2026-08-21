@@ -86,7 +86,10 @@ export function ProSplash() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[38%] bg-[radial-gradient(110%_70%_at_50%_0%,#22c3f033_0%,transparent_70%)]" />
 
       {/* Header */}
-      <div className="relative flex items-center justify-between px-5 pt-4">
+      <div
+        className="relative flex items-center justify-between px-5"
+        style={{ paddingTop: 'calc(1rem + var(--safe-top))' }}
+      >
         <button
           type="button"
           onClick={() => setOpen(false)}

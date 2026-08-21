@@ -259,8 +259,8 @@ export function ShapeStudio({ onCancel, onAdd }: Props) {
     <div
       className="fixed inset-0 z-[70] flex flex-col bg-background"
       style={{
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingTop: 'var(--safe-top)',
+        paddingBottom: 'var(--safe-bottom)',
       }}
     >
       <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border/60 px-2">

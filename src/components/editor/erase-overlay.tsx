@@ -290,7 +290,7 @@ export function EraseBar({
         collapse.collapsed && '[&>*:not(:first-child)]:hidden',
         collapse.fullClass,
       )}
-      style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', ...panel.style }}
+      style={{ paddingBottom: 'calc(1rem + var(--safe-bottom))', ...panel.style }}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">

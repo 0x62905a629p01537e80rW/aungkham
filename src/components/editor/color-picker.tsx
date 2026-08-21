@@ -784,8 +784,8 @@ export function ColorPickerFullScreen({
       <div
         className="flex flex-1 flex-col overflow-y-auto perf-scroll bg-background"
         style={{
-          paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
-          paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+          paddingTop: 'max(0.75rem, var(--safe-top))',
+          paddingBottom: 'max(1rem, var(--safe-bottom))',
         }}
       >
         <div className="flex items-center justify-between px-4 pb-2">

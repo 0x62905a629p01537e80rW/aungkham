@@ -102,7 +102,7 @@ export function EditorHeader({
           ? 'border-b border-transparent bg-transparent'
           : 'glass-bar border-b border-border/70',
       )}
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      style={{ paddingTop: 'var(--safe-top)' }}
     >
 
 

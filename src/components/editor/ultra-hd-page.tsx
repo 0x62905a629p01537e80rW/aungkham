@@ -92,7 +92,7 @@ export function UltraHdPage({ src, onClose, onUseInEditor }: Props) {
     <div className="fixed inset-0 z-[90] flex flex-col bg-background">
       <header
         className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 py-3"
-        style={{ paddingTop: 'calc(0.75rem + env(safe-area-inset-top))' }}
+        style={{ paddingTop: 'calc(0.75rem + var(--safe-top))' }}
       >
         <Button variant="ghost" size="icon" onClick={onClose} aria-label="Back">
           <ArrowLeft className="size-5" />
@@ -208,7 +208,7 @@ export function UltraHdPage({ src, onClose, onUseInEditor }: Props) {
 
       <footer
         className="flex flex-col gap-2 px-4 pt-2"
-        style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+        style={{ paddingBottom: 'calc(1rem + var(--safe-bottom))' }}
       >
         {phase === 'done' && (
           <p className="text-center text-[11px] text-muted-foreground">

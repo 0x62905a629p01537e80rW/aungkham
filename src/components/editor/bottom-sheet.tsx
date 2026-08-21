@@ -50,7 +50,7 @@ export function BottomSheet({ open, title, onClose, children }: BottomSheetProps
         )}
         style={{
           ...(open && !collapse.full ? panel.style : {}),
-          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingBottom: 'var(--safe-bottom)',
           backgroundColor: 'color-mix(in oklab, var(--card) 55%, transparent)',
           backdropFilter: 'blur(24px) saturate(180%)',
         }}

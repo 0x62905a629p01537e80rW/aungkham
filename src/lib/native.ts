@@ -12,14 +12,28 @@ export function isNative(): boolean {
 /** Status bar, splash screen, hardware back button. Called once at boot. */
 export async function initNativeShell() {
   if (!isNative()) return
+  document.documentElement.classList.add('is-native')
   try {
     const { StatusBar, Style } = await import('@capacitor/status-bar')
     const dark = document.documentElement.classList.contains('dark')
     await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light })
+    // Keep the webview below the status bar, and record its height so CSS
+    // can add the matching inset on every page.
     await StatusBar.setOverlaysWebView({ overlay: false })
+    try {
+      await StatusBar.setBackgroundColor({ color: dark ? '#070a0d' : '#ffffff' })
+    } catch {
+      /* iOS has no background colour API */
+    }
+    const info = await StatusBar.getInfo()
+    const h = (info as unknown as { height?: number }).height
+    if (typeof h === 'number' && h > 0) {
+      document.documentElement.style.setProperty('--status-bar-h', `${h}px`)
+    }
   } catch {
     /* status bar unavailable */
   }
+
   try {
     const { SplashScreen } = await import('@capacitor/splash-screen')
     await SplashScreen.hide()
@@ -77,5 +91,21 @@ export async function tapHaptic() {
     await Haptics.impact({ style: ImpactStyle.Light })
   } catch {
     /* ignore */
+  }
+}
+
+/** Re-apply status bar colours after a light/dark theme change. */
+export async function syncStatusBarTheme(dark: boolean) {
+  if (!isNative()) return
+  try {
+    const { StatusBar, Style } = await import('@capacitor/status-bar')
+    await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light })
+    try {
+      await StatusBar.setBackgroundColor({ color: dark ? '#070a0d' : '#ffffff' })
+    } catch {
+      /* iOS */
+    }
+  } catch {
+    /* no plugin */
   }
 }

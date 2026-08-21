@@ -131,7 +131,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
         <div className="fixed inset-0 z-[65] overflow-y-auto perf-scroll bg-background text-foreground animate-fade-in">
           <div
             className="flex items-center gap-4 px-4 pb-2 pt-4"
-            style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
+            style={{ paddingTop: 'calc(var(--safe-top) + 1rem)' }}
           >
             <button
               type="button"

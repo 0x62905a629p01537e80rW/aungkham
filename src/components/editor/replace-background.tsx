@@ -37,7 +37,7 @@ export function ReplaceBackground({ open, onClose, onPick }: ReplaceBackgroundPr
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <header
         className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-2"
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        style={{ paddingTop: 'var(--safe-top)' }}
       >
         <Button variant="ghost" size="icon" aria-label="Close" onClick={onClose} className="size-9 rounded-full">
           <X className="size-5" />

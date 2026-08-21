@@ -477,7 +477,10 @@ export function BgRemover({ open, src, title = 'Eraser', onClose, onApply }: BgR
 
   return createPortal(
     <div className="fixed inset-0 z-[120] flex flex-col bg-background">
-      <header className="glass-bar flex items-center justify-between gap-2 px-3 py-2">
+      <header
+        className="glass-bar flex items-center justify-between gap-2 px-3 pb-2"
+        style={{ paddingTop: 'calc(0.5rem + var(--safe-top))' }}
+      >
         <button
           type="button"
           onClick={() => (phase === 'smooth' ? setPhase('edit') : onClose())}

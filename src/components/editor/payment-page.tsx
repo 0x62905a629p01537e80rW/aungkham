@@ -221,7 +221,7 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
     <div className="fixed inset-0 z-[70] overflow-y-auto perf-scroll bg-background text-foreground animate-fade-in">
       <div
         className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-border/60 bg-background px-3 pb-3 pt-4"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+        style={{ paddingTop: 'calc(var(--safe-top) + 0.75rem)' }}
       >
         <button
           type="button"

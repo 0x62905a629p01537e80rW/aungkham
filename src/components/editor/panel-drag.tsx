@@ -123,7 +123,7 @@ export function PanelHideButton({
               type="button"
               onClick={onToggle}
               className="fixed inset-x-3 bottom-3 z-[80] flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-card/90 px-4 py-3 text-sm font-semibold text-foreground shadow-2xl backdrop-blur-xl transition active:scale-[0.98]"
-              style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+              style={{ marginBottom: 'var(--safe-bottom)' }}
             >
               <SlidersHorizontal className="size-4" />
               Show tools

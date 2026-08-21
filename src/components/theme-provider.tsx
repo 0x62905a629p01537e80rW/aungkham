@@ -38,7 +38,9 @@ function updateThemeColorMeta(theme: Theme) {
   if (meta) {
     meta.setAttribute('content', theme === 'dark' ? '#070a0d' : '#ffffff')
   }
+  void import('@/lib/native').then((m) => m.syncStatusBarTheme(theme === 'dark'))
 }
+
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('dark')
