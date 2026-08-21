@@ -58,7 +58,8 @@ Required native config:
 1. In the Firebase console (`myan-photo-editor`) add an **Android app** with
    applicationId `com.nextlevelcreator.burmesetalk` and your debug + release SHA-1/SHA-256
    fingerprints, then download `google-services.json` into
-   `android/app/google-services.json`.
+   `android/app/google-services.json`. The **SHA-1 that Gradle uses must be
+   registered** — run `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android` for debug, and match the release keystore. If the SHA-1 isn't there, Google sign-in silently fails / hangs.
 2. For iOS add an **iOS app** with bundle id `com.nextlevelcreator.burmesetalk` and put
    `GoogleService-Info.plist` into `ios/App/App/`.
 3. Android — in `android/variables.gradle` make sure
