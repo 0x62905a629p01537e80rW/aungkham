@@ -355,7 +355,7 @@ export function ToolBar({
   return (
     <nav
       className="glass-bar fixed inset-x-0 bottom-0 z-30 border-t border-border/70"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      style={{ paddingBottom: 'var(--safe-bottom)' }}
     >
       {/* Tier 1 — background / canvas tools. Locked while a layer is selected. */}
       <div

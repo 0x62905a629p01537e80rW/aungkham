@@ -228,7 +228,7 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <header
         className="flex h-14 shrink-0 items-center justify-between px-3"
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        style={{ paddingTop: 'var(--safe-top)' }}
       >
         <button
           type="button"
@@ -271,7 +271,7 @@ export function AdjustEditor({ image, onCancel, onApply }: Props) {
 
       <div
         className="glass-bar shrink-0 space-y-3 border-t border-border/40 px-3 pt-4"
-        style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+        style={{ paddingBottom: 'max(0.75rem, var(--safe-bottom))' }}
       >
         {/* active slider */}
         <div className="space-y-1.5 px-1">

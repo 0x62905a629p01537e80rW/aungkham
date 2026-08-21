@@ -522,7 +522,7 @@ export function DoodleBar({
         collapse.collapsed && '[&>*:not(:first-child)]:hidden',
         collapse.fullClass,
       )}
-      style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', ...panel.style }}
+      style={{ paddingBottom: 'calc(1rem + var(--safe-bottom))', ...panel.style }}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
@@ -649,7 +649,7 @@ export function ShowToolsButton({ onShow }: { onShow: () => void }) {
       type="button"
       onClick={onShow}
       className="glass-bar fixed inset-x-0 bottom-0 z-50 mx-auto flex w-auto items-center justify-center gap-2 rounded-t-2xl px-5 py-3 text-sm font-semibold text-foreground transition active:scale-95"
-      style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+      style={{ paddingBottom: 'calc(0.75rem + var(--safe-bottom))' }}
     >
       <SlidersHorizontal className="size-4" />
       Show tools

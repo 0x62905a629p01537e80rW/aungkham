@@ -54,7 +54,7 @@ export function AspectPicker({
 
       <div
         className="glass-panel relative max-h-[78vh] overflow-y-auto perf-scroll rounded-t-3xl border-t border-border/60 px-4 pb-4 pt-2 shadow-2xl"
-        style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+        style={{ paddingBottom: 'calc(1rem + var(--safe-bottom))' }}
       >
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-border" />
 

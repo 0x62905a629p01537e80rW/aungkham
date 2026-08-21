@@ -385,7 +385,7 @@ export function ObjectRemover({ open, src, onClose, onApply }: Props) {
       {/* modes + confirm */}
       <div
         className="flex items-center gap-1 border-t border-border/70 px-2 py-2"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
+        style={{ paddingBottom: 'calc(var(--safe-bottom) + 0.5rem)' }}
       >
         <button type="button" aria-label="Cancel" className={iconBtn} onClick={onClose}>
           <X className="size-5" />

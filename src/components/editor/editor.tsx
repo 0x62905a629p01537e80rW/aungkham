@@ -909,7 +909,7 @@ export function Editor() {
           <main
             ref={stageRef}
             className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-muted p-0"
-            style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom))' }}
+            style={{ paddingBottom: 'calc(7rem + var(--safe-bottom))' }}
           >
             <div
               className="overflow-hidden bg-card"
