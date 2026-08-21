@@ -324,17 +324,21 @@ export function ColorPickerPanel({
     const w = window as unknown as {
       EyeDropper?: new () => { open: () => Promise<{ sRGBHex: string }> }
     }
-    if (!w.EyeDropper) {
-      alert('Screen color picker is not supported in this browser.')
-      return
+    if (w.EyeDropper) {
+      try {
+        const result = await new w.EyeDropper().open()
+        submitHex(result.sRGBHex)
+        return
+      } catch {
+        return /* cancelled */
+      }
     }
-    try {
-      const result = await new w.EyeDropper().open()
-      submitHex(result.sRGBHex)
-    } catch {
-      /* cancelled */
-    }
+    // Fallback for native WebViews / Safari: sample from the rendered canvas.
+    const { pickColorFromCanvas } = await import('@/lib/screen-pick')
+    const hex = await pickColorFromCanvas()
+    if (hex) submitHex(hex)
   }
+
 
   function pickPreset(c: string) {
     const g = parseGradient(c)
