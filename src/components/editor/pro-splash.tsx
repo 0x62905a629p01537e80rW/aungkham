@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Loader2, X, Check, LogIn } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAuth } from '@/components/auth-provider'
 import { usePricing } from '@/lib/pricing'
 import { PaymentPage } from './payment-page'
