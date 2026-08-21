@@ -104,8 +104,7 @@ export function TemplateGallery({
   const [selectMode, setSelectMode] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const [tick, force] = useState(0)
-  const activeGroup =
-    lang === 'EN' && (group === 'New' || group === 'Logo' || group === 'Thumbnail' || group === 'Facebook Ad') ? 'All' : group
+  const activeGroup = lang === 'EN' && group === 'New' ? 'All' : group
 
   useEffect(() => {
     void ensureTemplatePacksLoaded().then(() => force((n) => n + 1))
@@ -122,9 +121,7 @@ export function TemplateGallery({
 
   const groups = useMemo(
     () => [
-      ...TEMPLATE_GROUPS.filter(
-        (g) => !(lang === 'EN' && (g === 'New' || g === 'Logo' || g === 'Thumbnail' || g === 'Facebook Ad')),
-      ),
+      ...TEMPLATE_GROUPS.filter((g) => !(lang === 'EN' && g === 'New')),
       'Free',
       'Downloaded',
     ],

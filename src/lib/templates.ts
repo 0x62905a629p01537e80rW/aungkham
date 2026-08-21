@@ -919,4 +919,4 @@ export const TEMPLATES: TemplateDef[] = [
   ...buildAll(),
 ]
 
-export const TEMPLATE_GROUPS: string[] = ['All', 'New', 'Logo', 'Thumbnail', 'Facebook Ad', 'Premium', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
+export const TEMPLATE_GROUPS: string[] = ['All', 'New', 'Premium', 'Bold', 'Minimal', 'Boxed', 'Retro', 'Colorful']
