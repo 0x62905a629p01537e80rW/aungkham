@@ -96,7 +96,7 @@ export function EditorHeader({
   return (
     <header
       className={cn(
-        'z-30 flex h-14 items-center justify-between px-2 transition-colors duration-200',
+        'app-header z-30 flex h-14 items-center justify-between px-2 transition-colors duration-200',
         hasImage ? 'sticky top-0' : 'absolute inset-x-0 top-0',
         transparent
           ? 'border-b border-transparent bg-transparent'
