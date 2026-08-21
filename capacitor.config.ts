@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.myan.photoeditor',
-  appName: 'Photo Editor',
+  appId: 'com.nextlevelcreator.burmesetalk',
+  appName: 'Myan Add Text',
   // Fully offline: the whole app is bundled into dist/ and served from the
   // local webview root. No dev server, no remote URL.
   webDir: 'dist',

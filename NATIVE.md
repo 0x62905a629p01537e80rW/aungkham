@@ -42,10 +42,10 @@ account picker) and falls back to the popup flow on the web — see
 Required native config:
 
 1. In the Firebase console (`myan-photo-editor`) add an **Android app** with
-   applicationId `com.myan.photoeditor` and your debug + release SHA-1/SHA-256
+   applicationId `com.nextlevelcreator.burmesetalk` and your debug + release SHA-1/SHA-256
    fingerprints, then download `google-services.json` into
    `android/app/google-services.json`.
-2. For iOS add an **iOS app** with bundle id `com.myan.photoeditor` and put
+2. For iOS add an **iOS app** with bundle id `com.nextlevelcreator.burmesetalk` and put
    `GoogleService-Info.plist` into `ios/App/App/`.
 3. Android — in `android/variables.gradle` make sure
    `firebaseAuthenticationVersion` exists (the plugin adds it), and in
