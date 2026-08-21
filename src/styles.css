@@ -103,6 +103,11 @@
 :root {
   --radius: 14px;
 
+  /* Device safe areas (status bar / home indicator) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+
   /* Elevation ladder (opaque, value-stepped) */
   --surface-0: oklch(1 0 0);
   --surface-1: oklch(0.975 0.002 240);
