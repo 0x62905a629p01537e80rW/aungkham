@@ -235,10 +235,15 @@ export async function purchasePro(): Promise<void> {
   }
   set({ busy: true, error: null })
   try {
-    const product = c.store.get(PRO_PRODUCT_ID, c.Platform.GOOGLE_PLAY) as
-      | (AnyRec & { getOffer?: () => { order: () => Promise<unknown> } | undefined })
-      | undefined
-    const offer = product?.getOffer?.()
+    // Offer can arrive a moment after init — retry briefly before failing.
+    let offer: { order: () => Promise<unknown> } | undefined
+    for (let i = 0; i < 5 && !offer; i++) {
+      const product = getProduct() as
+        | (AnyRec & { getOffer?: () => { order: () => Promise<unknown> } | undefined })
+        | undefined
+      offer = product?.getOffer?.()
+      if (!offer) await new Promise((r) => setTimeout(r, 1200))
+    }
     if (!offer) throw new Error('Pro is not available in the store right now. Try again later.')
     const res = (await offer.order()) as { message?: string } | undefined
     if (res?.message) throw new Error(res.message)
