@@ -288,24 +288,6 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     ))}
                   </ul>
                 </div>
-              ) : false ? (
-                <div className="relative mt-2 overflow-hidden rounded-3xl border border-border/50 bg-muted/40 p-5">
-                  <p className="flex items-center gap-2 text-xl font-semibold">
-                    Myan
-                    <span className="rounded-md bg-amber-500 px-2 py-0.5 text-[11px] font-bold text-white">
-                      Pending
-                    </span>
-                  </p>
-                  <div className="mt-3 rounded-2xl border border-border/50 bg-background/50 p-3">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                      Status
-                    </p>
-                    <p className="mt-0.5 text-sm font-semibold">Pending verification</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      We're checking your payment. Pro unlocks automatically once approved.
-                    </p>
-                  </div>
-                </div>
               ) : (
                 <div className="relative mt-2 overflow-hidden rounded-3xl border border-border/50 bg-muted/40 p-5">
                   <div className="flex items-center justify-between gap-3">
