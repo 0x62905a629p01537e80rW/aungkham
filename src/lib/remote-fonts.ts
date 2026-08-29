@@ -62,20 +62,12 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
   return map
 }
 
-/** Tier for a font, matching on file name or display name. */
+/** Every font ships free — kept as a function so callers stay unchanged. */
 export function fontTier(
-  font: { file: string; name: string },
-  tiers: Record<string, FontTier> | null,
+  _font: { file: string; name: string },
+  _tiers?: Record<string, FontTier> | null,
 ): FontTier {
-  const own = (font as RemoteFont).tier
-  if (own) return own
-  if (!tiers) return 'free'
-  return (
-    tiers[tierKey(font.file)] ??
-    tiers[tierKey(font.name)] ??
-    tiers[tierKey(font.file.replace(FONT_RE, ''))] ??
-    'free'
-  )
+  return 'free'
 }
 
 export function remoteFontKey(name: string) {
