@@ -48,13 +48,13 @@ export function DownloadFontsSheet({
   open: boolean
   onClose?: () => void
   inline?: boolean
-  initialTab?: 'mm' | 'free' | 'en' | 'premium' | 'downloaded'
+  initialTab?: 'mm' | 'free' | 'en' | 'downloaded'
 }) {
   const [fonts, setFonts] = useState<RemoteFont[]>(BUNDLED_FONTS)
   const [freeFonts, setFreeFonts] = useState<RemoteFont[]>(BUNDLED_FREE_FONTS)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<'mm' | 'free' | 'en' | 'premium' | 'downloaded'>(initialTab)
+  const [tab, setTab] = useState<'mm' | 'free' | 'en' | 'downloaded'>(initialTab)
 
   const [busy, setBusy] = useState<string | null>(null)
   const [tick, force] = useState(0)
@@ -90,11 +90,6 @@ export function DownloadFontsSheet({
     e.target.value = ''
     if (!files.length) return
     setError(null)
-    // .woff / .woff2 uploads are Pro-only; .ttf / .otf stay free
-    if (!isPro && files.some((f) => /\.woff2?$/i.test(f.name))) {
-      setPay(true)
-      return
-    }
     try {
       for (const file of files) await addCustomFont(file)
       ensureCustomFontsLoaded()
@@ -140,7 +135,6 @@ export function DownloadFontsSheet({
       return [...known, ...extra]
     }
     if (tab === 'free') return freeFonts
-    if (tab === 'premium') return fonts.filter((f) => fontTier(f, tiers) === 'premium')
     return fonts
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fonts, freeFonts, tab, tiers, tick])
@@ -179,29 +173,12 @@ export function DownloadFontsSheet({
   )
 
   async function download(font: RemoteFont) {
-    const tier = fontTier(font, tiers)
-    if (tier === 'premium' && !isPro) {
-      setPay(true)
-      return
-    }
     setBusy(font.name)
     setError(null)
     try {
-      await installRemoteFont({ ...font, tier })
+      await installRemoteFont({ ...font, tier: 'free' })
     } catch {
       setError(`Couldn't download ${font.name}.`)
-    }
-    setBusy(null)
-  }
-
-  /** Install a premium font for trial — usable in the editor, gated on export. */
-  async function tryFont(font: RemoteFont) {
-    setBusy(font.name)
-    setError(null)
-    try {
-      await installRemoteFont({ ...font, tier: 'premium' })
-    } catch {
-      setError(`Couldn't load ${font.name}.`)
     }
     setBusy(null)
   }
@@ -267,7 +244,6 @@ export function DownloadFontsSheet({
               { id: 'mm', label: 'Myanmar' },
               { id: 'free', label: 'Free' },
               { id: 'en', label: 'English' },
-              { id: 'premium', label: 'Premium' },
               { id: 'downloaded', label: 'Downloaded' },
             ] as const
           ).map((t) => (
@@ -289,7 +265,14 @@ export function DownloadFontsSheet({
 
         <p className="shrink-0 text-[10px] leading-snug text-muted-foreground">
           Preview any font, then download it once — it is saved in the app, appears under
-          “Downloaded” in the typeface list, and works offline.
+          “Downloaded” in the typeface list, and works offline. Every font here is free to use in
+          the app.
+        </p>
+
+        <p className="shrink-0 rounded-xl border border-border/60 bg-foreground/5 px-3 py-2 text-[10px] leading-snug text-muted-foreground">
+          <span className="font-semibold text-foreground">Font licensing notice:</span> some
+          Burmese fonts are for personal use only. Commercial use may require purchasing a licence
+          from the font owner.
         </p>
 
         {error && (
@@ -381,8 +364,7 @@ export function DownloadFontsSheet({
           {shown.map((f) => {
             const has = isRemoteFontInstalled(f.name)
             const ready = isRemoteFontReady(f.name)
-            const premium = fontTier(f, tiers) === 'premium'
-            const locked = premium && !isPro
+            const locked = false
             return (
               <div
                 key={f.file}
@@ -400,15 +382,9 @@ export function DownloadFontsSheet({
                     {fontSampleText(f)}
                   </span>
                   <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-muted-foreground">
-                    {premium ? (
-                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-amber-500/15 px-1.5 py-[1px] text-[8px] font-bold text-amber-500">
-                        <Crown className="size-2.5" /> Pro
-                      </span>
-                    ) : (
-                      <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-emerald-500/15 px-1.5 py-[1px] text-[8px] font-bold text-emerald-500">
-                        Free
-                      </span>
-                    )}
+                    <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-emerald-500/15 px-1.5 py-[1px] text-[8px] font-bold text-emerald-500">
+                      Free
+                    </span>
                     <span className="truncate">
                       {f.name}
                       {f.size ? ` • ${Math.round(f.size / 1024)} KB` : ''}
@@ -432,19 +408,9 @@ export function DownloadFontsSheet({
                   </div>
                 ) : (
                   <div className="flex shrink-0 items-center gap-1">
-                    {locked && (
-                      <button
-                        type="button"
-                        aria-label={`Try ${f.name}`}
-                        onClick={() => void tryFont(f)}
-                        className="flex items-center gap-1 rounded-full bg-foreground/10 px-2 py-1 text-[10px] font-bold text-foreground active:scale-90"
-                      >
-                        <Play className="size-3" /> Try
-                      </button>
-                    )}
                     <button
                       type="button"
-                      aria-label={locked ? `Unlock ${f.name} with Pro` : `Download ${f.name}`}
+                      aria-label={`Download ${f.name}`}
                       onClick={() => void download(f)}
                       className={cn(
                         'flex size-7 items-center justify-center rounded-full active:scale-90',
