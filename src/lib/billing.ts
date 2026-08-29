@@ -186,21 +186,32 @@ export async function initBilling(): Promise<void> {
     await store.initialize([Platform.GOOGLE_PLAY])
     set({ ready: true, available: true })
     syncFromStore()
-    // Play can take a moment to report existing entitlements.
-    setTimeout(syncFromStore, 2500)
+    // Play can take a moment to report products & existing entitlements.
+    for (const delay of [1500, 4000, 8000]) setTimeout(syncFromStore, delay)
   } catch (err) {
     console.log('[billing init failed]', err)
     set({ ready: true, available: false, error: 'Could not connect to Google Play.' })
   }
 }
 
+function getProduct(): AnyRec | undefined {
+  const c = cdv()
+  if (!c) return undefined
+  // v13: store.get(id) — platform arg is optional/ignored; try both.
+  return (
+    (c.store.get(PRO_PRODUCT_ID, c.Platform.GOOGLE_PLAY) as AnyRec | undefined) ??
+    (c.store.get(PRO_PRODUCT_ID) as AnyRec | undefined)
+  )
+}
+
 function syncFromStore() {
   const c = cdv()
   if (!c) return
   try {
-    const product = c.store.get(PRO_PRODUCT_ID, c.Platform.GOOGLE_PLAY) as
+    const product = getProduct() as
       | (AnyRec & {
           owned?: boolean
+          canPurchase?: boolean
           pricing?: { price?: string }
           offers?: { pricingPhases?: { price?: string }[] }[]
         })
