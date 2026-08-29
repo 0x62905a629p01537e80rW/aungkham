@@ -1,221 +1,59 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import {
-  ArrowLeft,
-  BadgeCheck,
-  Check,
-  ClipboardPaste,
-  
-  Copy,
-  Loader2,
-  LogOut,
-  Smartphone,
-} from 'lucide-react'
-import { useAuth } from '@/components/auth-provider'
-import { useI18n } from '@/components/i18n'
-import { GlassTabs } from '@/components/ui/glass-tabs'
-import {
-  BrandLogo,
-  KbzPayMark,
-  NetworkMark,
-  UsdtMark,
-} from '@/components/editor/pay-icons'
-import { pricingFromDoc, usePricing } from '@/lib/pricing'
+import { ArrowLeft, BadgeCheck, Check, Loader2, RotateCcw, Smartphone } from 'lucide-react'
+import { toast } from 'sonner'
 
-type CryptoNet = { key: string; label: string; address: string }
+import { usePro } from '@/components/auth-provider'
+import { BrandLogo } from '@/components/editor/pay-icons'
 
-type PaySettings = {
-  phone: string
-  name: string
-  priceMmk: string
-  usdtPrice: string
-  nets: CryptoNet[]
-}
+const BENEFITS = [
+  'Premium templates — Burmese & English designs',
+  'Premium Myanmar + English pro typefaces',
+  'Custom .woff & .woff2 font uploads',
+  'Liquid glass text and element effects',
+  'PDF and high quality (4K) exports',
+  'Ultra HD enhance, Shape Lab and pro effects',
+  'No ads and no watermark',
+]
 
-
-function CopyRow({
-  label,
-  value,
-  valueClassName,
-  icon,
-}: {
-  label: string
-  value: string
-  valueClassName?: string
-  icon?: React.ReactNode
-}) {
-  const [copied, setCopied] = useState(false)
+function PlayMark({ className = 'size-4' }: { className?: string }) {
   return (
-    <div className="glass-tile rounded-2xl px-3.5 py-3">
-      <div className="flex items-center gap-1.5">
-        {icon}
-        <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
-      </div>
-      <div className="mt-1 flex items-center gap-2">
-        <p className={`min-w-0 flex-1 break-all font-mono leading-snug ${valueClassName || 'text-[12px]'}`}>{value}</p>
-        <button
-          type="button"
-          aria-label={`Copy ${label}`}
-          onClick={() => {
-            navigator.clipboard?.writeText(value)
-            setCopied(true)
-            setTimeout(() => setCopied(false), 1600)
-          }}
-          className={`grid size-9 shrink-0 place-items-center rounded-xl transition active:scale-95 ${
-            copied ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'
-          }`}
-        >
-          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-
-function GoogleMark({ className = 'size-4' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
-      <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.5 13.2l7.8 6.1C12.2 13.3 17.6 9.5 24 9.5z" />
-      <path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.1 5.4-4.5 7l7.2 5.6c4.2-3.9 6.9-9.7 6.9-17.1z" />
-      <path fill="#FBBC05" d="M10.3 28.7a14.6 14.6 0 0 1 0-9.4l-7.8-6.1a24 24 0 0 0 0 21.6l7.8-6.1z" />
-      <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.7 2.3-8.7 2.3-6.4 0-11.8-3.8-13.7-9.2l-7.8 6.1C6.5 42.6 14.6 48 24 48z" />
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path fill="#00D4FF" d="M3.6 1.8 14 12 3.6 22.2A2 2 0 0 1 3 20.8V3.2a2 2 0 0 1 .6-1.4z" />
+      <path fill="#00F076" d="M3.6 1.8 17 9.2 14 12z" />
+      <path fill="#FFC900" d="M17 9.2 21 11.4a1 1 0 0 1 0 1.7L17 15.3 14 12z" />
+      <path fill="#FF3A44" d="M3.6 22.2 14 12l3 3.3-13.4 7.4a2 2 0 0 1 0-.5z" />
     </svg>
   )
 }
 
 export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { user, loading, isPro, signIn, signOutUser } = useAuth()
-  const { t } = useI18n()
-  const [signingIn, setSigningIn] = useState(false)
-  const [settings, setSettings] = useState<PaySettings | null>(null)
-  const [settingsError, setSettingsError] = useState<string | null>(null)
-  const [method, setMethod] = useState<'kbzpay' | 'usdt'>('kbzpay')
-  const [net, setNet] = useState('')
-  const [txId, setTxId] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const { isPro, loading, available, price, busy, purchase, restore } = usePro()
   const [error, setError] = useState<string | null>(null)
-  const pricing = usePricing(open)
 
-  // Fetch KBZPay + crypto details from Firestore (payment_settings collection).
-  useEffect(() => {
-    if (!open) return
-    let cancelled = false
-    ;(async () => {
-      setSettingsError(null)
-      const { getDb } = await import('@/lib/firebase')
-      const { collection, getDocs } = await import('firebase/firestore')
-      const snap = await getDocs(collection(getDb(), 'payment_settings'))
-      if (cancelled) return
-      if (snap.empty) {
-        setSettingsError(t('pay.notConfigured'))
-        return
-      }
-      const d = (snap.docs[0].data() ?? {}) as Record<string, string>
-      void pricingFromDoc(d)
-      const nets: CryptoNet[] = [
-        { key: 'trc20', label: 'USDT · TRC20 (Tron)', address: d.usdt_trx_address ?? '' },
-        { key: 'bep20', label: 'USDT · BEP20 (BSC)', address: d.usdt_bep20_address ?? '' },
-        { key: 'erc20', label: 'USDT · ERC20 (Ethereum)', address: d.usdt_erc20_address ?? '' },
-        {
-          key: 'sol',
-          label: 'USDT · Solana',
-          address: d.usdt_sol_address ?? d.usdt_sol_addresa ?? '',
-        },
-      ].filter((n) => n.address.trim().length > 0)
-      setSettings({
-        phone: d.kpay_number ?? '',
-        name: d.kpay_name ?? '',
-        priceMmk: d.price_mmk == null ? '' : String(d.price_mmk),
-        usdtPrice: d.usdt_price == null ? '' : String(d.usdt_price),
-        nets,
-      })
-      if (nets.length) setNet((prev) => prev || nets[0].key)
-    })().catch((err) => {
-      console.log('[payment settings failed]', err)
-      if (!cancelled) setSettingsError(t('pay.loadFailed'))
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [open, t])
-
-  const activeNet = useMemo(
-    () => settings?.nets.find((n) => n.key === net) ?? settings?.nets[0] ?? null,
-    [settings, net],
-  )
-
-  async function handleSignIn() {
-    setSigningIn(true)
+  async function handleBuy() {
     setError(null)
     try {
-      await signIn()
+      await purchase()
+      toast.success('Pro unlocked. Thank you!')
     } catch (err) {
-      console.log('[sign in failed]', err)
-      setError(t('pay.signInFailed'))
-    } finally {
-      setSigningIn(false)
+      const msg = err instanceof Error ? err.message : 'Purchase failed'
+      if (!/cancel/i.test(msg)) setError(msg)
     }
   }
 
-  // Pull the hash out of a block-explorer URL if the user pasted a link.
-  function extractHash(raw: string) {
-    const v = raw.trim()
-    if (!/^https?:\/\//i.test(v)) return v
-    const matches = v.match(/[0-9a-zA-Z]{40,100}/g)
-    if (!matches?.length) return v
-    return matches.reduce((a, b) => (b.length >= a.length ? b : a))
-  }
-
-  const cleanedTx = method === 'usdt' ? extractHash(txId) : txId.trim()
-
-  // Validation: KBZPay needs exactly 6 digits; crypto needs a full-length hash (>62 chars).
-  const txError: string | null = (() => {
-    if (!txId.trim()) return null
-    if (method === 'kbzpay') {
-      return /^\d{6}$/.test(txId.trim())
-        ? null
-        : t('pay.errKbz')
-    }
-    if (cleanedTx.length <= 62) {
-      return t('pay.errHash')
-    }
-    return null
-  })()
-
-  async function handleSubmit() {
-    if (!user || !cleanedTx || txError) return
-    setSubmitting(true)
+  async function handleRestore() {
     setError(null)
     try {
-      const { getDb } = await import('@/lib/firebase')
-      const { addDoc, collection, serverTimestamp } = await import('firebase/firestore')
-      await addDoc(collection(getDb(), 'transactions'), {
-        userId: user.uid,
-        userEmail: user.email,
-        txId: cleanedTx,
-        txInput: txId.trim(),
-        method: method === 'usdt' ? 'USDT' : 'KBZPay',
-        network: method === 'usdt' ? (activeNet?.label ?? '') : '',
-        toAddress: method === 'usdt' ? (activeNet?.address ?? '') : '',
-        status: 'pending',
-        createdAt: serverTimestamp(),
-      })
-      setSubmitted(true)
+      const ok = await restore()
+      if (ok) toast.success('Pro restored.')
+      else toast.info('No previous purchase found on this Google account.')
     } catch (err) {
-      console.log('[transaction submit failed]', err)
-      setError(t('pay.submitError'))
-    } finally {
-      setSubmitting(false)
+      setError(err instanceof Error ? err.message : 'Restore failed')
     }
   }
-
 
   if (!open || typeof document === 'undefined') return null
-
-  const canSubmit = !!user && !!cleanedTx && !txError && !submitting
-
 
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto perf-scroll bg-background text-foreground animate-fade-in">
@@ -233,309 +71,80 @@ export function PaymentPage({ open, onClose }: { open: boolean; onClose: () => v
         </button>
         <BrandLogo className="size-9 shrink-0" />
         <div className="min-w-0 leading-tight">
-          <p className="text-[15px] font-bold tracking-tight">{t('pay.title')}</p>
-          <p className="truncate text-[11px] text-muted-foreground">{t('pay.plan')}</p>
+          <p className="text-[15px] font-bold tracking-tight">Myan Pro</p>
+          <p className="truncate text-[11px] text-muted-foreground">One-time purchase</p>
         </div>
-        {user && (
-          <button
-            type="button"
-            onClick={() => signOutUser()}
-            className="ml-auto flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-[11px] text-muted-foreground transition active:scale-95"
-          >
-            <LogOut className="size-3.5" />
-            {t('pay.signout')}
-          </button>
-        )}
-
       </div>
 
       <div className="px-4 pb-14 pt-4">
         <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-primary/5 p-4 text-center">
-          {pricing.promoLabel && (
-            <span className="absolute left-0 top-0 rounded-br-2xl bg-primary px-2 py-0.5 text-[10px] font-extrabold text-white">
-              {pricing.promoLabel}
-            </span>
-          )}
-          <p className="text-sm font-semibold">{t('pay.plan')}</p>
-          {pricing.originalMmk && (
-            <p className="text-[11px] text-muted-foreground line-through">{pricing.originalMmk}</p>
-          )}
+          <p className="text-sm font-semibold">Myan Pro · Lifetime</p>
           <p className="mt-0.5 text-2xl font-extrabold tracking-tight">
-            {pricing.priceMmk || (pricing.loaded ? '—' : '···')}
-            {pricing.priceUsd && (
-              <span className="ml-1 text-[13px] font-bold text-muted-foreground">
-                OR {pricing.priceUsd}
-              </span>
-            )}
+            {price || (loading ? '···' : available ? '—' : 'Play Store')}
           </p>
-
           <p className="mt-0.5 flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
             <BadgeCheck className="size-3.5 text-primary" />
-            {t('pay.oneTime')}
+            Pay once, unlocked forever
           </p>
         </div>
 
-        {isPro && (
+        {isPro ? (
           <div className="mt-5 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-center">
             <BadgeCheck className="mx-auto size-6 text-primary" />
-            <p className="mt-1 text-sm font-bold">{t('pay.proActive')}</p>
+            <p className="mt-1 text-sm font-bold">Pro is active</p>
             <p className="text-[11px] text-muted-foreground">
-              {t('pay.proActiveDesc')}
+              Every premium feature is unlocked on this device.
             </p>
           </div>
-        )}
-
-        {loading ? (
-          <div className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" />
-            {t('pay.loading')}
-          </div>
-        ) : !user ? (
-          <div className="mt-6 space-y-3">
-            <p className="text-sm font-semibold">{t('pay.signInTitle')}</p>
-            <p className="text-[12px] text-muted-foreground">
-              {t('pay.signInDesc')}
-            </p>
-            <button
-              type="button"
-              onClick={handleSignIn}
-              disabled={signingIn}
-              className="glass-tile flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold transition active:scale-[0.98] disabled:opacity-60"
-            >
-              {signingIn ? <Loader2 className="size-4 animate-spin" /> : <GoogleMark className="size-4" />}
-              {t('pay.signInGoogle')}
-            </button>
-            {error && <p className="text-center text-[11px] text-destructive">{error}</p>}
-          </div>
-        ) : submitted ? (
-          <div className="mt-6 space-y-2 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center">
-            <Check className="mx-auto size-7 text-primary" />
-            <p className="text-sm font-bold">{t('pay.submitted')}</p>
-            <p className="text-[11px] text-muted-foreground">
-              {t('pay.submittedDesc')}
+        ) : !available && !loading ? (
+          <div className="mt-5 rounded-2xl border border-border/60 bg-muted/40 p-4 text-center">
+            <Smartphone className="mx-auto size-6 text-muted-foreground" />
+            <p className="mt-1 text-sm font-bold">Buy Pro in the Android app</p>
+            <p className="mt-1 text-[12px] text-muted-foreground">
+              Pro is sold through Google Play in-app purchase. Open Myan Add Text on your Android
+              phone to buy or restore it.
             </p>
           </div>
         ) : (
           <div className="mt-5 space-y-3">
-            <GlassTabs
-              items={[
-                {
-                  key: 'kbzpay',
-                  label: (
-                    <>
-                      <KbzPayMark className="size-4" />
-                      KBZPay
-                    </>
-                  ),
-                },
-                {
-                  key: 'usdt',
-                  label: (
-                    <>
-                      <UsdtMark className="size-4" />
-                      USDT Crypto
-                    </>
-                  ),
-                },
-              ]}
-              value={method}
-              onChange={(k) => setMethod(k as 'kbzpay' | 'usdt')}
-            />
-
-            <div className="glass-tile flex items-center gap-3 rounded-2xl p-4">
-              <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-                {method === 'usdt' ? <UsdtMark className="size-6" /> : <KbzPayMark className="size-6" />}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-bold">
-                  {method === 'usdt' ? t('pay.usdtTitle') : t('pay.mmTitle')}
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  {method === 'usdt'
-                    ? `${t('pay.usdtDescA')} ${pricing.priceUsd || settings?.usdtPrice || ''} ${t('pay.usdtDescB')}`
-                    : `${t('pay.mmDescA')} ${pricing.priceMmk} ${t('pay.mmDescB')}`}
-                </p>
-              </div>
-              {method === 'usdt' && (
-                <div className="ml-auto flex shrink-0 -space-x-1.5">
-                  {['trc20', 'bep20', 'erc20', 'sol'].map((k) => (
-                    <NetworkMark key={k} netKey={k} className="size-5 rounded-full ring-2 ring-background" />
-                  ))}
-                </div>
-              )}
-            </div>
-
-
-            <p className="text-[11px] text-muted-foreground">
-              {t('pay.signedInAs')}{' '}
-              <span className="font-medium text-foreground">{user.email}</span>
+            <button
+              type="button"
+              onClick={() => void handleBuy()}
+              disabled={busy || loading}
+              className="premium-glass flex h-13 w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-bold transition active:scale-[0.98] disabled:opacity-60"
+            >
+              {busy ? <Loader2 className="size-5 animate-spin" /> : <PlayMark className="size-5" />}
+              Buy Pro{price ? ` · ${price}` : ''}
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleRestore()}
+              disabled={busy}
+              className="glass-tile flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold transition active:scale-[0.98] disabled:opacity-60"
+            >
+              <RotateCcw className="size-4" />
+              Restore purchase
+            </button>
+            <p className="text-center text-[11px] text-muted-foreground">
+              Billed once by Google Play. Restore works on any device signed in with the same Google
+              account.
             </p>
-
-            {/* Payment details — shown before asking for transaction info */}
-            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
-              <p className="text-sm font-bold text-primary">{t('pay.transferTo')}</p>
-              {settingsError && (
-                <p className="mt-1 text-[12px] text-destructive">{settingsError}</p>
-              )}
-              {!settings && !settingsError ? (
-                <div className="mt-2 flex items-center gap-2 text-[12px] text-muted-foreground">
-                  <Loader2 className="size-4 animate-spin" />
-                  {t('pay.loadingDetails')}
-                </div>
-              ) : settings && method === 'kbzpay' ? (
-                <div className="mt-2 space-y-2">
-                  {settings.phone && (
-                    <CopyRow
-                      label={t('pay.kbzNumber')}
-                      value={settings.phone}
-                      valueClassName="text-[14px] font-semibold"
-                      icon={<KbzPayMark className="size-3.5" />}
-                    />
-                  )}
-                  {settings.name && (
-                    <CopyRow
-                      label={t('pay.accountName')}
-                      value={settings.name}
-                      valueClassName="text-[14px] font-semibold"
-                    />
-                  )}
-                  <CopyRow
-                    label={t('pay.amount')}
-                    value={pricing.priceMmk}
-                    valueClassName="text-[14px] font-semibold"
-                    icon={<Smartphone className="size-3.5 text-primary" />}
-                  />
-                </div>
-              ) : settings ? (
-                settings.nets.length === 0 ? (
-                  <p className="mt-1 text-[12px] text-destructive">
-                    {t('pay.cryptoNotConfigured')}
-                  </p>
-                ) : (
-                  <div className="mt-2 space-y-2">
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {settings.nets.map((n) => (
-                        <button
-                          key={n.key}
-                          type="button"
-                          onClick={() => setNet(n.key)}
-                          className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 text-[11px] font-semibold transition active:scale-95 ${
-                            activeNet?.key === n.key
-                              ? 'bg-primary text-primary-foreground'
-                              : 'glass-tile text-muted-foreground'
-                          }`}
-                        >
-                          <NetworkMark netKey={n.key} className="size-5 shrink-0" />
-                          <span className="truncate">{n.label.replace('USDT · ', '')}</span>
-                          {activeNet?.key === n.key && <Check className="ml-auto size-3.5 shrink-0" />}
-                        </button>
-                      ))}
-                    </div>
-                    {activeNet && (
-                      <CopyRow
-                        label={activeNet.label}
-                        value={activeNet.address}
-                        valueClassName="text-[12px] font-semibold"
-                        icon={<NetworkMark netKey={activeNet.key} className="size-3.5" />}
-                      />
-                    )}
-                    {settings.usdtPrice && (
-                      <CopyRow
-                        label={t('pay.amount')}
-                        value={settings.usdtPrice}
-                        valueClassName="text-[14px] font-semibold"
-                        icon={<UsdtMark className="size-3.5" />}
-                      />
-                    )}
-                    <p className="text-[11px] text-muted-foreground">
-                      {t('pay.networkWarn')}
-                    </p>
-                  </div>
-                )
-              ) : null}
-            </div>
-
-            {/* Transaction input fields — only shown after payment details are available */}
-            {settings && !settingsError && (method === 'kbzpay' || settings.nets.length > 0) && (
-              <div className="space-y-2 pt-1">
-                <label className="block">
-                  <span className="text-[11px] font-medium text-muted-foreground">
-                    {method === 'usdt'
-                      ? t('pay.txHash')
-                      : t('pay.txKbz')}
-                  </span>
-                  <div className="relative mt-1">
-                    <input
-                      value={txId}
-                      onChange={(e) =>
-                        setTxId(
-                          method === 'kbzpay'
-                            ? e.target.value.replace(/\D/g, '').slice(0, 6)
-                            : e.target.value,
-                        )
-                      }
-                      inputMode={method === 'usdt' ? 'text' : 'numeric'}
-                      maxLength={method === 'usdt' ? 200 : 6}
-                      required
-                      placeholder={
-                        method === 'usdt' ? t('pay.placeholderHash') : t('pay.placeholderKbz')
-                      }
-                      className={`glass-tile h-11 w-full rounded-2xl px-3.5 pr-11 text-sm outline-none focus:ring-2 ${
-                        txError ? 'ring-2 ring-destructive/50' : 'focus:ring-primary/40'
-                      }`}
-                    />
-                    <button
-                      type="button"
-                      aria-label="Paste from clipboard"
-                      onClick={async () => {
-                        try {
-                          const text = await navigator.clipboard.readText()
-                          if (text)
-                            setTxId(
-                              method === 'kbzpay'
-                                ? text.replace(/\D/g, '').slice(0, 6)
-                                : text.trim(),
-                            )
-                        } catch (err) {
-                          console.log('[paste failed]', err)
-                        }
-                      }}
-                      className="absolute right-1.5 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-xl bg-primary/10 text-primary transition active:scale-95"
-                    >
-                      <ClipboardPaste className="size-4" />
-                    </button>
-                  </div>
-                  {txError ? (
-                    <p className="mt-1 text-[11px] text-destructive">{txError}</p>
-                  ) : (
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      {method === 'usdt'
-                        ? t('pay.hintHash')
-                        : `${t('pay.hintKbz')} ${txId.trim().length}/6 ${t('pay.entered')}`}
-                    </p>
-                  )}
-                </label>
-
-
-                {error && <p className="text-[11px] text-destructive">{error}</p>}
-
-                <button
-                  type="button"
-                  disabled={!canSubmit}
-                  onClick={handleSubmit}
-                  className="premium-shine mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white shadow-lg transition active:scale-[0.98] disabled:opacity-50"
-                >
-                  {submitting ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
-                  {t('pay.submit')}
-                </button>
-                <p className="text-center text-[11px] text-muted-foreground">
-                  {t('pay.verifyNote')}
-                </p>
-              </div>
-            )}
           </div>
-
         )}
+
+        {error && <p className="mt-3 text-center text-[12px] text-destructive">{error}</p>}
+
+        <p className="mt-6 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {isPro ? 'Your benefits' : 'What you get'}
+        </p>
+        <ul className="mt-2 space-y-2">
+          {BENEFITS.map((b) => (
+            <li key={b} className="flex items-start gap-2 text-[13px] text-muted-foreground">
+              <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+              {b}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>,
     document.body,
