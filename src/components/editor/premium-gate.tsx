@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Droplets, Image as ImageIcon, Scissors, Type as TypeIcon, Undo2, X } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
-import { FONTS, type TextLayer } from '@/lib/text-layer'
-import { isProCustomFontKey } from '@/lib/custom-fonts'
-import { listInstalledRemoteFonts, remoteFontNameFromKey } from '@/lib/remote-fonts'
+import type { TextLayer } from '@/lib/text-layer'
 import { PaymentPage } from './payment-page'
 
 /** All fonts are free — no font ever gates an export. */
