@@ -3,7 +3,6 @@ import { Check, Download, Loader2, RefreshCw, Trash2, Upload, X } from 'lucide-r
 import { cn } from '@/lib/utils'
 import { fontSampleText } from '@/lib/font-preview'
 import { BUNDLED_FONTS, BUNDLED_FREE_FONTS } from '@/lib/local-fonts'
-import { useAuth } from '@/components/auth-provider'
 import { PaymentPage } from './payment-page'
 import { GoogleFontsPanel } from './google-fonts-panel'
 import {
