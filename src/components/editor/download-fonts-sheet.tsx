@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Check, Crown, Download, Loader2, Play, RefreshCw, Trash2, Upload, X } from 'lucide-react'
+import { Check, Download, Loader2, RefreshCw, Trash2, Upload, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { fontSampleText } from '@/lib/font-preview'
 import { BUNDLED_FONTS, BUNDLED_FREE_FONTS } from '@/lib/local-fonts'
@@ -26,7 +26,6 @@ import {
   fetchFontTiers,
   fetchFreeFonts,
   fetchRemoteFonts,
-  fontTier,
   installRemoteFont,
   isRemoteFontInstalled,
   isRemoteFontReady,
@@ -63,7 +62,6 @@ export function DownloadFontsSheet({
   const [limit, setLimit] = useState(20)
   const [revealed, setRevealed] = useState(0)
   const [previewing, setPreviewing] = useState(false)
-  const { isPro } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => subscribeRemoteFonts(() => force((n) => n + 1)), [])
@@ -364,7 +362,6 @@ export function DownloadFontsSheet({
           {shown.map((f) => {
             const has = isRemoteFontInstalled(f.name)
             const ready = isRemoteFontReady(f.name)
-            const locked = false
             return (
               <div
                 key={f.file}
@@ -412,14 +409,9 @@ export function DownloadFontsSheet({
                       type="button"
                       aria-label={`Download ${f.name}`}
                       onClick={() => void download(f)}
-                      className={cn(
-                        'flex size-7 items-center justify-center rounded-full active:scale-90',
-                        locked
-                          ? 'bg-amber-500/15 text-amber-500'
-                          : 'bg-emerald-500/15 text-emerald-500',
-                      )}
+                      className="flex size-7 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500 active:scale-90"
                     >
-                      {locked ? <Crown className="size-3.5" /> : <Download className="size-3.5" />}
+                      <Download className="size-3.5" />
                     </button>
                   </div>
                 )}
