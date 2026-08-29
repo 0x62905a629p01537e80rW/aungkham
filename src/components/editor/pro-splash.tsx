@@ -48,23 +48,20 @@ export function ProSplash() {
   const [pay, setPay] = useState(false)
   const [restoring, setRestoring] = useState(false)
   const [askLogin, setAskLogin] = useState(false)
-  const { isPro, signIn, user } = useAuth()
+  const { isPro, restore, available } = useAuth()
   const pricing = usePricing(open)
   const TILES = useFloatingTemplates(OFFLINE_TILES).slice(0, 12)
 
   async function handleRestore() {
     setRestoring(true)
     try {
-      await Promise.race([
-        signIn(),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Sign-in timed out. Check your connection.')), 45000),
-        ),
-      ])
+      const ok = await restore()
+      if (ok) toast.success('Pro restored.')
+      else toast.info('No previous purchase found on this Google account.')
       setAskLogin(false)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Sign-in failed'
-      if (!/cancel|closed|popup/i.test(msg)) toast.error(msg)
+      const msg = err instanceof Error ? err.message : 'Restore failed'
+      if (!/cancel/i.test(msg)) toast.error(msg)
     } finally {
       setRestoring(false)
     }
@@ -107,7 +104,7 @@ export function ProSplash() {
         </button>
         <button
           type="button"
-          onClick={() => (user ? void handleRestore() : setAskLogin(true))}
+          onClick={() => (available ? void handleRestore() : setAskLogin(true))}
           className="text-[11px] font-semibold tracking-[0.14em] text-white/70 transition active:scale-95"
         >
           RESTORE
@@ -182,7 +179,9 @@ export function ProSplash() {
               )}
             </p>
           ) : pricing.loaded ? (
-            <p className="text-xs font-semibold text-white/60">Price unavailable — try again later</p>
+            <p className="text-xs font-semibold text-white/60">
+              {available ? 'Price unavailable — try again later' : 'Available in the Android app'}
+            </p>
           ) : (
             <span className="flex items-center gap-2 py-1 text-white/50">
               <Loader2 className="size-4 animate-spin" />
@@ -216,9 +215,10 @@ export function ProSplash() {
             <div className="mx-auto grid size-10 place-items-center rounded-full bg-[#22c3f0]/20">
               <LogIn className="size-5 text-[#7fdcff]" />
             </div>
-            <h3 className="mt-3 text-sm font-bold">Sign in to restore</h3>
+            <h3 className="mt-3 text-sm font-bold">Restore purchase</h3>
             <p className="mt-1 text-[11px] leading-relaxed text-white/60">
-              Log in with the account you used to purchase Pro to restore your purchase.
+              Pro is restored from the Google account you bought it with. Open the app on your
+              Android phone with that account signed in to Google Play.
             </p>
             <button
               type="button"
@@ -227,7 +227,7 @@ export function ProSplash() {
               className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[#22c3f0] text-[#04121a] text-xs font-bold transition active:scale-[0.98] disabled:opacity-60"
             >
               {restoring && <Loader2 className="size-3.5 animate-spin" />}
-              Log in with Google
+              Try restore again
             </button>
             <button
               type="button"

@@ -114,7 +114,24 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
   const [pay, setPay] = useState(false)
   const [restore, setRestore] = useState(false)
   const { t, lang, setLang } = useI18n()
-  const { user, isPro, proPending, proExpiresAt, proSince, signIn, signOutUser } = useAuth()
+  const { isPro, restore: restorePurchase, busy, available } = useAuth()
+  const [restoring, setRestoring] = useState(false)
+
+  async function handleRestore() {
+    setRestoring(true)
+    try {
+      const ok = await restorePurchase()
+      const { toast } = await import('sonner')
+      if (ok) toast.success('Pro restored.')
+      else toast.info('No previous purchase found on this Google account.')
+      setRestore(false)
+    } catch (err) {
+      const { toast } = await import('sonner')
+      toast.error(err instanceof Error ? err.message : 'Restore failed')
+    } finally {
+      setRestoring(false)
+    }
+  }
 
   return (
     <>
@@ -246,7 +263,7 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     </span>
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {user?.email ?? 'Pro active'}
+                    Purchased through Google Play
                   </p>
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <div className="rounded-2xl border border-border/50 bg-background/50 p-3">
@@ -259,16 +276,9 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                       <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
                         Expires
                       </p>
-                      <p className="mt-0.5 text-sm font-semibold">
-                        {fmtDate(proExpiresAt) ?? 'Lifetime'}
-                      </p>
+                      <p className="mt-0.5 text-sm font-semibold">Lifetime</p>
                     </div>
                   </div>
-                  {proSince && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Activated on {fmtDate(proSince)}
-                    </p>
-                  )}
                   <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
                     {PRO_BENEFITS.map((b) => (
                       <li key={b} className="flex items-start gap-2">
@@ -277,45 +287,6 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                       </li>
                     ))}
                   </ul>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void signOutUser()
-                    }}
-                    className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-border/60 text-sm font-semibold transition active:scale-[0.98]"
-                  >
-                    <LogOut className="size-4" />
-                    {t('settings.logout')}
-                  </button>
-                </div>
-              ) : proPending ? (
-                <div className="relative mt-2 overflow-hidden rounded-3xl border border-border/50 bg-muted/40 p-5">
-                  <p className="flex items-center gap-2 text-xl font-semibold">
-                    Myan
-                    <span className="rounded-md bg-amber-500 px-2 py-0.5 text-[11px] font-bold text-white">
-                      Pending
-                    </span>
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">{user?.email}</p>
-                  <div className="mt-3 rounded-2xl border border-border/50 bg-background/50 p-3">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                      Status
-                    </p>
-                    <p className="mt-0.5 text-sm font-semibold">Pending verification</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      We're checking your payment. Pro unlocks automatically once approved.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void signOutUser()
-                    }}
-                    className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-border/60 text-sm font-semibold transition active:scale-[0.98]"
-                  >
-                    <LogOut className="size-4" />
-                    {t('settings.logout')}
-                  </button>
                 </div>
               ) : (
                 <div className="relative mt-2 overflow-hidden rounded-3xl border border-border/50 bg-muted/40 p-5">
@@ -350,18 +321,6 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     <Crown className="size-5" />
                     Get Pro Features
                   </button>
-                  {user && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void signOutUser()
-                      }}
-                      className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl border border-border/60 text-sm font-semibold transition active:scale-[0.98]"
-                    >
-                      <LogOut className="size-4" />
-                      {t('settings.logout')}
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -377,33 +336,26 @@ export function SettingsSheet({ onBuyPro }: { onBuyPro?: () => void }) {
                     <div className="glass-panel relative w-full max-w-sm rounded-3xl p-6 text-center">
                       <p className="text-lg font-bold">Restore Pro</p>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        {user
-                          ? 'This is a free account. We found no purchase history for ' +
-                            (user.email ?? 'this account') +
-                            '. If you paid with another account, sign out and log in with it.'
-                          : 'To restore your Pro purchase, you need to log in with the account you used to buy it.'}
+                        {available
+                          ? 'We will ask Google Play for purchases made with the Google account signed in on this device.'
+                          : 'Pro is sold through Google Play. Open Myan Add Text on your Android phone to buy or restore it.'}
                       </p>
                       <button
                         type="button"
                         onClick={() => {
-                          if (user) {
+                          if (!available) {
                             setRestore(false)
                             setOpen(false)
                             if (onBuyPro) onBuyPro()
                             else setPay(true)
                             return
                           }
-                          void signIn()
-                            .then(() => setRestore(false))
-                            .catch((err) => {
-                              const msg = err instanceof Error ? err.message : 'Sign-in failed'
-                              if (!/cancel|closed|popup/i.test(msg))
-                                void import('sonner').then((m) => m.toast.error(msg))
-                            })
+                          void handleRestore()
                         }}
-                        className="premium-glass mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-base font-bold transition active:scale-[0.98]"
+                        disabled={restoring || busy}
+                        className="premium-glass mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-base font-bold transition active:scale-[0.98] disabled:opacity-60"
                       >
-                        {user ? 'Buy now' : 'Login'}
+                        {available ? (restoring ? 'Restoring…' : 'Restore purchase') : 'Buy now'}
                       </button>
                       <button
                         type="button"

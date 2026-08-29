@@ -50,7 +50,11 @@ function formatDate(d: Date) {
 export function PremiumBadge() {
   const [open, setOpen] = useState(false)
   const [pay, setPay] = useState(false)
-  const { isPro, proPending, proExpiresAt, proSince } = useAuth()
+  const { isPro } = useAuth()
+  // Play Billing is instant — there is no pending/expiry state any more.
+  const proPending = false
+  const proExpiresAt: Date | null = null
+  const proSince: Date | null = null
   const pricing = usePricing(open)
 
   return (

@@ -47,50 +47,33 @@ npm run vendor:fonts -- --force
 npm run vendor:assets -- --force https://aungkham.lovable.app
 ```
 
-## Firebase native login
+## In-app purchase (Google Play Billing)
 
-Google sign-in uses `@capacitor-firebase/authentication` on device (native
-account picker) and falls back to the popup flow on the web — see
-`src/components/auth-provider.tsx`.
+Pro is a **one-time (non-consumable) product** sold through Google Play using
+`cordova-plugin-purchase`. There are no user accounts — the entitlement belongs
+to the buyer's Google account and is restored via **Restore purchase**.
 
-Required native config:
+Setup in the Play Console:
 
-1. In the Firebase console (`myan-photo-editor`) add an **Android app** with
-   applicationId `com.nextlevelcreator.burmesetalk` and your debug + release SHA-1/SHA-256
-   fingerprints, then download `google-services.json` into
-   `android/app/google-services.json`. The **SHA-1 that Gradle uses must be
-   registered** — run `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android` for debug, and match the release keystore. If the SHA-1 isn't there, Google sign-in silently fails / hangs.
-2. For iOS add an **iOS app** with bundle id `com.nextlevelcreator.burmesetalk` and put
-   `GoogleService-Info.plist` into `ios/App/App/`.
-3. Android — in `android/variables.gradle` make sure
-   `firebaseAuthenticationVersion` exists (the plugin adds it), and in
-   `android/build.gradle` the `com.google.gms:google-services` classpath plus
-   `apply plugin: 'com.google.gms.google-services'` at the bottom of
-   `android/app/build.gradle`. `npx cap sync` normally does this for you.
-4. iOS — add the reversed client id from `GoogleService-Info.plist` as a URL
-   scheme in `ios/App/App/Info.plist`.
+1. Upload at least one build (internal testing is enough) for
+   `com.nextlevelcreator.burmesetalk`.
+2. **Monetize > Products > In-app products > Create product**.
+3. Product ID: `pro_lifetime` (must match `PRO_PRODUCT_ID` in
+   `src/lib/billing.ts` — change one or the other so they match), set a name,
+   description and price, then **Activate**.
+4. Add your test Google accounts under **Setup > License testing** so purchases
+   are free while testing.
 
-### If sign-in or restore is stuck on "loading…"
+Notes:
 
-- **Google sign-in hangs** → almost always the SHA-1 fingerprint for your
-  build keystore is not registered in the Firebase console Android app (or the
-  `google-services.json` doesn't match `com.nextlevelcreator.burmesetalk`).
-  Re-run step 1 and `npx cap sync` after adding it.
-- **Restore / pro stays loading after a successful login** → the Firestore
-  listener was being blocked by the WebView. The app now forces long-polling
-  on native (`src/lib/firebase.ts`). If it still hangs, it's a Firebase
-  **Firestore** rule or network-block issue, not the login itself — the user
-  doc `users/{uid}` must be readable.
-- **Gradle `ext` errors** (`firebaseAuthenticationVersion` missing, etc.) →
-  the plugin's version block was dropped. Run `npx cap update @capacitor-firebase/authentication`
-  then `npx cap sync` to regenerate `android/variables.gradle` and the
-  `google-services` plugin lines. If that fails, uninstall then reinstall the
-  plugin: `npm i @capacitor-firebase/authentication && npx cap sync`.
+- Billing only exists inside the Play-installed app. In the web preview Pro is
+  locked and the UI points users to the Android app.
+- The entitlement is cached locally, so Pro keeps working offline.
 
 ## Installed plugins
 
 App, Filesystem, Share, Camera, StatusBar, SplashScreen, Preferences, Haptics,
-Network, Browser, Keyboard, Firebase Authentication.
+Network, Browser, Keyboard, Purchase (Google Play Billing).
 Helpers live in `src/lib/native.ts` (`isNative`, `saveToDevice`, `shareFile`,
 `isOnline`, `tapHaptic`).
 

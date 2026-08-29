@@ -13,14 +13,4 @@ ext {
     androidxJunitVersion = '1.3.0'
     androidxEspressoCoreVersion = '3.7.0'
     cordovaAndroidVersion = '14.0.1'
-
-    // @capacitor-firebase/authentication — Google sign-in support.
-    // Without rgcfaIncludeGoogle = true the Google libs are compileOnly and
-    // signInWithGoogle() fails / hangs at runtime.
-    rgcfaIncludeGoogle = true
-    firebaseAuthVersion = '24.0.1'
-    playServicesAuthVersion = '21.3.0'
-    androidxCredentialsVersion = '1.3.0'
-    androidxCredentialsPlayServicesAuthVersion = '1.3.0'
-    librariesIdentityGoogleidVersion = '1.1.1'
 }
