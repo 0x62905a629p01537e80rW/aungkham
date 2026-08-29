@@ -186,21 +186,32 @@ export async function initBilling(): Promise<void> {
     await store.initialize([Platform.GOOGLE_PLAY])
     set({ ready: true, available: true })
     syncFromStore()
-    // Play can take a moment to report existing entitlements.
-    setTimeout(syncFromStore, 2500)
+    // Play can take a moment to report products & existing entitlements.
+    for (const delay of [1500, 4000, 8000]) setTimeout(syncFromStore, delay)
   } catch (err) {
     console.log('[billing init failed]', err)
     set({ ready: true, available: false, error: 'Could not connect to Google Play.' })
   }
 }
 
+function getProduct(): AnyRec | undefined {
+  const c = cdv()
+  if (!c) return undefined
+  // v13: store.get(id) — platform arg is optional/ignored; try both.
+  return (
+    (c.store.get(PRO_PRODUCT_ID, c.Platform.GOOGLE_PLAY) as AnyRec | undefined) ??
+    (c.store.get(PRO_PRODUCT_ID) as AnyRec | undefined)
+  )
+}
+
 function syncFromStore() {
   const c = cdv()
   if (!c) return
   try {
-    const product = c.store.get(PRO_PRODUCT_ID, c.Platform.GOOGLE_PLAY) as
+    const product = getProduct() as
       | (AnyRec & {
           owned?: boolean
+          canPurchase?: boolean
           pricing?: { price?: string }
           offers?: { pricingPhases?: { price?: string }[] }[]
         })
@@ -224,10 +235,15 @@ export async function purchasePro(): Promise<void> {
   }
   set({ busy: true, error: null })
   try {
-    const product = c.store.get(PRO_PRODUCT_ID, c.Platform.GOOGLE_PLAY) as
-      | (AnyRec & { getOffer?: () => { order: () => Promise<unknown> } | undefined })
-      | undefined
-    const offer = product?.getOffer?.()
+    // Offer can arrive a moment after init — retry briefly before failing.
+    let offer: { order: () => Promise<unknown> } | undefined
+    for (let i = 0; i < 5 && !offer; i++) {
+      const product = getProduct() as
+        | (AnyRec & { getOffer?: () => { order: () => Promise<unknown> } | undefined })
+        | undefined
+      offer = product?.getOffer?.()
+      if (!offer) await new Promise((r) => setTimeout(r, 1200))
+    }
     if (!offer) throw new Error('Pro is not available in the store right now. Try again later.')
     const res = (await offer.order()) as { message?: string } | undefined
     if (res?.message) throw new Error(res.message)
