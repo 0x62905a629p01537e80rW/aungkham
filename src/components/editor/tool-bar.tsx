@@ -683,8 +683,8 @@ type FontGroup =
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'english', label: 'English' },
   { key: 'mm-free', label: 'Myanmar' },
-  { key: 'mm-premium', label: 'Premium (MM)' },
-  { key: 'en-premium', label: 'Premium (Eng)' },
+  { key: 'mm-premium', label: 'Myanmar Extra' },
+  { key: 'en-premium', label: 'English Extra' },
   { key: 'google', label: 'Google Fonts' },
   { key: 'downloaded', label: 'Downloaded' },
   { key: 'favorites', label: 'Favorites' },
@@ -693,11 +693,11 @@ const FONT_GROUPS: { key: FontGroup; label: string }[] = [
 ]
 
 /** Which store tab a "Download more fonts" tap should land on. */
-const STORE_TAB_FOR_GROUP: Partial<Record<FontGroup, 'mm' | 'free' | 'en' | 'premium'>> = {
+const STORE_TAB_FOR_GROUP: Partial<Record<FontGroup, 'mm' | 'free' | 'en'>> = {
   english: 'en',
   'mm-free': 'free',
-  'mm-premium': 'premium',
-  'en-premium': 'premium',
+  'mm-premium': 'mm',
+  'en-premium': 'en',
   downloaded: 'mm',
   favorites: 'mm',
   recent: 'mm',
@@ -813,7 +813,7 @@ function FontPicker({
           : groupOf(current?.category ?? 'Sans'),
   )
   const [query, setQuery] = useState('')
-  const [storeTab, setStoreTab] = useState<'mm' | 'free' | 'en' | 'premium' | null>(null)
+  const [storeTab, setStoreTab] = useState<'mm' | 'free' | 'en' | null>(null)
 
   const [, force] = useState(0)
   const { isPro } = useAuth()
@@ -931,7 +931,7 @@ function FontPicker({
       <div className="-mx-1 flex gap-1.5 overflow-x-auto perf-scroll no-scrollbar px-1 pb-1 [scrollbar-width:none]">
 
         {FONT_GROUPS.map((g) => {
-          const premium = g.key === 'mm-premium' || g.key === 'en-premium'
+          const premium = false
           const on = group === g.key
           return (
             <button
@@ -1007,27 +1007,18 @@ function FontPicker({
           <button
             type="button"
             onClick={() => proFileRef.current?.click()}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#e0a93c]/60 bg-[#e0a93c]/10 py-3 text-xs font-semibold text-foreground transition active:scale-[0.99]"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/50 bg-primary/10 py-3 text-xs font-semibold text-foreground transition active:scale-[0.99]"
           >
-            <Crown className="size-4 text-[#e0a93c]" /> Upload font (.woff, .woff2)
-            <span className="rounded-full bg-[linear-gradient(120deg,#f7d774,#e0a93c_55%,#c98a2b)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#3a2a05]">
-              Pro
-            </span>
+            <Upload className="size-4" /> Upload font (.woff, .woff2)
           </button>
-          {!isPro && (
-            <p className="text-[10px] leading-snug text-muted-foreground">
-              .woff / .woff2 uploads are free to try — Pro is required to export with them.
-            </p>
-          )}
         </div>
       )}
 
-      {(group === 'mm-premium' || group === 'en-premium') && !isPro && (
-        <p className="shrink-0 flex items-center gap-1.5 rounded-xl border border-[#e0a93c]/40 bg-[#e0a93c]/10 px-3 py-2 text-[11px] font-medium text-foreground">
-          <Crown className="size-3.5 shrink-0 text-[#e0a93c]" />
-          Premium fonts are free to try — Pro is required to export with them.
-        </p>
-      )}
+      <p className="shrink-0 rounded-xl border border-border/60 bg-foreground/5 px-3 py-2 text-[10px] leading-snug text-muted-foreground">
+        <span className="font-semibold text-foreground">Font licensing notice:</span> all fonts are
+        free to use in this app. Some Burmese fonts are for personal use only — commercial use may
+        require purchasing a licence from the font owner.
+      </p>
 
 
       {group === 'google' && (

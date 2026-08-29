@@ -10,16 +10,16 @@ import type { RemoteFont } from './remote-fonts'
  */
 
 const premium: Omit<RemoteFont, 'url'>[] = [
-  { name: 'Aka03 Regular', file: 'Aka03-Regular.ttf', size: 146544, tier: 'premium', script: 'mm' },
-  { name: 'Aka05 Regular', file: 'Aka05-Regular.ttf', size: 76780, tier: 'premium', script: 'mm' },
-  { name: 'MasterpieceCTL', file: 'MasterpieceCTL.ttf', size: 45216, tier: 'premium', script: 'mm' },
-  { name: 'MasterpieceDaung', file: 'MasterpieceDaung.ttf', size: 38184, tier: 'premium', script: 'mm' },
-  { name: 'MasterpieceDaungRound', file: 'MasterpieceDaungRound.ttf', size: 44416, tier: 'premium', script: 'mm' },
-  { name: 'MasterpieceLakwel', file: 'MasterpieceLakwel.ttf', size: 77636, tier: 'premium', script: 'mm' },
-  { name: 'MasterpieceStadium', file: 'MasterpieceStadium.ttf', size: 45776, tier: 'premium', script: 'mm' },
-  { name: 'MasterpieceUniHand', file: 'MasterpieceUniHand.ttf', size: 51736, tier: 'premium', script: 'mm' },
-  { name: 'OneTypeChiangMai', file: 'OneTypeChiangMai.ttf', size: 103980, tier: 'premium', script: 'mm' },
-  { name: 'SM02 KanBaung Regular', file: 'SM02_KanBaung-Regular.ttf', size: 49016, tier: 'premium', script: 'mm' },
+  { name: 'Aka03 Regular', file: 'Aka03-Regular.ttf', size: 146544, tier: 'free', script: 'mm' },
+  { name: 'Aka05 Regular', file: 'Aka05-Regular.ttf', size: 76780, tier: 'free', script: 'mm' },
+  { name: 'MasterpieceCTL', file: 'MasterpieceCTL.ttf', size: 45216, tier: 'free', script: 'mm' },
+  { name: 'MasterpieceDaung', file: 'MasterpieceDaung.ttf', size: 38184, tier: 'free', script: 'mm' },
+  { name: 'MasterpieceDaungRound', file: 'MasterpieceDaungRound.ttf', size: 44416, tier: 'free', script: 'mm' },
+  { name: 'MasterpieceLakwel', file: 'MasterpieceLakwel.ttf', size: 77636, tier: 'free', script: 'mm' },
+  { name: 'MasterpieceStadium', file: 'MasterpieceStadium.ttf', size: 45776, tier: 'free', script: 'mm' },
+  { name: 'MasterpieceUniHand', file: 'MasterpieceUniHand.ttf', size: 51736, tier: 'free', script: 'mm' },
+  { name: 'OneTypeChiangMai', file: 'OneTypeChiangMai.ttf', size: 103980, tier: 'free', script: 'mm' },
+  { name: 'SM02 KanBaung Regular', file: 'SM02_KanBaung-Regular.ttf', size: 49016, tier: 'free', script: 'mm' },
 ]
 
 const free: Omit<RemoteFont, 'url'>[] = [
