@@ -49,10 +49,11 @@ export async function fetchFontTiers(force = false): Promise<Record<string, Font
         premium?: string[]
         free?: string[]
       }
+      // All fonts are free in this app — check.json's "premium" list is
+      // still read so names resolve, but every entry is treated as free.
       const premium = json.fonts?.premium ?? json.premium ?? []
       const free = json.fonts?.free ?? json.free ?? []
-      for (const f of free) map[tierKey(f)] = 'free'
-      for (const f of premium) map[tierKey(f)] = 'premium'
+      for (const f of [...free, ...premium]) map[tierKey(f)] = 'free'
     }
   } catch {
     /* offline — treat everything as free */
