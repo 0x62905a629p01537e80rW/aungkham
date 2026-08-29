@@ -6,14 +6,9 @@ import { isProCustomFontKey } from '@/lib/custom-fonts'
 import { listInstalledRemoteFonts, remoteFontNameFromKey } from '@/lib/remote-fonts'
 import { PaymentPage } from './payment-page'
 
-const PREMIUM_KEYS = new Set(FONTS.filter((f) => f.category === 'Myanmar Pro' || f.category === 'English Pro').map((f) => f.key))
-
-function isPremiumFontKey(key: string) {
-  const remote = remoteFontNameFromKey(key)
-  if (remote) {
-    return listInstalledRemoteFonts().some((f) => f.name === remote && f.tier === 'premium')
-  }
-  return PREMIUM_KEYS.has(key) || isProCustomFontKey(key)
+/** All fonts are free — no font ever gates an export. */
+function isPremiumFontKey(_key: string) {
+  return false
 }
 
 export function usesPremiumFont(layers: TextLayer[]) {
