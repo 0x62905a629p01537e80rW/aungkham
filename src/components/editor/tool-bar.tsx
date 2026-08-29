@@ -683,8 +683,8 @@ type FontGroup =
 const FONT_GROUPS: { key: FontGroup; label: string }[] = [
   { key: 'english', label: 'English' },
   { key: 'mm-free', label: 'Myanmar' },
-  { key: 'mm-premium', label: 'Premium (MM)' },
-  { key: 'en-premium', label: 'Premium (Eng)' },
+  { key: 'mm-premium', label: 'Myanmar Extra' },
+  { key: 'en-premium', label: 'English Extra' },
   { key: 'google', label: 'Google Fonts' },
   { key: 'downloaded', label: 'Downloaded' },
   { key: 'favorites', label: 'Favorites' },
@@ -693,11 +693,11 @@ const FONT_GROUPS: { key: FontGroup; label: string }[] = [
 ]
 
 /** Which store tab a "Download more fonts" tap should land on. */
-const STORE_TAB_FOR_GROUP: Partial<Record<FontGroup, 'mm' | 'free' | 'en' | 'premium'>> = {
+const STORE_TAB_FOR_GROUP: Partial<Record<FontGroup, 'mm' | 'free' | 'en'>> = {
   english: 'en',
   'mm-free': 'free',
-  'mm-premium': 'premium',
-  'en-premium': 'premium',
+  'mm-premium': 'mm',
+  'en-premium': 'en',
   downloaded: 'mm',
   favorites: 'mm',
   recent: 'mm',
@@ -813,7 +813,7 @@ function FontPicker({
           : groupOf(current?.category ?? 'Sans'),
   )
   const [query, setQuery] = useState('')
-  const [storeTab, setStoreTab] = useState<'mm' | 'free' | 'en' | 'premium' | null>(null)
+  const [storeTab, setStoreTab] = useState<'mm' | 'free' | 'en' | null>(null)
 
   const [, force] = useState(0)
   const { isPro } = useAuth()
